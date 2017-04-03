@@ -1,0 +1,33 @@
+{
+  "name": "fastify-swagger",
+  "version": "0.1.0",
+  "description": "Generate Swagger files automatically for Fastify.",
+  "main": "index.js",
+  "scripts": {
+    "test": "standard && tap test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fastify/fastify-swagger.git"
+  },
+  "keywords": [
+    "fastify",
+    "swagger"
+  ],
+  "author": "Tomas Della Vedova - @delvedor (http://delved.org)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/fastify/fastify-swagger/issues"
+  },
+  "homepage": "https://github.com/fastify/fastify-swagger#readme",
+  "devDependencies": {
+    "fastify": "^0.14.0",
+    "standard": "^9.0.2",
+    "swagger-parser": "^3.4.1",
+    "tap": "^10.3.1"
+  },
+  "dependencies": {
+    "fastify-plugin": "^0.1.0",
+    "js-yaml": "^3.8.2"
+  }
+}
