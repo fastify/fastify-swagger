@@ -27,6 +27,7 @@
     "tap": "^10.3.1"
   },
   "dependencies": {
+    "fast-safe-stringify": "^1.1.13",
     "fastify-plugin": "^0.1.0",
     "js-yaml": "^3.8.2"
   }

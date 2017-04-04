@@ -4,6 +4,7 @@ const fp = require('fastify-plugin')
 const yaml = require('js-yaml')
 const fs = require('fs')
 const path = require('path')
+const safeStringify = require('fast-safe-stringify')
 
 function fastifySwagger (fastify, opts, next) {
   fastify.decorate('swagger', swagger)
@@ -13,8 +14,15 @@ function fastifySwagger (fastify, opts, next) {
   const schemes = opts.swagger ? opts.swagger.schemes || [] : []
   const produces = opts.swagger ? opts.swagger.produces || [] : []
   const filename = opts.filename || 'swagger'
+  const noop = (err) => { if (err) throw err }
 
-  function swagger (opts) {
+  function swagger (opts, callback) {
+    if (typeof opts === 'function') {
+      callback = opts
+      opts = {}
+    }
+    callback = callback || noop
+
     const swaggerObject = {}
 
     swaggerObject.swagger = '2.0'
@@ -80,9 +88,7 @@ function fastifySwagger (fastify, opts, next) {
       }
 
       if (opts.json) {
-        fs.writeFile(path.join(process.cwd(), `${filename}.json`), 'utf8', err => {
-          if (err) throw err
-        })
+        fs.writeFile(path.join(process.cwd(), `${filename}.json`), safeStringify(swaggerObject), 'utf8', callback)
         return
       }
     }
@@ -93,9 +99,7 @@ function fastifySwagger (fastify, opts, next) {
       return swaggerString
     }
 
-    fs.writeFile(path.join(process.cwd(), `${filename}.yaml`), 'utf8', err => {
-      if (err) throw err
-    })
+    fs.writeFile(path.join(process.cwd(), `${filename}.yaml`), swaggerString, 'utf8', callback)
   }
 
   next()
@@ -159,6 +163,10 @@ function genResponse (schema) {
   return response
 }
 
+// The swagger standard does not accept the url param with ':'
+// so '/user/:id' is not valid.
+// This function converts the url in a swagger compliant url string
+// => '/user/{id}'
 function formatParamUrl (url) {
   var start = url.indexOf('/:')
   if (start === -1) return url
