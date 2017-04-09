@@ -9,10 +9,16 @@ const safeStringify = require('fast-safe-stringify')
 function fastifySwagger (fastify, opts, next) {
   fastify.decorate('swagger', swagger)
 
-  const info = opts.swagger ? opts.swagger.info || null : null
-  const host = opts.swagger ? opts.swagger.host || null : null
-  const schemes = opts.swagger ? opts.swagger.schemes || [] : []
-  const produces = opts.swagger ? opts.swagger.produces || [] : []
+  opts = opts || {}
+  opts.swagger = opts.swagger || {}
+
+  const info = opts.swagger.info || null
+  const host = opts.swagger.host || null
+  const schemes = opts.swagger.schemes || null
+  const consumes = opts.swagger.consumes || null
+  const produces = opts.swagger.produces || null
+  const basePath = opts.swagger.basePath || null
+
   const filename = opts.filename || 'swagger'
   const noop = (err) => { if (err) throw err }
 
@@ -25,61 +31,77 @@ function fastifySwagger (fastify, opts, next) {
 
     const swaggerObject = {}
 
+    // Base swagger info
+    // this info is displayed in the swagger file
+    // in the same order as here
     swaggerObject.swagger = '2.0'
-    swaggerObject.info = info
-    swaggerObject.host = host
-    swaggerObject.schemes = schemes
-    swaggerObject.produces = produces
+    if (info) {
+      swaggerObject.info = info
+    } else {
+      swaggerObject.info = {
+        version: '1.0.0',
+        title: require(path.join(__dirname, 'package.json')).name || ''
+      }
+    }
+    if (host) swaggerObject.host = host
+    if (schemes) swaggerObject.schemes = schemes
+    if (basePath) swaggerObject.basePath = basePath
+    if (consumes) swaggerObject.consumes = consumes
+    if (produces) swaggerObject.produces = produces
+
     swaggerObject.paths = {}
 
     for (var node of fastify) {
-      const routeName = formatParamUrl(Object.keys(node)[0])
-      const routeObject = node[Object.keys(node)[0]]
+      // The node path name
+      const url = formatParamUrl(Object.keys(node)[0])
+      // object with all the methods of the node
+      const routes = node[Object.keys(node)[0]]
       const swaggerRoute = {}
-      swaggerRoute[routeName] = {}
+      swaggerRoute[url] = {}
 
-      Object.keys(routeObject).forEach(key => {
-        const route = routeObject[key]
-        const method = route.method.toLowerCase()
-        swaggerRoute[routeName][method] = {}
+      // let's iterate over the methods
+      Object.keys(routes).forEach(method => {
+        const route = routes[method]
+        swaggerRoute[url][method] = {}
 
         const parameters = []
 
-        // querystring
-        if (route.schema && route.schema.querystring) {
-          getQueryParams(parameters, route.schema.querystring)
+        // All the data the user can give us, is via the schema object
+        if (route.schema) {
+          // the resulting schema will be in this order
+          if (route.schema.summary) {
+            swaggerRoute[url][method].summary = route.schema.summary
+          }
+
+          if (route.schema.description) {
+            swaggerRoute[url][method].description = route.schema.description
+          }
+
+          if (route.schema.tags) {
+            swaggerRoute[url][method].tags = route.schema.tags
+          }
+
+          if (route.schema.querystring) {
+            getQueryParams(parameters, route.schema.querystring)
+          }
+
+          if (route.schema.payload) {
+            getPayloadParams(parameters, route.schema.payload)
+          }
+
+          if (route.schema.params) {
+            getPathParams(parameters, route.schema.params)
+          }
+
+          if (parameters.length) {
+            swaggerRoute[url][method].parameters = parameters
+          }
         }
 
-        // payload
-        if (route.schema && route.schema.payload) {
-          getPayloadParams(parameters, route.schema.payload)
-        }
-
-        // params
-        if (route.schema && route.schema.params) {
-          getPathParams(parameters, route.schema.params)
-        }
-
-        if (route.summary) {
-          swaggerRoute[routeName][method].summary = route.summary
-        }
-
-        if (route.description) {
-          swaggerRoute[routeName][method].description = route.description
-        }
-
-        if (route.tags) {
-          swaggerRoute[routeName][method].tags = route.tags
-        }
-
-        if (parameters.length) {
-          swaggerRoute[routeName][method].parameters = parameters
-        }
-
-        swaggerRoute[routeName][method].responses = genResponse(route.schema)
+        swaggerRoute[url][method].responses = genResponse(route.schema)
       })
 
-      swaggerObject.paths[routeName] = swaggerRoute[routeName]
+      swaggerObject.paths[url] = swaggerRoute[url]
     }
 
     if (opts) {
@@ -146,7 +168,8 @@ function getPathParams (parameters, params) {
 }
 
 function genResponse (schema) {
-  if (!schema.out) {
+  // if the user does not provided an out schema
+  if (!schema.out && !schema.response) {
     return {
       200: {
         description: 'Default Response'
@@ -154,13 +177,23 @@ function genResponse (schema) {
     }
   }
 
-  const response = {}
-  response[schema.out.code || 200] = {
-    description: schema.out.description || 'Out response',
-    schema: schema.out
+  if (schema.out) {
+    const response = {}
+    response[schema.out.code || 200] = {
+      description: schema.out.description || 'Out response',
+      schema: schema.out
+    }
+    // we remove the code and description key from the out schema,
+    // otherwise it will be wrote two time.
+    if (schema.out.code) delete schema.out.code
+    if (schema.out.description) delete schema.out.description
+
+    return response
   }
 
-  return response
+  if (schema.response) {
+    return schema.response
+  }
 }
 
 // The swagger standard does not accept the url param with ':'
