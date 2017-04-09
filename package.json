@@ -21,14 +21,14 @@
   },
   "homepage": "https://github.com/fastify/fastify-swagger#readme",
   "devDependencies": {
-    "fastify": "^0.14.0",
-    "standard": "^9.0.2",
+    "fastify": "^0.15.0",
+    "standard": "^10.0.1",
     "swagger-parser": "^3.4.1",
-    "tap": "^10.3.1"
+    "tap": "^10.3.2"
   },
   "dependencies": {
     "fast-safe-stringify": "^1.1.13",
     "fastify-plugin": "^0.1.0",
-    "js-yaml": "^3.8.2"
+    "js-yaml": "^3.8.3"
   }
 }
