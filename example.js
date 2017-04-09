@@ -3,29 +3,23 @@
 const fastify = require('fastify')()
 
 fastify.register(require('./index'), {
-  info: {
-    title: 'Test swagger',
-    description: 'testing the fastify swagger api',
-    version: '0.1.0'
-  },
-  host: 'localhost',
-  schemes: ['http']
+  swagger: {
+    info: {
+      title: 'Test swagger',
+      description: 'testing the fastify swagger api',
+      version: '0.1.0'
+    },
+    host: 'localhost',
+    schemes: ['http'],
+    consumes: ['application/json'],
+    produces: ['application/json']
+  }
 })
 
-const schema = {
-  out: {
-    type: 'object',
-    properties: {
-      hello: { type: 'string' }
-    }
-  },
-  querystring: {
-    hello: { type: 'string' },
-    world: { type: 'string' }
-  }
-}
-
-const otherSchema = {
+fastify.post('/some-route', {
+  description: 'post some data',
+  tags: ['user', 'code'],
+  summary: 'qwerty',
   payload: {
     type: 'object',
     properties: {
@@ -37,28 +31,18 @@ const otherSchema = {
         }
       }
     }
-  }
-}
-
-const params = {
-  params: {
+  },
+  out: {
+    description: 'Succesful response',
+    code: 201,
     type: 'object',
     properties: {
-      id: {
-        type: 'string',
-        description: 'user id'
-      }
+      hello: { type: 'string' }
     }
   }
-}
-
-fastify.get('/', () => {})
-fastify.post('/', () => {})
-fastify.get('/example', schema, () => {})
-fastify.post('/example', otherSchema, () => {})
-fastify.get('/parameters/:id', params, () => {})
+}, (req, reply) => {})
 
 fastify.ready(err => {
   if (err) throw err
-  fastify.swagger()
+  console.log(fastify.swagger({ return: true }))
 })

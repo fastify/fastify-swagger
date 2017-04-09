@@ -60,7 +60,8 @@ test('fastify.swagger should return a valid swagger file', t => {
             some: { type: 'string' }
           }
         }
-      }
+      },
+      required: ['hello']
     }
   }
 
