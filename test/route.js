@@ -68,20 +68,8 @@ const opts3 = {
   }
 }
 
-test('fastify.swagger should exist', t => {
-  t.plan(2)
-  const fastify = Fastify()
-
-  fastify.register(fastifySwagger)
-
-  fastify.ready(err => {
-    t.error(err)
-    t.ok(fastify.swagger)
-  })
-})
-
-test('fastify.swagger should return a valid swagger object', t => {
-  t.plan(3)
+test('/documentation route, json response', t => {
+  t.plan(1)
   const fastify = Fastify()
 
   fastify.register(fastifySwagger, swaggerInfo)
@@ -92,13 +80,13 @@ test('fastify.swagger should return a valid swagger object', t => {
   fastify.post('/example', opts2, () => {})
   fastify.get('/parameters/:id', opts3, () => {})
 
-  fastify.ready(err => {
-    t.error(err)
+  fastify.inject({
+    method: 'GET',
+    url: '/documentation'
+  }, res => {
+    var payload = JSON.parse(res.payload)
 
-    const swaggerObject = fastify.swagger()
-    t.is(typeof swaggerObject, 'object')
-
-    Swagger.validate(swaggerObject)
+    Swagger.validate(payload)
       .then(function (api) {
         t.pass('valid swagger object')
       })
@@ -120,55 +108,17 @@ test('fastify.swagger should return a valid swagger yaml', t => {
   fastify.post('/example', opts2, () => {})
   fastify.get('/parameters/:id', opts3, () => {})
 
-  fastify.ready(err => {
-    t.error(err)
-
-    const swaggerYaml = fastify.swagger({ yaml: true })
-    t.is(typeof swaggerYaml, 'string')
-
+  fastify.inject({
+    method: 'GET',
+    url: '/documentation?yaml=true'
+  }, res => {
+    t.is(typeof res.payload, 'string')
+    t.is(res.headers['content-type'], 'text/plain')
     try {
-      yaml.safeLoad(swaggerYaml)
+      yaml.safeLoad(res.payload)
       t.pass('valid swagger yaml')
     } catch (err) {
       t.fail(err)
     }
-  })
-})
-
-test('fastify.swagger basic properties', t => {
-  t.plan(6)
-  const fastify = Fastify()
-
-  fastify.register(fastifySwagger, swaggerInfo)
-
-  const opts = {
-    schema: {
-      body: {
-        type: 'object',
-        properties: {
-          hello: { type: 'string' },
-          obj: {
-            type: 'object',
-            properties: {
-              some: { type: 'string' }
-            }
-          }
-        }
-      }
-    }
-  }
-
-  fastify.get('/', opts, () => {})
-
-  fastify.ready(err => {
-    t.error(err)
-
-    const swaggerObject = fastify.swagger()
-
-    t.equal(swaggerObject.info, swaggerInfo.swagger.info)
-    t.equal(swaggerObject.host, swaggerInfo.swagger.host)
-    t.equal(swaggerObject.schemes, swaggerInfo.swagger.schemes)
-    t.ok(swaggerObject.paths)
-    t.ok(swaggerObject.paths['/'])
   })
 })
