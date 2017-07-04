@@ -2,9 +2,7 @@
 
 const fp = require('fastify-plugin')
 const yaml = require('js-yaml')
-const fs = require('fs')
 const path = require('path')
-const safeStringify = require('fast-safe-stringify')
 
 function fastifySwagger (fastify, opts, next) {
   fastify.decorate('swagger', swagger)
@@ -19,16 +17,38 @@ function fastifySwagger (fastify, opts, next) {
   const produces = opts.swagger.produces || null
   const basePath = opts.swagger.basePath || null
 
-  const filename = opts.filename || 'swagger'
-  const noop = (err) => { if (err) throw err }
+  const exposeRoute = !(opts.exposeRoute === false)
+  if (exposeRoute) {
+    fastify.get(opts.route || '/documentation', {
+      schema: {
+        description: 'Documentation route, if yaml is true the payload will be in yaml format',
+        querystring: {
+          type: 'object',
+          properties: {
+            yaml: { type: 'boolean' }
+          }
+        },
+        response: {
+          200: {
+            description: 'The swagger definition of the routes',
+            type: 'object',
+            properties: {
+              hello: { type: 'string' }
+            }
+          }
+        }
+      }
+    }, function (req, reply) {
+      if (req.query.yaml) {
+        return reply
+          .header('Content-Type', 'text/plain')
+          .send(fastify.swagger({ yaml: true }))
+      }
+      reply.send(fastify.swagger())
+    })
+  }
 
-  function swagger (opts, callback) {
-    if (typeof opts === 'function') {
-      callback = opts
-      opts = {}
-    }
-    callback = callback || noop
-
+  function swagger (opts) {
     const swaggerObject = {}
 
     // Base swagger info
@@ -65,32 +85,33 @@ function fastifySwagger (fastify, opts, next) {
         swaggerRoute[url][method] = {}
 
         const parameters = []
+        const schema = route.schema.schema
 
         // All the data the user can give us, is via the schema object
-        if (route.schema) {
+        if (schema) {
           // the resulting schema will be in this order
-          if (route.schema.summary) {
-            swaggerRoute[url][method].summary = route.schema.summary
+          if (schema.summary) {
+            swaggerRoute[url][method].summary = schema.summary
           }
 
-          if (route.schema.description) {
-            swaggerRoute[url][method].description = route.schema.description
+          if (schema.description) {
+            swaggerRoute[url][method].description = schema.description
           }
 
-          if (route.schema.tags) {
-            swaggerRoute[url][method].tags = route.schema.tags
+          if (schema.tags) {
+            swaggerRoute[url][method].tags = schema.tags
           }
 
-          if (route.schema.querystring) {
-            getQueryParams(parameters, route.schema.querystring)
+          if (schema.querystring) {
+            getQueryParams(parameters, schema.querystring)
           }
 
-          if (route.schema.payload) {
-            getPayloadParams(parameters, route.schema.payload)
+          if (schema.body) {
+            getBodyParams(parameters, schema.body)
           }
 
-          if (route.schema.params) {
-            getPathParams(parameters, route.schema.params)
+          if (schema.params) {
+            getPathParams(parameters, schema.params)
           }
 
           if (parameters.length) {
@@ -98,30 +119,20 @@ function fastifySwagger (fastify, opts, next) {
           }
         }
 
-        swaggerRoute[url][method].responses = genResponse(route.schema)
+        swaggerRoute[url][method].responses = genResponse(schema ? schema.response : null)
       })
 
       swaggerObject.paths[url] = swaggerRoute[url]
     }
 
     if (opts) {
-      if (opts.json && opts.return) {
-        return swaggerObject
-      }
-
-      if (opts.json) {
-        fs.writeFile(path.join(process.cwd(), `${filename}.json`), safeStringify(swaggerObject), 'utf8', callback)
-        return
+      if (opts.yaml) {
+        const swaggerString = yaml.safeDump(swaggerObject)
+        return swaggerString
       }
     }
 
-    const swaggerString = yaml.safeDump(swaggerObject)
-
-    if (opts && opts.return) {
-      return swaggerString
-    }
-
-    fs.writeFile(path.join(process.cwd(), `${filename}.yaml`), swaggerString, 'utf8', callback)
+    return swaggerObject
   }
 
   next()
@@ -142,11 +153,11 @@ function getQueryParams (parameters, query) {
   })
 }
 
-function getPayloadParams (parameters, payload) {
+function getBodyParams (parameters, body) {
   const param = {}
   param.name = 'body'
   param.in = 'body'
-  param.schema = payload
+  param.schema = body
   parameters.push(param)
 }
 
@@ -167,33 +178,30 @@ function getPathParams (parameters, params) {
   })
 }
 
-function genResponse (schema) {
+function genResponse (response) {
   // if the user does not provided an out schema
-  if (!schema.out && !schema.response) {
-    return {
-      200: {
-        description: 'Default Response'
+  if (!response) {
+    return { 200: { description: 'Default Response' } }
+  }
+
+  Object.keys(response).forEach(key => {
+    if (response[key].type) {
+      var rsp = response[key]
+      var description = response[key].description
+      var headers = response[key].headers
+      response[key] = {
+        schema: rsp
       }
+      response[key].description = description || 'Default Response'
+      if (headers) response[key].headers = headers
     }
-  }
 
-  if (schema.out) {
-    const response = {}
-    response[schema.out.code || 200] = {
-      description: schema.out.description || 'Out response',
-      schema: schema.out
+    if (!response[key].description) {
+      response[key].description = 'Default Response'
     }
-    // we remove the code and description key from the out schema,
-    // otherwise it will be wrote two time.
-    if (schema.out.code) delete schema.out.code
-    if (schema.out.description) delete schema.out.description
+  })
 
-    return response
-  }
-
-  if (schema.response) {
-    return schema.response
-  }
+  return response
 }
 
 // The swagger standard does not accept the url param with ':'

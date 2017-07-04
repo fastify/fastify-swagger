@@ -16,33 +16,45 @@ fastify.register(require('./index'), {
   }
 })
 
-fastify.post('/some-route', {
-  description: 'post some data',
-  tags: ['user', 'code'],
-  summary: 'qwerty',
-  payload: {
-    type: 'object',
-    properties: {
-      hello: { type: 'string' },
-      obj: {
-        type: 'object',
-        properties: {
-          some: { type: 'string' }
+fastify.post('/some-route/:id', {
+  schema: {
+    description: 'post some data',
+    tags: ['user', 'code'],
+    summary: 'qwerty',
+    params: {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'string',
+          description: 'user id'
         }
       }
-    }
-  },
-  out: {
-    description: 'Succesful response',
-    code: 201,
-    type: 'object',
-    properties: {
-      hello: { type: 'string' }
+    },
+    body: {
+      type: 'object',
+      properties: {
+        hello: { type: 'string' },
+        obj: {
+          type: 'object',
+          properties: {
+            some: { type: 'string' }
+          }
+        }
+      }
+    },
+    response: {
+      201: {
+        description: 'Succesful response',
+        type: 'object',
+        properties: {
+          hello: { type: 'string' }
+        }
+      }
     }
   }
 }, (req, reply) => {})
 
 fastify.ready(err => {
   if (err) throw err
-  console.log(fastify.swagger({ return: true }))
+  console.log(JSON.stringify(fastify.swagger(), null, 2))
 })
