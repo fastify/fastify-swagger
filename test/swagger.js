@@ -172,3 +172,37 @@ test('fastify.swagger basic properties', t => {
     t.ok(swaggerObject.paths['/'])
   })
 })
+
+test('hide support', t => {
+  t.plan(2)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, swaggerInfo)
+
+  const opts = {
+    schema: {
+      hide: true,
+      body: {
+        type: 'object',
+        properties: {
+          hello: { type: 'string' },
+          obj: {
+            type: 'object',
+            properties: {
+              some: { type: 'string' }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  fastify.get('/', opts, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+
+    const swaggerObject = fastify.swagger()
+    t.notOk(swaggerObject.paths['/'])
+  })
+})

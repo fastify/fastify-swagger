@@ -113,7 +113,7 @@ test('fastify.swagger should return a valid swagger yaml', t => {
     url: '/documentation?yaml=true'
   }, res => {
     t.is(typeof res.payload, 'string')
-    t.is(res.headers['content-type'], 'text/plain')
+    t.is(res.headers['content-type'], 'application/x-yaml')
     try {
       yaml.safeLoad(res.payload)
       t.pass('valid swagger yaml')
