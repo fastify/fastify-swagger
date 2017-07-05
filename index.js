@@ -30,25 +30,32 @@ function fastifySwagger (fastify, opts, next) {
         },
         response: {
           200: {
-            description: 'The swagger definition of the routes',
-            type: 'object',
-            properties: {
-              hello: { type: 'string' }
-            }
+            description: 'The swagger definition of the routes'
           }
         }
       }
     }, function (req, reply) {
       if (req.query.yaml) {
         return reply
-          .header('Content-Type', 'text/plain')
+          .header('Content-Type', 'application/x-yaml')
           .send(fastify.swagger({ yaml: true }))
       }
       reply.send(fastify.swagger())
     })
   }
 
+  const cache = {
+    swaggerObject: null,
+    swaggerString: null
+  }
+
   function swagger (opts) {
+    if (opts && opts.yaml) {
+      if (cache.swaggerString) return cache.swaggerString
+    } else {
+      if (cache.swaggerObject) return cache.swaggerObject
+    }
+
     const swaggerObject = {}
 
     // Base swagger info
@@ -80,12 +87,18 @@ function fastifySwagger (fastify, opts, next) {
       swaggerRoute[url] = {}
 
       // let's iterate over the methods
-      Object.keys(routes).forEach(method => {
+      const methods = Object.keys(routes)
+      for (var i = 0, len = methods.length; i < len; i++) {
+        const method = methods[i]
         const route = routes[method]
+        const schema = route.schema.schema
+        if (schema && schema.hide) {
+          if (len === 1) delete swaggerRoute[url]
+          continue
+        }
         swaggerRoute[url][method] = {}
 
         const parameters = []
-        const schema = route.schema.schema
 
         // All the data the user can give us, is via the schema object
         if (schema) {
@@ -120,18 +133,22 @@ function fastifySwagger (fastify, opts, next) {
         }
 
         swaggerRoute[url][method].responses = genResponse(schema ? schema.response : null)
-      })
+      }
 
-      swaggerObject.paths[url] = swaggerRoute[url]
+      if (swaggerRoute[url]) {
+        swaggerObject.paths[url] = swaggerRoute[url]
+      }
     }
 
     if (opts) {
       if (opts.yaml) {
         const swaggerString = yaml.safeDump(swaggerObject)
+        cache.swaggerString = swaggerString
         return swaggerString
       }
     }
 
+    cache.swaggerObject = swaggerObject
     return swaggerObject
   }
 
