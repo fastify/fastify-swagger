@@ -21,7 +21,8 @@
   },
   "homepage": "https://github.com/fastify/fastify-swagger#readme",
   "devDependencies": {
-    "fastify": "^0.23.0",
+    "fastify": "^0.27.0",
+    "shot": "^3.4.2",
     "standard": "^10.0.2",
     "swagger-parser": "^3.4.1",
     "tap": "^10.7.0"
