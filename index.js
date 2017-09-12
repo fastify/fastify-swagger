@@ -242,4 +242,4 @@ function formatParamUrl (url) {
   }
 }
 
-module.exports = fp(fastifySwagger, '>=0.14.0')
+module.exports = fp(fastifySwagger, '>=0.27.0')
