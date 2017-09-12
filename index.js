@@ -30,6 +30,9 @@ function fastifySwagger (fastify, opts, next) {
         },
         response: {
           200: {
+            type: 'object',
+            properties: {},
+            additionalProperties: true,
             description: 'The swagger definition of the routes'
           }
         }
@@ -91,7 +94,7 @@ function fastifySwagger (fastify, opts, next) {
       for (var i = 0, len = methods.length; i < len; i++) {
         const method = methods[i]
         const route = routes[method]
-        const schema = route.schema.schema
+        const schema = route.schema
         if (schema && schema.hide) {
           if (len === 1) delete swaggerRoute[url]
           continue
@@ -201,24 +204,25 @@ function genResponse (response) {
     return { 200: { description: 'Default Response' } }
   }
 
+  const ret = {}
   Object.keys(response).forEach(key => {
     if (response[key].type) {
       var rsp = response[key]
       var description = response[key].description
       var headers = response[key].headers
-      response[key] = {
+      ret[key] = {
         schema: rsp
       }
-      response[key].description = description || 'Default Response'
-      if (headers) response[key].headers = headers
+      ret[key].description = description || 'Default Response'
+      if (headers) ret[key].headers = headers
     }
 
     if (!response[key].description) {
-      response[key].description = 'Default Response'
+      ret[key].description = 'Default Response'
     }
   })
 
-  return response
+  return ret
 }
 
 // The swagger standard does not accept the url param with ':'
@@ -238,4 +242,4 @@ function formatParamUrl (url) {
   }
 }
 
-module.exports = fp(fastifySwagger, '>=0.14.0')
+module.exports = fp(fastifySwagger, '>=0.27.0')
