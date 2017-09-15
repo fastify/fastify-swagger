@@ -30,7 +30,9 @@ function fastifySwagger (fastify, opts, next) {
         },
         response: {
           200: {
-            description: 'The swagger definition of the routes'
+            description: 'The swagger definition of the routes',
+            type: 'object',
+            additionalProperties: true
           }
         }
       }
@@ -91,7 +93,8 @@ function fastifySwagger (fastify, opts, next) {
       for (var i = 0, len = methods.length; i < len; i++) {
         const method = methods[i]
         const route = routes[method]
-        const schema = route.schema.schema
+        const schema = route.schema
+
         if (schema && schema.hide) {
           if (len === 1) delete swaggerRoute[url]
           continue
@@ -200,6 +203,9 @@ function genResponse (response) {
   if (!response) {
     return { 200: { description: 'Default Response' } }
   }
+
+  // remove previous references
+  response = Object.assign({}, response)
 
   Object.keys(response).forEach(key => {
     if (response[key].type) {
