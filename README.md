@@ -4,11 +4,13 @@
 Swagger documentation generator for Fastify.  
 It uses the schemas you declare in your routes to generate a swagger compliant doc.
 
+<a name="install"></a>
 ## Install
 ```
 npm i fastify-swagger --save
 ```
 
+<a name="usage"></a>
 ## Usage
 Add it to your project with `register` and pass it some basic options, then call the `swagger` api and you are done!
 
@@ -31,27 +33,29 @@ fastify.register(require('fastify-swagger'), {
 })
 
 fastify.post('/some-route', {
-  description: 'post some data',
-  tags: ['user', 'code'],
-  summary: 'qwerty',
-  payload: {
-    type: 'object',
-    properties: {
-      hello: { type: 'string' },
-      obj: {
-        type: 'object',
-        properties: {
-          some: { type: 'string' }
+  schema: {
+    description: 'post some data',
+    tags: ['user', 'code'],
+    summary: 'qwerty',
+    payload: {
+      type: 'object',
+      properties: {
+        hello: { type: 'string' },
+        obj: {
+          type: 'object',
+          properties: {
+            some: { type: 'string' }
+          }
         }
       }
-    }
-  },
-  out: {
-    description: 'Succesful response',
-    code: 201,
-    type: 'object',
-    properties: {
-      hello: { type: 'string' }
+    },
+    out: {
+      description: 'Succesful response',
+      code: 201,
+      type: 'object',
+      properties: {
+        hello: { type: 'string' }
+      }
     }
   }
 }, (req, reply) => {})
@@ -82,10 +86,15 @@ fastify.ready(err => {
 ```
 *All the above parameters are optional.*
 
+<a name="options"></a>
 #### swagger options
-Call `swagger` will generate a *yaml* file in your current directory, if `{ return: true }` is passed as parameter, the file will not be generated, instead will be returned the swagger *yaml* string.
+Calling `fastify.swagger` will return to you a JSON object representing your api, if you pass `{ yaml: true }` to `fastify.swagger`, it will return you a yaml string.
 
-If you want to generate a *json* just pass `{ json: true }` as parameter, you can also pass `{ return: true }`.
+By default this plugin exposes a `/documentation` route, you can change the path by passing the option `{ route: String }` or `{ exposeRoute: false }` if you do not need it.
+
+<a name="hide"></a>
+#### Hide a route
+Sometimes you may need to hide a certain route from the documentation, just pass `{ hide: true }` to the schema object inside the route declaration.
 
 ## Acknowledgements
 
