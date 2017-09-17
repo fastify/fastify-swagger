@@ -143,12 +143,10 @@ function fastifySwagger (fastify, opts, next) {
       }
     }
 
-    if (opts) {
-      if (opts.yaml) {
-        const swaggerString = yaml.safeDump(swaggerObject)
-        cache.swaggerString = swaggerString
-        return swaggerString
-      }
+    if (opts && opts.yaml) {
+      const swaggerString = yaml.safeDump(swaggerObject)
+      cache.swaggerString = swaggerString
+      return swaggerString
     }
 
     cache.swaggerObject = swaggerObject
