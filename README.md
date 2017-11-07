@@ -14,7 +14,6 @@ npm i fastify-swagger --save
 ## Usage
 Add it to your project with `register` and pass it some basic options, then call the `swagger` api and you are done!
 
-*Note that currently only the generation of yaml/json files is supported, the swagger UI will not be generated.*
 ```js
 const fastify = require('fastify')()
 
@@ -80,8 +79,7 @@ fastify.ready(err => {
     schemes: [String],
     consumes: [String],
     produces: [String]
-  },
-  filename: String
+  }
 }
 ```
 *All the above parameters are optional.*
@@ -90,7 +88,13 @@ fastify.ready(err => {
 #### swagger options
 Calling `fastify.swagger` will return to you a JSON object representing your api, if you pass `{ yaml: true }` to `fastify.swagger`, it will return you a yaml string.
 
-By default this plugin exposes a `/documentation` route, you can change the path by passing the option `{ route: String }` or `{ exposeRoute: false }` if you do not need it.
+If you pass `{ exposeRoute: true }` the plugin will expose the documentation with the following apis:
+
+|  url  |  description   |
+|-------|----------------|
+|`'/documentation/json'` | the json object representing the api  |
+|`'/documentation/yaml'` | the yaml object representing the api  |
+|`'/documentation'` | the swagger ui  |
 
 <a name="hide"></a>
 #### Hide a route

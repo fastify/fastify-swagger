@@ -13,7 +13,8 @@ fastify.register(require('./index'), {
     schemes: ['http'],
     consumes: ['application/json'],
     produces: ['application/json']
-  }
+  },
+  exposeRoute: true
 })
 
 fastify.post('/some-route/:id', {
@@ -54,7 +55,7 @@ fastify.post('/some-route/:id', {
   }
 }, (req, reply) => {})
 
-fastify.ready(err => {
+fastify.listen(3000, err => {
   if (err) throw err
-  console.log(JSON.stringify(fastify.swagger(), null, 2))
+  console.log('listening')
 })
