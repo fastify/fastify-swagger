@@ -17,33 +17,8 @@ function fastifySwagger (fastify, opts, next) {
   const produces = opts.swagger.produces || null
   const basePath = opts.swagger.basePath || null
 
-  const exposeRoute = !(opts.exposeRoute === false)
-  if (exposeRoute) {
-    fastify.get(opts.route || '/documentation', {
-      schema: {
-        description: 'Documentation route, if yaml is true the payload will be in yaml format',
-        querystring: {
-          type: 'object',
-          properties: {
-            yaml: { type: 'boolean' }
-          }
-        },
-        response: {
-          200: {
-            description: 'The swagger definition of the routes',
-            type: 'object',
-            additionalProperties: true
-          }
-        }
-      }
-    }, function (req, reply) {
-      if (req.query.yaml) {
-        return reply
-          .header('Content-Type', 'application/x-yaml')
-          .send(fastify.swagger({ yaml: true }))
-      }
-      reply.send(fastify.swagger())
-    })
+  if (opts.exposeRoute === true) {
+    fastify.register(require('./routes'))
   }
 
   const cache = {
@@ -224,6 +199,15 @@ function genResponse (response) {
 
   return response
 }
+
+/* function loadSwaggerUI (fastify, opts, next) {
+  swaggerTools.initializeMiddleware(opts.swaggerDoc, onMiddleware)
+
+  function onMiddleware (middleware) {
+    fastify.use(middleware.swaggerUi())
+    next()
+  }
+} */
 
 // The swagger standard does not accept the url param with ':'
 // so '/user/:id' is not valid.
