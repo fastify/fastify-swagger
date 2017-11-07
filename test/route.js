@@ -16,7 +16,8 @@ const swaggerInfo = {
     },
     host: 'localhost',
     schemes: ['http']
-  }
+  },
+  exposeRoute: true
 }
 
 const opts1 = {
@@ -68,7 +69,7 @@ const opts3 = {
   }
 }
 
-test('/documentation route, json response', t => {
+test('/documentation/json route', t => {
   t.plan(1)
   const fastify = Fastify()
 
@@ -82,7 +83,7 @@ test('/documentation route, json response', t => {
 
   fastify.inject({
     method: 'GET',
-    url: '/documentation'
+    url: '/documentation/json'
   }, res => {
     var payload = JSON.parse(res.payload)
 
@@ -110,7 +111,7 @@ test('fastify.swagger should return a valid swagger yaml', t => {
 
   fastify.inject({
     method: 'GET',
-    url: '/documentation?yaml=true'
+    url: '/documentation/yaml'
   }, res => {
     t.is(typeof res.payload, 'string')
     t.is(res.headers['content-type'], 'application/x-yaml')
