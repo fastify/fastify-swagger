@@ -1,7 +1,7 @@
 # fastify-swagger
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](http://standardjs.com/)  [![Build Status](https://travis-ci.org/fastify/fastify-swagger.svg?branch=master)](https://travis-ci.org/fastify/fastify-swagger)
 
-Swagger documentation generator for Fastify.  
+[Swagger](https://swagger.io/) documentation generator for Fastify.  
 It uses the schemas you declare in your routes to generate a swagger compliant doc.
 
 <a name="install"></a>
@@ -76,13 +76,14 @@ fastify.ready(err => {
       version: String
     },
     host: String,
-    schemes: [String],
-    consumes: [String],
-    produces: [String]
+    schemes: [ String ],
+    consumes: [ String ],
+    produces: [ String ]
   }
 }
 ```
-*All the above parameters are optional.*
+*All the above parameters are optional.*  
+You can use all the properties of the [swagger specification](https://swagger.io/specification/), if you find anything missing, please open an issue or a pr!
 
 <a name="options"></a>
 #### swagger options
