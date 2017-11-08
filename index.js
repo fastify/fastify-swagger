@@ -200,15 +200,6 @@ function genResponse (response) {
   return response
 }
 
-/* function loadSwaggerUI (fastify, opts, next) {
-  swaggerTools.initializeMiddleware(opts.swaggerDoc, onMiddleware)
-
-  function onMiddleware (middleware) {
-    fastify.use(middleware.swaggerUi())
-    next()
-  }
-} */
-
 // The swagger standard does not accept the url param with ':'
 // so '/user/:id' is not valid.
 // This function converts the url in a swagger compliant url string
