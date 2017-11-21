@@ -11,11 +11,10 @@ function fastifySwagger (fastify, opts, next) {
   opts.swagger = opts.swagger || {}
 
   const info = opts.swagger.info || null
-  const host = opts.swagger.host || null
-  const schemes = opts.swagger.schemes || null
-  const consumes = opts.swagger.consumes || null
-  const produces = opts.swagger.produces || null
-  const basePath = opts.swagger.basePath || null
+  const servers = opts.swagger.servers || null
+  const components = opts.swagger.components || null
+  const security = opts.swagger.security || null
+  const tags = opts.swagger.tags || null
 
   if (opts.exposeRoute === true) {
     fastify.register(require('./routes'))
@@ -38,20 +37,21 @@ function fastifySwagger (fastify, opts, next) {
     // Base swagger info
     // this info is displayed in the swagger file
     // in the same order as here
-    swaggerObject.swagger = '2.0'
+    swaggerObject.openapi = '3.0.0'
     if (info) {
       swaggerObject.info = info
     } else {
+      const pkg = require(path.join(__dirname, 'package.json'))
       swaggerObject.info = {
-        version: '1.0.0',
-        title: require(path.join(__dirname, 'package.json')).name || ''
+        version: pkg.version || '1.0.0',
+        title: pkg.name || '',
+        description: pkg.description || ''
       }
     }
-    if (host) swaggerObject.host = host
-    if (schemes) swaggerObject.schemes = schemes
-    if (basePath) swaggerObject.basePath = basePath
-    if (consumes) swaggerObject.consumes = consumes
-    if (produces) swaggerObject.produces = produces
+    if (servers) swaggerObject.servers = servers
+    if (components) swaggerObject.components = components
+    if (security) swaggerObject.security = security
+    if (tags) swaggerObject.tags = tags
 
     swaggerObject.paths = {}
 
@@ -97,16 +97,16 @@ function fastifySwagger (fastify, opts, next) {
             getQueryParams(parameters, schema.querystring)
           }
 
-          if (schema.body) {
-            getBodyParams(parameters, schema.body)
-          }
-
           if (schema.params) {
             getPathParams(parameters, schema.params)
           }
 
           if (parameters.length) {
             swaggerRoute[url][method].parameters = parameters
+          }
+
+          if (schema.body) {
+            swaggerRoute[url][method].requestBody = getRequestBody(schema.body)
           }
         }
 
@@ -146,12 +146,15 @@ function getQueryParams (parameters, query) {
   })
 }
 
-function getBodyParams (parameters, body) {
-  const param = {}
-  param.name = 'body'
-  param.in = 'body'
-  param.schema = body
-  parameters.push(param)
+function getRequestBody (body) {
+  return {
+    content: {
+      'application/json': {
+        schema: body
+      }
+    },
+    required: true
+  }
 }
 
 function getPathParams (parameters, params) {
@@ -166,7 +169,7 @@ function getPathParams (parameters, params) {
     param.in = 'path'
     param.required = true
     param.description = params[p].description
-    param.type = params[p].type
+    param.schema = { type: params[p].type }
     parameters.push(param)
   })
 }
@@ -186,7 +189,11 @@ function genResponse (response) {
       var description = response[key].description
       var headers = response[key].headers
       response[key] = {
-        schema: rsp
+        content: {
+          'application/json': {
+            schema: rsp
+          }
+        }
       }
       response[key].description = description || 'Default Response'
       if (headers) response[key].headers = headers

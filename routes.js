@@ -5,10 +5,10 @@ const readFileSync = require('fs').readFileSync
 const resolve = require('path').resolve
 
 const files = {
-  html: readFileSync(resolve(__dirname, 'static', 'index.html'), 'utf8'),
-  css: readFileSync(resolve(__dirname, 'static', 'swagger-ui.css'), 'utf8'),
-  js: readFileSync(resolve(__dirname, 'static', 'swagger-ui-bundle.js'), 'utf8'),
-  preset: readFileSync(resolve(__dirname, 'static', 'swagger-ui-standalone-preset.js'), 'utf8')
+  html: readFileSync(resolve(__dirname, 'swagger-ui.html'), 'utf8'),
+  css: readFileSync(resolve(__dirname, 'node_modules', 'swagger-ui-dist', 'swagger-ui.css'), 'utf8'),
+  js: readFileSync(resolve(__dirname, 'node_modules', 'swagger-ui-dist', 'swagger-ui-bundle.js'), 'utf8'),
+  preset: readFileSync(resolve(__dirname, 'node_modules', 'swagger-ui-dist', 'swagger-ui-standalone-preset.js'), 'utf8')
 }
 
 function fastifySwagger (fastify, opts, next) {
