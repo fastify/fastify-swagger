@@ -8,11 +8,7 @@ fastify.register(require('./index'), {
       title: 'Test swagger',
       description: 'testing the fastify swagger api',
       version: '0.1.0'
-    },
-    host: 'localhost',
-    schemes: ['http'],
-    consumes: ['application/json'],
-    produces: ['application/json']
+    }
   },
   exposeRoute: true
 })
@@ -53,7 +49,9 @@ fastify.post('/some-route/:id', {
       }
     }
   }
-}, (req, reply) => {})
+}, (req, reply) => {
+  reply.send({ hello: req.body.hello })
+})
 
 fastify.listen(3000, err => {
   if (err) throw err
