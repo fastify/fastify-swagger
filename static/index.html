@@ -72,7 +72,7 @@ window.onload = function() {
   
   // Build a system
   const ui = SwaggerUIBundle({
-    url: `${window.location.origin}/documentation/json`,
+    url: resolveUrl('./documentation/json'),
     dom_id: '#swagger-ui',
     deepLinking: true,
     presets: [
@@ -86,6 +86,12 @@ window.onload = function() {
   })
 
   window.ui = ui
+
+  function resolveUrl (url) {
+      const anchor = document.createElement('a')
+      anchor.href = url
+      return anchor.href
+  }
 }
 </script>
 </body>
