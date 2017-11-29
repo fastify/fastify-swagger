@@ -5,11 +5,17 @@ const readFileSync = require('fs').readFileSync
 const resolve = require('path').resolve
 
 const files = {
-  html: readFileSync(resolve(__dirname, 'static', 'index.html'), 'utf8'),
-  css: readFileSync(resolve(__dirname, 'static', 'swagger-ui.css'), 'utf8'),
-  js: readFileSync(resolve(__dirname, 'static', 'swagger-ui-bundle.js'), 'utf8'),
-  preset: readFileSync(resolve(__dirname, 'static', 'swagger-ui-standalone-preset.js'), 'utf8')
+  'index.html': {type: 'text/html'},
+  'swagger-ui.css': {type: 'text/css'},
+  'swagger-ui.css.map': {type: 'application/json'},
+  'swagger-ui-bundle.js': {type: 'application/javascript'},
+  'swagger-ui-bundle.js.map': {type: 'application/json'},
+  'swagger-ui-standalone-preset.js': {type: 'application/javascript'},
+  'swagger-ui-standalone-preset.js.map': {type: 'application/json'}
 }
+Object.keys(files).forEach(filename => {
+  files[filename].contents = readFileSync(resolve(__dirname, 'static', filename), 'utf8')
+})
 
 function fastifySwagger (fastify, opts, next) {
   fastify.route({
@@ -48,24 +54,13 @@ function fastifySwagger (fastify, opts, next) {
 
   function sendStaticFiles (req, reply) {
     if (!req.params.file) {
-      return reply.type('text/html').send(files.html)
-    }
-
-    switch (req.params.file) {
-      case '':
-        return reply.type('text/html').send(files.html)
-
-      case 'swagger-ui.css':
-        return reply.type('text/css').send(files.css)
-
-      case 'swagger-ui-bundle.js':
-        return reply.type('application/javascript').send(files.js)
-
-      case 'swagger-ui-standalone-preset.js':
-        return reply.type('application/javascript').send(files.preset)
-
-      default:
-        return reply.code(404).send(new Error('Not found'))
+      const file = files['index.html']
+      reply.type(file.type).send(file.contents)
+    } else if (files.hasOwnProperty(req.params.file)) {
+      const file = files[req.params.file]
+      reply.type(file.type).send(file.contents)
+    } else {
+      return reply.code(404).send(new Error('Not found'))
     }
   }
 
