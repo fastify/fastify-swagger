@@ -104,7 +104,7 @@ function fastifySwagger (fastify, opts, next) {
           if (schema.params) {
             getPathParams(parameters, schema.params)
           }
-          
+
           if (schema.headers) {
             getHeaderParams(parameters, schema.headers)
           }
