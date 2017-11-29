@@ -104,6 +104,10 @@ function fastifySwagger (fastify, opts, next) {
           if (schema.params) {
             getPathParams(parameters, schema.params)
           }
+          
+          if (schema.headers) {
+            getHeaderParams(parameters, schema.headers)
+          }
 
           if (parameters.length) {
             swaggerRoute[url][method].parameters = parameters
@@ -169,6 +173,29 @@ function getPathParams (parameters, params) {
     param.type = params[p].type
     parameters.push(param)
   })
+}
+
+function getHeaderParams (parameters, headers) {
+  if (headers.type && headers.properties) {
+    // for the shorthand querystring declaration
+    const headerProperties = Object.keys(headers.properties).reduce((acc, h) => {
+      const required = (headers.required && headers.required.indexOf(h) >= 0) || false
+      const newProps = Object.assign({}, headers.properties[h], { required })
+      return Object.assign({}, acc, { [h]: newProps })
+    }, {})
+
+    return getHeaderParams(parameters, headerProperties)
+  }
+
+  Object.keys(headers).forEach(h =>
+    parameters.push({
+      name: h,
+      in: 'header',
+      required: headers[h].required,
+      description: headers[h].description,
+      type: headers[h].type
+    })
+  )
 }
 
 function genResponse (response) {
