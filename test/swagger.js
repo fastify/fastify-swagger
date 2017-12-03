@@ -68,6 +68,48 @@ const opts3 = {
   }
 }
 
+const opts4 = {
+  schema: {
+    headers: {
+      type: 'object',
+      properties: {
+        authorization: {
+          type: 'string',
+          description: 'api token'
+        }
+      },
+      required: ['authorization']
+    }
+  }
+}
+
+const opts5 = {
+  schema: {
+    headers: {
+      type: 'object',
+      properties: {
+        'x-api-token': {
+          type: 'string',
+          description: 'optional api token'
+        },
+        'x-api-version': {
+          type: 'string',
+          description: 'optional api version'
+        }
+      }
+    },
+    params: {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'string',
+          description: 'user id'
+        }
+      }
+    }
+  }
+}
+
 test('fastify.swagger should exist', t => {
   t.plan(2)
   const fastify = Fastify()
@@ -91,6 +133,8 @@ test('fastify.swagger should return a valid swagger object', t => {
   fastify.get('/example', opts1, () => {})
   fastify.post('/example', opts2, () => {})
   fastify.get('/parameters/:id', opts3, () => {})
+  fastify.get('/headers', opts4, () => {})
+  fastify.get('/headers/:id', opts5, () => {})
 
   fastify.ready(err => {
     t.error(err)
@@ -119,6 +163,8 @@ test('fastify.swagger should return a valid swagger yaml', t => {
   fastify.get('/example', opts1, () => {})
   fastify.post('/example', opts2, () => {})
   fastify.get('/parameters/:id', opts3, () => {})
+  fastify.get('/headers', opts4, () => {})
+  fastify.get('/headers/:id', opts5, () => {})
 
   fastify.ready(err => {
     t.error(err)
