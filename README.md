@@ -31,12 +31,21 @@ fastify.register(require('fastify-swagger'), {
   }
 })
 
-fastify.post('/some-route', {
+fastify.put('/some-route/:id', {
   schema: {
     description: 'post some data',
     tags: ['user', 'code'],
     summary: 'qwerty',
-    payload: {
+    params: {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'string',
+          description: 'user id'
+        }
+      }
+    },
+    body: {
       type: 'object',
       properties: {
         hello: { type: 'string' },
@@ -48,12 +57,13 @@ fastify.post('/some-route', {
         }
       }
     },
-    out: {
-      description: 'Succesful response',
-      code: 201,
-      type: 'object',
-      properties: {
-        hello: { type: 'string' }
+    response: {
+      201: {
+        description: 'Succesful response',
+        type: 'object',
+        properties: {
+          hello: { type: 'string' }
+        }
       }
     }
   }
