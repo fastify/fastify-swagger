@@ -17,7 +17,7 @@ fastify.register(require('./index'), {
   exposeRoute: true
 })
 
-fastify.post('/some-route/:id', {
+fastify.put('/some-route/:id', {
   schema: {
     description: 'post some data',
     tags: ['user', 'code'],
