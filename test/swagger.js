@@ -252,3 +252,37 @@ test('hide support', t => {
     t.notOk(swaggerObject.paths['/'])
   })
 })
+
+test('deprecated route', t => {
+  t.plan(2)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, swaggerInfo)
+
+  const opts = {
+    schema: {
+      deprecated: true,
+      body: {
+        type: 'object',
+        properties: {
+          hello: { type: 'string' },
+          obj: {
+            type: 'object',
+            properties: {
+              some: { type: 'string' }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  fastify.get('/', opts, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+
+    const swaggerObject = fastify.swagger()
+    t.ok(swaggerObject.paths['/'])
+  })
+})
