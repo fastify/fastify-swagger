@@ -112,6 +112,10 @@ function fastifySwagger (fastify, opts, next) {
           if (parameters.length) {
             swaggerRoute[url][method].parameters = parameters
           }
+
+          if (schema.deprecated) {
+            swaggerRoute[url][method].deprecated = schema.deprecated
+          }
         }
 
         swaggerRoute[url][method].responses = genResponse(schema ? schema.response : null)
