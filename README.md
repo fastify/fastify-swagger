@@ -27,7 +27,14 @@ fastify.register(require('fastify-swagger'), {
     host: 'localhost',
     schemes: ['http'],
     consumes: ['application/json'],
-    produces: ['application/json']
+    produces: ['application/json'],
+    securityDefinitions: {
+      apiKey: {
+        type: 'apiKey',
+        name: 'apiKey',
+        in: 'header'
+      }
+    }
   }
 })
 
@@ -59,13 +66,18 @@ fastify.put('/some-route/:id', {
     },
     response: {
       201: {
-        description: 'Succesful response',
+        description: 'Successful response',
         type: 'object',
         properties: {
           hello: { type: 'string' }
         }
       }
-    }
+    },
+    security: [
+      {
+        "api_key": []
+      }
+    ]
   }
 }, (req, reply) => {})
 
@@ -88,7 +100,8 @@ fastify.ready(err => {
     host: String,
     schemes: [ String ],
     consumes: [ String ],
-    produces: [ String ]
+    produces: [ String ],
+    securityDefinitions: Object
   }
 }
 ```
