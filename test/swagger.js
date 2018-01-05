@@ -254,7 +254,7 @@ test('hide support', t => {
 })
 
 test('deprecated route', t => {
-  t.plan(2)
+  t.plan(3)
   const fastify = Fastify()
 
   fastify.register(fastifySwagger, swaggerInfo)
@@ -281,8 +281,15 @@ test('deprecated route', t => {
 
   fastify.ready(err => {
     t.error(err)
-
     const swaggerObject = fastify.swagger()
-    t.ok(swaggerObject.paths['/'])
+
+    Swagger.validate(swaggerObject)
+      .then(function (api) {
+        t.pass('valid swagger object')
+        t.ok(swaggerObject.paths['/'])
+      })
+      .catch(function (err) {
+        t.fail(err)
+      })
   })
 })
