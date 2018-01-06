@@ -124,6 +124,9 @@ If you pass `{ exposeRoute: true }` the plugin will expose the documentation wit
 #### Hide a route
 Sometimes you may need to hide a certain route from the documentation, just pass `{ hide: true }` to the schema object inside the route declaration.
 
+#### Security
+Global security definitions and route level security provide documentation only. It does not implement authentication nor route security for you. Once your authentication is implemented, along with your defined security, users will be able to successfully authenticate and interact with your API using the user interfaces of the documentation.
+
 ## Acknowledgements
 
 This project is kindly sponsored by:
