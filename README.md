@@ -27,7 +27,14 @@ fastify.register(require('fastify-swagger'), {
     host: 'localhost',
     schemes: ['http'],
     consumes: ['application/json'],
-    produces: ['application/json']
+    produces: ['application/json'],
+    securityDefinitions: {
+      apiKey: {
+        type: 'apiKey',
+        name: 'apiKey',
+        in: 'header'
+      }
+    }
   }
 })
 
@@ -59,13 +66,18 @@ fastify.put('/some-route/:id', {
     },
     response: {
       201: {
-        description: 'Succesful response',
+        description: 'Successful response',
         type: 'object',
         properties: {
           hello: { type: 'string' }
         }
       }
-    }
+    },
+    security: [
+      {
+        "api_key": []
+      }
+    ]
   }
 }, (req, reply) => {})
 
@@ -88,7 +100,8 @@ fastify.ready(err => {
     host: String,
     schemes: [ String ],
     consumes: [ String ],
-    produces: [ String ]
+    produces: [ String ],
+    securityDefinitions: Object
   }
 }
 ```
@@ -110,6 +123,9 @@ If you pass `{ exposeRoute: true }` the plugin will expose the documentation wit
 <a name="hide"></a>
 #### Hide a route
 Sometimes you may need to hide a certain route from the documentation, just pass `{ hide: true }` to the schema object inside the route declaration.
+
+#### Security
+Global security definitions and route level security provide documentation only. It does not implement authentication nor route security for you. Once your authentication is implemented, along with your defined security, users will be able to successfully authenticate and interact with your API using the user interfaces of the documentation.
 
 ## Acknowledgements
 

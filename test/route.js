@@ -17,7 +17,16 @@ const swaggerInfo = {
       version: '0.1.0'
     },
     host: 'localhost',
-    schemes: ['http']
+    schemes: ['http'],
+    consumes: ['application/json'],
+    produces: ['application/json'],
+    securityDefinitions: {
+      apiKey: {
+        type: 'apiKey',
+        name: 'apiKey',
+        in: 'header'
+      }
+    }
   },
   exposeRoute: true
 }
@@ -71,6 +80,16 @@ const opts3 = {
   }
 }
 
+const opts4 = {
+  schema: {
+    security: [
+      {
+        'apiKey': []
+      }
+    ]
+  }
+}
+
 test('/documentation/json route', t => {
   t.plan(1)
   const fastify = Fastify()
@@ -82,6 +101,7 @@ test('/documentation/json route', t => {
   fastify.get('/example', opts1, () => {})
   fastify.post('/example', opts2, () => {})
   fastify.get('/parameters/:id', opts3, () => {})
+  fastify.get('/example1', opts4, () => {})
 
   fastify.inject({
     method: 'GET',
@@ -110,6 +130,7 @@ test('fastify.swagger should return a valid swagger yaml', t => {
   fastify.get('/example', opts1, () => {})
   fastify.post('/example', opts2, () => {})
   fastify.get('/parameters/:id', opts3, () => {})
+  fastify.get('/example1', opts4, () => {})
 
   fastify.inject({
     method: 'GET',
@@ -137,6 +158,7 @@ test('/documenatation should send the swagger UI html', t => {
   fastify.get('/example', opts1, () => {})
   fastify.post('/example', opts2, () => {})
   fastify.get('/parameters/:id', opts3, () => {})
+  fastify.get('/example1', opts4, () => {})
 
   fastify.inject({
     method: 'GET',
@@ -165,6 +187,7 @@ test('/documenatation/:file should send back the correct file', t => {
   fastify.get('/example', opts1, () => {})
   fastify.post('/example', opts2, () => {})
   fastify.get('/parameters/:id', opts3, () => {})
+  fastify.get('/example1', opts4, () => {})
 
   fastify.inject({
     method: 'GET',
@@ -238,6 +261,7 @@ test('/documenatation/:file 404', t => {
   fastify.get('/example', opts1, () => {})
   fastify.post('/example', opts2, () => {})
   fastify.get('/parameters/:id', opts3, () => {})
+  fastify.get('/example1', opts4, () => {})
 
   fastify.inject({
     method: 'GET',

@@ -16,6 +16,7 @@ function fastifySwagger (fastify, opts, next) {
   const consumes = opts.swagger.consumes || null
   const produces = opts.swagger.produces || null
   const basePath = opts.swagger.basePath || null
+  const securityDefinitions = opts.swagger.securityDefinitions || null
 
   if (opts.exposeRoute === true) {
     fastify.register(require('./routes'))
@@ -52,6 +53,9 @@ function fastifySwagger (fastify, opts, next) {
     if (basePath) swaggerObject.basePath = basePath
     if (consumes) swaggerObject.consumes = consumes
     if (produces) swaggerObject.produces = produces
+    if (securityDefinitions) {
+      swaggerObject.securityDefinitions = securityDefinitions
+    }
 
     swaggerObject.paths = {}
 
@@ -115,6 +119,10 @@ function fastifySwagger (fastify, opts, next) {
 
           if (schema.deprecated) {
             swaggerRoute[url][method].deprecated = schema.deprecated
+          }
+
+          if (schema.security) {
+            swaggerRoute[url][method].security = schema.security
           }
         }
 

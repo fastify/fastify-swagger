@@ -15,7 +15,16 @@ const swaggerInfo = {
       version: '0.1.0'
     },
     host: 'localhost',
-    schemes: ['http']
+    schemes: ['http'],
+    consumes: ['application/json'],
+    produces: ['application/json'],
+    securityDefinitions: {
+      apiKey: {
+        type: 'apiKey',
+        name: 'apiKey',
+        in: 'header'
+      }
+    }
   }
 }
 
@@ -110,6 +119,16 @@ const opts5 = {
   }
 }
 
+const opts6 = {
+  schema: {
+    security: [
+      {
+        'apiKey': []
+      }
+    ]
+  }
+}
+
 test('fastify.swagger should exist', t => {
   t.plan(2)
   const fastify = Fastify()
@@ -135,6 +154,7 @@ test('fastify.swagger should return a valid swagger object', t => {
   fastify.get('/parameters/:id', opts3, () => {})
   fastify.get('/headers', opts4, () => {})
   fastify.get('/headers/:id', opts5, () => {})
+  fastify.get('/security', opts6, () => {})
 
   fastify.ready(err => {
     t.error(err)
@@ -165,6 +185,7 @@ test('fastify.swagger should return a valid swagger yaml', t => {
   fastify.get('/parameters/:id', opts3, () => {})
   fastify.get('/headers', opts4, () => {})
   fastify.get('/headers/:id', opts5, () => {})
+  fastify.get('/security', opts6, () => {})
 
   fastify.ready(err => {
     t.error(err)
