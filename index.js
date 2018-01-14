@@ -34,7 +34,6 @@ function fastifySwagger (fastify, opts, next) {
     }
 
     const swaggerObject = {}
-    const pkg = require('./package.json')
 
     // Base swagger info
     // this info is displayed in the swagger file
@@ -45,7 +44,7 @@ function fastifySwagger (fastify, opts, next) {
     } else {
       swaggerObject.info = {
         version: '1.0.0',
-        title: pkg.name || ''
+        title: ''
       }
     }
     if (host) swaggerObject.host = host
