@@ -2,7 +2,6 @@
 
 const fp = require('fastify-plugin')
 const yaml = require('js-yaml')
-const path = require('path')
 
 function fastifySwagger (fastify, opts, next) {
   fastify.decorate('swagger', swagger)
@@ -35,6 +34,7 @@ function fastifySwagger (fastify, opts, next) {
     }
 
     const swaggerObject = {}
+    const pkg = require('./package.json')
 
     // Base swagger info
     // this info is displayed in the swagger file
@@ -45,7 +45,7 @@ function fastifySwagger (fastify, opts, next) {
     } else {
       swaggerObject.info = {
         version: '1.0.0',
-        title: require(path.join(__dirname, 'package.json')).name || ''
+        title: pkg.name || ''
       }
     }
     if (host) swaggerObject.host = host
