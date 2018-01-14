@@ -141,7 +141,36 @@ test('fastify.swagger should exist', t => {
   })
 })
 
-test('Register info should return a valid swagger object', t => {
+test('fastify.swagger should default swagger version', t => {
+  t.plan(2)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger)
+
+  fastify.ready(err => {
+    t.error(err)
+
+    const swaggerObject = fastify.swagger()
+    t.equal(swaggerObject.swagger, '2.0')
+  })
+})
+
+test('fastify.swagger should default info properties', t => {
+  t.plan(3)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger)
+
+  fastify.ready(err => {
+    t.error(err)
+
+    const swaggerObject = fastify.swagger()
+    t.equal(swaggerObject.info.title, 'fastify-swagger')
+    t.equal(swaggerObject.info.version, '1.0.0')
+  })
+})
+
+test('fastify.swagger should return a valid swagger object', t => {
   t.plan(3)
   const fastify = Fastify()
 
@@ -172,7 +201,7 @@ test('Register info should return a valid swagger object', t => {
   })
 })
 
-test('Register info should return a valid swagger yaml', t => {
+test('fastify.swagger should return a valid swagger yaml', t => {
   t.plan(3)
   const fastify = Fastify()
 
@@ -202,7 +231,7 @@ test('Register info should return a valid swagger yaml', t => {
   })
 })
 
-test('Register info basic properties', t => {
+test('fastify.swagger basic properties', t => {
   t.plan(6)
   const fastify = Fastify()
 
@@ -240,7 +269,7 @@ test('Register info basic properties', t => {
   })
 })
 
-test('Register info hide support', t => {
+test('hide support', t => {
   t.plan(2)
   const fastify = Fastify()
 
@@ -274,7 +303,7 @@ test('Register info hide support', t => {
   })
 })
 
-test('Register info deprecated route', t => {
+test('deprecated route', t => {
   t.plan(3)
   const fastify = Fastify()
 
@@ -307,183 +336,6 @@ test('Register info deprecated route', t => {
     Swagger.validate(swaggerObject)
       .then(function (api) {
         t.pass('valid swagger object')
-        t.ok(swaggerObject.paths['/'])
-      })
-      .catch(function (err) {
-        t.fail(err)
-      })
-  })
-})
-
-test('Register no info should return a valid swagger object', t => {
-  t.plan(3)
-  const fastify = Fastify()
-
-  fastify.register(fastifySwagger)
-
-  fastify.get('/', () => {})
-  fastify.post('/', () => {})
-  fastify.get('/example', opts1, () => {})
-  fastify.post('/example', opts2, () => {})
-  fastify.get('/parameters/:id', opts3, () => {})
-  fastify.get('/headers', opts4, () => {})
-  fastify.get('/headers/:id', opts5, () => {})
-  fastify.get('/security', opts6, () => {})
-
-  fastify.ready(err => {
-    t.error(err)
-
-    const swaggerObject = fastify.swagger()
-    t.is(typeof swaggerObject, 'object')
-
-    Swagger.validate(swaggerObject)
-      .then(function (api) {
-        t.pass('valid swagger object')
-      })
-      .catch(function (err) {
-        t.fail(err)
-      })
-  })
-})
-
-test('Register no info should return a valid swagger yaml', t => {
-  t.plan(3)
-  const fastify = Fastify()
-
-  fastify.register(fastifySwagger)
-
-  fastify.get('/', () => {})
-  fastify.post('/', () => {})
-  fastify.get('/example', opts1, () => {})
-  fastify.post('/example', opts2, () => {})
-  fastify.get('/parameters/:id', opts3, () => {})
-  fastify.get('/headers', opts4, () => {})
-  fastify.get('/headers/:id', opts5, () => {})
-  fastify.get('/security', opts6, () => {})
-
-  fastify.ready(err => {
-    t.error(err)
-
-    const swaggerYaml = fastify.swagger({ yaml: true })
-    t.is(typeof swaggerYaml, 'string')
-
-    try {
-      yaml.safeLoad(swaggerYaml)
-      t.pass('valid swagger yaml')
-    } catch (err) {
-      t.fail(err)
-    }
-  })
-})
-
-test('Register no info basic properties', t => {
-  t.plan(5)
-  const fastify = Fastify()
-
-  fastify.register(fastifySwagger)
-
-  const opts = {
-    schema: {
-      body: {
-        type: 'object',
-        properties: {
-          hello: { type: 'string' },
-          obj: {
-            type: 'object',
-            properties: {
-              some: { type: 'string' }
-            }
-          }
-        }
-      }
-    }
-  }
-
-  fastify.get('/', opts, () => {})
-
-  fastify.ready(err => {
-    t.error(err)
-
-    const swaggerObject = fastify.swagger()
-
-    t.equal(swaggerObject.info.title, 'fastify-swagger')
-    t.equal(swaggerObject.info.version, '1.0.0')
-    t.ok(swaggerObject.paths)
-    t.ok(swaggerObject.paths['/'])
-  })
-})
-
-test('Register no info hide support', t => {
-  t.plan(4)
-  const fastify = Fastify()
-
-  fastify.register(fastifySwagger)
-
-  const opts = {
-    schema: {
-      hide: true,
-      body: {
-        type: 'object',
-        properties: {
-          hello: { type: 'string' },
-          obj: {
-            type: 'object',
-            properties: {
-              some: { type: 'string' }
-            }
-          }
-        }
-      }
-    }
-  }
-
-  fastify.get('/', opts, () => {})
-
-  fastify.ready(err => {
-    t.error(err)
-
-    const swaggerObject = fastify.swagger()
-    t.equal(swaggerObject.info.title, 'fastify-swagger')
-    t.equal(swaggerObject.info.version, '1.0.0')
-    t.notOk(swaggerObject.paths['/'])
-  })
-})
-
-test('Register no info deprecated route', t => {
-  t.plan(5)
-  const fastify = Fastify()
-
-  fastify.register(fastifySwagger)
-
-  const opts = {
-    schema: {
-      deprecated: true,
-      body: {
-        type: 'object',
-        properties: {
-          hello: { type: 'string' },
-          obj: {
-            type: 'object',
-            properties: {
-              some: { type: 'string' }
-            }
-          }
-        }
-      }
-    }
-  }
-
-  fastify.get('/', opts, () => {})
-
-  fastify.ready(err => {
-    t.error(err)
-    const swaggerObject = fastify.swagger()
-
-    Swagger.validate(swaggerObject)
-      .then(function (api) {
-        t.pass('valid swagger object')
-        t.equal(swaggerObject.info.title, 'fastify-swagger')
-        t.equal(swaggerObject.info.version, '1.0.0')
         t.ok(swaggerObject.paths['/'])
       })
       .catch(function (err) {
