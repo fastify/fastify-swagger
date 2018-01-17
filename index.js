@@ -1,8 +1,9 @@
 'use strict'
 
 const fp = require('fastify-plugin')
-const yaml = require('js-yaml')
+const fs = require('fs')
 const path = require('path')
+const yaml = require('js-yaml')
 
 function fastifySwagger (fastify, opts, next) {
   fastify.decorate('swagger', swagger)
@@ -35,6 +36,13 @@ function fastifySwagger (fastify, opts, next) {
     }
 
     const swaggerObject = {}
+    var pkg
+
+    try {
+      pkg = JSON.parse(fs.readFileSync(path.join(__dirname, 'package.json')))
+    } catch (err) {
+      return next(err)
+    }
 
     // Base swagger info
     // this info is displayed in the swagger file
@@ -45,7 +53,7 @@ function fastifySwagger (fastify, opts, next) {
     } else {
       swaggerObject.info = {
         version: '1.0.0',
-        title: require(path.join(__dirname, 'package.json')).name || ''
+        title: pkg.name || ''
       }
     }
     if (host) swaggerObject.host = host

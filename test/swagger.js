@@ -141,6 +141,35 @@ test('fastify.swagger should exist', t => {
   })
 })
 
+test('fastify.swagger should default swagger version', t => {
+  t.plan(2)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger)
+
+  fastify.ready(err => {
+    t.error(err)
+
+    const swaggerObject = fastify.swagger()
+    t.equal(swaggerObject.swagger, '2.0')
+  })
+})
+
+test('fastify.swagger should default info properties', t => {
+  t.plan(3)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger)
+
+  fastify.ready(err => {
+    t.error(err)
+
+    const swaggerObject = fastify.swagger()
+    t.equal(swaggerObject.info.title, 'fastify-swagger')
+    t.equal(swaggerObject.info.version, '1.0.0')
+  })
+})
+
 test('fastify.swagger should return a valid swagger object', t => {
   t.plan(3)
   const fastify = Fastify()
