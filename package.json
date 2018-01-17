@@ -1,6 +1,6 @@
 {
   "name": "fastify-swagger",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Generate Swagger files automatically for Fastify.",
   "main": "index.js",
   "scripts": {
@@ -27,7 +27,6 @@
     "tap": "^11.0.0"
   },
   "dependencies": {
-    "fast-safe-stringify": "^1.2.1",
     "fastify-plugin": "^0.2.1",
     "js-yaml": "^3.10.0"
   },
