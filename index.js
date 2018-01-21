@@ -264,4 +264,7 @@ function formatParamUrl (url) {
   }
 }
 
-module.exports = fp(fastifySwagger, '>=0.14.0')
+module.exports = fp(fastifySwagger, {
+  fastify: '>=0.39.0',
+  name: 'fastify-swagger'
+})
