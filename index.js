@@ -8,6 +8,12 @@ const yaml = require('js-yaml')
 function fastifySwagger (fastify, opts, next) {
   fastify.decorate('swagger', swagger)
 
+  const routes = []
+
+  fastify.addHook('onRoute', (routeOptions) => {
+    routes.push(routeOptions)
+  })
+
   opts = opts || {}
   opts.swagger = opts.swagger || {}
 
@@ -66,79 +72,67 @@ function fastifySwagger (fastify, opts, next) {
     }
 
     swaggerObject.paths = {}
+    for (var route of routes) {
+      const url = formatParamUrl(route.url)
+      const method = route.method.toLowerCase()
+      const schema = route.schema
 
-    for (var node of fastify) {
-      // The node path name
-      const url = formatParamUrl(Object.keys(node)[0])
-      // object with all the methods of the node
-      const routes = node[Object.keys(node)[0]]
-      const swaggerRoute = {}
-      swaggerRoute[url] = {}
+      const swaggerRoute = swaggerObject.paths[url] || {}
 
-      // let's iterate over the methods
-      const methods = Object.keys(routes)
-      for (var i = 0, len = methods.length; i < len; i++) {
-        const method = methods[i]
-        const route = routes[method]
-        const schema = route.schema
-
-        if (schema && schema.hide) {
-          if (len === 1) delete swaggerRoute[url]
-          continue
-        }
-        swaggerRoute[url][method] = {}
-
-        const parameters = []
-
-        // All the data the user can give us, is via the schema object
-        if (schema) {
-          // the resulting schema will be in this order
-          if (schema.summary) {
-            swaggerRoute[url][method].summary = schema.summary
-          }
-
-          if (schema.description) {
-            swaggerRoute[url][method].description = schema.description
-          }
-
-          if (schema.tags) {
-            swaggerRoute[url][method].tags = schema.tags
-          }
-
-          if (schema.querystring) {
-            getQueryParams(parameters, schema.querystring)
-          }
-
-          if (schema.body) {
-            getBodyParams(parameters, schema.body)
-          }
-
-          if (schema.params) {
-            getPathParams(parameters, schema.params)
-          }
-
-          if (schema.headers) {
-            getHeaderParams(parameters, schema.headers)
-          }
-
-          if (parameters.length) {
-            swaggerRoute[url][method].parameters = parameters
-          }
-
-          if (schema.deprecated) {
-            swaggerRoute[url][method].deprecated = schema.deprecated
-          }
-
-          if (schema.security) {
-            swaggerRoute[url][method].security = schema.security
-          }
-        }
-
-        swaggerRoute[url][method].responses = genResponse(schema ? schema.response : null)
+      if (schema && schema.hide) {
+        continue
       }
 
-      if (swaggerRoute[url]) {
-        swaggerObject.paths[url] = swaggerRoute[url]
+      const swaggerMethod = swaggerRoute[method] = {}
+      const parameters = []
+
+      // All the data the user can give us, is via the schema object
+      if (schema) {
+        // the resulting schema will be in this order
+        if (schema.summary) {
+          swaggerMethod.summary = schema.summary
+        }
+
+        if (schema.description) {
+          swaggerMethod.description = schema.description
+        }
+
+        if (schema.tags) {
+          swaggerMethod.tags = schema.tags
+        }
+
+        if (schema.querystring) {
+          getQueryParams(parameters, schema.querystring)
+        }
+
+        if (schema.body) {
+          getBodyParams(parameters, schema.body)
+        }
+
+        if (schema.params) {
+          getPathParams(parameters, schema.params)
+        }
+
+        if (schema.headers) {
+          getHeaderParams(parameters, schema.headers)
+        }
+
+        if (parameters.length) {
+          swaggerMethod.parameters = parameters
+        }
+
+        if (schema.deprecated) {
+          swaggerMethod.deprecated = schema.deprecated
+        }
+
+        if (schema.security) {
+          swaggerMethod.security = schema.security
+        }
+      }
+
+      swaggerMethod.responses = genResponse(schema ? schema.response : null)
+      if (swaggerRoute) {
+        swaggerObject.paths[url] = swaggerRoute
       }
     }
 
