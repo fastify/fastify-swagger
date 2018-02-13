@@ -102,7 +102,7 @@ function fastifySwagger (fastify, opts, next) {
         }
 
         if (schema.consumes) {
-          swaggerMethod.consumes = schema.consumes
+          swaggerMethod.consumes = schema.consumes;
         }
 
         if (schema.querystring) {
