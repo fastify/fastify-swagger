@@ -23,11 +23,11 @@
   "devDependencies": {
     "fastify": "^0.43.0",
     "standard": "^10.0.3",
-    "swagger-parser": "^4.0.1",
-    "tap": "^11.0.0"
+    "swagger-parser": "^4.0.2",
+    "tap": "^11.1.0"
   },
   "dependencies": {
-    "fastify-plugin": "^0.2.1",
+    "fastify-plugin": "^0.2.2",
     "js-yaml": "^3.10.0"
   },
   "standard": {
