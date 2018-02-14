@@ -343,3 +343,39 @@ test('deprecated route', t => {
       })
   })
 })
+
+test('route meta info', t => {
+  t.plan(6)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, swaggerInfo)
+
+  const opts = {
+    schema: {
+      summary: 'Route summary',
+      tags: ['tag'],
+      description: 'Route description',
+      consumes: ['application/x-www-form-urlencoded']
+    }
+  }
+
+  fastify.get('/', opts, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+    const swaggerObject = fastify.swagger()
+
+    Swagger.validate(swaggerObject)
+      .then(function (api) {
+        const definedPath = api.paths['/'].get
+        t.ok(definedPath)
+        t.equal(opts.schema.summary, definedPath.summary)
+        t.same(opts.schema.tags, definedPath.tags)
+        t.equal(opts.schema.description, definedPath.description)
+        t.same(opts.schema.consumes, definedPath.consumes)
+      })
+      .catch(function (err) {
+        t.fail(err)
+      })
+  })
+})

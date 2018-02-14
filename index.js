@@ -101,6 +101,10 @@ function fastifySwagger (fastify, opts, next) {
           swaggerMethod.tags = schema.tags
         }
 
+        if (schema.consumes) {
+          swaggerMethod.consumes = schema.consumes
+        }
+
         if (schema.querystring) {
           getQueryParams(parameters, schema.querystring)
         }
