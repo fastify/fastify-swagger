@@ -102,7 +102,7 @@ function fastifySwagger (fastify, opts, next) {
         }
 
         if (schema.consumes) {
-          swaggerMethod.consumes = schema.consumes;
+          swaggerMethod.consumes = schema.consumes
         }
 
         if (schema.querystring) {
@@ -110,7 +110,11 @@ function fastifySwagger (fastify, opts, next) {
         }
 
         if (schema.body) {
-          getBodyParams(parameters, schema.body)
+          const consumesAllFormOnly =
+            consumesFormOnly(schema) || consumesFormOnly(swaggerObject)
+          consumesAllFormOnly
+            ? getFormParams(parameters, schema.body)
+            : getBodyParams(parameters, schema.body)
         }
 
         if (schema.params) {
@@ -153,6 +157,16 @@ function fastifySwagger (fastify, opts, next) {
   next()
 }
 
+function consumesFormOnly (schema) {
+  const consumes = schema.consumes
+  return (
+    consumes &&
+    consumes.length === 1 &&
+    (consumes[0] === 'application/x-www-form-urlencoded' ||
+      consumes[0] === 'multipart/form-data')
+  )
+}
+
 function getQueryParams (parameters, query) {
   if (query.type && query.properties) {
     // for the shorthand querystring declaration
@@ -174,6 +188,23 @@ function getBodyParams (parameters, body) {
   param.in = 'body'
   param.schema = body
   parameters.push(param)
+}
+
+function getFormParams (parameters, body) {
+  const formParamsSchema = body.properties
+  if (!formParamsSchema) {
+
+  } else {
+    const formParams = Object.keys(formParamsSchema).reduce((acc, name) => {
+      acc.push({
+        in: 'formData',
+        name,
+        ...formParamsSchema[name]
+      })
+      return acc
+    }, [])
+    parameters.push(...formParams)
+  }
 }
 
 function getPathParams (parameters, params) {
