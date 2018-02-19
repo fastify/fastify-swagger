@@ -192,18 +192,14 @@ function getBodyParams (parameters, body) {
 
 function getFormParams (parameters, body) {
   const formParamsSchema = body.properties
-  if (!formParamsSchema) {
-
-  } else {
-    const formParams = Object.keys(formParamsSchema).reduce((acc, name) => {
-      acc.push({
-        in: 'formData',
-        name,
-        ...formParamsSchema[name]
-      })
-      return acc
-    }, [])
-    parameters.push(...formParams)
+  if (formParamsSchema) {
+    Object.keys(formParamsSchema).forEach(name => {
+      const param = formParamsSchema[name]
+      delete param.$id
+      param.in = 'formData'
+      param.name = name
+      parameters.push(param)
+    })
   }
 }
 
