@@ -129,6 +129,22 @@ const opts6 = {
   }
 }
 
+const opts7 = {
+  schema: {
+    consumes: ['application/x-www-form-urlencoded'],
+    body: {
+      type: 'object',
+      properties: {
+        hello: {
+          description: 'hello',
+          type: 'string'
+        }
+      },
+      required: ['hello']
+    }
+  }
+}
+
 test('fastify.swagger should exist', t => {
   t.plan(2)
   const fastify = Fastify()
@@ -373,6 +389,33 @@ test('route meta info', t => {
         t.same(opts.schema.tags, definedPath.tags)
         t.equal(opts.schema.description, definedPath.description)
         t.same(opts.schema.consumes, definedPath.consumes)
+      })
+      .catch(function (err) {
+        t.fail(err)
+      })
+  })
+})
+
+test('parses form parameters when all api consumes application/x-www-form-urlencoded', t => {
+  t.plan(3)
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, swaggerInfo)
+  fastify.get('/', opts7, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+    const swaggerObject = fastify.swagger()
+
+    Swagger.validate(swaggerObject)
+      .then(function (api) {
+        const definedPath = api.paths['/'].get
+        t.ok(definedPath)
+        t.same(definedPath.parameters, [{
+          in: 'formData',
+          name: 'hello',
+          description: 'hello',
+          type: 'string'
+        }])
       })
       .catch(function (err) {
         t.fail(err)
