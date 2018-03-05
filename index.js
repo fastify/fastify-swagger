@@ -175,7 +175,7 @@ function getQueryParams (parameters, query) {
 
   Object.keys(query).forEach(prop => {
     const obj = query[prop]
-    const param = obj
+    const param = omitInvaliKeysSchema(obj)
     param.name = prop
     param.in = 'query'
     parameters.push(param)
@@ -186,7 +186,7 @@ function getBodyParams (parameters, body) {
   const param = {}
   param.name = 'body'
   param.in = 'body'
-  param.schema = body
+  param.schema = omitInvaliKeysSchema(body)
   parameters.push(param)
 }
 
@@ -254,7 +254,7 @@ function genResponse (response) {
 
   Object.keys(response).forEach(key => {
     if (response[key].type) {
-      var rsp = response[key]
+      var rsp = omitInvaliKeysSchema(response[key])
       var description = response[key].description
       var headers = response[key].headers
       response[key] = {
@@ -287,6 +287,20 @@ function formatParamUrl (url) {
   } else {
     return formatParamUrl(url.slice(0, start) + '{' + url.slice(++start, end) + '}' + url.slice(end))
   }
+}
+
+/**
+ * JSON shared schemas have $id's but that is not an acceptable property in swagger
+ * @param {object} schema
+ */
+function omitInvaliKeysSchema (schema) {
+  const _s = Object.assign({}, schema)
+  delete _s.$id
+  const properties = _s.properties
+  if (properties) {
+    Object.keys(properties).forEach(param => delete properties[param].$id)
+  }
+  return _s
 }
 
 module.exports = fp(fastifySwagger, {
