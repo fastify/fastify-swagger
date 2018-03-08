@@ -195,7 +195,7 @@ function getFormParams (parameters, body) {
   const formParamsSchema = body.properties
   if (formParamsSchema) {
     Object.keys(formParamsSchema).forEach(name => {
-      const param = formParamsSchema[name]
+      const param = Object.assign({}, formParamsSchema[name])
       delete param.$id
       param.in = 'formData'
       param.name = name
