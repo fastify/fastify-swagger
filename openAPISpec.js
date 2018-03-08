@@ -1,0 +1,23 @@
+module.exports.schemaProperties = [
+  '$ref',
+  'format',
+  'title',
+  'description',
+  'default',
+  'multipleOf',
+  'maximum',
+  'exclusiveMaximum',
+  'minimum',
+  'exclusiveMinimum',
+  'maxLength',
+  'minLength',
+  'pattern',
+  'maxItems',
+  'minItems',
+  'uniqueItems',
+  'maxProperties',
+  'minProperties',
+  'required',
+  'enum',
+  'type'
+]

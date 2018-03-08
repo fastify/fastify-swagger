@@ -4,6 +4,7 @@ const fp = require('fastify-plugin')
 const fs = require('fs')
 const path = require('path')
 const yaml = require('js-yaml')
+const openAPISpec = require('./openAPISpec')
 
 function fastifySwagger (fastify, opts, next) {
   fastify.decorate('swagger', swagger)
@@ -175,7 +176,7 @@ function getQueryParams (parameters, query) {
 
   Object.keys(query).forEach(prop => {
     const obj = query[prop]
-    const param = omitInvaliKeysSchema(obj)
+    const param = omitInvalidKeysSchema(obj)
     param.name = prop
     param.in = 'query'
     parameters.push(param)
@@ -186,7 +187,7 @@ function getBodyParams (parameters, body) {
   const param = {}
   param.name = 'body'
   param.in = 'body'
-  param.schema = omitInvaliKeysSchema(body)
+  param.schema = omitInvalidKeysSchema(body)
   parameters.push(param)
 }
 
@@ -254,11 +255,14 @@ function genResponse (response) {
 
   Object.keys(response).forEach(key => {
     if (response[key].type) {
-      var rsp = omitInvaliKeysSchema(response[key])
-      var description = response[key].description
-      var headers = response[key].headers
+      const rsp = omitInvalidKeysSchema(response[key])
+      const description = response[key].description
+      const headers = response[key].headers
       response[key] = {
-        schema: rsp
+        schema: openAPISpec.schemaProperties.reduce((schema, prop) => {
+          if (schema[prop]) schema[prop] = rsp[prop]
+          return schema
+        }, {})
       }
       response[key].description = description || 'Default Response'
       if (headers) response[key].headers = headers
@@ -293,7 +297,7 @@ function formatParamUrl (url) {
  * JSON shared schemas have $id's but that is not an acceptable property in swagger
  * @param {object} schema
  */
-function omitInvaliKeysSchema (schema) {
+function omitInvalidKeysSchema (schema) {
   const _s = Object.assign({}, schema)
   delete _s.$id
   const properties = _s.properties
