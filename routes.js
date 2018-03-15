@@ -6,6 +6,7 @@ const resolve = require('path').resolve
 
 const files = {
   'index.html': {type: 'text/html'},
+  'oauth2-redirect.html': {type: 'text/html'},
   'swagger-ui.css': {type: 'text/css'},
   'swagger-ui.css.map': {type: 'application/json'},
   'swagger-ui-bundle.js': {type: 'application/javascript'},
@@ -42,7 +43,7 @@ function fastifySwagger (fastify, opts, next) {
     url: '/documentation',
     method: 'GET',
     schema: { hide: true },
-    handler: sendStaticFiles
+    handler: (request, reply) => reply.redirect(request.raw.url + '/')
   })
 
   fastify.route({
