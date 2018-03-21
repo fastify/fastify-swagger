@@ -1,15 +1,20 @@
 'use strict'
 
-const fp = require('fastify-plugin')
 const fs = require('fs')
 const path = require('path')
 const yaml = require('js-yaml')
-const openAPISpec = require('./openAPISpec')
 
-const setup = { dynamic: require('./dynamic'), static: require('./static') }
+module.exports = function (fastify, opts, next) {
+  fastify.decorate('swagger', swagger)
 
-function fastifySwagger (fastify, opts, next) {
+  const routes = []
+
+  fastify.addHook('onRoute', (routeOptions) => {
+    routes.push(routeOptions)
+  })
+
   opts = opts || {}
+
   opts.swagger = opts.swagger || {}
 
   const info = opts.swagger.info || null
@@ -106,7 +111,7 @@ function fastifySwagger (fastify, opts, next) {
 
         if (schema.body) {
           const consumesAllFormOnly =
-            consumesFormOnly(schema) || consumesFormOnly(swaggerObject)
+              consumesFormOnly(schema) || consumesFormOnly(swaggerObject)
           consumesAllFormOnly
             ? getFormParams(parameters, schema.body)
             : getBodyParams(parameters, schema.body)
@@ -156,9 +161,9 @@ function consumesFormOnly (schema) {
   const consumes = schema.consumes
   return (
     consumes &&
-    consumes.length === 1 &&
-    (consumes[0] === 'application/x-www-form-urlencoded' ||
-      consumes[0] === 'multipart/form-data')
+      consumes.length === 1 &&
+      (consumes[0] === 'application/x-www-form-urlencoded' ||
+        consumes[0] === 'multipart/form-data')
   )
 }
 
@@ -170,7 +175,7 @@ function getQueryParams (parameters, query) {
 
   Object.keys(query).forEach(prop => {
     const obj = query[prop]
-    const param = omitInvalidKeysSchema(obj)
+    const param = obj
     param.name = prop
     param.in = 'query'
     parameters.push(param)
@@ -181,7 +186,7 @@ function getBodyParams (parameters, body) {
   const param = {}
   param.name = 'body'
   param.in = 'body'
-  param.schema = omitInvalidKeysSchema(body)
+  param.schema = body
   parameters.push(param)
 }
 
@@ -189,7 +194,7 @@ function getFormParams (parameters, body) {
   const formParamsSchema = body.properties
   if (formParamsSchema) {
     Object.keys(formParamsSchema).forEach(name => {
-      const param = Object.assign({}, formParamsSchema[name])
+      const param = formParamsSchema[name]
       delete param.$id
       param.in = 'formData'
       param.name = name
@@ -249,14 +254,11 @@ function genResponse (response) {
 
   Object.keys(response).forEach(key => {
     if (response[key].type) {
-      const rsp = omitInvalidKeysSchema(response[key])
-      const description = response[key].description
-      const headers = response[key].headers
+      var rsp = response[key]
+      var description = response[key].description
+      var headers = response[key].headers
       response[key] = {
-        schema: openAPISpec.schemaProperties.reduce((schema, prop) => {
-          if (schema[prop]) schema[prop] = rsp[prop]
-          return schema
-        }, {})
+        schema: rsp
       }
       response[key].description = description || 'Default Response'
       if (headers) response[key].headers = headers
@@ -280,50 +282,9 @@ function formatParamUrl (url) {
 
   var end = url.indexOf('/', ++start)
 
-  // by default the mode is dynamic, as plugin initially was developed
-  opts.mode = opts.mode || 'dynamic'
-
-  switch (opts.mode) {
-    case 'static':
-      setup.static(fastify, opts, next)
-      break
-    case 'dynamic':
-      setup.dynamic(fastify, opts, next)
-      break
-    default:
-      return next(new Error("unsupported mode, should be one of ['static', 'dynamic']"))
+  if (end === -1) {
+    return url.slice(0, start) + '{' + url.slice(++start) + '}'
+  } else {
+    return formatParamUrl(url.slice(0, start) + '{' + url.slice(++start, end) + '}' + url.slice(end))
   }
 }
-
-/**
- * JSON shared schemas have $id's but that is not an acceptable property in swagger
- * @param {object} schema
- */
-function omitInvalidKeysSchema (schema) {
-  const _s = Object.assign({}, schema)
-  delete _s.$id
-  const properties = _s.properties
-  if (properties) {
-    Object.keys(properties).forEach(param => delete properties[param].$id)
-  }
-  return _s
-}
-
-/**
- * JSON shared schemas have $id's but that is not an acceptable property in swagger
- * @param {object} schema
- */
-function omitInvalidKeysSchema (schema) {
-  const _s = Object.assign({}, schema)
-  delete _s.$id
-  const properties = _s.properties
-  if (properties) {
-    Object.keys(properties).forEach(param => delete properties[param].$id)
-  }
-  return _s
-}
-
-module.exports = fp(fastifySwagger, {
-  fastify: '>=0.39.0',
-  name: 'fastify-swagger'
-})
