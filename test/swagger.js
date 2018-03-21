@@ -129,19 +129,28 @@ const opts6 = {
   }
 }
 
+const helloObjectSchema = {
+  $id: 'HELLO_OBJECT',
+  type: 'object',
+  properties: {
+    hello: {
+      description: 'hello',
+      type: 'string'
+    }
+  },
+  required: ['hello']
+}
+
 const opts7 = {
   schema: {
     consumes: ['application/x-www-form-urlencoded'],
-    body: {
-      type: 'object',
-      properties: {
-        hello: {
-          description: 'hello',
-          type: 'string'
-        }
-      },
-      required: ['hello']
-    }
+    body: 'HELLO_OBJECT#'
+  }
+}
+
+const opts8 = {
+  schema: {
+    body: 'HELLO_OBJECT#'
   }
 }
 
@@ -396,10 +405,34 @@ test('route meta info', t => {
   })
 })
 
+test('removes $id properties when a shared schema is added to documentation', t => {
+  t.plan(3)
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, swaggerInfo)
+  fastify.addSchema(helloObjectSchema)
+  fastify.get('/', opts8, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+    const swaggerObject = fastify.swagger()
+
+    Swagger.validate(swaggerObject)
+      .then(function (api) {
+        const definedPath = api.paths['/'].get
+        t.ok(definedPath)
+        t.same(definedPath['$id'], undefined)
+      })
+      .catch(function (err) {
+        t.fail(err)
+      })
+  })
+})
+
 test('parses form parameters when all api consumes application/x-www-form-urlencoded', t => {
   t.plan(3)
   const fastify = Fastify()
   fastify.register(fastifySwagger, swaggerInfo)
+  fastify.addSchema(helloObjectSchema)
   fastify.get('/', opts7, () => {})
 
   fastify.ready(err => {
