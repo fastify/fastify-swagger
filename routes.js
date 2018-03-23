@@ -2,21 +2,24 @@
 
 const fp = require('fastify-plugin')
 const readFileSync = require('fs').readFileSync
-const resolve = require('path').resolve
+const swaggerUiAssetPath = require('swagger-ui-dist').getAbsoluteFSPath()
 
 const files = {
-  'index.html': {type: 'text/html'},
-  'oauth2-redirect.html': {type: 'text/html'},
-  'swagger-ui.css': {type: 'text/css'},
-  'swagger-ui.css.map': {type: 'application/json'},
-  'swagger-ui-bundle.js': {type: 'application/javascript'},
-  'swagger-ui-bundle.js.map': {type: 'application/json'},
-  'swagger-ui-standalone-preset.js': {type: 'application/javascript'},
-  'swagger-ui-standalone-preset.js.map': {type: 'application/json'}
+  // prepare index file, so it corresponds our needs
+  index: readFileSync(`${swaggerUiAssetPath}/index.html`, 'utf8')
+    .replace('window.ui = ui', `window.ui = ui
+
+  function resolveUrl (url) {
+      const anchor = document.createElement('a')
+      anchor.href = url
+      return anchor.href
+  }`)
+    .replace(
+      /url: "(.*)",/,
+      `url: resolveUrl('./json'),
+    oauth2RedirectUrl: resolveUrl('./oauth2-redirect.html'),`
+    )
 }
-Object.keys(files).forEach(filename => {
-  files[filename].contents = readFileSync(resolve(__dirname, 'static', filename), 'utf8')
-})
 
 function fastifySwagger (fastify, opts, next) {
   fastify.route({
@@ -43,27 +46,26 @@ function fastifySwagger (fastify, opts, next) {
     url: '/documentation',
     method: 'GET',
     schema: { hide: true },
-    handler: (request, reply) => reply.redirect(request.raw.url + '/')
+    handler: (request, reply) => reply.redirect('./documentation/')
   })
 
-  fastify.route({
-    url: '/documentation/:file',
-    method: 'GET',
-    schema: { hide: true },
-    handler: sendStaticFiles
+  // server swagger-ui with the help of fastify-static
+  fastify.register(require('fastify-static'), {
+    root: swaggerUiAssetPath,
+    prefix: `/documentation/`
   })
 
-  function sendStaticFiles (req, reply) {
-    if (!req.params.file) {
-      const file = files['index.html']
-      reply.type(file.type).send(file.contents)
-    } else if (files.hasOwnProperty(req.params.file)) {
-      const file = files[req.params.file]
-      reply.type(file.type).send(file.contents)
-    } else {
-      return reply.code(404).send(new Error('Not found'))
+  // hijak swagger index.html response
+  fastify.addHook('onSend', (request, reply, payload, next) => {
+    if (
+      request.raw.originalUrl === `/documentation/` ||
+      request.raw.originalUrl === `/documentation/index.html`
+    ) {
+      reply.header('Content-Type', 'text/html; charset=UTF-8')
+      payload = files.index
     }
-  }
+    next(null, payload)
+  })
 
   next()
 }

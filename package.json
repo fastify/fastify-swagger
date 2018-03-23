@@ -28,7 +28,9 @@
   },
   "dependencies": {
     "fastify-plugin": "^0.2.2",
-    "js-yaml": "^3.10.0"
+    "fastify-static": "^0.8.0",
+    "js-yaml": "^3.10.0",
+    "swagger-ui-dist": "3.13.0"
   },
   "standard": {
     "ignore": [
