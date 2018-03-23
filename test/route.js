@@ -164,8 +164,8 @@ test('fastify.swagger should return a valid swagger yaml', t => {
   })
 })
 
-test('/documenatation should send the swagger UI html', t => {
-  t.plan(4)
+test('/documenatation should redirect to /documentation/', t => {
+  t.plan(5)
   const fastify = Fastify()
 
   fastify.register(fastifySwagger, swaggerInfo)
@@ -182,20 +182,18 @@ test('/documenatation should send the swagger UI html', t => {
     url: '/documentation'
   }, (err, res) => {
     t.error(err)
+    t.strictEqual(res.statusCode, 302)
+    t.strictEqual(res.headers['location'], '/documentation/')
     t.is(typeof res.payload, 'string')
-    t.is(res.headers['content-type'], 'text/html')
     t.strictEqual(
-      readFileSync(
-        resolve(__dirname, '..', 'static', 'index.html'),
-        'utf8'
-      ),
+      '',
       res.payload
     )
   })
 })
 
 test('/documenatation/:file should send back the correct file', t => {
-  t.plan(16)
+  t.plan(20)
   const fastify = Fastify()
 
   fastify.register(fastifySwagger, swaggerInfo)
@@ -217,6 +215,22 @@ test('/documenatation/:file should send back the correct file', t => {
     t.strictEqual(
       readFileSync(
         resolve(__dirname, '..', 'static', 'index.html'),
+        'utf8'
+      ),
+      res.payload
+    )
+  })
+
+  fastify.inject({
+    method: 'GET',
+    url: '/documentation/oauth2-redirect.html'
+  }, (err, res) => {
+    t.error(err)
+    t.is(typeof res.payload, 'string')
+    t.is(res.headers['content-type'], 'text/html')
+    t.strictEqual(
+      readFileSync(
+        resolve(__dirname, '..', 'static', 'oauth2-redirect.html'),
         'utf8'
       ),
       res.payload

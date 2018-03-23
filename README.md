@@ -138,7 +138,7 @@ If you pass `{ exposeRoute: true }` during the registration the plugin will expo
 |-------|----------------|
 |`'/documentation/json'` | the json object representing the api  |
 |`'/documentation/yaml'` | the yaml object representing the api  |
-|`'/documentation'` | the swagger ui  |
+|`'/documentation/'` | the swagger ui  |
 
 <a name="swagger.options"></a>
 ### swagger options
