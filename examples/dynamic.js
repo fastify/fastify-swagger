@@ -2,7 +2,7 @@
 
 const fastify = require('fastify')()
 
-fastify.register(require('./index'), {
+fastify.register(require('../index'), {
   swagger: {
     info: {
       title: 'Test swagger',

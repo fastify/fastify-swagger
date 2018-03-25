@@ -6,8 +6,6 @@ const Fastify = require('fastify')
 const Swagger = require('swagger-parser')
 const yaml = require('js-yaml')
 const fastifySwagger = require('../index')
-const readFileSync = require('fs').readFileSync
-const resolve = require('path').resolve
 
 const swaggerInfo = {
   swagger: {
@@ -165,7 +163,7 @@ test('fastify.swagger should return a valid swagger yaml', t => {
 })
 
 test('/documenatation should redirect to /documentation/', t => {
-  t.plan(5)
+  t.plan(4)
   const fastify = Fastify()
 
   fastify.register(fastifySwagger, swaggerInfo)
@@ -183,17 +181,13 @@ test('/documenatation should redirect to /documentation/', t => {
   }, (err, res) => {
     t.error(err)
     t.strictEqual(res.statusCode, 302)
-    t.strictEqual(res.headers['location'], '/documentation/')
+    t.strictEqual(res.headers['location'], './documentation/')
     t.is(typeof res.payload, 'string')
-    t.strictEqual(
-      '',
-      res.payload
-    )
   })
 })
 
 test('/documenatation/:file should send back the correct file', t => {
-  t.plan(20)
+  t.plan(15)
   const fastify = Fastify()
 
   fastify.register(fastifySwagger, swaggerInfo)
@@ -211,14 +205,7 @@ test('/documenatation/:file should send back the correct file', t => {
   }, (err, res) => {
     t.error(err)
     t.is(typeof res.payload, 'string')
-    t.is(res.headers['content-type'], 'text/html')
-    t.strictEqual(
-      readFileSync(
-        resolve(__dirname, '..', 'static', 'index.html'),
-        'utf8'
-      ),
-      res.payload
-    )
+    t.is(res.headers['content-type'], 'text/html; charset=UTF-8')
   })
 
   fastify.inject({
@@ -227,14 +214,7 @@ test('/documenatation/:file should send back the correct file', t => {
   }, (err, res) => {
     t.error(err)
     t.is(typeof res.payload, 'string')
-    t.is(res.headers['content-type'], 'text/html')
-    t.strictEqual(
-      readFileSync(
-        resolve(__dirname, '..', 'static', 'oauth2-redirect.html'),
-        'utf8'
-      ),
-      res.payload
-    )
+    t.is(res.headers['content-type'], 'text/html; charset=UTF-8')
   })
 
   fastify.inject({
@@ -243,14 +223,7 @@ test('/documenatation/:file should send back the correct file', t => {
   }, (err, res) => {
     t.error(err)
     t.is(typeof res.payload, 'string')
-    t.is(res.headers['content-type'], 'text/css')
-    t.strictEqual(
-      readFileSync(
-        resolve(__dirname, '..', 'static', 'swagger-ui.css'),
-        'utf8'
-      ),
-      res.payload
-    )
+    t.is(res.headers['content-type'], 'text/css; charset=UTF-8')
   })
 
   fastify.inject({
@@ -259,14 +232,7 @@ test('/documenatation/:file should send back the correct file', t => {
   }, (err, res) => {
     t.error(err)
     t.is(typeof res.payload, 'string')
-    t.is(res.headers['content-type'], 'application/javascript')
-    t.strictEqual(
-      readFileSync(
-        resolve(__dirname, '..', 'static', 'swagger-ui-bundle.js'),
-        'utf8'
-      ),
-      res.payload
-    )
+    t.is(res.headers['content-type'], 'application/javascript; charset=UTF-8')
   })
 
   fastify.inject({
@@ -275,14 +241,7 @@ test('/documenatation/:file should send back the correct file', t => {
   }, (err, res) => {
     t.error(err)
     t.is(typeof res.payload, 'string')
-    t.is(res.headers['content-type'], 'application/javascript')
-    t.strictEqual(
-      readFileSync(
-        resolve(__dirname, '..', 'static', 'swagger-ui-standalone-preset.js'),
-        'utf8'
-      ),
-      res.payload
-    )
+    t.is(res.headers['content-type'], 'application/javascript; charset=UTF-8')
   })
 })
 
