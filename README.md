@@ -152,6 +152,16 @@ Sometimes you may need to hide a certain route from the documentation, just pass
 ### Security
 Global security definitions and route level security provide documentation only. It does not implement authentication nor route security for you. Once your authentication is implemented, along with your defined security, users will be able to successfully authenticate and interact with your API using the user interfaces of the documentation.
 
+<a name="development"></a>
+### Development
+In order to start development run:
+```
+npm i 
+npm run prepare:swagger-ui
+```
+
+So that [swagger-ui](https://github.com/swagger-api/swagger-ui) static folder will be generated for you.
+
 <a name="anknowledgements"></a>
 ## Acknowledgements
 
