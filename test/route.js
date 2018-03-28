@@ -6,8 +6,9 @@ const Fastify = require('fastify')
 const Swagger = require('swagger-parser')
 const yaml = require('js-yaml')
 const fastifySwagger = require('../index')
-const readFileSync = require('fs').readFileSync
+
 const resolve = require('path').resolve
+const readFileSync = require('fs').readFileSync
 
 const swaggerInfo = {
   swagger: {
@@ -164,7 +165,7 @@ test('fastify.swagger should return a valid swagger yaml', t => {
   })
 })
 
-test('/documenatation should send the swagger UI html', t => {
+test('/documenatation should redirect to /documentation/', t => {
   t.plan(4)
   const fastify = Fastify()
 
@@ -182,20 +183,14 @@ test('/documenatation should send the swagger UI html', t => {
     url: '/documentation'
   }, (err, res) => {
     t.error(err)
+    t.strictEqual(res.statusCode, 302)
+    t.strictEqual(res.headers['location'], './documentation/')
     t.is(typeof res.payload, 'string')
-    t.is(res.headers['content-type'], 'text/html')
-    t.strictEqual(
-      readFileSync(
-        resolve(__dirname, '..', 'static', 'index.html'),
-        'utf8'
-      ),
-      res.payload
-    )
   })
 })
 
 test('/documenatation/:file should send back the correct file', t => {
-  t.plan(16)
+  t.plan(21)
   const fastify = Fastify()
 
   fastify.register(fastifySwagger, swaggerInfo)
@@ -213,10 +208,27 @@ test('/documenatation/:file should send back the correct file', t => {
   }, (err, res) => {
     t.error(err)
     t.is(typeof res.payload, 'string')
-    t.is(res.headers['content-type'], 'text/html')
+    t.is(res.headers['content-type'], 'text/html; charset=UTF-8')
     t.strictEqual(
       readFileSync(
         resolve(__dirname, '..', 'static', 'index.html'),
+        'utf8'
+      ),
+      res.payload
+    )
+    t.ok(res.payload.indexOf('resolveUrl') !== -1)
+  })
+
+  fastify.inject({
+    method: 'GET',
+    url: '/documentation/oauth2-redirect.html'
+  }, (err, res) => {
+    t.error(err)
+    t.is(typeof res.payload, 'string')
+    t.is(res.headers['content-type'], 'text/html; charset=UTF-8')
+    t.strictEqual(
+      readFileSync(
+        resolve(__dirname, '..', 'static', 'oauth2-redirect.html'),
         'utf8'
       ),
       res.payload
@@ -229,7 +241,7 @@ test('/documenatation/:file should send back the correct file', t => {
   }, (err, res) => {
     t.error(err)
     t.is(typeof res.payload, 'string')
-    t.is(res.headers['content-type'], 'text/css')
+    t.is(res.headers['content-type'], 'text/css; charset=UTF-8')
     t.strictEqual(
       readFileSync(
         resolve(__dirname, '..', 'static', 'swagger-ui.css'),
@@ -245,7 +257,7 @@ test('/documenatation/:file should send back the correct file', t => {
   }, (err, res) => {
     t.error(err)
     t.is(typeof res.payload, 'string')
-    t.is(res.headers['content-type'], 'application/javascript')
+    t.is(res.headers['content-type'], 'application/javascript; charset=UTF-8')
     t.strictEqual(
       readFileSync(
         resolve(__dirname, '..', 'static', 'swagger-ui-bundle.js'),
@@ -261,7 +273,7 @@ test('/documenatation/:file should send back the correct file', t => {
   }, (err, res) => {
     t.error(err)
     t.is(typeof res.payload, 'string')
-    t.is(res.headers['content-type'], 'application/javascript')
+    t.is(res.headers['content-type'], 'application/javascript; charset=UTF-8')
     t.strictEqual(
       readFileSync(
         resolve(__dirname, '..', 'static', 'swagger-ui-standalone-preset.js'),

@@ -88,53 +88,90 @@ fastify.ready(err => {
   fastify.swagger()
 })
 ```
-
+<a name="api"></a>
 ## API
-#### register options
-```js
-{
-  swagger: {
-    info: {
-      title: String,
-      description: String,
-      version: String
-    },
-    host: String,
-    schemes: [ String ],
-    consumes: [ String ],
-    produces: [ String ],
-    securityDefinitions: Object
+<a name="register.options"></a>
+### register options
+<a name="modes"></a>
+#### modes
+`fastify-swagger` supports two registration modes `dynamic` and `static`:
+<a name="mode.dynamic"></a>
+##### dynamic
+`dynamic` mode is the default one, if you use the plugin this way - swagger specification would be gathered from your routes definitions.
+  ```js
+  {
+    swagger: {
+      info: {
+        title: String,
+        description: String,
+        version: String
+      },
+      host: String,
+      schemes: [ String ],
+      consumes: [ String ],
+      produces: [ String ],
+      securityDefinitions: Object
+    }
   }
-}
-```
-*All the above parameters are optional.*  
-You can use all the properties of the [swagger specification](https://swagger.io/specification/), if you find anything missing, please open an issue or a pr!
+  ```
 
-<a name="options"></a>
-#### swagger options
-Calling `fastify.swagger` will return to you a JSON object representing your api, if you pass `{ yaml: true }` to `fastify.swagger`, it will return you a yaml string.
+  *All the above parameters are optional.*  
+  You can use all the properties of the [swagger specification](https://swagger.io/specification/), if you find anything missing, please open an issue or a pr!
 
-If you pass `{ exposeRoute: true }` the plugin will expose the documentation with the following apis:
+  Example of the `fastify-swagger` usage in the `dynamic` mode is available [here](examples/dynamic.js).
+<a name="mode.static"></a>
+
+##### static
+ `static` mode should be configured explicitly. In this mode `fastify-swagger` serves given specification, you should craft it yourselfe.
+  ```js
+  {
+    mode: 'static',
+    specification: {
+      path: './examples/example-static-specification.yaml'
+    }
+  }
+  ```
+  Example of the `fastify-swagger` usage in the `static` mode is available [here](examples/static-file.js).
+<a name="additional"></a>
+#### additional
+If you pass `{ exposeRoute: true }` during the registration the plugin will expose the documentation with the following apis:
 
 |  url  |  description   |
 |-------|----------------|
 |`'/documentation/json'` | the json object representing the api  |
 |`'/documentation/yaml'` | the yaml object representing the api  |
-|`'/documentation'` | the swagger ui  |
+|`'/documentation/'` | the swagger ui  |
+
+<a name="swagger.options"></a>
+### swagger options
+Calling `fastify.swagger` will return to you a JSON object representing your api, if you pass `{ yaml: true }` to `fastify.swagger`, it will return you a yaml string.
 
 <a name="hide"></a>
-#### Hide a route
+### Hide a route
 Sometimes you may need to hide a certain route from the documentation, just pass `{ hide: true }` to the schema object inside the route declaration.
 
-#### Security
+<a name="security"></a>
+### Security
 Global security definitions and route level security provide documentation only. It does not implement authentication nor route security for you. Once your authentication is implemented, along with your defined security, users will be able to successfully authenticate and interact with your API using the user interfaces of the documentation.
 
+<a name="development"></a>
+### Development
+In order to start development run:
+```
+npm i 
+npm run prepare:swagger-ui
+```
+
+So that [swagger-ui](https://github.com/swagger-api/swagger-ui) static folder will be generated for you.
+
+<a name="anknowledgements"></a>
 ## Acknowledgements
 
 This project is kindly sponsored by:
 - [nearForm](http://nearform.com)
 - [LetzDoIt](http://www.letzdoitapp.com/)
 
+<a name="license"></a>
 ## License
 
 Licensed under [MIT](./LICENSE).

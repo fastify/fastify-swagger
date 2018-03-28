@@ -42,3 +42,8 @@ yarn.lock
 
 # vim swap files
 *.swp
+
+package-lock.json
+
+static
+
