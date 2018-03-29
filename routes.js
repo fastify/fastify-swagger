@@ -1,7 +1,7 @@
 'use strict'
 
 const fp = require('fastify-plugin')
-const resolve = require('path').resolve
+const path = require('path')
 
 function fastifySwagger (fastify, opts, next) {
   fastify.route({
@@ -33,7 +33,7 @@ function fastifySwagger (fastify, opts, next) {
 
   // serve swagger-ui with the help of fastify-static
   fastify.register(require('fastify-static'), {
-    root: resolve('./static'),
+    root: path.join(__dirname, 'static'),
     prefix: `/documentation/`
   })
 
