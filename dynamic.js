@@ -24,6 +24,7 @@ module.exports = function (fastify, opts, next) {
   const produces = opts.swagger.produces || null
   const basePath = opts.swagger.basePath || null
   const securityDefinitions = opts.swagger.securityDefinitions || null
+  const security = opts.swagger.security || null
 
   if (opts.exposeRoute === true) {
     fastify.register(require('./routes'))
@@ -69,6 +70,9 @@ module.exports = function (fastify, opts, next) {
     if (produces) swaggerObject.produces = produces
     if (securityDefinitions) {
       swaggerObject.securityDefinitions = securityDefinitions
+    }
+    if (security) {
+      swaggerObject.security = security
     }
 
     swaggerObject.paths = {}
