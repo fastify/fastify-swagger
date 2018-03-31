@@ -83,12 +83,18 @@ module.exports = function (fastify, opts, next) {
 
       const schema = route.schema
       const url = formatParamUrl(route.url)
-      const method = route.method.toLowerCase()
 
       const swaggerRoute = swaggerObject.paths[url] || {}
 
-      const swaggerMethod = swaggerRoute[method] = {}
+      const swaggerMethod = {}
       const parameters = []
+
+      // route.method should be either a String, like 'POST', or an Array of Strings, like ['POST','PUT','PATCH']
+      const methods = typeof route.method === 'string' ? [route.method] : route.method
+
+      for (var method of methods) {
+        swaggerRoute[method.toLowerCase()] = swaggerMethod
+      }
 
       // All the data the user can give us, is via the schema object
       if (schema) {
