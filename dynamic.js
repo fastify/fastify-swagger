@@ -77,15 +77,15 @@ module.exports = function (fastify, opts, next) {
 
     swaggerObject.paths = {}
     for (var route of routes) {
-      const url = formatParamUrl(route.url)
-      const method = route.method.toLowerCase()
-      const schema = route.schema
-
-      const swaggerRoute = swaggerObject.paths[url] || {}
-
-      if (schema && schema.hide) {
+      if (route.schema && route.schema.hide) {
         continue
       }
+
+      const schema = route.schema
+      const url = formatParamUrl(route.url)
+      const method = route.method.toLowerCase()
+
+      const swaggerRoute = swaggerObject.paths[url] || {}
 
       const swaggerMethod = swaggerRoute[method] = {}
       const parameters = []
