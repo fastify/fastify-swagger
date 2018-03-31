@@ -24,7 +24,10 @@ const swaggerInfo = {
         name: 'apiKey',
         in: 'header'
       }
-    }
+    },
+    security: [{
+      apiKey: []
+    }]
   }
 }
 
