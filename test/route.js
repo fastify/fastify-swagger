@@ -305,7 +305,7 @@ test('/documenatation/:file 404', t => {
     const payload = JSON.parse(res.payload)
     t.strictEqual(res.statusCode, 404)
     t.deepEqual({
-      message: 'Not found',
+      message: 'Not Found',
       error: 'Not Found',
       statusCode: 404
     }, payload)
