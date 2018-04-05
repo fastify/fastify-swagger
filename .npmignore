@@ -47,7 +47,3 @@ package-lock.json
 
 # project specific
 *.tgz
-tap-snapshots
-test
-.travis.yml
-var

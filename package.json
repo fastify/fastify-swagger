@@ -4,9 +4,9 @@
   "description": "Generate Swagger files automatically for Fastify.",
   "main": "index.js",
   "scripts": {
-    "prepare:swagger-ui": "node prepare-swagger-ui",
+    "prepare": "node prepare-swagger-ui",
     "test": "standard && tap test/*.js",
-    "prepublish": "npm run prepare:swagger-ui"
+    "prepublishOnly": "npm run prepare"
   },
   "repository": {
     "type": "git",
