@@ -147,7 +147,7 @@ test('fastify.swagger should return a valid swagger yaml', t => {
   fastify.post('/example', opts2, () => {})
   fastify.get('/parameters/:id', opts3, () => {})
   fastify.get('/example1', opts4, () => {})
-  fastify.get('/parametersWithoutDesc/:id', opts5, () => {})
+  fastify.all('/parametersWithoutDesc/:id', opts5, () => {})
 
   fastify.inject({
     method: 'GET',
