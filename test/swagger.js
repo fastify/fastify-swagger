@@ -425,3 +425,53 @@ test('parses form parameters when all api consumes application/x-www-form-urlenc
       })
   })
 })
+
+test('required query params', t => {
+  t.plan(3)
+
+  const opts = {
+    schema: {
+      querystring: {
+        type: 'object',
+        properties: {
+          hello: { type: 'string' },
+          world: { type: 'string', description: 'world description' }
+        },
+        required: ['hello']
+      }
+    }
+  }
+
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, swaggerInfo)
+  fastify.get('/', opts, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+    const swaggerObject = fastify.swagger()
+
+    Swagger.validate(swaggerObject)
+      .then(function (api) {
+        const definedPath = api.paths['/'].get
+        t.ok(definedPath)
+        t.same(definedPath.parameters, [
+          {
+            in: 'query',
+            name: 'hello',
+            type: 'string',
+            required: true
+          },
+          {
+            in: 'query',
+            name: 'world',
+            type: 'string',
+            required: false,
+            description: 'world description'
+          }
+        ])
+      })
+      .catch(function (err) {
+        t.fail(err)
+      })
+  })
+})
