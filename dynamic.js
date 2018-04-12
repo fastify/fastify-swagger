@@ -180,7 +180,13 @@ function consumesFormOnly (schema) {
 function getQueryParams (parameters, query) {
   if (query.type && query.properties) {
     // for the shorthand querystring declaration
-    return getQueryParams(parameters, query.properties)
+    const queryProperties = Object.keys(query.properties).reduce((acc, h) => {
+      const required = (query.required && query.required.indexOf(h) >= 0) || false
+      const newProps = Object.assign({}, query.properties[h], { required })
+      return Object.assign({}, acc, { [h]: newProps })
+    }, {})
+
+    return getQueryParams(parameters, queryProperties)
   }
 
   Object.keys(query).forEach(prop => {
