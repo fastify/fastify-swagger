@@ -27,7 +27,8 @@ module.exports = function (fastify, opts, next) {
   const security = opts.swagger.security || null
 
   if (opts.exposeRoute === true) {
-    fastify.register(require('./routes'))
+    const prefix = opts.routePrefix || '/documentation'
+    fastify.register(require('./routes'), { prefix })
   }
 
   const cache = {
