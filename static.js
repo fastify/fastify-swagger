@@ -35,7 +35,8 @@ module.exports = function (fastify, opts, next) {
   fastify.decorate('swagger', swagger)
 
   if (opts.exposeRoute === true) {
-    fastify.register(require('./routes'))
+    const prefix = opts.routePrefix || '/documentation'
+    fastify.register(require('./routes'), { prefix })
   }
 
   const cache = {

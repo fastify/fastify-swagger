@@ -3,7 +3,7 @@
 [![Greenkeeper badge](https://badges.greenkeeper.io/fastify/fastify-swagger.svg)](https://greenkeeper.io/)
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](http://standardjs.com/)  [![Build Status](https://travis-ci.org/fastify/fastify-swagger.svg?branch=master)](https://travis-ci.org/fastify/fastify-swagger)
 
-[Swagger](https://swagger.io/) documentation generator for Fastify.  
+[Swagger](https://swagger.io/) documentation generator for Fastify.
 It uses the schemas you declare in your routes to generate a swagger compliant doc.
 
 <a name="install"></a>
@@ -26,6 +26,7 @@ fastify.register(require('fastify-swagger'), {
       description: 'testing the fastify swagger api',
       version: '0.1.0'
     },
+    routePrefix: '/documentation',
     host: 'localhost',
     schemes: ['http'],
     consumes: ['application/json'],
@@ -115,7 +116,7 @@ fastify.ready(err => {
   }
   ```
 
-  *All the above parameters are optional.*  
+  *All the above parameters are optional.*
   You can use all the properties of the [swagger specification](https://swagger.io/specification/), if you find anything missing, please open an issue or a pr!
 
   Example of the `fastify-swagger` usage in the `dynamic` mode is available [here](examples/dynamic.js).
@@ -142,6 +143,24 @@ If you pass `{ exposeRoute: true }` during the registration the plugin will expo
 |`'/documentation/yaml'` | the yaml object representing the api  |
 |`'/documentation/'` | the swagger ui  |
 
+
+##### Overwrite swagger url end-point
+If you would like to overwrite the `/documentation` url you can use the `routePrefix` option.
+```js
+fastify.register(require('fastify-swagger'), {
+  swagger: {
+    info: {
+      title: 'Test swagger',
+      description: 'testing the fastify swagger api',
+      version: '0.1.0'
+    },
+    ...
+  },
+  exposeRoute: true,
+  routePrefix: '/documentations'
+}
+```
+
 <a name="swagger.options"></a>
 ### swagger options
 Calling `fastify.swagger` will return to you a JSON object representing your api, if you pass `{ yaml: true }` to `fastify.swagger`, it will return you a yaml string.
@@ -158,7 +177,7 @@ Global security definitions and route level security provide documentation only.
 ### Development
 In order to start development run:
 ```
-npm i 
+npm i
 npm run prepare:swagger-ui
 ```
 

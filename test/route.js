@@ -165,10 +165,9 @@ test('fastify.swagger should return a valid swagger yaml', t => {
   })
 })
 
-test('/documenatation should redirect to /documentation/', t => {
+test('/documentation should redirect to /documentation/', t => {
   t.plan(4)
   const fastify = Fastify()
-
   fastify.register(fastifySwagger, swaggerInfo)
 
   fastify.get('/', () => {})
@@ -189,7 +188,7 @@ test('/documenatation should redirect to /documentation/', t => {
   })
 })
 
-test('/documenatation/:file should send back the correct file', t => {
+test('/documentation/:file should send back the correct file', t => {
   t.plan(21)
   const fastify = Fastify()
 
@@ -284,7 +283,7 @@ test('/documenatation/:file should send back the correct file', t => {
   })
 })
 
-test('/documenatation/:file 404', t => {
+test('/documentation/:file 404', t => {
   t.plan(3)
   const fastify = Fastify()
 
@@ -309,5 +308,37 @@ test('/documenatation/:file 404', t => {
       error: 'Not Found',
       statusCode: 404
     }, payload)
+  })
+})
+
+test('/documentation2/json route (overwrite)', t => {
+  t.plan(2)
+  const fastify = Fastify()
+  const swaggerInfoWithRouteOverwrite = JSON.parse(JSON.stringify(swaggerInfo))
+  swaggerInfoWithRouteOverwrite.routePrefix = '/documentation2'
+  fastify.register(fastifySwagger, swaggerInfoWithRouteOverwrite)
+
+  fastify.get('/', () => {})
+  fastify.post('/', () => {})
+  fastify.get('/example', opts1, () => {})
+  fastify.post('/example', opts2, () => {})
+  fastify.get('/parameters/:id', opts3, () => {})
+  fastify.get('/example1', opts4, () => {})
+
+  fastify.inject({
+    method: 'GET',
+    url: '/documentation2/json'
+  }, (err, res) => {
+    t.error(err)
+
+    var payload = JSON.parse(res.payload)
+
+    Swagger.validate(payload)
+      .then(function (api) {
+        t.pass('valid swagger object')
+      })
+      .catch(function (err) {
+        t.fail(err)
+      })
   })
 })

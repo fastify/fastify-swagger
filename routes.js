@@ -1,11 +1,17 @@
 'use strict'
 
-const fp = require('fastify-plugin')
 const path = require('path')
 
 function fastifySwagger (fastify, opts, next) {
   fastify.route({
-    url: '/documentation/json',
+    url: '/',
+    method: 'GET',
+    schema: { hide: true },
+    handler: (request, reply) => reply.redirect(`.${opts.prefix}/`)
+  })
+
+  fastify.route({
+    url: '/json',
     method: 'GET',
     schema: { hide: true },
     handler: function (req, reply) {
@@ -14,7 +20,7 @@ function fastifySwagger (fastify, opts, next) {
   })
 
   fastify.route({
-    url: '/documentation/yaml',
+    url: '/yaml',
     method: 'GET',
     schema: { hide: true },
     handler: function (req, reply) {
@@ -24,20 +30,12 @@ function fastifySwagger (fastify, opts, next) {
     }
   })
 
-  fastify.route({
-    url: '/documentation',
-    method: 'GET',
-    schema: { hide: true },
-    handler: (request, reply) => reply.redirect('./documentation/')
-  })
-
   // serve swagger-ui with the help of fastify-static
   fastify.register(require('fastify-static'), {
-    root: path.join(__dirname, 'static'),
-    prefix: `/documentation/`
+    root: path.join(__dirname, 'static')
   })
 
   next()
 }
 
-module.exports = fp(fastifySwagger, '>=0.14.0')
+module.exports = fastifySwagger

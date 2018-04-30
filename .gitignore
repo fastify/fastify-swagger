@@ -47,3 +47,5 @@ package-lock.json
 
 static
 
+# vscode files
+.vscode/
