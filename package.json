@@ -27,7 +27,7 @@
     "fs-extra": "^6.0.0",
     "standard": "^11.0.0",
     "swagger-parser": "^4.1.0",
-    "swagger-ui-dist": "3.14.0",
+    "swagger-ui-dist": "3.14.1",
     "tap": "^11.1.4"
   },
   "dependencies": {
