@@ -165,7 +165,7 @@ test('fastify.swagger should return a valid swagger yaml', t => {
   })
 })
 
-test('/documentation should redirect to /documentation/', t => {
+test('/documentation should redirect to /documentation/index.html', t => {
   t.plan(4)
   const fastify = Fastify()
   fastify.register(fastifySwagger, swaggerInfo)
@@ -183,7 +183,7 @@ test('/documentation should redirect to /documentation/', t => {
   }, (err, res) => {
     t.error(err)
     t.strictEqual(res.statusCode, 302)
-    t.strictEqual(res.headers['location'], './documentation/')
+    t.strictEqual(res.headers['location'], '/documentation/index.html')
     t.is(typeof res.payload, 'string')
   })
 })
