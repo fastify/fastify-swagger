@@ -188,6 +188,57 @@ test('/documentation should redirect to /documentation/index.html', t => {
   })
 })
 
+test('/v1/documentation should redirect to /v1/documentation/index.html', t => {
+  t.plan(4)
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, {routePrefix: '/v1/documentation', ...swaggerInfo})
+
+  fastify.get('/', () => {})
+  fastify.post('/', () => {})
+  fastify.get('/example', opts1, () => {})
+  fastify.post('/example', opts2, () => {})
+  fastify.get('/parameters/:id', opts3, () => {})
+  fastify.get('/example1', opts4, () => {})
+
+  fastify.inject({
+    method: 'GET',
+    url: '/v1/documentation'
+  }, (err, res) => {
+    t.error(err)
+    t.strictEqual(res.statusCode, 302)
+    t.strictEqual(res.headers['location'], '/v1/documentation/index.html')
+    t.is(typeof res.payload, 'string')
+  })
+})
+
+test('/v1/foobar should redirect to /v1/foobar/index.html - in plugin', t => {
+  t.plan(4)
+  const fastify = Fastify()
+
+  fastify.register(function (fastify, options, next) {
+    fastify.register(fastifySwagger, {routePrefix: '/foobar', ...swaggerInfo})
+
+    fastify.get('/', () => {})
+    fastify.post('/', () => {})
+    fastify.get('/example', opts1, () => {})
+    fastify.post('/example', opts2, () => {})
+    fastify.get('/parameters/:id', opts3, () => {})
+    fastify.get('/example1', opts4, () => {})
+
+    next()
+  }, { prefix: '/v1' })
+
+  fastify.inject({
+    method: 'GET',
+    url: '/v1/foobar'
+  }, (err, res) => {
+    t.error(err)
+    t.strictEqual(res.statusCode, 302)
+    t.strictEqual(res.headers['location'], '/v1/foobar/index.html')
+    t.is(typeof res.payload, 'string')
+  })
+})
+
 test('/documentation/:file should send back the correct file', t => {
   t.plan(21)
   const fastify = Fastify()
