@@ -191,7 +191,9 @@ test('/documentation should redirect to /documentation/index.html', t => {
 test('/v1/documentation should redirect to /v1/documentation/index.html', t => {
   t.plan(4)
   const fastify = Fastify()
-  fastify.register(fastifySwagger, {routePrefix: '/v1/documentation', ...swaggerInfo})
+  const opts = JSON.parse(JSON.stringify(swaggerInfo))
+  opts.routePrefix = '/v1/documentation'
+  fastify.register(fastifySwagger, opts)
 
   fastify.get('/', () => {})
   fastify.post('/', () => {})
