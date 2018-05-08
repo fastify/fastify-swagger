@@ -216,7 +216,9 @@ test('/v1/foobar should redirect to /v1/foobar/index.html - in plugin', t => {
   const fastify = Fastify()
 
   fastify.register(function (fastify, options, next) {
-    fastify.register(fastifySwagger, {routePrefix: '/foobar', ...swaggerInfo})
+    const opts = JSON.parse(JSON.stringify(swaggerInfo))
+    opts.routePrefix = '/foobar'
+    fastify.register(fastifySwagger, opts)
 
     fastify.get('/', () => {})
     fastify.post('/', () => {})
