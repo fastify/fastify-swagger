@@ -165,7 +165,7 @@ test('fastify.swagger should return a valid swagger yaml', t => {
   })
 })
 
-test('/documentation should redirect to /documentation/', t => {
+test('/documentation should redirect to /documentation/index.html', t => {
   t.plan(4)
   const fastify = Fastify()
   fastify.register(fastifySwagger, swaggerInfo)
@@ -183,7 +183,62 @@ test('/documentation should redirect to /documentation/', t => {
   }, (err, res) => {
     t.error(err)
     t.strictEqual(res.statusCode, 302)
-    t.strictEqual(res.headers['location'], './documentation/')
+    t.strictEqual(res.headers['location'], '/documentation/index.html')
+    t.is(typeof res.payload, 'string')
+  })
+})
+
+test('/v1/documentation should redirect to /v1/documentation/index.html', t => {
+  t.plan(4)
+  const fastify = Fastify()
+  const opts = JSON.parse(JSON.stringify(swaggerInfo))
+  opts.routePrefix = '/v1/documentation'
+  fastify.register(fastifySwagger, opts)
+
+  fastify.get('/', () => {})
+  fastify.post('/', () => {})
+  fastify.get('/example', opts1, () => {})
+  fastify.post('/example', opts2, () => {})
+  fastify.get('/parameters/:id', opts3, () => {})
+  fastify.get('/example1', opts4, () => {})
+
+  fastify.inject({
+    method: 'GET',
+    url: '/v1/documentation'
+  }, (err, res) => {
+    t.error(err)
+    t.strictEqual(res.statusCode, 302)
+    t.strictEqual(res.headers['location'], '/v1/documentation/index.html')
+    t.is(typeof res.payload, 'string')
+  })
+})
+
+test('/v1/foobar should redirect to /v1/foobar/index.html - in plugin', t => {
+  t.plan(4)
+  const fastify = Fastify()
+
+  fastify.register(function (fastify, options, next) {
+    const opts = JSON.parse(JSON.stringify(swaggerInfo))
+    opts.routePrefix = '/foobar'
+    fastify.register(fastifySwagger, opts)
+
+    fastify.get('/', () => {})
+    fastify.post('/', () => {})
+    fastify.get('/example', opts1, () => {})
+    fastify.post('/example', opts2, () => {})
+    fastify.get('/parameters/:id', opts3, () => {})
+    fastify.get('/example1', opts4, () => {})
+
+    next()
+  }, { prefix: '/v1' })
+
+  fastify.inject({
+    method: 'GET',
+    url: '/v1/foobar'
+  }, (err, res) => {
+    t.error(err)
+    t.strictEqual(res.statusCode, 302)
+    t.strictEqual(res.headers['location'], '/v1/foobar/index.html')
     t.is(typeof res.payload, 'string')
   })
 })

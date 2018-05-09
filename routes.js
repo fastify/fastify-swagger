@@ -7,7 +7,7 @@ function fastifySwagger (fastify, opts, next) {
     url: '/',
     method: 'GET',
     schema: { hide: true },
-    handler: (request, reply) => reply.redirect(`.${opts.prefix}/`)
+    handler: (request, reply) => reply.redirect(`${fastify.basePath}/index.html`)
   })
 
   fastify.route({
