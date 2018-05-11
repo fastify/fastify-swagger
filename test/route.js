@@ -243,7 +243,7 @@ test('/v1/foobar should redirect to /v1/foobar/index.html - in plugin', t => {
   })
 })
 
-test('with routePrefix: \'/\' should redirect /', t => {
+test('with routePrefix: \'/\' should redirect to /index.html', t => {
   t.plan(4)
   const fastify = Fastify()
 
