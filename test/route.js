@@ -243,6 +243,27 @@ test('/v1/foobar should redirect to /v1/foobar/index.html - in plugin', t => {
   })
 })
 
+test('with routePrefix: \'/\' should redirect to /index.html', t => {
+  t.plan(4)
+  const fastify = Fastify()
+
+  const opts = JSON.parse(JSON.stringify(swaggerInfo))
+  opts.routePrefix = '/'
+  fastify.register(fastifySwagger, opts)
+
+  fastify.get('/foo', () => {})
+
+  fastify.inject({
+    method: 'GET',
+    url: '/'
+  }, (err, res) => {
+    t.error(err)
+    t.strictEqual(res.statusCode, 302)
+    t.strictEqual(res.headers['location'], '/index.html')
+    t.is(typeof res.payload, 'string')
+  })
+})
+
 test('/documentation/:file should send back the correct file', t => {
   t.plan(21)
   const fastify = Fastify()
