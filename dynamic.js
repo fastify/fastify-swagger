@@ -22,6 +22,7 @@ module.exports = function (fastify, opts, next) {
   const schemes = opts.swagger.schemes || null
   const consumes = opts.swagger.consumes || null
   const produces = opts.swagger.produces || null
+  const definitions = opts.swagger.definitions || null
   const basePath = opts.swagger.basePath || null
   const securityDefinitions = opts.swagger.securityDefinitions || null
   const security = opts.swagger.security || null
@@ -69,6 +70,7 @@ module.exports = function (fastify, opts, next) {
     if (basePath) swaggerObject.basePath = basePath
     if (consumes) swaggerObject.consumes = consumes
     if (produces) swaggerObject.produces = produces
+    if (definitions) swaggerObject.definitions = definitions
     if (securityDefinitions) {
       swaggerObject.securityDefinitions = securityDefinitions
     }
