@@ -27,22 +27,7 @@ const swaggerInfo = {
     },
     security: [{
       apiKey: []
-    }],
-    definitions: {
-      'ExampleModel': {
-        'type': 'object',
-        'properties': {
-          'id': {
-            'type': 'integer',
-            'description': 'Some id'
-          },
-          'name': {
-            'type': 'string',
-            'description': 'Name of smthng'
-          }
-        }
-      }
-    }
+    }]
   }
 }
 
@@ -266,7 +251,7 @@ test('fastify.swagger should return a valid swagger yaml', t => {
 })
 
 test('fastify.swagger basic properties', t => {
-  t.plan(7)
+  t.plan(6)
   const fastify = Fastify()
 
   fastify.register(fastifySwagger, swaggerInfo)
@@ -297,9 +282,44 @@ test('fastify.swagger basic properties', t => {
     t.equal(swaggerObject.info, swaggerInfo.swagger.info)
     t.equal(swaggerObject.host, swaggerInfo.swagger.host)
     t.equal(swaggerObject.schemes, swaggerInfo.swagger.schemes)
-    t.equal(swaggerObject.definitions, swaggerInfo.swagger.definitions)
     t.ok(swaggerObject.paths)
     t.ok(swaggerObject.paths['/'])
+  })
+})
+
+test('fastify.swagger definitions', t => {
+  t.plan(2)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, swaggerInfo)
+
+  const opts = {
+    schema: {
+      definitions: {
+        'ExampleModel': {
+          'type': 'object',
+          'properties': {
+            'id': {
+              'type': 'integer',
+              'description': 'Some id'
+            },
+            'name': {
+              'type': 'string',
+              'description': 'Name of smthng'
+            }
+          }
+        }
+      }
+    }
+  }
+
+  fastify.get('/', opts, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+
+    const swaggerObject = fastify.swagger()
+    t.equal(swaggerObject.definitions, swaggerInfo.swagger.definitions)
   })
 })
 
