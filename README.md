@@ -183,6 +183,11 @@ npm run prepare:swagger-ui
 
 So that [swagger-ui](https://github.com/swagger-api/swagger-ui) static folder will be generated for you.
 
+<a name="seealso"></a>
+## See also
+Sometimes you already have a Swagger definition and you need to build Fastify routes from that.
+In that case checkout [fastify-swaggergen](https://github.com/seriousme/fastify-swaggergen) which helps you in doing just that.
+
 <a name="acknowledgements"></a>
 ## Acknowledgements
 
