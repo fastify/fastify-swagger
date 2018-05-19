@@ -17,6 +17,12 @@
     "swagger"
   ],
   "author": "Tomas Della Vedova - @delvedor (http://delved.org)",
+  "contributors": [
+    {
+      "name": "Matteo Collina",
+      "email": "hello@matteocollina.com"
+    }
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/fastify/fastify-swagger/issues"
