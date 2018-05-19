@@ -183,7 +183,7 @@ npm run prepare:swagger-ui
 
 So that [swagger-ui](https://github.com/swagger-api/swagger-ui) static folder will be generated for you.
 
-<a name="anknowledgements"></a>
+<a name="acknowledgements"></a>
 ## Acknowledgements
 
 This project is kindly sponsored by:
