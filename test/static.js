@@ -93,7 +93,7 @@ test('swagger route returns json', t => {
       // console.log(res.payload)
       try {
         var payload = JSON.parse(res.payload)
-        t.matchSnapshot(payload)
+        t.matchSnapshot(JSON.stringify(payload, null, 2))
       } catch (error) {
         t.fail(error)
       }
