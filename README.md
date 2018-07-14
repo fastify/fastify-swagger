@@ -120,6 +120,24 @@ fastify.ready(err => {
   You can use all the properties of the [swagger specification](https://swagger.io/specification/), if you find anything missing, please open an issue or a pr!
 
   Example of the `fastify-swagger` usage in the `dynamic` mode is available [here](examples/dynamic.js).
+<a name="mode.dynamic.openapi"></a>
+###### openapi support
+In order to enable openapi (v3.X.X) support you should add apropriate version to plugin options.
+Also note that according to new openapi specs some additional configuration sections are available.
+  ```js
+  {
+    openapi: '3.0.0'
+    swagger: {
+      servers: [{
+        url: String,
+        description: String
+      }],
+      components: {
+        securitySchemes: Object
+      }
+    }
+  }
+  ```
 <a name="mode.static"></a>
 
 ##### static

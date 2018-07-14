@@ -17,6 +17,7 @@ module.exports = function (fastify, opts, next) {
 
   opts.swagger = opts.swagger || {}
 
+  const openApiVersion = opts.openapi || null
   const info = opts.swagger.info || null
   const host = opts.swagger.host || null
   const schemes = opts.swagger.schemes || null
@@ -26,6 +27,8 @@ module.exports = function (fastify, opts, next) {
   const basePath = opts.swagger.basePath || null
   const securityDefinitions = opts.swagger.securityDefinitions || null
   const security = opts.swagger.security || null
+  const components = opts.swagger.components || null
+  const servers = opts.swagger.servers || null
 
   if (opts.exposeRoute === true) {
     const prefix = opts.routePrefix || '/documentation'
@@ -56,7 +59,11 @@ module.exports = function (fastify, opts, next) {
     // Base swagger info
     // this info is displayed in the swagger file
     // in the same order as here
-    swaggerObject.swagger = '2.0'
+    if (openApiVersion) {
+      swaggerObject.openapi = openApiVersion
+    } else {
+      swaggerObject.swagger = '2.0'
+    }
     if (info) {
       swaggerObject.info = info
     } else {
@@ -76,6 +83,12 @@ module.exports = function (fastify, opts, next) {
     }
     if (security) {
       swaggerObject.security = security
+    }
+    if (components) {
+      swaggerObject.components = components
+    }
+    if (servers) {
+      swaggerObject.servers = servers
     }
 
     swaggerObject.paths = {}
