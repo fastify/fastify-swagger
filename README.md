@@ -20,13 +20,13 @@ Add it to your project with `register` and pass it some basic options, then call
 const fastify = require('fastify')()
 
 fastify.register(require('fastify-swagger'), {
+  routePrefix: '/documentation',
   swagger: {
     info: {
       title: 'Test swagger',
       description: 'testing the fastify swagger api',
       version: '0.1.0'
     },
-    routePrefix: '/documentation',
     host: 'localhost',
     schemes: ['http'],
     consumes: ['application/json'],
