@@ -83,6 +83,7 @@ module.exports = function (fastify, opts, next) {
     if (servers) swaggerObject.servers = servers
 
     if (opts && opts.addFastifySchemas) {
+      // extract definitions from fastify schemas
       const schemas = fastify._schemas.store
       const schemaKeys = Object.keys(schemas)
       let schemasDst = swaggerObject.definitions
@@ -156,16 +157,6 @@ module.exports = function (fastify, opts, next) {
               ? getFormParams(parameters, schema.body)
               : getBodyParams(parameters, schema.body)
           }
-        }
-
-        if (schema.requestBody) {
-          const content = schema.requestBody.content
-          parameters.push(content)
-          // const consumesAllFormOnly =
-          //     consumesFormOnly(schema) || consumesFormOnly(swaggerObject)
-          // consumesAllFormOnly
-          //   ? getFormParams(parameters, schema.body, !!swaggerObject.openapi)
-          //   : getBodyParams(parameters, schema.body, !!swaggerObject.openapi)
         }
 
         if (schema.params) {
