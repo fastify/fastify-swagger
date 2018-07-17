@@ -6,7 +6,6 @@ const yaml = require('js-yaml')
 
 module.exports = function (fastify, opts, next) {
   fastify.decorate('swagger', swagger)
-
   const routes = []
 
   fastify.addHook('onRoute', (routeOptions) => {
@@ -18,6 +17,7 @@ module.exports = function (fastify, opts, next) {
   opts.swagger = opts.swagger || {}
 
   const openApiVersion = opts.openapi || null
+  const isOAS3 = Boolean(openApiVersion)
   const info = opts.swagger.info || null
   const host = opts.swagger.host || null
   const schemes = opts.swagger.schemes || null
@@ -32,7 +32,7 @@ module.exports = function (fastify, opts, next) {
 
   if (opts.exposeRoute === true) {
     const prefix = opts.routePrefix || '/documentation'
-    fastify.register(require('./routes'), { prefix })
+    fastify.register(require('./routes'), {prefix})
   }
 
   const cache = {
@@ -59,7 +59,7 @@ module.exports = function (fastify, opts, next) {
     // Base swagger info
     // this info is displayed in the swagger file
     // in the same order as here
-    if (openApiVersion) {
+    if (isOAS3) {
       swaggerObject.openapi = openApiVersion
     } else {
       swaggerObject.swagger = '2.0'
@@ -77,18 +77,29 @@ module.exports = function (fastify, opts, next) {
     if (basePath) swaggerObject.basePath = basePath
     if (consumes) swaggerObject.consumes = consumes
     if (produces) swaggerObject.produces = produces
-    if (definitions) swaggerObject.definitions = definitions
-    if (securityDefinitions) {
-      swaggerObject.securityDefinitions = securityDefinitions
-    }
-    if (security) {
-      swaggerObject.security = security
-    }
-    if (components) {
-      swaggerObject.components = components
-    }
-    if (servers) {
-      swaggerObject.servers = servers
+    if (securityDefinitions) swaggerObject.securityDefinitions = securityDefinitions
+    if (security) swaggerObject.security = security
+    if (components) swaggerObject.components = components
+    if (servers) swaggerObject.servers = servers
+
+    if (opts && opts.addFastifySchemas) {
+      const schemas = fastify._schemas.store
+      const schemaKeys = Object.keys(schemas)
+      let schemasDst = swaggerObject.definitions
+      if (isOAS3) {
+        swaggerObject.components.schemas = definitions || {}
+        schemasDst = swaggerObject.components.schemas
+      } else {
+        swaggerObject.definitions = definitions || {}
+        schemasDst = swaggerObject.definitions
+      }
+
+      for (var schemaKey of schemaKeys) {
+        const schema = Object.assign({}, schemas[schemaKey])
+        const id = schema.$id
+        delete schema.$id
+        schemasDst[id] = schema
+      }
     }
 
     swaggerObject.paths = {}
@@ -136,11 +147,25 @@ module.exports = function (fastify, opts, next) {
         }
 
         if (schema.body) {
-          const consumesAllFormOnly =
-              consumesFormOnly(schema) || consumesFormOnly(swaggerObject)
-          consumesAllFormOnly
-            ? getFormParams(parameters, schema.body)
-            : getBodyParams(parameters, schema.body)
+          if (isOAS3) {
+            const consumes = schema.consumes || swaggerObject.consumes
+            swaggerMethod.requestBody = getRequestBodyParams(schema.body, consumes)
+          } else {
+            const consumesAllFormOnly = consumesFormOnly(schema) || consumesFormOnly(swaggerObject)
+            consumesAllFormOnly
+              ? getFormParams(parameters, schema.body)
+              : getBodyParams(parameters, schema.body)
+          }
+        }
+
+        if (schema.requestBody) {
+          const content = schema.requestBody.content
+          parameters.push(content)
+          // const consumesAllFormOnly =
+          //     consumesFormOnly(schema) || consumesFormOnly(swaggerObject)
+          // consumesAllFormOnly
+          //   ? getFormParams(parameters, schema.body, !!swaggerObject.openapi)
+          //   : getBodyParams(parameters, schema.body, !!swaggerObject.openapi)
         }
 
         if (schema.params) {
@@ -171,7 +196,7 @@ module.exports = function (fastify, opts, next) {
     }
 
     if (opts && opts.yaml) {
-      const swaggerString = yaml.safeDump(swaggerObject, { skipInvalid: true })
+      const swaggerString = yaml.safeDump(swaggerObject, {skipInvalid: true})
       cache.swaggerString = swaggerString
       return swaggerString
     }
@@ -187,9 +212,8 @@ function consumesFormOnly (schema) {
   const consumes = schema.consumes
   return (
     consumes &&
-      consumes.length === 1 &&
-      (consumes[0] === 'application/x-www-form-urlencoded' ||
-        consumes[0] === 'multipart/form-data')
+    consumes.length === 1 &&
+    (consumes[0] === 'application/x-www-form-urlencoded' || consumes[0] === 'multipart/form-data')
   )
 }
 
@@ -198,14 +222,14 @@ function getQueryParams (parameters, query) {
     // for the shorthand querystring declaration
     const queryProperties = Object.keys(query.properties).reduce((acc, h) => {
       const required = (query.required && query.required.indexOf(h) >= 0) || false
-      const newProps = Object.assign({}, query.properties[h], { required })
-      return Object.assign({}, acc, { [h]: newProps })
+      const newProps = Object.assign({}, query.properties[h], {required})
+      return Object.assign({}, acc, {[h]: newProps})
     }, {})
 
     return getQueryParams(parameters, queryProperties)
   }
 
-  Object.keys(query).forEach(prop => {
+  Object.keys(query).forEach((prop) => {
     const obj = query[prop]
     const param = obj
     param.name = prop
@@ -222,10 +246,24 @@ function getBodyParams (parameters, body) {
   parameters.push(param)
 }
 
+function getRequestBodyParams (body, consumes) {
+  const content = Object.assign({}, body)
+  delete content.$id
+  const requestBody = {
+    description: body.description,
+    required: body.required,
+    content: {}
+  }
+  for (var consume of consumes) {
+    requestBody.content[consume] = {schema: content}
+  }
+  return requestBody
+}
+
 function getFormParams (parameters, body) {
   const formParamsSchema = body.properties
   if (formParamsSchema) {
-    Object.keys(formParamsSchema).forEach(name => {
+    Object.keys(formParamsSchema).forEach((name) => {
       const param = formParamsSchema[name]
       delete param.$id
       param.in = 'formData'
@@ -241,7 +279,7 @@ function getPathParams (parameters, params) {
     return getPathParams(parameters, params.properties)
   }
 
-  Object.keys(params).forEach(p => {
+  Object.keys(params).forEach((p) => {
     const param = {}
     param.name = p
     param.in = 'path'
@@ -257,14 +295,14 @@ function getHeaderParams (parameters, headers) {
     // for the shorthand querystring declaration
     const headerProperties = Object.keys(headers.properties).reduce((acc, h) => {
       const required = (headers.required && headers.required.indexOf(h) >= 0) || false
-      const newProps = Object.assign({}, headers.properties[h], { required })
-      return Object.assign({}, acc, { [h]: newProps })
+      const newProps = Object.assign({}, headers.properties[h], {required})
+      return Object.assign({}, acc, {[h]: newProps})
     }, {})
 
     return getHeaderParams(parameters, headerProperties)
   }
 
-  Object.keys(headers).forEach(h =>
+  Object.keys(headers).forEach((h) =>
     parameters.push({
       name: h,
       in: 'header',
@@ -278,13 +316,13 @@ function getHeaderParams (parameters, headers) {
 function genResponse (response) {
   // if the user does not provided an out schema
   if (!response) {
-    return { 200: { description: 'Default Response' } }
+    return {200: {description: 'Default Response'}}
   }
 
   // remove previous references
   response = Object.assign({}, response)
 
-  Object.keys(response).forEach(key => {
+  Object.keys(response).forEach((key) => {
     if (response[key].type) {
       var rsp = response[key]
       var description = response[key].description
@@ -317,6 +355,8 @@ function formatParamUrl (url) {
   if (end === -1) {
     return url.slice(0, start) + '{' + url.slice(++start) + '}'
   } else {
-    return formatParamUrl(url.slice(0, start) + '{' + url.slice(++start, end) + '}' + url.slice(end))
+    return formatParamUrl(
+      url.slice(0, start) + '{' + url.slice(++start, end) + '}' + url.slice(end)
+    )
   }
 }

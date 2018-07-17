@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "prepare": "node prepare-swagger-ui",
-    "test": "standard && tap test/*.js",
+    "test": "npm run lint && npm run unit",
+    "unit": "tap test/*.js",
+    "lint": "standard",
     "prepublishOnly": "npm run prepare"
   },
   "repository": {
