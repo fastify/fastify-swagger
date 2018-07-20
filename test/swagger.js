@@ -31,6 +31,30 @@ const swaggerInfo = {
   }
 }
 
+const openApiInfo = {
+  openapi: '3.0.0',
+  swagger: {
+    info: {
+      title: 'Test swagger',
+      description: 'testing the fastify swagger api',
+      version: '0.1.0'
+    },
+    servers: [{description: 'example', url: 'https://example.com'}],
+    content: {
+      securityDefinitions: {
+        apiKey: {
+          type: 'apiKey',
+          name: 'apiKey',
+          in: 'header'
+        }
+      }
+    },
+    security: [{
+      apiKey: []
+    }]
+  }
+}
+
 const opts1 = {
   schema: {
     response: {
@@ -186,6 +210,36 @@ test('fastify.swagger should default info properties', t => {
     const swaggerObject = fastify.swagger()
     t.equal(swaggerObject.info.title, 'fastify-swagger')
     t.equal(swaggerObject.info.version, '1.0.0')
+  })
+})
+
+test('fastify.swagger should return a valid openapi v3 object', t => {
+  t.plan(3)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, openApiInfo)
+
+  fastify.get('/', () => {})
+  fastify.post('/', () => {})
+  fastify.get('/example', opts1, () => {})
+  fastify.post('/example', opts2, () => {})
+  fastify.get('/parameters/:id', opts3, () => {})
+  fastify.get('/headers', opts4, () => {})
+  fastify.get('/headers/:id', opts5, () => {})
+  fastify.get('/security', opts6, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+
+    const swaggerObject = fastify.swagger()
+    t.is(typeof swaggerObject, 'object')
+    Swagger.validate(swaggerObject)
+      .then(function (api) {
+        t.pass('valid swagger object')
+      })
+      .catch(function (err) {
+        t.fail(err)
+      })
   })
 })
 
