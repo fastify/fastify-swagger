@@ -18,6 +18,13 @@ const swaggerInfo = {
     schemes: ['http'],
     consumes: ['application/json'],
     produces: ['application/json'],
+    tags: [
+      {name: 'tag'}
+    ],
+    externalDocs: {
+      description: 'Find more info here',
+      url: 'https://swagger.io'
+    },
     securityDefinitions: {
       apiKey: {
         type: 'apiKey',
@@ -320,6 +327,38 @@ test('fastify.swagger definitions', t => {
 
     const swaggerObject = fastify.swagger()
     t.equal(swaggerObject.definitions, swaggerInfo.swagger.definitions)
+  })
+})
+
+test('fastify.swagger tags', t => {
+  t.plan(2)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, swaggerInfo)
+
+  fastify.get('/', () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+
+    const swaggerObject = fastify.swagger()
+    t.equal(swaggerObject.tags, swaggerInfo.swagger.tags)
+  })
+})
+
+test('fastify.swagger externalDocs', t => {
+  t.plan(2)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, swaggerInfo)
+
+  fastify.get('/', () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+
+    const swaggerObject = fastify.swagger()
+    t.equal(swaggerObject.externalDocs, swaggerInfo.swagger.externalDocs)
   })
 })
 

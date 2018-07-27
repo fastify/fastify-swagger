@@ -26,6 +26,8 @@ module.exports = function (fastify, opts, next) {
   const basePath = opts.swagger.basePath || null
   const securityDefinitions = opts.swagger.securityDefinitions || null
   const security = opts.swagger.security || null
+  const tags = opts.swagger.tags || null
+  const externalDocs = opts.swagger.externalDocs || null
 
   if (opts.exposeRoute === true) {
     const prefix = opts.routePrefix || '/documentation'
@@ -76,6 +78,12 @@ module.exports = function (fastify, opts, next) {
     }
     if (security) {
       swaggerObject.security = security
+    }
+    if (tags) {
+      swaggerObject.tags = tags
+    }
+    if (externalDocs) {
+      swaggerObject.externalDocs = externalDocs
     }
 
     swaggerObject.paths = {}
