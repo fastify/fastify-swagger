@@ -138,11 +138,17 @@ fastify.ready(err => {
   {
     mode: 'static',
     specification: {
-      path: './examples/example-static-specification.yaml'
+      path: './examples/example-static-specification.yaml',
+      postProcessor: function(swaggerObject) {
+        return swaggerObject
+      }
     }
   }
   ```
   Example of the `fastify-swagger` usage in the `static` mode is available [here](examples/static-file.js).
+
+  `specification.postProcessor` parameter is optional. It allows you to change your swagger object on the fly (for example - based on the environment). It accepts `swaggerObject` - basically a javascript object which was parsed from your `yaml` or `json` file and should return a swagger object.
+
 <a name="additional"></a>
 #### additional
 If you pass `{ exposeRoute: true }` during the registration the plugin will expose the documentation with the following apis:
@@ -188,7 +194,7 @@ Global security definitions and route level security provide documentation only.
 In order to start development run:
 ```
 npm i
-npm run prepare:swagger-ui
+npm run prepare
 ```
 
 So that [swagger-ui](https://github.com/swagger-api/swagger-ui) static folder will be generated for you.

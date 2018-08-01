@@ -16,6 +16,10 @@ test('specification validation check works', t => {
     },
     {
       path: '/hello/lionel.richie'
+    },
+    {
+      path: './examples/example-static-specification.yaml',
+      postProcessor: 'hello'
     }
   ]
 
@@ -67,7 +71,6 @@ test('swagger route returns yaml', t => {
     }
   )
 })
-
 test('swagger route returns json', t => {
   t.plan(2)
   const fastify = Fastify()
@@ -96,6 +99,43 @@ test('swagger route returns json', t => {
         t.matchSnapshot(JSON.stringify(payload, null, 2))
       } catch (error) {
         t.fail(error)
+      }
+    }
+  )
+})
+
+test('postProcessor works, swagger route returns updated yaml', t => {
+  t.plan(5)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, {
+    mode: 'static',
+    specification: {
+      path: './examples/example-static-specification.yaml',
+      postProcessor: function (swaggerObject) {
+        swaggerObject.servers[0].url = 'http://localhost:4000/'
+        return swaggerObject
+      }
+    },
+    exposeRoute: true
+  })
+
+  // check that yaml is there
+  fastify.inject(
+    {
+      method: 'GET',
+      url: '/documentation/yaml'
+    },
+    (err, res) => {
+      t.error(err)
+      t.is(typeof res.payload, 'string')
+      t.is(res.headers['content-type'], 'application/x-yaml')
+      try {
+        yaml.safeLoad(res.payload)
+        t.matchSnapshot(res.payload)
+        t.pass('valid swagger yaml')
+      } catch (err) {
+        t.fail(err)
       }
     }
   )
