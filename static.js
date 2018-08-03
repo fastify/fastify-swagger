@@ -18,6 +18,8 @@ module.exports = function (fastify, opts, next) {
   const extName = path.extname(opts.specification.path).toLowerCase()
   if (['.yaml', '.json'].indexOf(extName) === -1) return next(new Error("specification.path extension name is not supported, should be one from ['.yaml', '.json']"))
 
+  if (opts.specification.postProcessor && typeof opts.specification.postProcessor !== 'function') return next(new Error('specification.postProcessor should be a function'))
+
   // read
   const source = fs.readFileSync(
     path.resolve(opts.specification.path),
@@ -30,6 +32,11 @@ module.exports = function (fastify, opts, next) {
     case '.json':
       swaggerObject = JSON.parse(source)
       break
+  }
+
+  // apply postProcessor, if one was passed as an argument
+  if (opts.specification.postProcessor) {
+    swaggerObject = opts.specification.postProcessor(swaggerObject)
   }
 
   fastify.decorate('swagger', swagger)
