@@ -6,7 +6,6 @@ const yaml = require('js-yaml')
 
 module.exports = function (fastify, opts, next) {
   fastify.decorate('swagger', swagger)
-
   const routes = []
 
   fastify.addHook('onRoute', (routeOptions) => {
@@ -29,9 +28,27 @@ module.exports = function (fastify, opts, next) {
   const tags = opts.swagger.tags || null
   const externalDocs = opts.swagger.externalDocs || null
 
+  // openapi v3
+  const openapi = opts.openapi || null
+  const components = opts.swagger.components || {}
+  const servers = opts.swagger.servers || []
+  if (schemes && !components.schemes) {
+    components.schemes = schemes
+  }
+  if (securityDefinitions && !components.securitySchemes) {
+    components.securitySchemes = securityDefinitions
+  }
+  if (host && !servers.length) {
+    const serverSchemes = schemes || ['http']
+    const serverBasePath = basePath || '/'
+    serverSchemes.forEach(function (scheme) {
+      servers.push(scheme + '://' + host + serverBasePath)
+    })
+  }
+
   if (opts.exposeRoute === true) {
     const prefix = opts.routePrefix || '/documentation'
-    fastify.register(require('./routes'), { prefix })
+    fastify.register(require('./routes'), {prefix})
   }
 
   const cache = {
@@ -58,26 +75,52 @@ module.exports = function (fastify, opts, next) {
     // Base swagger info
     // this info is displayed in the swagger file
     // in the same order as here
-    swaggerObject.swagger = '2.0'
+    if (openapi) {
+      swaggerObject.openapi = openapi
+    } else {
+      swaggerObject.swagger = '2.0'
+    }
     if (info) {
       swaggerObject.info = info
     } else {
       swaggerObject.info = {
         version: '1.0.0',
-        title: pkg.name || ''
+        title: pkg.name || '',
+        description: pkg.description || ''
       }
     }
-    if (host) swaggerObject.host = host
-    if (schemes) swaggerObject.schemes = schemes
-    if (basePath) swaggerObject.basePath = basePath
-    if (consumes) swaggerObject.consumes = consumes
-    if (produces) swaggerObject.produces = produces
-    if (definitions) swaggerObject.definitions = definitions
-    if (securityDefinitions) {
-      swaggerObject.securityDefinitions = securityDefinitions
+    if (openapi) {
+      if (servers) swaggerObject.servers = servers
+      if (components) swaggerObject.components = components
+    } else {
+      if (securityDefinitions) swaggerObject.securityDefinitions = securityDefinitions
+      if (host) swaggerObject.host = host
+      if (schemes) swaggerObject.schemes = schemes
+      if (basePath) swaggerObject.basePath = basePath
+      if (consumes) swaggerObject.consumes = consumes
+      if (produces) swaggerObject.produces = produces
     }
-    if (security) {
-      swaggerObject.security = security
+    if (security) swaggerObject.security = security
+
+    if (opts && opts.addFastifySchemas) {
+      // extract definitions from fastify schemas
+      const schemas = JSON.parse(JSON.stringify(fastify.getSchemas()))
+      const schemaKeys = Object.keys(schemas)
+      let schemasDst = swaggerObject.definitions
+      if (openapi) {
+        swaggerObject.components.schemas = definitions || {}
+        schemasDst = swaggerObject.components.schemas
+      } else {
+        swaggerObject.definitions = definitions || {}
+        schemasDst = swaggerObject.definitions
+      }
+
+      for (var schemaKey of schemaKeys) {
+        const schema = Object.assign({}, schemas[schemaKey])
+        const id = schema.$id
+        delete schema.$id
+        schemasDst[id] = schema
+      }
     }
     if (tags) {
       swaggerObject.tags = tags
@@ -122,28 +165,31 @@ module.exports = function (fastify, opts, next) {
           swaggerMethod.tags = schema.tags
         }
 
-        if (schema.consumes) {
+        if (!openapi && schema.consumes) {
           swaggerMethod.consumes = schema.consumes
         }
 
         if (schema.querystring) {
-          getQueryParams(parameters, schema.querystring)
+          getQueryParams(parameters, schema.querystring, openapi)
         }
 
         if (schema.body) {
-          const consumesAllFormOnly =
-              consumesFormOnly(schema) || consumesFormOnly(swaggerObject)
-          consumesAllFormOnly
-            ? getFormParams(parameters, schema.body)
-            : getBodyParams(parameters, schema.body)
+          if (openapi) {
+            swaggerMethod.requestBody = getRequestBodyParams(schema, consumes)
+          } else {
+            const consumesAllFormOnly = consumesFormOnly(schema) || consumesFormOnly(swaggerObject)
+            consumesAllFormOnly
+              ? getFormParams(parameters, schema.body)
+              : getBodyParams(parameters, schema.body)
+          }
         }
 
         if (schema.params) {
-          getPathParams(parameters, schema.params)
+          getPathParams(parameters, schema.params, openapi)
         }
 
         if (schema.headers) {
-          getHeaderParams(parameters, schema.headers)
+          getHeaderParams(parameters, schema.headers, openapi)
         }
 
         if (parameters.length) {
@@ -159,14 +205,16 @@ module.exports = function (fastify, opts, next) {
         }
       }
 
-      swaggerMethod.responses = genResponse(schema ? schema.response : null)
+      swaggerMethod.responses = openapi
+        ? genOpenApiResponse(schema, produces)
+        : genResponse(schema ? schema.response : null)
       if (swaggerRoute) {
         swaggerObject.paths[url] = swaggerRoute
       }
     }
 
     if (opts && opts.yaml) {
-      const swaggerString = yaml.safeDump(swaggerObject, { skipInvalid: true })
+      const swaggerString = yaml.safeDump(swaggerObject, {skipInvalid: true})
       cache.swaggerString = swaggerString
       return swaggerString
     }
@@ -182,29 +230,30 @@ function consumesFormOnly (schema) {
   const consumes = schema.consumes
   return (
     consumes &&
-      consumes.length === 1 &&
-      (consumes[0] === 'application/x-www-form-urlencoded' ||
-        consumes[0] === 'multipart/form-data')
+    consumes.length === 1 &&
+    (consumes[0] === 'application/x-www-form-urlencoded' || consumes[0] === 'multipart/form-data')
   )
 }
 
-function getQueryParams (parameters, query) {
+function getQueryParams (parameters, query, isOAS3) {
   if (query.type && query.properties) {
     // for the shorthand querystring declaration
     const queryProperties = Object.keys(query.properties).reduce((acc, h) => {
       const required = (query.required && query.required.indexOf(h) >= 0) || false
-      const newProps = Object.assign({}, query.properties[h], { required })
-      return Object.assign({}, acc, { [h]: newProps })
+      const newProps = Object.assign({}, query.properties[h], {required})
+      return Object.assign({}, acc, {[h]: newProps})
     }, {})
-
-    return getQueryParams(parameters, queryProperties)
+    return getQueryParams(parameters, queryProperties, isOAS3)
   }
-
-  Object.keys(query).forEach(prop => {
+  Object.keys(query).forEach((prop) => {
     const obj = query[prop]
     const param = obj
     param.name = prop
     param.in = 'query'
+    if (isOAS3 && param.type) {
+      param.schema = {type: param.type}
+      delete param.type
+    }
     parameters.push(param)
   })
 }
@@ -217,10 +266,24 @@ function getBodyParams (parameters, body) {
   parameters.push(param)
 }
 
+function getRequestBodyParams (schema, consumes) {
+  const body = schema.body
+  const mediaTypes = schema.consumes || consumes || ['*/*']
+  const requestBody = {
+    content: {}
+  }
+  if (schema.description) requestBody.description = schema.description
+  if (schema.required) requestBody.required = body.required
+  for (var mediaType of mediaTypes) {
+    requestBody.content[mediaType] = {schema: body}
+  }
+  return requestBody
+}
+
 function getFormParams (parameters, body) {
   const formParamsSchema = body.properties
   if (formParamsSchema) {
-    Object.keys(formParamsSchema).forEach(name => {
+    Object.keys(formParamsSchema).forEach((name) => {
       const param = formParamsSchema[name]
       delete param.$id
       param.in = 'formData'
@@ -230,56 +293,103 @@ function getFormParams (parameters, body) {
   }
 }
 
-function getPathParams (parameters, params) {
+function getPathParams (parameters, params, isOAS3) {
   if (params.type && params.properties) {
     // for the shorthand querystring declaration
-    return getPathParams(parameters, params.properties)
+    return getPathParams(parameters, params.properties, isOAS3)
   }
 
-  Object.keys(params).forEach(p => {
+  Object.keys(params).forEach((p) => {
     const param = {}
     param.name = p
     param.in = 'path'
     param.required = true
     param.description = params[p].description
-    param.type = params[p].type
+    if (isOAS3) {
+      param.schema = {type: params[p].type}
+    } else {
+      param.type = params[p].type
+    }
     parameters.push(param)
   })
 }
 
-function getHeaderParams (parameters, headers) {
+function getHeaderParams (parameters, headers, isOAS3) {
   if (headers.type && headers.properties) {
     // for the shorthand querystring declaration
     const headerProperties = Object.keys(headers.properties).reduce((acc, h) => {
       const required = (headers.required && headers.required.indexOf(h) >= 0) || false
-      const newProps = Object.assign({}, headers.properties[h], { required })
-      return Object.assign({}, acc, { [h]: newProps })
+      const newProps = Object.assign({}, headers.properties[h], {required})
+      return Object.assign({}, acc, {[h]: newProps})
     }, {})
 
-    return getHeaderParams(parameters, headerProperties)
+    return getHeaderParams(parameters, headerProperties, isOAS3)
   }
 
-  Object.keys(headers).forEach(h =>
-    parameters.push({
+  Object.keys(headers).forEach((h) => {
+    const header = {
       name: h,
       in: 'header',
       required: headers[h].required,
-      description: headers[h].description,
-      type: headers[h].type
-    })
-  )
+      description: headers[h].description
+    }
+    if (isOAS3) {
+      header.schema = {type: headers[h].type}
+    } else {
+      header.type = headers[h].type
+    }
+    parameters.push(header)
+  })
 }
 
-function genResponse (response) {
+function genOpenApiResponse (schema, produces) {
   // if the user does not provided an out schema
+
+  let response = schema ? schema.response : null
   if (!response) {
-    return { 200: { description: 'Default Response' } }
+    return {200: {description: 'Default Response'}}
   }
 
   // remove previous references
   response = Object.assign({}, response)
 
-  Object.keys(response).forEach(key => {
+  Object.keys(response).forEach((key) => {
+    if (response[key].type) {
+      var rsp = response[key]
+      var description = response[key].description
+      var headers = response[key].headers
+
+      const mediaTypes = schema.produces || produces || ['*/*']
+      for (var mediaType of mediaTypes) {
+        response[key] = {
+          content: {
+            [mediaType]: {schema: rsp}
+          }
+        }
+      }
+
+      response[key].description = description || 'Default Response'
+      if (headers) response[key].headers = headers
+    }
+
+    if (!response[key].description) {
+      response[key].description = 'Default Response'
+    }
+  })
+
+  return response
+}
+
+function genResponse (response) {
+  // if the user does not provided an out schema
+  if (!response) {
+    return {200: {description: 'Default Response'}}
+  }
+
+  // remove previous references
+  response = Object.assign({}, response)
+
+  Object.keys(response).forEach((key) => {
     if (response[key].type) {
       var rsp = response[key]
       var description = response[key].description
@@ -312,6 +422,8 @@ function formatParamUrl (url) {
   if (end === -1) {
     return url.slice(0, start) + '{' + url.slice(++start) + '}'
   } else {
-    return formatParamUrl(url.slice(0, start) + '{' + url.slice(++start, end) + '}' + url.slice(end))
+    return formatParamUrl(
+      url.slice(0, start) + '{' + url.slice(++start, end) + '}' + url.slice(end)
+    )
   }
 }
