@@ -14,7 +14,7 @@ Error: specification is not an object
 `
 
 exports[`test/static.js TAP specification validation check works > undefined 3`] = `
-Error: specification.path is missing, should be path to the file
+Error: both specification.path and specification.document are missing, should be path to the file or swagger document spec
 `
 
 exports[`test/static.js TAP specification validation check works > undefined 4`] = `
