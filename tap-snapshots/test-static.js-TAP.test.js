@@ -117,3 +117,13 @@ paths:
                   date: '2018-02-19T15:36:46.758Z'
 
 `
+
+exports[`test/static.js TAP swagger route returns explicitly passed doc > undefined 1`] = `
+{
+  "info": {
+    "title": "Test swagger",
+    "description": "testing the fastify swagger api",
+    "version": "0.1.0"
+  }
+}
+`
