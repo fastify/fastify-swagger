@@ -549,3 +549,41 @@ test('required query params', t => {
       })
   })
 })
+
+test('swagger json output should not omit enum part in params config', t => {
+  t.plan(3)
+  const opts = {
+    schema: {
+      params: {
+        type: 'object',
+        properties: {
+          enumKey: {type: 'string', enum: ['enum1', 'enum2']}
+        }
+      }
+    }
+  }
+
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, swaggerInfo)
+  fastify.get('/test/:enumKey', opts, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+    const swaggerObject = fastify.swagger()
+    Swagger.validate(swaggerObject)
+      .then((api) => {
+        const definedPath = api.paths['/test/{enumKey}'].get
+        t.ok(definedPath)
+        t.same(definedPath.parameters, [{
+          in: 'path',
+          name: 'enumKey',
+          type: 'string',
+          enum: ['enum1', 'enum2'],
+          required: true
+        }])
+      })
+      .catch(err => {
+        t.error(err)
+      })
+  })
+})

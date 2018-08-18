@@ -237,12 +237,10 @@ function getPathParams (parameters, params) {
   }
 
   Object.keys(params).forEach(p => {
-    const param = {}
+    const param = Object.assign({}, params[p])
     param.name = p
     param.in = 'path'
     param.required = true
-    param.description = params[p].description
-    param.type = params[p].type
     parameters.push(param)
   })
 }
