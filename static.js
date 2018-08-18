@@ -10,33 +10,40 @@ module.exports = function (fastify, opts, next) {
 
   let swaggerObject = {}
 
-  if (!opts.specification.path) return next(new Error('specification.path is missing, should be path to the file'))
-  if (typeof opts.specification.path !== 'string') return next(new Error('specification.path is not a string'))
+  if (!opts.specification.path && !opts.specification.document) {
+    return next(new Error('both specification.path and specification.document are missing, should be path to the file or swagger document spec'))
+  } else if (opts.specification.path) {
+    if (typeof opts.specification.path !== 'string') return next(new Error('specification.path is not a string'))
 
-  if (!fs.existsSync(path.resolve(opts.specification.path))) return next(new Error(`${opts.specification.path} does not exist`))
+    if (!fs.existsSync(path.resolve(opts.specification.path))) return next(new Error(`${opts.specification.path} does not exist`))
 
-  const extName = path.extname(opts.specification.path).toLowerCase()
-  if (['.yaml', '.json'].indexOf(extName) === -1) return next(new Error("specification.path extension name is not supported, should be one from ['.yaml', '.json']"))
+    const extName = path.extname(opts.specification.path).toLowerCase()
+    if (['.yaml', '.json'].indexOf(extName) === -1) return next(new Error("specification.path extension name is not supported, should be one from ['.yaml', '.json']"))
 
-  if (opts.specification.postProcessor && typeof opts.specification.postProcessor !== 'function') return next(new Error('specification.postProcessor should be a function'))
+    if (opts.specification.postProcessor && typeof opts.specification.postProcessor !== 'function') return next(new Error('specification.postProcessor should be a function'))
 
-  // read
-  const source = fs.readFileSync(
-    path.resolve(opts.specification.path),
-    'utf8'
-  )
-  switch (extName) {
-    case '.yaml':
-      swaggerObject = yaml.safeLoad(source)
-      break
-    case '.json':
-      swaggerObject = JSON.parse(source)
-      break
-  }
+    // read
+    const source = fs.readFileSync(
+      path.resolve(opts.specification.path),
+      'utf8'
+    )
+    switch (extName) {
+      case '.yaml':
+        swaggerObject = yaml.safeLoad(source)
+        break
+      case '.json':
+        swaggerObject = JSON.parse(source)
+        break
+    }
 
-  // apply postProcessor, if one was passed as an argument
-  if (opts.specification.postProcessor) {
-    swaggerObject = opts.specification.postProcessor(swaggerObject)
+    // apply postProcessor, if one was passed as an argument
+    if (opts.specification.postProcessor) {
+      swaggerObject = opts.specification.postProcessor(swaggerObject)
+    }
+  } else {
+    if (typeof opts.specification.document !== 'object') return next(new Error('specification.document is not an object'))
+
+    swaggerObject = opts.specification.document
   }
 
   fastify.decorate('swagger', swagger)

@@ -14,7 +14,7 @@ Error: specification is not an object
 `
 
 exports[`test/static.js TAP specification validation check works > undefined 3`] = `
-Error: specification.path is missing, should be path to the file
+Error: both specification.path and specification.document are missing, should be path to the file or swagger document spec
 `
 
 exports[`test/static.js TAP specification validation check works > undefined 4`] = `
@@ -116,4 +116,14 @@ paths:
                   health: true
                   date: '2018-02-19T15:36:46.758Z'
 
+`
+
+exports[`test/static.js TAP swagger route returns explicitly passed doc > undefined 1`] = `
+{
+  "info": {
+    "title": "Test swagger",
+    "description": "testing the fastify swagger api",
+    "version": "0.1.0"
+  }
+}
 `

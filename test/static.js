@@ -140,3 +140,41 @@ test('postProcessor works, swagger route returns updated yaml', t => {
     }
   )
 })
+test('swagger route returns explicitly passed doc', t => {
+  t.plan(3)
+  const fastify = Fastify()
+
+  const document = {
+    info: {
+      title: 'Test swagger',
+      description: 'testing the fastify swagger api',
+      version: '0.1.0'
+    }
+  }
+  fastify.register(fastifySwagger, {
+    mode: 'static',
+    specification: {
+      document
+    },
+    exposeRoute: true
+  })
+
+  // check that json is there
+  fastify.inject(
+    {
+      method: 'GET',
+      url: '/documentation/json'
+    },
+    (err, res) => {
+      t.error(err)
+
+      try {
+        var payload = JSON.parse(res.payload)
+        t.matchSnapshot(JSON.stringify(payload, null, 2))
+        t.pass('valid explicitly passed spec document')
+      } catch (error) {
+        t.fail(error)
+      }
+    }
+  )
+})
