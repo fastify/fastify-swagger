@@ -19,7 +19,7 @@ const swaggerInfo = {
     consumes: ['application/json'],
     produces: ['application/json'],
     tags: [
-      {name: 'tag'}
+      { name: 'tag' }
     ],
     externalDocs: {
       description: 'Find more info here',
@@ -557,7 +557,7 @@ test('swagger json output should not omit enum part in params config', t => {
       params: {
         type: 'object',
         properties: {
-          enumKey: {type: 'string', enum: ['enum1', 'enum2']}
+          enumKey: { type: 'string', enum: ['enum1', 'enum2'] }
         }
       }
     }
