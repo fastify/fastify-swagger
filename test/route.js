@@ -8,7 +8,6 @@ const yaml = require('js-yaml')
 const fastifySwagger = require('../index')
 
 const resolve = require('path').resolve
-const path = require('path').join
 const readFileSync = require('fs').readFileSync
 
 const swaggerInfo = {
@@ -184,7 +183,7 @@ test('/documentation should redirect to /documentation/index.html', t => {
   }, (err, res) => {
     t.error(err)
     t.strictEqual(res.statusCode, 302)
-    t.strictEqual(res.headers['location'], `${path('/', 'documentation', 'index.html')}`)
+    t.strictEqual(res.headers['location'], '/documentation/index.html')
     t.is(typeof res.payload, 'string')
   })
 })
@@ -209,7 +208,7 @@ test('/v1/documentation should redirect to /v1/documentation/index.html', t => {
   }, (err, res) => {
     t.error(err)
     t.strictEqual(res.statusCode, 302)
-    t.strictEqual(res.headers['location'], `${path('/', 'v1', 'documentation', 'index.html')}`)
+    t.strictEqual(res.headers['location'], '/v1/documentation/index.html')
     t.is(typeof res.payload, 'string')
   })
 })
@@ -239,7 +238,7 @@ test('/v1/foobar should redirect to /v1/foobar/index.html - in plugin', t => {
   }, (err, res) => {
     t.error(err)
     t.strictEqual(res.statusCode, 302)
-    t.strictEqual(res.headers['location'], `${path('/', 'v1', 'foobar', 'index.html')}`)
+    t.strictEqual(res.headers['location'], '/v1/foobar/index.html')
     t.is(typeof res.payload, 'string')
   })
 })
@@ -260,7 +259,7 @@ test('with routePrefix: \'/\' should redirect to /index.html', t => {
   }, (err, res) => {
     t.error(err)
     t.strictEqual(res.statusCode, 302)
-    t.strictEqual(res.headers['location'], `${path('/', 'index.html')}`)
+    t.strictEqual(res.headers['location'], '/index.html')
     t.is(typeof res.payload, 'string')
   })
 })
