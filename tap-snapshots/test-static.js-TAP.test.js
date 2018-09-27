@@ -5,34 +5,31 @@
  * Make sure to inspect the output below.  Do not ignore changes!
  */
 'use strict'
-
-const path = require('path').join
-
-exports[`${path('test', 'static.js')} TAP specification validation check works > undefined 1`] = `
+exports[`test/static.js TAP specification validation check works > undefined 1`] = `
 Error: specification is missing in the module options
 `
 
-exports[`${path('test', 'static.js')} TAP specification validation check works > undefined 2`] = `
+exports[`test/static.js TAP specification validation check works > undefined 2`] = `
 Error: specification is not an object
 `
 
-exports[`${path('test', 'static.js')} TAP specification validation check works > undefined 3`] = `
+exports[`test/static.js TAP specification validation check works > undefined 3`] = `
 Error: both specification.path and specification.document are missing, should be path to the file or swagger document spec
 `
 
-exports[`${path('test', 'static.js')} TAP specification validation check works > undefined 4`] = `
+exports[`test/static.js TAP specification validation check works > undefined 4`] = `
 Error: specification.path is not a string
 `
 
-exports[`${path('test', 'static.js')} TAP specification validation check works > undefined 5`] = `
+exports[`test/static.js TAP specification validation check works > undefined 5`] = `
 Error: /hello/lionel.richie does not exist
 `
 
-exports[`${path('test', 'static.js')} TAP specification validation check works > undefined 6`] = `
+exports[`test/static.js TAP specification validation check works > undefined 6`] = `
 Error: specification.postProcessor should be a function
 `
 
-exports[`${path('test', 'static.js')} TAP swagger route returns json > undefined 1`] = `
+exports[`test/static.js TAP swagger route returns json > undefined 1`] = `
 {
   "openapi": "3.0.0",
   "info": {
@@ -86,7 +83,7 @@ exports[`${path('test', 'static.js')} TAP swagger route returns json > undefined
 }
 `
 
-exports[`${path('test', 'static.js')} TAP postProcessor works, swagger route returns updated yaml > undefined 1`] = `
+exports[`test/static.js TAP postProcessor works, swagger route returns updated yaml > undefined 1`] = `
 openapi: 3.0.0
 info:
   description: Test swagger specification
@@ -121,7 +118,7 @@ paths:
 
 `
 
-exports[`${path('test', 'static.js')} TAP swagger route returns explicitly passed doc > undefined 1`] = `
+exports[`test/static.js TAP swagger route returns explicitly passed doc > undefined 1`] = `
 {
   "info": {
     "title": "Test swagger",
