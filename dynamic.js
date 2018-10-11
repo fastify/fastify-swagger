@@ -279,6 +279,9 @@ function genResponse (response) {
 
   Object.keys(response).forEach(key => {
     if (response[key].type) {
+      if (response[key].type === 'null') {
+        delete response[key].type
+      }
       var rsp = response[key]
       var description = response[key].description
       var headers = response[key].headers
