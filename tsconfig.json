@@ -4,8 +4,7 @@
     "module": "commonjs",
     "noEmit": true,
     "strict": true,
-    "noImplicitAny": true,
-    "types": ["swagger-schema-official"]
+    "noImplicitAny": true
   },
   "files": ["./types.test.ts"]
 }
