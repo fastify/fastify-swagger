@@ -30,12 +30,12 @@
   },
   "homepage": "https://github.com/fastify/fastify-swagger#readme",
   "devDependencies": {
+    "@types/swagger-schema-official": "^2.0.13",
     "fastify": "^1.9.0",
     "fs-extra": "^7.0.0",
     "pre-commit": "^1.2.2",
     "standard": "^12.0.1",
     "swagger-parser": "^6.0.0",
-    "swagger-schema-official": "^2.0.0-bab6bed",
     "swagger-ui-dist": "3.19.5",
     "tap": "^12.0.0",
     "typescript": "^3.1.6"
