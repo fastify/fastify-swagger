@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "noEmit": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "types": ["swagger-schema-official"]
+  },
+  "files": ["./types.test.ts"]
+}
