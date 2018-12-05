@@ -8,10 +8,10 @@ function fastifySwagger (fastify, opts, next) {
     method: 'GET',
     schema: { hide: true },
     handler: (request, reply) => {
-      if (fastify.basePath === '/') {
+      if (fastify.prefix === '/') {
         reply.redirect('/index.html')
       } else {
-        reply.redirect(`${fastify.basePath}/index.html`)
+        reply.redirect(`${fastify.prefix}/index.html`)
       }
     }
   })
