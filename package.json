@@ -1,6 +1,6 @@
 {
   "name": "fastify-swagger",
-  "version": "0.16.0",
+  "version": "0.16.1",
   "description": "Generate Swagger files automatically for Fastify.",
   "main": "index.js",
   "scripts": {
