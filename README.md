@@ -86,7 +86,7 @@ fastify.put('/some-route/:id', {
     },
     security: [
       {
-        "api_key": []
+        "apiKey": []
       }
     ]
   }
