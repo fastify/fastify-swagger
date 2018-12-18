@@ -22,6 +22,12 @@ module.exports = function (fastify, opts, next) {
 
     if (opts.specification.postProcessor && typeof opts.specification.postProcessor !== 'function') return next(new Error('specification.postProcessor should be a function'))
 
+    if (opts.specification.baseDir && typeof opts.specification.baseDir !== 'string') return next(new Error('specification.baseDir should be string'))
+
+    if (!opts.specification.baseDir) {
+      opts.specification.baseDir = path.dirname(opts.specification.path)
+    }
+
     // read
     const source = fs.readFileSync(
       path.resolve(opts.specification.path),
@@ -49,8 +55,12 @@ module.exports = function (fastify, opts, next) {
   fastify.decorate('swagger', swagger)
 
   if (opts.exposeRoute === true) {
-    const prefix = opts.routePrefix || '/documentation'
-    fastify.register(require('./routes'), { prefix })
+    const options = {
+      prefix: opts.routePrefix || '/documentation',
+      baseDir: opts.specification.baseDir
+    }
+
+    fastify.register(require('./routes'), options)
   }
 
   const cache = {

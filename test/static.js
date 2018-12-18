@@ -6,6 +6,9 @@ const Fastify = require('fastify')
 const fastifySwagger = require('../index')
 const yaml = require('js-yaml')
 
+const resolve = require('path').resolve
+const readFileSync = require('fs').readFileSync
+
 test('specification validation check works', t => {
   const specifications = [
     '',
@@ -177,4 +180,50 @@ test('swagger route returns explicitly passed doc', t => {
       }
     }
   )
+})
+
+test('/documentation/:file should serve static file from the location of main specification file', t => {
+  t.plan(8)
+
+  const config = {
+    exposeRoute: true,
+    mode: 'static',
+    specification: {
+      path: './examples/example-static-specification.yaml'
+    }
+  }
+  const fastify = new Fastify()
+  fastify.register(fastifySwagger, config)
+
+  fastify.inject({
+    method: 'GET',
+    url: '/documentation/non-existing-file'
+  }, (err, res) => {
+    t.error(err)
+    t.strictEqual(res.statusCode, 404)
+  })
+
+  fastify.inject({
+    method: 'GET',
+    url: '/documentation/example-static-specification.yaml'
+  }, (err, res) => {
+    t.error(err)
+    t.strictEqual(res.statusCode, 200)
+    t.strictEqual(res.headers['content-type'], 'application/x-yaml')
+    t.strictEqual(
+      readFileSync(
+        resolve(__dirname, '..', 'examples', 'example-static-specification.yaml'),
+        'utf8'
+      ),
+      res.payload
+    )
+  })
+
+  fastify.inject({
+    method: 'GET',
+    url: '/documentation/dynamic.js'
+  }, (err, res) => {
+    t.error(err)
+    t.strictEqual(res.statusCode, 404)
+  })
 })
