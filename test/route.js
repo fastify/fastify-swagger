@@ -265,7 +265,7 @@ test('with routePrefix: \'/\' should redirect to /index.html', t => {
 })
 
 test('/documentation/:file should send back the correct file', t => {
-  t.plan(21)
+  t.plan(19)
   const fastify = Fastify()
 
   fastify.register(fastifySwagger, swaggerInfo)
@@ -282,16 +282,8 @@ test('/documentation/:file should send back the correct file', t => {
     url: '/documentation/'
   }, (err, res) => {
     t.error(err)
-    t.is(typeof res.payload, 'string')
-    t.is(res.headers['content-type'], 'text/html; charset=UTF-8')
-    t.strictEqual(
-      readFileSync(
-        resolve(__dirname, '..', 'static', 'index.html'),
-        'utf8'
-      ),
-      res.payload
-    )
-    t.ok(res.payload.indexOf('resolveUrl') !== -1)
+    t.is(res.statusCode, 302)
+    t.is(res.headers['location'], '/documentation/index.html')
   })
 
   fastify.inject({
