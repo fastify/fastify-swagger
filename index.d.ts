@@ -5,20 +5,20 @@ import * as SwaggerSchema from 'swagger-schema-official';
 declare namespace fastifySwagger {
   interface FastifySwaggerOptions {
     mode?: 'static' | 'dynamic';
-  }
-
-  interface FastifyDynamicSwaggerOptions extends FastifySwaggerOptions {
-    mode?: 'dynamic';
     /**
      * Overwrite the swagger url end-point
      * @default /documentation
      */
     routePrefix?: string;
     /**
-     *  To expose the documentation api
+     * To expose the documentation api
      * @default false
      */
     exposeRoute?: boolean;
+  }
+
+  interface FastifyDynamicSwaggerOptions extends FastifySwaggerOptions {
+    mode?: 'dynamic';
     swagger?: Partial<SwaggerSchema.Spec>;
   }
 
