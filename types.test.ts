@@ -9,12 +9,15 @@ app.register(fastifySwagger, {
   mode: 'static',
   specification: {
     document: 'path'
-  }
+  },
+  routePrefix: '/documentation',
+  exposeRoute: true,
 });
 
 app
   .register(fastifySwagger, {
     routePrefix: '/documentation',
+    exposeRoute: true,
     swagger: {
       info: {
         title: 'Test swagger',
