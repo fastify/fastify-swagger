@@ -3,8 +3,10 @@
 [![Greenkeeper badge](https://badges.greenkeeper.io/fastify/fastify-swagger.svg)](https://greenkeeper.io/)
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](http://standardjs.com/)  [![Build Status](https://travis-ci.org/fastify/fastify-swagger.svg?branch=master)](https://travis-ci.org/fastify/fastify-swagger)
 
-[Swagger](https://swagger.io/) documentation generator for Fastify. Supports Fastify versions `^1.9.0`.
+[Swagger](https://swagger.io/) documentation generator for Fastify.
 It uses the schemas you declare in your routes to generate a swagger compliant doc.
+
+Supports Fastify versions `>=2.0.0`. Please refer to [this branch](https://github.com/fastify/fastify-swagger/tree/1.x) and related versions for Fastify `^1.9.0` compatibility.
 
 <a name="install"></a>
 ## Install
