@@ -444,6 +444,24 @@ test('/documentation/:myfile should return 404 in dynamic mode', t => {
   })
 })
 
+test('/documentation/:myfile should run custom NotFoundHandler in dynamic mode', t => {
+  t.plan(2)
+  const fastify = Fastify()
+  const notFoundHandler = function (req, reply) {
+    reply.code(410).send()
+  }
+  fastify.setNotFoundHandler(notFoundHandler)
+  fastify.register(fastifySwagger, swaggerInfo)
+
+  fastify.inject({
+    method: 'GET',
+    url: '/documentation/swagger-ui.js'
+  }, (err, res) => {
+    t.error(err)
+    t.strictEqual(res.statusCode, 410)
+  })
+})
+
 test('/documentation/ should redirect to documentation/static/index.html', t => {
   t.plan(3)
   const fastify = Fastify()

@@ -25,7 +25,7 @@ module.exports = function (fastify, opts, next) {
     if (opts.specification.baseDir && typeof opts.specification.baseDir !== 'string') return next(new Error('specification.baseDir should be string'))
 
     if (!opts.specification.baseDir) {
-      opts.specification.baseDir = path.dirname(opts.specification.path)
+      opts.specification.baseDir = path.resolve(path.dirname(opts.specification.path))
     }
 
     // read

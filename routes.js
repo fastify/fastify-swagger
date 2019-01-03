@@ -1,7 +1,6 @@
 'use strict'
 
 const path = require('path')
-const fs = require('fs')
 
 // URI prefix to separate static assets for swagger UI
 const staticPrefix = '/static'
@@ -43,7 +42,13 @@ function fastifySwagger (fastify, opts, next) {
   // serve swagger-ui with the help of fastify-static
   fastify.register(require('fastify-static'), {
     root: path.join(__dirname, 'static'),
-    prefix: staticPrefix
+    prefix: staticPrefix,
+    decorateReply: false
+  })
+
+  fastify.register(require('fastify-static'), {
+    root: opts.baseDir || __dirname,
+    serve: false
   })
 
   // Handler for external documentation files passed via $ref
@@ -55,20 +60,8 @@ function fastifySwagger (fastify, opts, next) {
       const file = req.params['*']
       if (file === '') {
         reply.redirect(302, `${fastify.basePath}${staticPrefix}/index.html`)
-      } else if (opts.baseDir) {
-        const filePath = `${opts.baseDir}/${file}`
-
-        const ext = path.extname(file).toLocaleLowerCase()
-        if (!fs.existsSync(filePath) || ['.yaml', '.json'].indexOf(ext) === -1) {
-          return reply.code(404).send()
-        }
-
-        const contentType = ext === '.yaml' ? 'application/x-yaml' : 'application/json'
-        reply
-          .type(contentType)
-          .send(fs.readFileSync(filePath))
       } else {
-        reply.code(404).send()
+        reply.sendFile(file)
       }
     }
   })

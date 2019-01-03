@@ -143,16 +143,17 @@ fastify.ready(err => {
       path: './examples/example-static-specification.yaml',
       postProcessor: function(swaggerObject) {
         return swaggerObject
-      }
+      },
+      baseDir: '/path/to/external/spec/files/location',
     },
-    baseDir: '/path/to/external/spec/files/location'
   }
   ```
   Example of the `fastify-swagger` usage in the `static` mode is available [here](examples/static-file.js).
 
   `specification.postProcessor` parameter is optional. It allows you to change your swagger object on the fly (for example - based on the environment). It accepts `swaggerObject` - basically a javascript object which was parsed from your `yaml` or `json` file and should return a swagger object.
 
-  `baseDir` allows to specify directory where all spec files which are included into the main one using `$ref` live. By default it's the directory where main spec file is located.
+  `specification.baseDir` allows to specify directory where all spec files which are included into the main one using `$ref` live. 
+  By default it's the directory where main spec file is located. Should be absolute path without trailing slash.
 <a name="additional"></a>
 #### additional
 If you pass `{ exposeRoute: true }` during the registration the plugin will expose the documentation with the following apis:
