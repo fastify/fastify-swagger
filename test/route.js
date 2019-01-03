@@ -264,8 +264,8 @@ test('with routePrefix: \'/\' should redirect to /static/index.html', t => {
   })
 })
 
-t.only('/documentation/static/:file should send back the correct file', t => {
-  t.plan(19)
+test('/documentation/static/:file should send back the correct file', t => {
+  t.plan(24)
   const fastify = Fastify()
 
   fastify.register(fastifySwagger, swaggerInfo)
@@ -283,7 +283,7 @@ t.only('/documentation/static/:file should send back the correct file', t => {
   }, (err, res) => {
     t.error(err)
     t.is(res.statusCode, 302)
-    t.is(res.headers['location'], '/documentation/index.html')
+    t.is(res.headers['location'], '/documentation/static/index.html')
   })
 
   fastify.ready(() => {
