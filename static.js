@@ -26,6 +26,10 @@ module.exports = function (fastify, opts, next) {
 
     if (!opts.specification.baseDir) {
       opts.specification.baseDir = path.resolve(path.dirname(opts.specification.path))
+    } else {
+      while (opts.specification.baseDir.endsWith('/')) {
+        opts.specification.baseDir = opts.specification.baseDir.slice(0, -1)
+      }
     }
 
     // read

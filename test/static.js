@@ -277,3 +277,30 @@ test('/documentation/:file should be served from custom location', t => {
     )
   })
 })
+
+test('/documentation/:file should be served from custom location with trailing slash(es)', t => {
+  t.plan(3)
+
+  const config = {
+    exposeRoute: true,
+    mode: 'static',
+    specification: {
+      path: './examples/example-static-specification.yaml',
+      baseDir: resolve(__dirname, '..', 'static') + '/'
+    }
+  }
+  const fastify = new Fastify()
+  fastify.register(fastifySwagger, config)
+
+  fastify.inject({
+    method: 'GET',
+    url: '/documentation/oauth2-redirect.html'
+  }, (err, res) => {
+    t.error(err)
+    t.strictEqual(res.statusCode, 200)
+    t.strictEqual(
+      readFileSync(resolve(__dirname, '..', 'static', 'oauth2-redirect.html'), 'utf8'),
+      res.payload
+    )
+  })
+})

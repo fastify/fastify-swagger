@@ -152,8 +152,8 @@ fastify.ready(err => {
 
   `specification.postProcessor` parameter is optional. It allows you to change your swagger object on the fly (for example - based on the environment). It accepts `swaggerObject` - basically a javascript object which was parsed from your `yaml` or `json` file and should return a swagger object.
 
-  `specification.baseDir` allows to specify directory where all spec files which are included into the main one using `$ref` live. 
-  By default it's the directory where main spec file is located. Should be absolute path without trailing slash.
+  `specification.baseDir` allows specifying the directory where all spec files that are included in the main one using `$ref` will be located.
+  By default, this is the directory where the main spec file is located. Provided value should be an absolute path **without** trailing slash.
 <a name="additional"></a>
 #### additional
 If you pass `{ exposeRoute: true }` during the registration the plugin will expose the documentation with the following apis:
