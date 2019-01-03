@@ -1,6 +1,7 @@
 'use strict'
 
 const path = require('path')
+const fastifyStatic = require('fastify-static')
 
 // URI prefix to separate static assets for swagger UI
 const staticPrefix = '/static'
@@ -40,13 +41,13 @@ function fastifySwagger (fastify, opts, next) {
   })
 
   // serve swagger-ui with the help of fastify-static
-  fastify.register(require('fastify-static'), {
+  fastify.register(fastifyStatic, {
     root: path.join(__dirname, 'static'),
     prefix: staticPrefix,
     decorateReply: false
   })
 
-  fastify.register(require('fastify-static'), {
+  fastify.register(fastifyStatic, {
     root: opts.baseDir || __dirname,
     serve: false
   })
