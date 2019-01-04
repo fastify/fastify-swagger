@@ -6,6 +6,9 @@ const Fastify = require('fastify')
 const fastifySwagger = require('../index')
 const yaml = require('js-yaml')
 
+const resolve = require('path').resolve
+const readFileSync = require('fs').readFileSync
+
 test('specification validation check works', t => {
   const specifications = [
     '',
@@ -93,7 +96,6 @@ test('swagger route returns json', t => {
     (err, res) => {
       t.error(err)
 
-      // console.log(res.payload)
       try {
         var payload = JSON.parse(res.payload)
         t.matchSnapshot(JSON.stringify(payload, null, 2))
@@ -177,4 +179,128 @@ test('swagger route returns explicitly passed doc', t => {
       }
     }
   )
+})
+
+test('/documentation/:file should serve static file from the location of main specification file', t => {
+  t.plan(7)
+
+  const config = {
+    exposeRoute: true,
+    mode: 'static',
+    specification: {
+      path: './examples/example-static-specification.yaml'
+    }
+  }
+  const fastify = new Fastify()
+  fastify.register(fastifySwagger, config)
+
+  fastify.inject({
+    method: 'GET',
+    url: '/documentation/non-existing-file'
+  }, (err, res) => {
+    t.error(err)
+    t.strictEqual(res.statusCode, 404)
+  })
+
+  fastify.inject({
+    method: 'GET',
+    url: '/documentation/example-static-specification.yaml'
+  }, (err, res) => {
+    t.error(err)
+    t.strictEqual(res.statusCode, 200)
+    t.strictEqual(
+      readFileSync(
+        resolve(__dirname, '..', 'examples', 'example-static-specification.yaml'),
+        'utf8'
+      ),
+      res.payload
+    )
+  })
+
+  fastify.inject({
+    method: 'GET',
+    url: '/documentation/dynamic.js'
+  }, (err, res) => {
+    t.error(err)
+    t.strictEqual(res.statusCode, 200)
+  })
+})
+
+test('/documentation/non-existing-file calls custom NotFoundHandler', t => {
+  t.plan(2)
+
+  const config = {
+    exposeRoute: true,
+    mode: 'static',
+    specification: {
+      path: './examples/example-static-specification.yaml'
+    }
+  }
+  const fastify = new Fastify()
+  fastify.register(fastifySwagger, config)
+  fastify.setNotFoundHandler((request, reply) => {
+    reply.code(410).send()
+  })
+
+  fastify.inject({
+    method: 'GET',
+    url: '/documentation/some-file-that-does-not-exist.js'
+  }, (err, res) => {
+    t.error(err)
+    t.strictEqual(res.statusCode, 410)
+  })
+})
+
+test('/documentation/:file should be served from custom location', t => {
+  t.plan(3)
+
+  const config = {
+    exposeRoute: true,
+    mode: 'static',
+    specification: {
+      path: './examples/example-static-specification.yaml',
+      baseDir: resolve(__dirname, '..', 'static')
+    }
+  }
+  const fastify = new Fastify()
+  fastify.register(fastifySwagger, config)
+
+  fastify.inject({
+    method: 'GET',
+    url: '/documentation/oauth2-redirect.html'
+  }, (err, res) => {
+    t.error(err)
+    t.strictEqual(res.statusCode, 200)
+    t.strictEqual(
+      readFileSync(resolve(__dirname, '..', 'static', 'oauth2-redirect.html'), 'utf8'),
+      res.payload
+    )
+  })
+})
+
+test('/documentation/:file should be served from custom location with trailing slash(es)', t => {
+  t.plan(3)
+
+  const config = {
+    exposeRoute: true,
+    mode: 'static',
+    specification: {
+      path: './examples/example-static-specification.yaml',
+      baseDir: resolve(__dirname, '..', 'static') + '/'
+    }
+  }
+  const fastify = new Fastify()
+  fastify.register(fastifySwagger, config)
+
+  fastify.inject({
+    method: 'GET',
+    url: '/documentation/oauth2-redirect.html'
+  }, (err, res) => {
+    t.error(err)
+    t.strictEqual(res.statusCode, 200)
+    t.strictEqual(
+      readFileSync(resolve(__dirname, '..', 'static', 'oauth2-redirect.html'), 'utf8'),
+      res.payload
+    )
+  })
 })

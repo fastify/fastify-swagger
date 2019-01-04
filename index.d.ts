@@ -25,6 +25,7 @@ declare namespace fastifySwagger {
   interface StaticPathSpec {
     path: string;
     postProcessor?: (spec: SwaggerSchema.Spec) => SwaggerSchema.Spec;
+    baseDir: string;
   }
 
   interface StaticDocumentSpec {
