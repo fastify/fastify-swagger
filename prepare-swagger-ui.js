@@ -32,7 +32,7 @@ const newIndex = fs.readFileSync(resolve('./static/index.html'), 'utf8')
   }`)
   .replace(
     /url: "(.*)",/,
-    `url: resolveUrl('./json'),
+    `url: resolveUrl('./json').replace('static/json', 'json'),
     oauth2RedirectUrl: resolveUrl('./oauth2-redirect.html'),`
   )
 
