@@ -24,5 +24,6 @@ function fastifySwagger (fastify, opts, next) {
 
 module.exports = fp(fastifySwagger, {
   fastify: '>=2.0.0',
-  name: 'fastify-swagger'
+  name: 'fastify-swagger',
+  dependencies: ['fastify-static']
 })
