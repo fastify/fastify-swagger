@@ -22,7 +22,6 @@ declare namespace fastifySwagger {
     swagger?: Partial<SwaggerSchema.Spec>;
     /**
      * Overwrite the route schema
-     * @default false
      */
     transform?: Function;
   }
