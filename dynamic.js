@@ -94,8 +94,8 @@ module.exports = function (fastify, opts, next) {
       }
 
       const schema = transform
-      ? transform(route.schema)
-      : route.schema
+        ? transform(route.schema)
+        : route.schema
       const url = formatParamUrl(route.url)
 
       const swaggerRoute = swaggerObject.paths[url] || {}
