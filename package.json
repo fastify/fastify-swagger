@@ -33,6 +33,8 @@
     "@types/node": "^10.12.18",
     "fastify": "next",
     "fs-extra": "^7.0.0",
+    "joi": "^14.3.1",
+    "joi-to-json-schema": "^3.5.0",
     "pre-commit": "^1.2.2",
     "standard": "^12.0.1",
     "swagger-parser": "^6.0.0",
