@@ -20,6 +20,10 @@ declare namespace fastifySwagger {
   interface FastifyDynamicSwaggerOptions extends FastifySwaggerOptions {
     mode?: 'dynamic';
     swagger?: Partial<SwaggerSchema.Spec>;
+    /**
+     * Overwrite the route schema
+     */
+    transform?: Function;
   }
 
   interface StaticPathSpec {

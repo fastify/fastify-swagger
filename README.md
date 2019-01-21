@@ -177,6 +177,32 @@ fastify.register(require('fastify-swagger'), {
 }
 ```
 
+##### Convert routes schema
+If you would like to use different schemas like, let's say [Joi](https://github.com/hapijs/joi), you can pass a synchronous `transform` method in the options to convert them back to standard JSON schemas expected by this plugin to generate the documentation (`dynamic` mode only).
+```js
+const convert = require('joi-to-json-schema')
+
+fastify.register(require('fastify-swagger'), {
+  swagger: { ... },
+  ...
+  transform: schema => {
+    const {
+      params = undefined,
+      body = undefined,
+      querystring = undefined,
+      response = undefined,
+      ...others
+    } = schema
+    const transformed = { ...others }
+    if (params) transformed.params = convert(params)
+    if (body) transformed.body = convert(body)
+    if (querystring) transformed.querystring = convert(querystring)
+    if (response) transformed.response = convert(response)
+    return transformed
+  }
+}
+```
+
 <a name="swagger.options"></a>
 ### swagger options
 Calling `fastify.swagger` will return to you a JSON object representing your api, if you pass `{ yaml: true }` to `fastify.swagger`, it will return you a yaml string.
