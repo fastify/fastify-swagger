@@ -587,3 +587,46 @@ test('swagger json output should not omit enum part in params config', t => {
       })
   })
 })
+
+test('basePath support', t => {
+  t.plan(3)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, {
+    swagger: Object.assign({}, swaggerInfo.swagger, {
+      basePath: '/prefix'
+    })
+  })
+
+  fastify.get('/prefix/endpoint', {}, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+
+    const swaggerObject = fastify.swagger()
+    t.notOk(swaggerObject.paths['/prefix/endpoint'])
+    t.ok(swaggerObject.paths['/endpoint'])
+  })
+})
+
+test('basePath support with prefix', t => {
+  t.plan(3)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, {
+    prefix: '/prefix',
+    swagger: Object.assign({}, swaggerInfo.swagger, {
+      basePath: '/prefix'
+    })
+  })
+
+  fastify.get('/endpoint', {}, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+
+    const swaggerObject = fastify.swagger()
+    t.notOk(swaggerObject.paths['/prefix/endpoint'])
+    t.ok(swaggerObject.paths['/endpoint'])
+  })
+})
