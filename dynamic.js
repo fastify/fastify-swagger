@@ -132,6 +132,10 @@ module.exports = function (fastify, opts, next) {
           swaggerMethod.tags = schema.tags
         }
 
+        if (schema.produces) {
+          swaggerMethod.produces = schema.produces
+        }
+
         if (schema.consumes) {
           swaggerMethod.consumes = schema.consumes
         }
