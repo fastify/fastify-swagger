@@ -438,16 +438,18 @@ test('deprecated route', t => {
 })
 
 test('route meta info', t => {
-  t.plan(6)
+  t.plan(8)
   const fastify = Fastify()
 
   fastify.register(fastifySwagger, swaggerInfo)
 
   const opts = {
     schema: {
+      operationId: 'doSomething',
       summary: 'Route summary',
       tags: ['tag'],
       description: 'Route description',
+      produces: ['application/octet-stream'],
       consumes: ['application/x-www-form-urlencoded']
     }
   }
@@ -462,9 +464,11 @@ test('route meta info', t => {
       .then(function (api) {
         const definedPath = api.paths['/'].get
         t.ok(definedPath)
+        t.equal(opts.schema.operationId, definedPath.operationId)
         t.equal(opts.schema.summary, definedPath.summary)
         t.same(opts.schema.tags, definedPath.tags)
         t.equal(opts.schema.description, definedPath.description)
+        t.same(opts.schema.produces, definedPath.produces)
         t.same(opts.schema.consumes, definedPath.consumes)
       })
       .catch(function (err) {

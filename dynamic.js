@@ -116,6 +116,10 @@ module.exports = function (fastify, opts, next) {
       // All the data the user can give us, is via the schema object
       if (schema) {
         // the resulting schema will be in this order
+        if (schema.operationId) {
+          swaggerMethod.operationId = schema.operationId
+        }
+
         if (schema.summary) {
           swaggerMethod.summary = schema.summary
         }
@@ -126,6 +130,10 @@ module.exports = function (fastify, opts, next) {
 
         if (schema.tags) {
           swaggerMethod.tags = schema.tags
+        }
+
+        if (schema.produces) {
+          swaggerMethod.produces = schema.produces
         }
 
         if (schema.consumes) {
