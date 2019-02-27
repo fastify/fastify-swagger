@@ -15,6 +15,15 @@ app.register(fastifySwagger, {
   exposeRoute: true,
 });
 
+app.put('/some-route/:id', {
+    schema: {
+      description: 'put me some data',
+      tags: ['user', 'code'],
+      summary: 'qwerty',
+      security: [{ apiKey: []}]
+    }
+  }, (req, reply) => {});
+
 app
   .register(fastifySwagger, {
     routePrefix: '/documentation',
