@@ -54,6 +54,13 @@ declare module 'fastify' {
       }
     ) => SwaggerSchema.Spec;
   }
+  
+    interface RouteSchema {
+    description?: String,
+    tags?: String[],
+    summary?: String,
+    security?: any[]
+  }
 }
 
 declare let fastifySwagger: fastify.Plugin<
