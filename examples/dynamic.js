@@ -55,6 +55,44 @@ fastify.put('/some-route/:id', {
   }
 }, (req, reply) => {})
 
+fastify.post('/some-route/:id', {
+  schema: {
+    description: 'post some data',
+    tags: ['user', 'code', 'file'],
+    summary: 'file upload',
+    consumes: ['multipart/form-data'],
+    params: {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'string',
+          description: 'user id'
+        }
+      }
+    },
+    body: {
+      type: 'object',
+      properties: {
+        hello: { type: 'string' },
+        myFile: {
+          type: 'string',
+          contentEncoding: 'binary',
+          contentMediaType: 'image/png'
+        }
+      }
+    },
+    response: {
+      201: {
+        description: 'Succesful response',
+        type: 'object',
+        properties: {
+          hello: { type: 'string' }
+        }
+      }
+    }
+  }
+}, (req, reply) => {})
+
 fastify.listen(3000, err => {
   if (err) throw err
   console.log('listening')

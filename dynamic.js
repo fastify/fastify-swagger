@@ -145,6 +145,13 @@ module.exports = function (fastify, opts, next) {
         }
 
         if (schema.body) {
+          if (schema.body.properties.myFile) {
+            // TODO analize all the properties of the body
+            // and based on the JSON SCHEMA contentencoding
+            // https://json-schema.org/understanding-json-schema/reference/non_json_data.html#contentencoding
+            // add the `type=file` for swagger
+            schema.body.properties.myFile.type = 'file'
+          }
           const consumesAllFormOnly =
               consumesFormOnly(schema) || consumesFormOnly(swaggerObject)
           consumesAllFormOnly
