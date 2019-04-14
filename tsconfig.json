@@ -6,5 +6,5 @@
     "strict": true,
     "noImplicitAny": true
   },
-  "files": ["./types.test.ts"]
+  "files": ["./types.test.ts", "./http2-types.test.ts"]
 }
