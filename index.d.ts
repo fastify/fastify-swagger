@@ -57,6 +57,7 @@ declare module 'fastify' {
   }
 
   interface RouteSchema {
+    hide?: boolean;
     tags?: string[];
     description?: string;
     summary?: string;
