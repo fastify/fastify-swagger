@@ -30,7 +30,7 @@
   },
   "homepage": "https://github.com/fastify/fastify-swagger#readme",
   "devDependencies": {
-    "@types/node": "^11.9.0",
+    "@types/node": "^12.0.2",
     "fastify": "^2.0.0",
     "fs-extra": "^8.0.1",
     "joi": "^14.3.1",
