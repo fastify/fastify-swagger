@@ -56,7 +56,7 @@ declare module 'fastify' {
     ) => SwaggerSchema.Spec;
   }
 
-  interface RouteSchema {
+  interface RouteSchema extends fastify.RouteSchema {
     hide?: boolean;
     tags?: string[];
     description?: string;
