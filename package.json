@@ -36,7 +36,7 @@
     "joi": "^14.3.1",
     "joi-to-json-schema": "^4.0.0",
     "pre-commit": "^1.2.2",
-    "standard": "^12.0.1",
+    "standard": "^13.0.1",
     "swagger-parser": "^6.0.3",
     "swagger-ui-dist": "3.22.1",
     "tap": "^12.7.0",
