@@ -133,7 +133,7 @@ const opts6 = {
   schema: {
     security: [
       {
-        'apiKey': []
+        apiKey: []
       }
     ]
   }
@@ -303,16 +303,16 @@ test('fastify.swagger definitions', t => {
   const opts = {
     schema: {
       definitions: {
-        'ExampleModel': {
-          'type': 'object',
-          'properties': {
-            'id': {
-              'type': 'integer',
-              'description': 'Some id'
+        ExampleModel: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'integer',
+              description: 'Some id'
             },
-            'name': {
-              'type': 'string',
-              'description': 'Name of smthng'
+            name: {
+              type: 'string',
+              description: 'Name of smthng'
             }
           }
         }
