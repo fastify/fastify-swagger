@@ -85,7 +85,7 @@ const opts4 = {
   schema: {
     security: [
       {
-        'apiKey': []
+        apiKey: []
       }
     ]
   }
