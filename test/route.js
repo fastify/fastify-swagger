@@ -183,7 +183,7 @@ test('/documentation should redirect to /documentation/static/index.html', t => 
   }, (err, res) => {
     t.error(err)
     t.strictEqual(res.statusCode, 302)
-    t.strictEqual(res.headers['location'], '/documentation/static/index.html')
+    t.strictEqual(res.headers.location, '/documentation/static/index.html')
     t.is(typeof res.payload, 'string')
   })
 })
@@ -208,7 +208,7 @@ test('/v1/documentation should redirect to /v1/documentation/static/index.html',
   }, (err, res) => {
     t.error(err)
     t.strictEqual(res.statusCode, 302)
-    t.strictEqual(res.headers['location'], '/v1/documentation/static/index.html')
+    t.strictEqual(res.headers.location, '/v1/documentation/static/index.html')
     t.is(typeof res.payload, 'string')
   })
 })
@@ -238,7 +238,7 @@ test('/v1/foobar should redirect to /v1/foobar/static/index.html - in plugin', t
   }, (err, res) => {
     t.error(err)
     t.strictEqual(res.statusCode, 302)
-    t.strictEqual(res.headers['location'], '/v1/foobar/static/index.html')
+    t.strictEqual(res.headers.location, '/v1/foobar/static/index.html')
     t.is(typeof res.payload, 'string')
   })
 })
@@ -259,7 +259,7 @@ test('with routePrefix: \'/\' should redirect to /static/index.html', t => {
   }, (err, res) => {
     t.error(err)
     t.strictEqual(res.statusCode, 302)
-    t.strictEqual(res.headers['location'], '/static/index.html')
+    t.strictEqual(res.headers.location, '/static/index.html')
     t.is(typeof res.payload, 'string')
   })
 })
@@ -283,7 +283,7 @@ test('/documentation/static/:file should send back the correct file', t => {
   }, (err, res) => {
     t.error(err)
     t.is(res.statusCode, 302)
-    t.is(res.headers['location'], '/documentation/static/index.html')
+    t.is(res.headers.location, '/documentation/static/index.html')
   })
 
   fastify.ready(() => {
