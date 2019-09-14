@@ -52,5 +52,10 @@
     "ignore": [
       "static"
     ]
+  },
+  "greenkeeper": {
+    "ignore": [
+      "tap"
+    ]
   }
 }
