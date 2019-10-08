@@ -20,6 +20,7 @@ app.put('/some-route/:id', {
       description: 'put me some data',
       tags: ['user', 'code'],
       summary: 'qwerty',
+      consumes: ['application/json', 'multipart/form-data'],
       security: [{ apiKey: []}]
     }
   }, (req, reply) => {});
