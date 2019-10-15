@@ -34,7 +34,7 @@
     "fastify": "^2.0.0",
     "fs-extra": "^8.0.1",
     "joi": "^14.3.1",
-    "joi-to-json-schema": "^4.0.0",
+    "joi-to-json-schema": "^5.1.0",
     "pre-commit": "^1.2.2",
     "standard": "^14.0.2",
     "swagger-parser": "^6.0.3",
