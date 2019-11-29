@@ -62,7 +62,7 @@ declare module 'fastify' {
     description?: string;
     summary?: string;
     consumes?: string[];
-    security?: [{ [securityLabel: string]: string[] }];
+    security?: Array<{ [securityLabel: string]: string[] }>;
   }
 }
 
