@@ -25,6 +25,14 @@ app.put('/some-route/:id', {
     }
   }, (req, reply) => {});
 
+app.get('/public/route', {
+    schema: {
+      description: 'returns 200 OK',
+      summary: 'qwerty',
+      security: []
+    }
+  }, (req, reply) => {});
+
 app
   .register(fastifySwagger, {
     routePrefix: '/documentation',
