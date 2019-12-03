@@ -31,7 +31,7 @@
   "homepage": "https://github.com/fastify/fastify-swagger#readme",
   "devDependencies": {
     "@types/node": "^12.11.7",
-    "fastify": "^2.0.0",
+    "fastify": "^2.10.0",
     "fs-extra": "^8.0.1",
     "joi": "^14.3.1",
     "joi-to-json-schema": "^5.1.0",
@@ -40,12 +40,12 @@
     "swagger-parser": "^6.0.3",
     "swagger-ui-dist": "3.24.3",
     "tap": "^12.7.0",
-    "typescript": "^3.2.4"
+    "typescript": "^3.7.2"
   },
   "dependencies": {
-    "@types/swagger-schema-official": "^2.0.15",
-    "fastify-plugin": "^1.5.0",
-    "fastify-static": "^2.3.4",
+    "@types/swagger-schema-official": "^2.0.20",
+    "fastify-plugin": "^1.6.0",
+    "fastify-static": "^2.5.1",
     "js-yaml": "^3.12.1"
   },
   "standard": {
