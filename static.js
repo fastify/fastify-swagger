@@ -3,6 +3,7 @@
 const path = require('path')
 const fs = require('fs')
 const yaml = require('js-yaml')
+const swaggerRoutes = require('./routes')
 
 module.exports = function (fastify, opts, next) {
   if (!opts.specification) return next(new Error('specification is missing in the module options'))
@@ -56,16 +57,15 @@ module.exports = function (fastify, opts, next) {
     swaggerObject = opts.specification.document
   }
 
-  fastify.decorate('swagger', swagger)
-
-  if (opts.exposeRoute === true) {
-    const options = {
-      prefix: opts.routePrefix || '/documentation',
-      baseDir: opts.specification.baseDir
+  fastify.register(function (fastify, options, next) {
+    fastify.decorate('swagger', swagger)
+    if (opts.exposeRoute === true) {
+      swaggerRoutes(fastify, options, next)
     }
-
-    fastify.register(require('./routes'), options)
-  }
+  }, {
+    prefix: opts.routePrefix || '/documentation',
+    baseDir: opts.specification.baseDir
+  })
 
   const cache = {
     swaggerObject: null,

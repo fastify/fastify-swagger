@@ -181,6 +181,69 @@ test('swagger route returns explicitly passed doc', t => {
   )
 })
 
+test('allow multiple route prefixes', t => {
+  t.plan(8)
+  const fastify = Fastify()
+
+  const config = {
+    mode: 'static',
+    specification: {
+      document: {
+        info: {
+          title: 'Test swagger',
+          description: 'testing the fastify swagger api',
+          version: '0.1.0'
+        }
+      }
+    },
+    exposeRoute: true
+  }
+
+  fastify.register(fastifySwagger, Object.assign({}, config, {
+    routePrefix: '/swagger1'
+  }))
+
+  fastify.register(fastifySwagger, Object.assign({}, config, {
+    routePrefix: '/swagger2'
+  }))
+
+  fastify.inject(
+    {
+      method: 'GET',
+      url: '/swagger1/yaml'
+    },
+    (err, res) => {
+      t.error(err)
+      t.is(typeof res.payload, 'string')
+      t.is(res.headers['content-type'], 'application/x-yaml')
+      try {
+        yaml.safeLoad(res.payload)
+        t.pass('valid swagger yaml')
+      } catch (err) {
+        t.fail(err)
+      }
+    }
+  )
+
+  fastify.inject(
+    {
+      method: 'GET',
+      url: '/swagger2/yaml'
+    },
+    (err, res) => {
+      t.error(err)
+      t.is(typeof res.payload, 'string')
+      t.is(res.headers['content-type'], 'application/x-yaml')
+      try {
+        yaml.safeLoad(res.payload)
+        t.pass('valid swagger yaml')
+      } catch (err) {
+        t.fail(err)
+      }
+    }
+  )
+})
+
 test('/documentation/:file should serve static file from the location of main specification file', t => {
   t.plan(7)
 
