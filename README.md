@@ -48,7 +48,8 @@ fastify.register(require('fastify-swagger'), {
         in: 'header'
       }
     }
-  }
+  },
+  exposeRoute: true
 })
 
 fastify.put('/some-route/:id', {
