@@ -48,6 +48,9 @@
     "fastify-static": "^2.5.1",
     "js-yaml": "^3.12.1"
   },
+  "peerDependencies": {
+    "fastify": "^2.10.0"
+  },
   "standard": {
     "ignore": [
       "static",
