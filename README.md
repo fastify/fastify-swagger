@@ -214,6 +214,51 @@ fastify.register(require('fastify-swagger'), {
 ### swagger options
 Calling `fastify.swagger` will return to you a JSON object representing your api, if you pass `{ yaml: true }` to `fastify.swagger`, it will return you a yaml string.
 
+### Open API (OA) Parameter Options
+
+Note: OA's terminology differs from Fastify's. OA uses the term "parameter" to refer to those parts of a request that in [Fastify's validation documentation](https://www.fastify.io/docs/latest/Validation-and-Serialization/#validation) are called "querystring", "params", "headers".
+
+OA provides some options beyond those provided by the JSON schema specification for specifying the shape of parameters. A prime example of this the option for specifying how to encode those parameters that should be handled as arrays of values. There is no single universally accepted method for encoding such parameters appearing as part of query strings. OA2 provides a `collectionFormat` option which allows specifying how an array parameter should be encoded. (We're giving an example in the OA2 specification, as this is the default specification version used by this plugin. The same principles apply to OA3.) Specifying this option is easy. You just need to add it to the other options for the field you are defining. Like in this example:
+
+```
+fastify.route({
+  method: 'GET',
+  url: '/',
+  schema: {
+    querystring: {
+      type: 'object',
+      required: ['fields'],
+      additionalProperties: false,
+      properties: {
+        fields: {
+          type: 'array',
+          items: {
+            type: 'string'
+          },
+          minItems: 1,
+          //
+          // Note that this is an Open API version 2 configuration option.  The
+          // options changed in version 3. The plugin currently only supports
+          // version 2 of Open API.
+          //
+          // Put `collectionFormat` on the same property which you are defining
+          // as an array of values. (i.e. `collectionFormat` should be a sibling
+          // of the `type: "array"` specification.)
+          collectionFormat: 'multi'
+        }
+      }
+    }
+  },
+  handler (request, reply) {
+    reply.send(request.query.fields)
+  }
+})
+```
+
+There is a complete runnable example [here](examples/collection-format.js).
+
+**IMPORTANT CAVEAT** These encoding options you can set in your schema have no bearing on how, for instance, a query string parser parses the query string. They change how Swagger UI presents its documentation, and how it generates `curl` commands when you click the `Try it out` button. Depending on which options you set in your schema, you *may also need* to change the default query string parser used by Fastify so that it produces a JavaScript object that will conform to the schema. As far as arrays are concerned, the default query string parser conforms to the `collectionFormat: "multi"` specification. If you were to select `collectionFormat: "csv"`, you would have to replace the default query string parser with one that parses CSV parameter values into arrays. The same caveat applies to the other parts of a request that OA calls "parameters" (e.g. headers, path parameters) and which are not encoded as JSON in a request.
+
 <a name="hide"></a>
 ### Hide a route
 Sometimes you may need to hide a certain route from the documentation, just pass `{ hide: true }` to the schema object inside the route declaration.
