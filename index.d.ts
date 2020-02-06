@@ -45,9 +45,9 @@ declare namespace fastifySwagger {
 
 declare module 'fastify' {
   interface FastifyInstance<
-    HttpServer,
-    HttpRequest,
-    HttpResponse
+    RawServer,
+    RawRequest,
+    RawReply
   > {
     swagger: (
       opts?: {
@@ -67,12 +67,12 @@ declare module 'fastify' {
 }
 
 declare function fastifySwagger<
-  HttpServer extends (http.Server | http2.Http2Server),
-  HttpRequest extends (http.IncomingMessage | http2.Http2ServerRequest),
-  HttpResponse extends (http.ServerResponse | http2.Http2ServerResponse),
+  RawServer extends fastify.RawServerBase = fastify.RawServerDefault,
+  RawRequest extends fastify.RawRequestDefaultExpression<RawServer> = fastify.RawRequestDefaultExpression<RawServer>,
+  RawReply extends fastify.RawReplyDefaultExpression<RawServer> = fastify.RawReplyDefaultExpression<RawServer>,
   SwaggerOptions = (fastifySwagger.FastifyStaticSwaggerOptions | fastifySwagger.FastifyDynamicSwaggerOptions)
 >(
-  fastify : fastify.FastifyInstance<HttpServer, HttpRequest, HttpResponse>, 
+  fastify : fastify.FastifyInstance<RawServer, RawRequest, RawReply>,
   opts : SwaggerOptions
 ) : void;
 
