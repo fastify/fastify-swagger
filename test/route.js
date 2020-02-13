@@ -475,3 +475,47 @@ test('/documentation/ should redirect to documentation/static/index.html', t => 
     t.strictEqual(res.headers.location, '/documentation/static/index.html')
   })
 })
+
+test('should handle shared schemas', t => {
+  t.plan(2)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, swaggerInfo)
+  fastify.addSchema({
+    $id: 'query-schema',
+    type: 'object',
+    properties: {
+      param1: {
+        type: 'number'
+      },
+      param2: {
+        type: 'string'
+      }
+    }
+  })
+  fastify.post('/some-route', {
+    schema: {
+      description: 'post some data',
+      tags: ['user', 'code'],
+      summary: 'qwerty',
+      querystring: 'query-schema#'
+    }
+  }, (req, reply) => { })
+
+  fastify.inject({
+    method: 'GET',
+    url: '/documentation/json'
+  }, (err, res) => {
+    t.error(err)
+
+    var payload = JSON.parse(res.payload)
+
+    Swagger.validate(payload)
+      .then(function (api) {
+        t.pass('valid swagger object')
+      })
+      .catch(function (err) {
+        t.fail(err)
+      })
+  })
+})

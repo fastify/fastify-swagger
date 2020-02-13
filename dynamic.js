@@ -5,6 +5,8 @@ const path = require('path')
 const yaml = require('js-yaml')
 
 module.exports = function (fastify, opts, next) {
+  const fastifySchemas = fastify.getSchemas()
+
   fastify.decorate('swagger', swagger)
 
   const routes = []
@@ -141,7 +143,7 @@ module.exports = function (fastify, opts, next) {
         }
 
         if (schema.querystring) {
-          getQueryParams(parameters, schema.querystring)
+          getQueryParams(parameters, schema.querystring, fastifySchemas)
         }
 
         if (schema.body) {
@@ -202,7 +204,13 @@ function consumesFormOnly (schema) {
   )
 }
 
-function getQueryParams (parameters, query) {
+function getQueryParams (parameters, query, fastifySchemas) {
+  if (typeof query === 'string' && query.match(/#$/)) {
+    const queryId = query.substring(0, query.length - 1)
+    if (fastifySchemas[queryId]) {
+      return getQueryParams(parameters, fastifySchemas[queryId])
+    }
+  }
   if (query.type && query.properties) {
     // for the shorthand querystring declaration
     const queryProperties = Object.keys(query.properties).reduce((acc, h) => {
