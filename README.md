@@ -41,6 +41,19 @@ fastify.register(require('fastify-swagger'), {
       { name: 'user', description: 'User related end-points' },
       { name: 'code', description: 'Code related end-points' }
     ],
+    definitions: {
+      User: {
+        $id: 'User',
+        type: 'object',
+        required: ['id', 'email'],
+        properties: {
+          id: { type: 'string', format: 'uuid' },
+          firstName: { type: 'string', nullable: true },
+          lastName: { type: 'string', nullable: true },
+          email: {type: 'string', format: 'email' }
+        }
+      }
+    },
     securityDefinitions: {
       apiKey: {
         type: 'apiKey',
