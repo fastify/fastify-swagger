@@ -634,3 +634,46 @@ test('basePath support with prefix', t => {
     t.ok(swaggerObject.paths['/endpoint'])
   })
 })
+
+test('basePath ensure leading slash', t => {
+  t.plan(3)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, {
+    swagger: Object.assign({}, swaggerInfo.swagger, {
+      basePath: '/'
+    })
+  })
+
+  fastify.get('/endpoint', {}, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+
+    const swaggerObject = fastify.swagger()
+    t.notOk(swaggerObject.paths.endpoint)
+    t.ok(swaggerObject.paths['/endpoint'])
+  })
+})
+
+test('basePath with prefix ensure leading slash', t => {
+  t.plan(3)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, {
+    prefix: '/',
+    swagger: Object.assign({}, swaggerInfo.swagger, {
+      basePath: '/'
+    })
+  })
+
+  fastify.get('/endpoint', {}, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+
+    const swaggerObject = fastify.swagger()
+    t.notOk(swaggerObject.paths.endpoint)
+    t.ok(swaggerObject.paths['/endpoint'])
+  })
+})
