@@ -25,7 +25,7 @@ function fastifySwagger (fastify, opts, next) {
     method: 'GET',
     schema: { hide: true },
     handler: function (req, reply) {
-      reply.send(fastify.swagger())
+      reply.send(fastify.swagger({}, opts.conf_idx))
     }
   })
 

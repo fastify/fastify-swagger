@@ -13,6 +13,19 @@ module.exports = function (fastify, opts, next) {
     routes.push(routeOptions)
   })
 
+  opts = opts || [{}]
+
+  const setupFns =
+    opts.map((subopts, idx) => makeSetupFn(subopts, idx, fastify, routes, next))
+
+  function swagger (opts, idx) {
+    return setupFns[idx || 0](opts)
+  }
+
+  next()
+}
+
+function makeSetupFn (opts, idx, fastify, routes, next) {
   opts = opts || {}
 
   opts.swagger = opts.swagger || {}
@@ -32,7 +45,7 @@ module.exports = function (fastify, opts, next) {
 
   if (opts.exposeRoute === true) {
     const prefix = opts.routePrefix || '/documentation'
-    fastify.register(require('./routes'), { prefix })
+    fastify.register(require('./routes'), { prefix, conf_idx: idx })
   }
 
   const cache = {
@@ -40,7 +53,7 @@ module.exports = function (fastify, opts, next) {
     swaggerString: null
   }
 
-  function swagger (opts) {
+  return function (opts) {
     if (opts && opts.yaml) {
       if (cache.swaggerString) return cache.swaggerString
     } else {
@@ -191,8 +204,6 @@ module.exports = function (fastify, opts, next) {
     cache.swaggerObject = swaggerObject
     return swaggerObject
   }
-
-  next()
 }
 
 function consumesFormOnly (schema) {
