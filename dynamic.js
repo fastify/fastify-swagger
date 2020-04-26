@@ -19,6 +19,7 @@ module.exports = function (fastify, opts, next) {
 
   const info = opts.swagger.info || null
   const host = opts.swagger.host || null
+  const servers = opts.swagger.servers || null
   const schemes = opts.swagger.schemes || null
   const consumes = opts.swagger.consumes || null
   const produces = opts.swagger.produces || null
@@ -59,7 +60,7 @@ module.exports = function (fastify, opts, next) {
     // Base swagger info
     // this info is displayed in the swagger file
     // in the same order as here
-    swaggerObject.swagger = '2.0'
+    servers ? swaggerObject.openapi = '3.0.0' : swaggerObject.swagger = '2.0'
     if (info) {
       swaggerObject.info = info
     } else {
@@ -68,7 +69,8 @@ module.exports = function (fastify, opts, next) {
         title: pkg.name || ''
       }
     }
-    if (host) swaggerObject.host = host
+    if (servers) swaggerObject.servers = servers
+    else if (host) swaggerObject.host = host
     if (schemes) swaggerObject.schemes = schemes
     if (basePath) swaggerObject.basePath = basePath
     if (consumes) swaggerObject.consumes = consumes
