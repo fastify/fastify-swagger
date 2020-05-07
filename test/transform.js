@@ -48,7 +48,7 @@ test('transform should work with a Function', t => {
 
   fastify.register(fastifySwagger, valid)
 
-  fastify.setValidatorCompiler(schema => Joi.validate(schema))
+  fastify.setValidatorCompiler(({ schema }) => Joi.validate(schema))
   fastify.get('/example', opts, () => {})
 
   fastify.ready(err => {
