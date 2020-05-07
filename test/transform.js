@@ -34,7 +34,7 @@ test('transform should fail with a value other than Function', t => {
 
   fastify.register(fastifySwagger, invalid)
 
-  fastify.setValidatorCompiler(schema => Joi.validate(schema))
+  fastify.setValidatorCompiler(({ schema }) => Joi.validate(schema))
   fastify.get('/example', opts, () => {})
 
   fastify.ready(err => {
