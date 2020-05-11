@@ -2,6 +2,7 @@ import * as http from 'http';
 import * as fastify from 'fastify';
 import * as SwaggerSchema from 'swagger-schema-official';
 import * as http2 from 'http2';
+import { FastifyPlugin } from 'fastify'
 
 declare namespace fastifySwagger {
   interface FastifySwaggerOptions {
@@ -44,11 +45,7 @@ declare namespace fastifySwagger {
 }
 
 declare module 'fastify' {
-  interface FastifyInstance<
-    HttpServer,
-    HttpRequest,
-    HttpResponse
-  > {
+  interface FastifyInstance {
     swagger: (
       opts?: {
         yaml?: boolean;
@@ -66,14 +63,12 @@ declare module 'fastify' {
   }
 }
 
-declare function fastifySwagger<
-  HttpServer extends (http.Server | http2.Http2Server),
-  HttpRequest extends (http.IncomingMessage | http2.Http2ServerRequest),
-  HttpResponse extends (http.ServerResponse | http2.Http2ServerResponse),
-  SwaggerOptions = (fastifySwagger.FastifyStaticSwaggerOptions | fastifySwagger.FastifyDynamicSwaggerOptions)
->(
-  fastify : fastify.FastifyInstance<HttpServer, HttpRequest, HttpResponse>, 
-  opts : SwaggerOptions
-) : void;
+export interface FastifySwagger{
+  fastify : fastify.FastifyInstance, 
+  opts : (fastifySwagger.FastifyStaticSwaggerOptions | fastifySwagger.FastifyDynamicSwaggerOptions)
+}
 
-export = fastifySwagger;
+declare const fastifySwagger: FastifyPlugin<FastifySwagger>
+
+export default fastifySwagger;
+
