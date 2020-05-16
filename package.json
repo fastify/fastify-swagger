@@ -32,7 +32,7 @@
   "devDependencies": {
     "@types/node": "^12.11.7",
     "fastify": "^3.0.0-rc.1",
-    "fs-extra": "^8.0.1",
+    "fs-extra": "^9.0.0",
     "joi": "^14.3.1",
     "joi-to-json-schema": "^5.1.0",
     "pre-commit": "^1.2.2",
