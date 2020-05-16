@@ -3,14 +3,28 @@
 const fs = require('fs')
 const path = require('path')
 const yaml = require('js-yaml')
+const Ref = require('json-schema-resolver')
 
 module.exports = function (fastify, opts, next) {
   fastify.decorate('swagger', swagger)
 
   const routes = []
+  const sharedSchemasMap = new Map()
+  const ref = Ref({ clone: true })
 
   fastify.addHook('onRoute', (routeOptions) => {
     routes.push(routeOptions)
+  })
+
+  fastify.addHook('onRegister', async (instance) => {
+    await instance.ready() // wait the addSchema
+
+    const allSchemas = instance.getSchemas()
+    for (const schemaId of Object.keys(allSchemas)) {
+      if (!sharedSchemasMap.has(schemaId)) {
+        sharedSchemasMap.set(schemaId, allSchemas[schemaId])
+      }
+    }
   })
 
   opts = opts || {}
@@ -74,6 +88,8 @@ module.exports = function (fastify, opts, next) {
     if (consumes) swaggerObject.consumes = consumes
     if (produces) swaggerObject.produces = produces
     if (definitions) swaggerObject.definitions = definitions
+    else swaggerObject.definitions = {}
+
     if (securityDefinitions) {
       swaggerObject.securityDefinitions = securityDefinitions
     }
@@ -85,6 +101,11 @@ module.exports = function (fastify, opts, next) {
     }
     if (externalDocs) {
       swaggerObject.externalDocs = externalDocs
+    }
+
+    const externalSchema = Array.from(sharedSchemasMap.values())
+    for (const es of externalSchema) {
+      swaggerObject.definitions[es.$id] = es
     }
 
     swaggerObject.paths = {}
@@ -190,6 +211,16 @@ module.exports = function (fastify, opts, next) {
 
     cache.swaggerObject = swaggerObject
     return swaggerObject
+
+    function getBodyParams (parameters, body) {
+      const bodyResolved = ref.resolve(body, { externalSchema: externalSchema })
+
+      const param = {}
+      param.name = 'body'
+      param.in = 'body'
+      param.schema = bodyResolved
+      parameters.push(param)
+    }
   }
 
   next()
@@ -224,14 +255,6 @@ function getQueryParams (parameters, query) {
     param.in = 'query'
     parameters.push(param)
   })
-}
-
-function getBodyParams (parameters, body) {
-  const param = {}
-  param.name = 'body'
-  param.in = 'body'
-  param.schema = body
-  parameters.push(param)
 }
 
 function getFormParams (parameters, body) {

@@ -44,7 +44,7 @@ test('support $ref schema', async t => {
       subinstance.post('/', {
         handler () {},
         schema: {
-          body: { $id: 'bug', $ref: 'example#/properties/hello' }
+          body: { $ref: 'example#/properties/hello' }
           // TODO
           // querystring: { $ref: 'subschema-two#/properties/hello' },
           // params: { $ref: 'subschema-two#/properties/hello' },
@@ -58,7 +58,6 @@ test('support $ref schema', async t => {
     next()
   })
 
-  await fastify.ready() // ? inject ignore ready?!
   const res = await fastify.inject('/docs/json')
   t.pass('done')
   require('fs').writeFileSync('./out.json', JSON.stringify(res.json(), null, 2))
