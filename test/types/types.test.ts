@@ -1,9 +1,7 @@
-import fastify = require('fastify');
-import fastifySwagger = require('.');
+import fastify from 'fastify';
+import fastifySwagger from '../..';
 
-const app = fastify({
-  http2: true
-});
+const app = fastify();
 
 app.register(fastifySwagger);
 app.register(fastifySwagger, {});
@@ -22,17 +20,18 @@ app.put('/some-route/:id', {
       description: 'put me some data',
       tags: ['user', 'code'],
       summary: 'qwerty',
+      consumes: ['application/json', 'multipart/form-data'],
       security: [{ apiKey: []}]
     }
   }, (req, reply) => {});
 
 app.get('/public/route', {
-  schema: {
-    description: 'returns 200 OK',
-    summary: 'qwerty',
-    security: []
-  }
-}, (req, reply) => {});
+    schema: {
+      description: 'returns 200 OK',
+      summary: 'qwerty',
+      security: []
+    }
+  }, (req, reply) => {});
 
 app
   .register(fastifySwagger, {

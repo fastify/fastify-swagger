@@ -7,8 +7,7 @@
     "prepare": "node prepare-swagger-ui",
     "test": "standard && tap test/*.js && npm run typescript",
     "prepublishOnly": "npm run prepare",
-    "_typescript": "tsc --project ./tsconfig.json",
-    "typescript": "echo 'skip'"
+    "typescript": "tsd"
   },
   "repository": {
     "type": "git",
@@ -41,7 +40,7 @@
     "swagger-parser": "^6.0.3",
     "swagger-ui-dist": "3.24.3",
     "tap": "^12.7.0",
-    "typescript": "^3.7.2"
+    "tsd": "^0.11.0"
   },
   "dependencies": {
     "@types/swagger-schema-official": "^2.0.20",
@@ -59,5 +58,8 @@
     "ignore": [
       "tap"
     ]
+  },
+  "tsd": {
+    "directory": "test/types"
   }
 }
