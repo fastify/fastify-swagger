@@ -10,7 +10,7 @@ module.exports = function (fastify, opts, next) {
 
   const routes = []
   const sharedSchemasMap = new Map()
-  const ref = Ref({ clone: true })
+  let ref
 
   fastify.addHook('onRoute', (routeOptions) => {
     routes.push(routeOptions)
@@ -103,9 +103,14 @@ module.exports = function (fastify, opts, next) {
       swaggerObject.externalDocs = externalDocs
     }
 
-    const externalSchema = Array.from(sharedSchemasMap.values())
-    for (const es of externalSchema) {
-      swaggerObject.definitions[es.$id] = es
+    if (!ref) {
+      const externalSchemas = Array.from(sharedSchemasMap.values())
+
+      ref = Ref({ clone: true, applicationUri: 'todo.com', externalSchemas })
+      swaggerObject.definitions = {
+        ...swaggerObject.definitions,
+        ...(ref.definitions().definitions)
+      }
     }
 
     swaggerObject.paths = {}
@@ -213,7 +218,7 @@ module.exports = function (fastify, opts, next) {
     return swaggerObject
 
     function getBodyParams (parameters, body) {
-      const bodyResolved = ref.resolve(body, { externalSchema: externalSchema })
+      const bodyResolved = ref.resolve(body)
 
       const param = {}
       param.name = 'body'
