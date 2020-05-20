@@ -165,7 +165,7 @@ test('fastify.swagger should return a valid swagger yaml', t => {
   })
 })
 
-test('/documentation should redirect to /documentation/static/index.html', t => {
+test('/documentation should redirect to ./documentation/static/index.html', t => {
   t.plan(4)
   const fastify = Fastify()
   fastify.register(fastifySwagger, swaggerInfo)
@@ -183,12 +183,35 @@ test('/documentation should redirect to /documentation/static/index.html', t => 
   }, (err, res) => {
     t.error(err)
     t.strictEqual(res.statusCode, 302)
-    t.strictEqual(res.headers.location, '/documentation/static/index.html')
+    t.strictEqual(res.headers.location, './documentation/static/index.html')
     t.is(typeof res.payload, 'string')
   })
 })
 
-test('/v1/documentation should redirect to /v1/documentation/static/index.html', t => {
+test('/documentation/ should redirect to ./static/index.html', t => {
+  t.plan(4)
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, swaggerInfo)
+
+  fastify.get('/', () => {})
+  fastify.post('/', () => {})
+  fastify.get('/example', opts1, () => {})
+  fastify.post('/example', opts2, () => {})
+  fastify.get('/parameters/:id', opts3, () => {})
+  fastify.get('/example1', opts4, () => {})
+
+  fastify.inject({
+    method: 'GET',
+    url: '/documentation/'
+  }, (err, res) => {
+    t.error(err)
+    t.strictEqual(res.statusCode, 302)
+    t.strictEqual(res.headers.location, './static/index.html')
+    t.is(typeof res.payload, 'string')
+  })
+})
+
+test('/v1/documentation should redirect to ./documentation/static/index.html', t => {
   t.plan(4)
   const fastify = Fastify()
   const opts = JSON.parse(JSON.stringify(swaggerInfo))
@@ -208,12 +231,37 @@ test('/v1/documentation should redirect to /v1/documentation/static/index.html',
   }, (err, res) => {
     t.error(err)
     t.strictEqual(res.statusCode, 302)
-    t.strictEqual(res.headers.location, '/v1/documentation/static/index.html')
+    t.strictEqual(res.headers.location, './documentation/static/index.html')
     t.is(typeof res.payload, 'string')
   })
 })
 
-test('/v1/foobar should redirect to /v1/foobar/static/index.html - in plugin', t => {
+test('/v1/documentation/ should redirect to ./static/index.html', t => {
+  t.plan(4)
+  const fastify = Fastify()
+  const opts = JSON.parse(JSON.stringify(swaggerInfo))
+  opts.routePrefix = '/v1/documentation'
+  fastify.register(fastifySwagger, opts)
+
+  fastify.get('/', () => {})
+  fastify.post('/', () => {})
+  fastify.get('/example', opts1, () => {})
+  fastify.post('/example', opts2, () => {})
+  fastify.get('/parameters/:id', opts3, () => {})
+  fastify.get('/example1', opts4, () => {})
+
+  fastify.inject({
+    method: 'GET',
+    url: '/v1/documentation/'
+  }, (err, res) => {
+    t.error(err)
+    t.strictEqual(res.statusCode, 302)
+    t.strictEqual(res.headers.location, './static/index.html')
+    t.is(typeof res.payload, 'string')
+  })
+})
+
+test('/v1/foobar should redirect to ./foobar/static/index.html - in plugin', t => {
   t.plan(4)
   const fastify = Fastify()
 
@@ -238,12 +286,42 @@ test('/v1/foobar should redirect to /v1/foobar/static/index.html - in plugin', t
   }, (err, res) => {
     t.error(err)
     t.strictEqual(res.statusCode, 302)
-    t.strictEqual(res.headers.location, '/v1/foobar/static/index.html')
+    t.strictEqual(res.headers.location, './foobar/static/index.html')
     t.is(typeof res.payload, 'string')
   })
 })
 
-test('with routePrefix: \'/\' should redirect to /static/index.html', t => {
+test('/v1/foobar/ should redirect to ./static/index.html - in plugin', t => {
+  t.plan(4)
+  const fastify = Fastify()
+
+  fastify.register(function (fastify, options, next) {
+    const opts = JSON.parse(JSON.stringify(swaggerInfo))
+    opts.routePrefix = '/foobar'
+    fastify.register(fastifySwagger, opts)
+
+    fastify.get('/', () => {})
+    fastify.post('/', () => {})
+    fastify.get('/example', opts1, () => {})
+    fastify.post('/example', opts2, () => {})
+    fastify.get('/parameters/:id', opts3, () => {})
+    fastify.get('/example1', opts4, () => {})
+
+    next()
+  }, { prefix: '/v1' })
+
+  fastify.inject({
+    method: 'GET',
+    url: '/v1/foobar/'
+  }, (err, res) => {
+    t.error(err)
+    t.strictEqual(res.statusCode, 302)
+    t.strictEqual(res.headers.location, './static/index.html')
+    t.is(typeof res.payload, 'string')
+  })
+})
+
+test('with routePrefix: \'/\' should redirect to ./static/index.html', t => {
   t.plan(4)
   const fastify = Fastify()
 
@@ -259,7 +337,7 @@ test('with routePrefix: \'/\' should redirect to /static/index.html', t => {
   }, (err, res) => {
     t.error(err)
     t.strictEqual(res.statusCode, 302)
-    t.strictEqual(res.headers.location, '/static/index.html')
+    t.strictEqual(res.headers.location, './static/index.html')
     t.is(typeof res.payload, 'string')
   })
 })
@@ -283,7 +361,7 @@ test('/documentation/static/:file should send back the correct file', t => {
   }, (err, res) => {
     t.error(err)
     t.is(res.statusCode, 302)
-    t.is(res.headers.location, '/documentation/static/index.html')
+    t.is(res.headers.location, './static/index.html')
   })
 
   fastify.ready(() => {
@@ -461,7 +539,7 @@ test('/documentation/:myfile should run custom NotFoundHandler in dynamic mode',
   })
 })
 
-test('/documentation/ should redirect to documentation/static/index.html', t => {
+test('/documentation/ should redirect to ./static/index.html', t => {
   t.plan(3)
   const fastify = Fastify()
   fastify.register(fastifySwagger, swaggerInfo)
@@ -472,6 +550,6 @@ test('/documentation/ should redirect to documentation/static/index.html', t => 
   }, (err, res) => {
     t.error(err)
     t.strictEqual(res.statusCode, 302)
-    t.strictEqual(res.headers.location, '/documentation/static/index.html')
+    t.strictEqual(res.headers.location, './static/index.html')
   })
 })

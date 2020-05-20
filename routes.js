@@ -6,17 +6,26 @@ const fastifyStatic = require('fastify-static')
 // URI prefix to separate static assets for swagger UI
 const staticPrefix = '/static'
 
+function getRedirectPathForTheRootRoute (url) {
+  let redirectPath
+
+  if (url.substr(-1) === '/') {
+    redirectPath = `.${staticPrefix}/index.html`
+  } else {
+    const urlPathParts = url.split('/')
+    redirectPath = `./${urlPathParts[urlPathParts.length - 1]}${staticPrefix}/index.html`
+  }
+
+  return redirectPath
+}
+
 function fastifySwagger (fastify, opts, next) {
   fastify.route({
     url: '/',
     method: 'GET',
     schema: { hide: true },
-    handler: (request, reply) => {
-      if (fastify.prefix === '/') {
-        reply.redirect(`${staticPrefix}/index.html`)
-      } else {
-        reply.redirect(`${fastify.prefix}${staticPrefix}/index.html`)
-      }
+    handler: (req, reply) => {
+      reply.redirect(getRedirectPathForTheRootRoute(req.raw.url))
     }
   })
 
@@ -60,7 +69,7 @@ function fastifySwagger (fastify, opts, next) {
     handler: function (req, reply) {
       const file = req.params['*']
       if (file === '') {
-        reply.redirect(302, `${fastify.basePath}${staticPrefix}/index.html`)
+        reply.redirect(getRedirectPathForTheRootRoute(req.raw.url))
       } else {
         reply.sendFile(file)
       }
