@@ -226,6 +226,21 @@ module.exports = function (fastify, opts, next) {
       param.schema = bodyResolved
       parameters.push(param)
     }
+
+    function getQueryParams (parameters, query) {
+      const add = plainJsonObjectToSwagger2('query', query, swaggerObject.definitions)
+      add.forEach(_ => parameters.push(_))
+    }
+
+    function getPathParams (parameters, path) {
+      const add = plainJsonObjectToSwagger2('path', path, swaggerObject.definitions)
+      add.forEach(_ => parameters.push(_))
+    }
+
+    function getHeaderParams (parameters, headers) {
+      const add = plainJsonObjectToSwagger2('header', headers, swaggerObject.definitions)
+      add.forEach(_ => parameters.push(_))
+    }
   }
 
   next()
@@ -241,27 +256,7 @@ function consumesFormOnly (schema) {
   )
 }
 
-function getQueryParams (parameters, query) {
-  if (query.type && query.properties) {
-    // for the shorthand querystring declaration
-    const queryProperties = Object.keys(query.properties).reduce((acc, h) => {
-      const required = (query.required && query.required.indexOf(h) >= 0) || false
-      const newProps = Object.assign({}, query.properties[h], { required })
-      return Object.assign({}, acc, { [h]: newProps })
-    }, {})
-
-    return getQueryParams(parameters, queryProperties)
-  }
-
-  Object.keys(query).forEach(prop => {
-    const obj = query[prop]
-    const param = obj
-    param.name = prop
-    param.in = 'query'
-    parameters.push(param)
-  })
-}
-
+// TODO check this form + file support
 function getFormParams (parameters, body) {
   const formParamsSchema = body.properties
   if (formParamsSchema) {
@@ -273,44 +268,6 @@ function getFormParams (parameters, body) {
       parameters.push(param)
     })
   }
-}
-
-function getPathParams (parameters, params) {
-  if (params.type && params.properties) {
-    // for the shorthand querystring declaration
-    return getPathParams(parameters, params.properties)
-  }
-
-  Object.keys(params).forEach(p => {
-    const param = Object.assign({}, params[p])
-    param.name = p
-    param.in = 'path'
-    param.required = true
-    parameters.push(param)
-  })
-}
-
-function getHeaderParams (parameters, headers) {
-  if (headers.type && headers.properties) {
-    // for the shorthand querystring declaration
-    const headerProperties = Object.keys(headers.properties).reduce((acc, h) => {
-      const required = (headers.required && headers.required.indexOf(h) >= 0) || false
-      const newProps = Object.assign({}, headers.properties[h], { required })
-      return Object.assign({}, acc, { [h]: newProps })
-    }, {})
-
-    return getHeaderParams(parameters, headerProperties)
-  }
-
-  Object.keys(headers).forEach(h =>
-    parameters.push({
-      name: h,
-      in: 'header',
-      required: headers[h].required,
-      description: headers[h].description,
-      type: headers[h].type
-    })
-  )
 }
 
 function genResponse (response) {
@@ -357,4 +314,63 @@ function formatParamUrl (url) {
   } else {
     return formatParamUrl(url.slice(0, start) + '{' + url.slice(++start, end) + '}' + url.slice(end))
   }
+}
+
+// For supported keys read:
+// https://swagger.io/docs/specification/2-0/describing-parameters/
+function plainJsonObjectToSwagger2 (container, jsonSchema, externalSchemas) {
+  const obj = localRefResolve(jsonSchema, externalSchemas)
+  let toSwaggerProp
+  switch (container) {
+    case 'query':
+      toSwaggerProp = function (properyName, jsonSchemaElement) {
+        jsonSchemaElement.in = container
+        jsonSchemaElement.name = properyName
+        return jsonSchemaElement
+      }
+      break
+    case 'path':
+      toSwaggerProp = function (properyName, jsonSchemaElement) {
+        jsonSchemaElement.in = container
+        jsonSchemaElement.name = properyName
+        jsonSchemaElement.required = true
+        return jsonSchemaElement
+      }
+      break
+    case 'header':
+      toSwaggerProp = function (properyName, jsonSchemaElement) {
+        return {
+          in: 'header',
+          name: properyName,
+          required: jsonSchemaElement.required,
+          description: jsonSchemaElement.description,
+          type: jsonSchemaElement.type
+        }
+      }
+      break
+  }
+
+  return Object.keys(obj).reduce((acc, propKey) => {
+    acc.push(toSwaggerProp(propKey, obj[propKey]))
+    return acc
+  }, [])
+}
+
+function localRefResolve (jsonSchema, externalSchemas) {
+  if (jsonSchema.type && jsonSchema.properties) {
+    // for the shorthand querystring/params/headers declaration
+    const propertiesMap = Object.keys(jsonSchema.properties).reduce((acc, h) => {
+      const required = (jsonSchema.required && jsonSchema.required.indexOf(h) >= 0) || false
+      const newProps = Object.assign({}, jsonSchema.properties[h], { required })
+      return Object.assign({}, acc, { [h]: newProps })
+    }, {})
+
+    return propertiesMap
+  }
+
+  if (jsonSchema.$ref) {
+    const localReference = jsonSchema.$ref.substr(jsonSchema.$ref.lastIndexOf('/'))
+    return localRefResolve(externalSchemas[localReference], externalSchemas)
+  }
+  return jsonSchema
 }
