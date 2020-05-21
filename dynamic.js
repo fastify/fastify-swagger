@@ -17,18 +17,15 @@ module.exports = function (fastify, opts, next) {
   })
 
   fastify.addHook('onRegister', async (instance) => {
-    instance.ready((err) => {
-      if (err) {
-        throw err
-      }
-
+    instance.addHook('onReady', (done) => {
       const allSchemas = instance.getSchemas()
       for (const schemaId of Object.keys(allSchemas)) {
         if (!sharedSchemasMap.has(schemaId)) {
           sharedSchemasMap.set(schemaId, allSchemas[schemaId])
         }
       }
-    }) // wait the addSchema
+      done()
+    })
   })
 
   opts = opts || {}
