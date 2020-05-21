@@ -495,6 +495,7 @@ test('parses form parameters when all api consumes application/x-www-form-urlenc
           in: 'formData',
           name: 'hello',
           description: 'hello',
+          required: true,
           type: 'string'
         }])
       })

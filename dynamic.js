@@ -234,6 +234,12 @@ module.exports = function (fastify, opts, next) {
       parameters.push(param)
     }
 
+    function getFormParams (parameters, form) {
+      const resolved = ref.resolve(form)
+      const add = plainJsonObjectToSwagger2('formData', resolved, swaggerObject.definitions)
+      add.forEach(_ => parameters.push(_))
+    }
+
     function getQueryParams (parameters, query) {
       const resolved = ref.resolve(query)
       const add = plainJsonObjectToSwagger2('query', resolved, swaggerObject.definitions)
@@ -264,20 +270,6 @@ function consumesFormOnly (schema) {
       (consumes[0] === 'application/x-www-form-urlencoded' ||
         consumes[0] === 'multipart/form-data')
   )
-}
-
-// TODO check this form + file support
-function getFormParams (parameters, body) {
-  const formParamsSchema = body.properties
-  if (formParamsSchema) {
-    Object.keys(formParamsSchema).forEach(name => {
-      const param = formParamsSchema[name]
-      delete param.$id
-      param.in = 'formData'
-      param.name = name
-      parameters.push(param)
-    })
-  }
 }
 
 function genResponse (response) {
@@ -336,6 +328,21 @@ function plainJsonObjectToSwagger2 (container, jsonSchema, externalSchemas) {
       toSwaggerProp = function (properyName, jsonSchemaElement) {
         jsonSchemaElement.in = container
         jsonSchemaElement.name = properyName
+        return jsonSchemaElement
+      }
+      break
+    case 'formData':
+      toSwaggerProp = function (properyName, jsonSchemaElement) {
+        delete jsonSchemaElement.$id
+        jsonSchemaElement.in = container
+        jsonSchemaElement.name = properyName
+
+        // https://json-schema.org/understanding-json-schema/reference/non_json_data.html#contentencoding
+        if (jsonSchemaElement.contentEncoding === 'binary') {
+          delete jsonSchemaElement.contentEncoding // Must be removed
+          jsonSchemaElement.type = 'file'
+        }
+
         return jsonSchemaElement
       }
       break

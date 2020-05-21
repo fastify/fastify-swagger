@@ -61,3 +61,51 @@ test('support $ref schema', async t => {
   await Swagger.validate(res.json())
   t.pass('valid swagger object')
 })
+
+test('support file in json schema', t => {
+  const opts7 = {
+    schema: {
+      consumes: ['application/x-www-form-urlencoded'],
+      body: {
+        type: 'object',
+        properties: {
+          hello: {
+            description: 'hello',
+            type: 'string',
+            contentEncoding: 'binary'
+          }
+        },
+        required: ['hello']
+      }
+    }
+  }
+
+  t.plan(3)
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, {
+    routePrefix: '/docs',
+    exposeRoute: true
+  })
+  fastify.get('/', opts7, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+    const swaggerObject = fastify.swagger()
+
+    Swagger.validate(swaggerObject)
+      .then(function (api) {
+        const definedPath = api.paths['/'].get
+        t.ok(definedPath)
+        t.same(definedPath.parameters, [{
+          in: 'formData',
+          name: 'hello',
+          description: 'hello',
+          required: true,
+          type: 'file'
+        }])
+      })
+      .catch(function (err) {
+        t.fail(err)
+      })
+  })
+})
