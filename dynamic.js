@@ -17,14 +17,18 @@ module.exports = function (fastify, opts, next) {
   })
 
   fastify.addHook('onRegister', async (instance) => {
-    await instance.ready() // wait the addSchema
-
-    const allSchemas = instance.getSchemas()
-    for (const schemaId of Object.keys(allSchemas)) {
-      if (!sharedSchemasMap.has(schemaId)) {
-        sharedSchemasMap.set(schemaId, allSchemas[schemaId])
+    instance.ready((err) => {
+      if (err) {
+        throw err
       }
-    }
+
+      const allSchemas = instance.getSchemas()
+      for (const schemaId of Object.keys(allSchemas)) {
+        if (!sharedSchemasMap.has(schemaId)) {
+          sharedSchemasMap.set(schemaId, allSchemas[schemaId])
+        }
+      }
+    }) // wait the addSchema
   })
 
   opts = opts || {}
@@ -111,6 +115,12 @@ module.exports = function (fastify, opts, next) {
         ...swaggerObject.definitions,
         ...(ref.definitions().definitions)
       }
+
+      // Swagger doesn't accept $id on /definitions schemas.
+      // The $ids are needed by Ref() to check the URI so we need
+      // to remove them at the end of the process
+      Object.values(swaggerObject.definitions)
+        .forEach(_ => { delete _.$id })
     }
 
     swaggerObject.paths = {}
@@ -228,17 +238,20 @@ module.exports = function (fastify, opts, next) {
     }
 
     function getQueryParams (parameters, query) {
-      const add = plainJsonObjectToSwagger2('query', query, swaggerObject.definitions)
+      const resolved = ref.resolve(query)
+      const add = plainJsonObjectToSwagger2('query', resolved, swaggerObject.definitions)
       add.forEach(_ => parameters.push(_))
     }
 
     function getPathParams (parameters, path) {
-      const add = plainJsonObjectToSwagger2('path', path, swaggerObject.definitions)
+      const resolved = ref.resolve(path)
+      const add = plainJsonObjectToSwagger2('path', resolved, swaggerObject.definitions)
       add.forEach(_ => parameters.push(_))
     }
 
     function getHeaderParams (parameters, headers) {
-      const add = plainJsonObjectToSwagger2('header', headers, swaggerObject.definitions)
+      const resolved = ref.resolve(headers)
+      const add = plainJsonObjectToSwagger2('header', resolved, swaggerObject.definitions)
       add.forEach(_ => parameters.push(_))
     }
   }
@@ -369,7 +382,8 @@ function localRefResolve (jsonSchema, externalSchemas) {
   }
 
   if (jsonSchema.$ref) {
-    const localReference = jsonSchema.$ref.substr(jsonSchema.$ref.lastIndexOf('/'))
+    // $ref is in the format: #/definitions/<resolved definition>/<optional fragment>
+    const localReference = jsonSchema.$ref.split('/')[2]
     return localRefResolve(externalSchemas[localReference], externalSchemas)
   }
   return jsonSchema

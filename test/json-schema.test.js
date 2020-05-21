@@ -4,7 +4,7 @@ const { test } = require('tap')
 
 const Fastify = require('fastify')
 const fastifySwagger = require('../index')
-// const Swagger = require('swagger-parser')
+const Swagger = require('swagger-parser')
 
 test('support $ref schema', async t => {
   t.plan(1)
@@ -41,14 +41,13 @@ test('support $ref schema', async t => {
         }
       })
 
-      subinstance.post('/', {
+      subinstance.post('/:hello', {
         handler () {},
         schema: {
-          body: { $ref: 'example#/properties/hello' }
-          // TODO
-          // querystring: { $ref: 'subschema-two#/properties/hello' },
-          // params: { $ref: 'subschema-two#/properties/hello' },
-          // headers: { $ref: 'subschema-three#/properties/hello' }
+          body: { $ref: 'example#/properties/hello' },
+          querystring: { $ref: 'subschema-two#/properties/hello' },
+          params: { $ref: 'subschema-two#/properties/hello' },
+          headers: { $ref: 'subschema-three#/properties/hello' }
         }
       })
 
@@ -59,6 +58,8 @@ test('support $ref schema', async t => {
   })
 
   const res = await fastify.inject('/docs/json')
-  t.pass('done')
   require('fs').writeFileSync('./out.json', JSON.stringify(res.json(), null, 2))
+
+  await Swagger.validate(res.json())
+  t.pass('valid swagger object')
 })
