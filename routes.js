@@ -38,11 +38,6 @@ function fastifySwagger (fastify, opts, next) {
     }
   })
 
-  // fastify.ready((err) => {
-  //   if (err) {
-  //     throw err
-  //   }
-  // })
   const allSchemas = fastify.getSchemas()
   Object.keys(allSchemas).forEach(schemaId => {
     fastify.log.info('Exposed $ref %s', schemaId)

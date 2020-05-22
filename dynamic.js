@@ -17,6 +17,8 @@ module.exports = function (fastify, opts, next) {
   })
 
   fastify.addHook('onRegister', async (instance) => {
+    // we need to wait the ready event to get all the .getSchemas()
+    // otherwise it will be empty
     instance.addHook('onReady', (done) => {
       const allSchemas = instance.getSchemas()
       for (const schemaId of Object.keys(allSchemas)) {
