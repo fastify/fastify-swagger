@@ -298,35 +298,32 @@ test('fastify.swagger definitions', t => {
   t.plan(2)
   const fastify = Fastify()
 
-  fastify.register(fastifySwagger, swaggerInfo)
-
-  const opts = {
-    schema: {
-      definitions: {
-        ExampleModel: {
-          type: 'object',
-          properties: {
-            id: {
-              type: 'integer',
-              description: 'Some id'
-            },
-            name: {
-              type: 'string',
-              description: 'Name of smthng'
-            }
-          }
+  swaggerInfo.swagger.definitions = {
+    ExampleModel: {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'integer',
+          description: 'Some id'
+        },
+        name: {
+          type: 'string',
+          description: 'Name of smthng'
         }
       }
     }
   }
 
-  fastify.get('/', opts, () => {})
+  fastify.register(fastifySwagger, swaggerInfo)
+
+  fastify.get('/', () => {})
 
   fastify.ready(err => {
     t.error(err)
 
     const swaggerObject = fastify.swagger()
-    t.equal(swaggerObject.definitions, swaggerInfo.swagger.definitions)
+    t.deepEquals(swaggerObject.definitions, swaggerInfo.swagger.definitions)
+    delete swaggerInfo.swagger.definitions // remove what we just added
   })
 })
 
@@ -495,6 +492,7 @@ test('parses form parameters when all api consumes application/x-www-form-urlenc
           in: 'formData',
           name: 'hello',
           description: 'hello',
+          required: true,
           type: 'string'
         }])
       })

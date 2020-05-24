@@ -3,14 +3,31 @@
 const fs = require('fs')
 const path = require('path')
 const yaml = require('js-yaml')
+const Ref = require('json-schema-resolver')
 
 module.exports = function (fastify, opts, next) {
   fastify.decorate('swagger', swagger)
 
   const routes = []
+  const sharedSchemasMap = new Map()
+  let ref
 
   fastify.addHook('onRoute', (routeOptions) => {
     routes.push(routeOptions)
+  })
+
+  fastify.addHook('onRegister', async (instance) => {
+    // we need to wait the ready event to get all the .getSchemas()
+    // otherwise it will be empty
+    instance.addHook('onReady', (done) => {
+      const allSchemas = instance.getSchemas()
+      for (const schemaId of Object.keys(allSchemas)) {
+        if (!sharedSchemasMap.has(schemaId)) {
+          sharedSchemasMap.set(schemaId, allSchemas[schemaId])
+        }
+      }
+      done()
+    })
   })
 
   opts = opts || {}
@@ -74,6 +91,8 @@ module.exports = function (fastify, opts, next) {
     if (consumes) swaggerObject.consumes = consumes
     if (produces) swaggerObject.produces = produces
     if (definitions) swaggerObject.definitions = definitions
+    else swaggerObject.definitions = {}
+
     if (securityDefinitions) {
       swaggerObject.securityDefinitions = securityDefinitions
     }
@@ -85,6 +104,22 @@ module.exports = function (fastify, opts, next) {
     }
     if (externalDocs) {
       swaggerObject.externalDocs = externalDocs
+    }
+
+    if (!ref) {
+      const externalSchemas = Array.from(sharedSchemasMap.values())
+
+      ref = Ref({ clone: true, applicationUri: 'todo.com', externalSchemas })
+      swaggerObject.definitions = {
+        ...swaggerObject.definitions,
+        ...(ref.definitions().definitions)
+      }
+
+      // Swagger doesn't accept $id on /definitions schemas.
+      // The $ids are needed by Ref() to check the URI so we need
+      // to remove them at the end of the process
+      Object.values(swaggerObject.definitions)
+        .forEach(_ => { delete _.$id })
     }
 
     swaggerObject.paths = {}
@@ -190,6 +225,71 @@ module.exports = function (fastify, opts, next) {
 
     cache.swaggerObject = swaggerObject
     return swaggerObject
+
+    function getBodyParams (parameters, body) {
+      const bodyResolved = ref.resolve(body)
+
+      const param = {}
+      param.name = 'body'
+      param.in = 'body'
+      param.schema = bodyResolved
+      parameters.push(param)
+    }
+
+    function getFormParams (parameters, form) {
+      const resolved = ref.resolve(form)
+      const add = plainJsonObjectToSwagger2('formData', resolved, swaggerObject.definitions)
+      add.forEach(_ => parameters.push(_))
+    }
+
+    function getQueryParams (parameters, query) {
+      const resolved = ref.resolve(query)
+      const add = plainJsonObjectToSwagger2('query', resolved, swaggerObject.definitions)
+      add.forEach(_ => parameters.push(_))
+    }
+
+    function getPathParams (parameters, path) {
+      const resolved = ref.resolve(path)
+      const add = plainJsonObjectToSwagger2('path', resolved, swaggerObject.definitions)
+      add.forEach(_ => parameters.push(_))
+    }
+
+    function getHeaderParams (parameters, headers) {
+      const resolved = ref.resolve(headers)
+      const add = plainJsonObjectToSwagger2('header', resolved, swaggerObject.definitions)
+      add.forEach(_ => parameters.push(_))
+    }
+
+    // https://swagger.io/docs/specification/2-0/describing-responses/
+    function genResponse (fastifyResponseJson) {
+      // if the user does not provided an out schema
+      if (!fastifyResponseJson) {
+        return { 200: { description: 'Default Response' } }
+      }
+
+      const responsesContainer = {}
+
+      Object.keys(fastifyResponseJson).forEach(key => {
+        // 2xx is not supported by swagger
+
+        const rawJsonSchema = fastifyResponseJson[key]
+        const resolved = ref.resolve(rawJsonSchema)
+
+        if (resolved.type || resolved.$ref) {
+          responsesContainer[key] = {
+            schema: resolved
+          }
+        } else {
+          responsesContainer[key] = resolved
+        }
+
+        if (!responsesContainer[key].description) {
+          responsesContainer[key].description = 'Default Response'
+        }
+      })
+
+      return responsesContainer
+    }
   }
 
   next()
@@ -203,115 +303,6 @@ function consumesFormOnly (schema) {
       (consumes[0] === 'application/x-www-form-urlencoded' ||
         consumes[0] === 'multipart/form-data')
   )
-}
-
-function getQueryParams (parameters, query) {
-  if (query.type && query.properties) {
-    // for the shorthand querystring declaration
-    const queryProperties = Object.keys(query.properties).reduce((acc, h) => {
-      const required = (query.required && query.required.indexOf(h) >= 0) || false
-      const newProps = Object.assign({}, query.properties[h], { required })
-      return Object.assign({}, acc, { [h]: newProps })
-    }, {})
-
-    return getQueryParams(parameters, queryProperties)
-  }
-
-  Object.keys(query).forEach(prop => {
-    const obj = query[prop]
-    const param = obj
-    param.name = prop
-    param.in = 'query'
-    parameters.push(param)
-  })
-}
-
-function getBodyParams (parameters, body) {
-  const param = {}
-  param.name = 'body'
-  param.in = 'body'
-  param.schema = body
-  parameters.push(param)
-}
-
-function getFormParams (parameters, body) {
-  const formParamsSchema = body.properties
-  if (formParamsSchema) {
-    Object.keys(formParamsSchema).forEach(name => {
-      const param = formParamsSchema[name]
-      delete param.$id
-      param.in = 'formData'
-      param.name = name
-      parameters.push(param)
-    })
-  }
-}
-
-function getPathParams (parameters, params) {
-  if (params.type && params.properties) {
-    // for the shorthand querystring declaration
-    return getPathParams(parameters, params.properties)
-  }
-
-  Object.keys(params).forEach(p => {
-    const param = Object.assign({}, params[p])
-    param.name = p
-    param.in = 'path'
-    param.required = true
-    parameters.push(param)
-  })
-}
-
-function getHeaderParams (parameters, headers) {
-  if (headers.type && headers.properties) {
-    // for the shorthand querystring declaration
-    const headerProperties = Object.keys(headers.properties).reduce((acc, h) => {
-      const required = (headers.required && headers.required.indexOf(h) >= 0) || false
-      const newProps = Object.assign({}, headers.properties[h], { required })
-      return Object.assign({}, acc, { [h]: newProps })
-    }, {})
-
-    return getHeaderParams(parameters, headerProperties)
-  }
-
-  Object.keys(headers).forEach(h =>
-    parameters.push({
-      name: h,
-      in: 'header',
-      required: headers[h].required,
-      description: headers[h].description,
-      type: headers[h].type
-    })
-  )
-}
-
-function genResponse (response) {
-  // if the user does not provided an out schema
-  if (!response) {
-    return { 200: { description: 'Default Response' } }
-  }
-
-  // remove previous references
-  response = Object.assign({}, response)
-
-  Object.keys(response).forEach(key => {
-    if (response[key].type) {
-      var rsp = response[key]
-      var description = response[key].description
-      var headers = response[key].headers
-      response[key] = {
-        schema: rsp
-      }
-      response[key].description = description || 'Default Response'
-      if (headers) response[key].headers = headers
-    }
-
-    if (!response[key].description) {
-      response[key].description = 'Default Response'
-    }
-  })
-
-  return response
 }
 
 // The swagger standard does not accept the url param with ':'
@@ -329,4 +320,79 @@ function formatParamUrl (url) {
   } else {
     return formatParamUrl(url.slice(0, start) + '{' + url.slice(++start, end) + '}' + url.slice(end))
   }
+}
+
+// For supported keys read:
+// https://swagger.io/docs/specification/2-0/describing-parameters/
+function plainJsonObjectToSwagger2 (container, jsonSchema, externalSchemas) {
+  const obj = localRefResolve(jsonSchema, externalSchemas)
+  let toSwaggerProp
+  switch (container) {
+    case 'query':
+      toSwaggerProp = function (properyName, jsonSchemaElement) {
+        jsonSchemaElement.in = container
+        jsonSchemaElement.name = properyName
+        return jsonSchemaElement
+      }
+      break
+    case 'formData':
+      toSwaggerProp = function (properyName, jsonSchemaElement) {
+        delete jsonSchemaElement.$id
+        jsonSchemaElement.in = container
+        jsonSchemaElement.name = properyName
+
+        // https://json-schema.org/understanding-json-schema/reference/non_json_data.html#contentencoding
+        if (jsonSchemaElement.contentEncoding === 'binary') {
+          delete jsonSchemaElement.contentEncoding // Must be removed
+          jsonSchemaElement.type = 'file'
+        }
+
+        return jsonSchemaElement
+      }
+      break
+    case 'path':
+      toSwaggerProp = function (properyName, jsonSchemaElement) {
+        jsonSchemaElement.in = container
+        jsonSchemaElement.name = properyName
+        jsonSchemaElement.required = true
+        return jsonSchemaElement
+      }
+      break
+    case 'header':
+      toSwaggerProp = function (properyName, jsonSchemaElement) {
+        return {
+          in: 'header',
+          name: properyName,
+          required: jsonSchemaElement.required,
+          description: jsonSchemaElement.description,
+          type: jsonSchemaElement.type
+        }
+      }
+      break
+  }
+
+  return Object.keys(obj).reduce((acc, propKey) => {
+    acc.push(toSwaggerProp(propKey, obj[propKey]))
+    return acc
+  }, [])
+}
+
+function localRefResolve (jsonSchema, externalSchemas) {
+  if (jsonSchema.type && jsonSchema.properties) {
+    // for the shorthand querystring/params/headers declaration
+    const propertiesMap = Object.keys(jsonSchema.properties).reduce((acc, h) => {
+      const required = (jsonSchema.required && jsonSchema.required.indexOf(h) >= 0) || false
+      const newProps = Object.assign({}, jsonSchema.properties[h], { required })
+      return Object.assign({}, acc, { [h]: newProps })
+    }, {})
+
+    return propertiesMap
+  }
+
+  if (jsonSchema.$ref) {
+    // $ref is in the format: #/definitions/<resolved definition>/<optional fragment>
+    const localReference = jsonSchema.$ref.split('/')[2]
+    return localRefResolve(externalSchemas[localReference], externalSchemas)
+  }
+  return jsonSchema
 }

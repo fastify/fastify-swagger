@@ -289,6 +289,10 @@ npm run prepare
 
 So that [swagger-ui](https://github.com/swagger-api/swagger-ui) static folder will be generated for you.
 
+#### How work under the hood
+
+`fastify-static` serve the `swagger-ui` static files, then it calls `/docs/json` to get the swagger file and render it.
+
 <a name="seealso"></a>
 ## See also
 Sometimes you already have a Swagger definition and you need to build Fastify routes from that.
