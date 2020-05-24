@@ -259,6 +259,37 @@ module.exports = function (fastify, opts, next) {
       const add = plainJsonObjectToSwagger2('header', resolved, swaggerObject.definitions)
       add.forEach(_ => parameters.push(_))
     }
+
+    // https://swagger.io/docs/specification/2-0/describing-responses/
+    function genResponse (fastifyResponseJson) {
+      // if the user does not provided an out schema
+      if (!fastifyResponseJson) {
+        return { 200: { description: 'Default Response' } }
+      }
+
+      const responsesContainer = {}
+
+      Object.keys(fastifyResponseJson).forEach(key => {
+        // 2xx is not supported by swagger
+
+        const rawJsonSchema = fastifyResponseJson[key]
+        const resolved = ref.resolve(rawJsonSchema)
+
+        if (resolved.type || resolved.$ref) {
+          responsesContainer[key] = {
+            schema: resolved
+          }
+        } else {
+          responsesContainer[key] = resolved
+        }
+
+        if (!responsesContainer[key].description) {
+          responsesContainer[key].description = 'Default Response'
+        }
+      })
+
+      return responsesContainer
+    }
   }
 
   next()
@@ -272,35 +303,6 @@ function consumesFormOnly (schema) {
       (consumes[0] === 'application/x-www-form-urlencoded' ||
         consumes[0] === 'multipart/form-data')
   )
-}
-
-function genResponse (response) {
-  // if the user does not provided an out schema
-  if (!response) {
-    return { 200: { description: 'Default Response' } }
-  }
-
-  // remove previous references
-  response = Object.assign({}, response)
-
-  Object.keys(response).forEach(key => {
-    if (response[key].type) {
-      var rsp = response[key]
-      var description = response[key].description
-      var headers = response[key].headers
-      response[key] = {
-        schema: rsp
-      }
-      response[key].description = description || 'Default Response'
-      if (headers) response[key].headers = headers
-    }
-
-    if (!response[key].description) {
-      response[key].description = 'Default Response'
-    }
-  })
-
-  return response
 }
 
 // The swagger standard does not accept the url param with ':'

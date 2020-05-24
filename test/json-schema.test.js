@@ -47,7 +47,10 @@ test('support $ref schema', async t => {
           body: { $ref: 'example#/properties/hello' },
           querystring: { $ref: 'subschema-two#/properties/hello' },
           params: { $ref: 'subschema-two#/properties/hello' },
-          headers: { $ref: 'subschema-three#/properties/hello' }
+          headers: { $ref: 'subschema-three#/properties/hello' },
+          response: {
+            200: { $ref: 'example#/properties/hello' }
+          }
         }
       })
 
@@ -58,6 +61,8 @@ test('support $ref schema', async t => {
   })
 
   const res = await fastify.inject('/docs/json')
+  require('fs').writeFileSync('./out.json', JSON.stringify(res.json(), null, 2))
+
   await Swagger.validate(res.json())
   t.pass('valid swagger object')
 })
