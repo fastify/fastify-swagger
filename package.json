@@ -39,7 +39,7 @@
     "standard": "^14.0.2",
     "swagger-parser": "^9.0.1",
     "swagger-ui-dist": "3.26.1",
-    "tap": "^12.7.0",
+    "tap": "^14.10.7",
     "tsd": "^0.11.0"
   },
   "dependencies": {
