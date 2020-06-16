@@ -209,6 +209,12 @@ module.exports = function (fastify, opts, next) {
         if (schema.security) {
           swaggerMethod.security = schema.security
         }
+
+        for (const key of Object.keys(schema)) {
+          if (key.startsWith('x-')) {
+            swaggerMethod[key] = schema[key]
+          }
+        }
       }
 
       swaggerMethod.responses = genResponse(schema ? schema.response : null)

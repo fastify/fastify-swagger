@@ -155,6 +155,12 @@ const opts7 = {
   }
 }
 
+const opts8 = {
+  schema: {
+    'x-tension': true
+  }
+}
+
 test('fastify.swagger should exist', t => {
   t.plan(2)
   const fastify = Fastify()
@@ -495,6 +501,28 @@ test('parses form parameters when all api consumes application/x-www-form-urlenc
           required: true,
           type: 'string'
         }])
+      })
+      .catch(function (err) {
+        t.fail(err)
+      })
+  })
+})
+
+test('includes swagger extensions', t => {
+  t.plan(3)
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, swaggerInfo)
+  fastify.get('/', opts8, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+    const swaggerObject = fastify.swagger()
+
+    Swagger.validate(swaggerObject)
+      .then(function (api) {
+        const definedPath = api.paths['/'].get
+        t.ok(definedPath)
+        t.same(definedPath['x-tension'], true)
       })
       .catch(function (err) {
         t.fail(err)
