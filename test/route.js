@@ -104,6 +104,24 @@ const opts5 = {
   }
 }
 
+const opts6 = {
+  schema: {
+    params: {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'string',
+          description: 'user id'
+        },
+        key: {
+          type: 'string',
+          description: 'just some random key'
+        }
+      }
+    }
+  }
+}
+
 test('/documentation/json route', t => {
   t.plan(2)
   const fastify = Fastify()
@@ -488,6 +506,7 @@ test('/documentation2/json route (overwrite)', t => {
   fastify.post('/example', opts2, () => {})
   fastify.get('/parameters/:id', opts3, () => {})
   fastify.get('/example1', opts4, () => {})
+  fastify.get('/parameters/:id/:key', opts6, () => {})
 
   fastify.inject({
     method: 'GET',
