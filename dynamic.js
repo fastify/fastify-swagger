@@ -285,6 +285,10 @@ module.exports = function (fastify, opts, next) {
           responsesContainer[key] = {
             schema: resolved
           }
+          if (resolved.description) {
+            responsesContainer[key].description = resolved.description
+            delete resolved.description
+          }
         } else {
           responsesContainer[key] = resolved
         }
