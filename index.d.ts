@@ -62,4 +62,4 @@ type SwaggerOptions = (FastifyStaticSwaggerOptions | FastifyDynamicSwaggerOption
 
 declare const fastifySwagger: FastifyPlugin<SwaggerOptions>
 
-export default fastifySwagger;
+export = fastifySwagger;
