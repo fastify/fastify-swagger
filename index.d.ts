@@ -60,6 +60,8 @@ declare module 'fastify' {
 
 type SwaggerOptions = (FastifyStaticSwaggerOptions | FastifyDynamicSwaggerOptions)
 
-declare const fastifySwagger: FastifyPlugin<SwaggerOptions>
+declare const fastifySwagger: FastifyPlugin<SwaggerOptions> & {
+  default: FastifyPlugin<SwaggerOptions>;
+};
 
 export = fastifySwagger;

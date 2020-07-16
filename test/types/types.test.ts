@@ -1,5 +1,5 @@
 import fastify from 'fastify';
-import fastifySwagger = require('../..');
+import * as fastifySwagger from '../..';
 
 const app = fastify();
 
