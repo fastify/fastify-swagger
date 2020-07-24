@@ -68,11 +68,7 @@ function fastifySwagger (fastify, opts, next) {
     schema: { hide: true },
     handler: function (req, reply) {
       const file = req.params['*']
-      if (file === '') {
-        reply.redirect(getRedirectPathForTheRootRoute(req.raw.url))
-      } else {
-        reply.sendFile(file)
-      }
+      reply.sendFile(file)
     }
   })
 

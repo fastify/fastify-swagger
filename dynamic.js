@@ -106,21 +106,19 @@ module.exports = function (fastify, opts, next) {
       swaggerObject.externalDocs = externalDocs
     }
 
-    if (!ref) {
-      const externalSchemas = Array.from(sharedSchemasMap.values())
+    const externalSchemas = Array.from(sharedSchemasMap.values())
 
-      ref = Ref({ clone: true, applicationUri: 'todo.com', externalSchemas })
-      swaggerObject.definitions = {
-        ...swaggerObject.definitions,
-        ...(ref.definitions().definitions)
-      }
-
-      // Swagger doesn't accept $id on /definitions schemas.
-      // The $ids are needed by Ref() to check the URI so we need
-      // to remove them at the end of the process
-      Object.values(swaggerObject.definitions)
-        .forEach(_ => { delete _.$id })
+    ref = Ref({ clone: true, applicationUri: 'todo.com', externalSchemas })
+    swaggerObject.definitions = {
+      ...swaggerObject.definitions,
+      ...(ref.definitions().definitions)
     }
+
+    // Swagger doesn't accept $id on /definitions schemas.
+    // The $ids are needed by Ref() to check the URI so we need
+    // to remove them at the end of the process
+    Object.values(swaggerObject.definitions)
+      .forEach(_ => { delete _.$id })
 
     swaggerObject.paths = {}
     for (var route of routes) {
@@ -218,9 +216,8 @@ module.exports = function (fastify, opts, next) {
       }
 
       swaggerMethod.responses = genResponse(schema ? schema.response : null)
-      if (swaggerRoute) {
-        swaggerObject.paths[url] = swaggerRoute
-      }
+
+      swaggerObject.paths[url] = swaggerRoute
     }
 
     if (opts && opts.yaml) {
@@ -281,16 +278,9 @@ module.exports = function (fastify, opts, next) {
         const rawJsonSchema = fastifyResponseJson[key]
         const resolved = ref.resolve(rawJsonSchema)
 
-        if (resolved.type || resolved.$ref) {
-          responsesContainer[key] = {
-            schema: resolved
-          }
-        } else {
-          responsesContainer[key] = resolved
-        }
-
-        if (!responsesContainer[key].description) {
-          responsesContainer[key].description = 'Default Response'
+        responsesContainer[key] = {
+          schema: resolved,
+          description: 'Default Response'
         }
       })
 
@@ -395,10 +385,7 @@ function localRefResolve (jsonSchema, externalSchemas) {
     return propertiesMap
   }
 
-  if (jsonSchema.$ref) {
-    // $ref is in the format: #/definitions/<resolved definition>/<optional fragment>
-    const localReference = jsonSchema.$ref.split('/')[2]
-    return localRefResolve(externalSchemas[localReference], externalSchemas)
-  }
-  return jsonSchema
+  // $ref is in the format: #/definitions/<resolved definition>/<optional fragment>
+  const localReference = jsonSchema.$ref.split('/')[2]
+  return localRefResolve(externalSchemas[localReference], externalSchemas)
 }

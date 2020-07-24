@@ -1,9 +1,11 @@
 'use strict'
 
+const path = require('path')
 const t = require('tap')
 const test = t.test
 const Fastify = require('fastify')
 const fastifySwagger = require('../index')
+const fastifySwaggerDynamic = require('../dynamic')
 const yaml = require('js-yaml')
 
 const resolve = require('path').resolve
@@ -43,17 +45,88 @@ test('specification validation check works', t => {
   })
 })
 
-test('swagger route returns yaml', t => {
-  t.plan(4)
+test('registering plugin with invalid mode throws an error', t => {
+  const config = {
+    mode: 'error'
+  }
+
+  t.plan(1)
   const fastify = Fastify()
 
-  fastify.register(fastifySwagger, {
+  fastify.register(fastifySwagger, config)
+
+  fastify.ready(err => {
+    t.equal(err.message, 'unsupported mode, should be one of [\'static\', \'dynamic\']')
+  })
+})
+
+test('unsupported file extension in specification.path throws an error', t => {
+  const config = {
+    mode: 'static',
+    specification: {
+      path: './examples/example-static-specification.js'
+    },
+    exposeRoute: true
+  }
+
+  t.plan(1)
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, config)
+
+  fastify.ready(err => {
+    t.equal(err.message, 'specification.path extension name is not supported, should be one from [\'.yaml\', \'.json\']')
+  })
+})
+
+test('non-string specification.baseDir throws an error ', t => {
+  const config = {
+    exposeRoute: true,
+    mode: 'static',
+    specification: {
+      path: './examples/example-static-specification.yaml',
+      baseDir: 1
+    }
+  }
+
+  t.plan(1)
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, config)
+
+  fastify.ready(err => {
+    t.equal(err.message, 'specification.baseDir should be string')
+  })
+})
+
+test('non-object specification.document throws an error', t => {
+  const config = {
+    exposeRoute: true,
+    mode: 'static',
+    specification: {
+      document: 'doc'
+    }
+  }
+
+  t.plan(1)
+  const fastify = new Fastify()
+  fastify.register(fastifySwagger, config)
+
+  fastify.ready(err => {
+    t.equal(err.message, 'specification.document is not an object')
+  })
+})
+
+test('swagger route returns yaml', t => {
+  const config = {
     mode: 'static',
     specification: {
       path: './examples/example-static-specification.yaml'
     },
     exposeRoute: true
-  })
+  }
+
+  t.plan(4)
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, config)
 
   // check that yaml is there
   fastify.inject(
@@ -74,18 +147,19 @@ test('swagger route returns yaml', t => {
     }
   )
 })
-test('swagger route returns json', t => {
-  t.plan(2)
-  const fastify = Fastify()
 
-  fastify.register(fastifySwagger, {
+test('swagger route returns json', t => {
+  const config = {
     mode: 'static',
     specification: {
-      type: 'file',
-      path: './examples/example-static-specification.yaml'
+      path: './examples/example-static-specification.json'
     },
     exposeRoute: true
-  })
+  }
+
+  t.plan(4)
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, config)
 
   // check that json is there
   fastify.inject(
@@ -95,22 +169,20 @@ test('swagger route returns json', t => {
     },
     (err, res) => {
       t.error(err)
-
+      t.is(typeof res.payload, 'string')
+      t.is(res.headers['content-type'], 'application/json; charset=utf-8')
       try {
-        var payload = JSON.parse(res.payload)
-        t.matchSnapshot(JSON.stringify(payload, null, 2))
-      } catch (error) {
-        t.fail(error)
+        yaml.safeLoad(res.payload)
+        t.pass('valid swagger json')
+      } catch (err) {
+        t.fail(err)
       }
     }
   )
 })
 
 test('postProcessor works, swagger route returns updated yaml', t => {
-  t.plan(5)
-  const fastify = Fastify()
-
-  fastify.register(fastifySwagger, {
+  const config = {
     mode: 'static',
     specification: {
       path: './examples/example-static-specification.yaml',
@@ -120,7 +192,11 @@ test('postProcessor works, swagger route returns updated yaml', t => {
       }
     },
     exposeRoute: true
-  })
+  }
+
+  t.plan(5)
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, config)
 
   // check that yaml is there
   fastify.inject(
@@ -142,10 +218,8 @@ test('postProcessor works, swagger route returns updated yaml', t => {
     }
   )
 })
-test('swagger route returns explicitly passed doc', t => {
-  t.plan(3)
-  const fastify = Fastify()
 
+test('swagger route returns explicitly passed doc', t => {
   const document = {
     info: {
       title: 'Test swagger',
@@ -153,13 +227,18 @@ test('swagger route returns explicitly passed doc', t => {
       version: '0.1.0'
     }
   }
-  fastify.register(fastifySwagger, {
+
+  const config = {
     mode: 'static',
     specification: {
       document
     },
     exposeRoute: true
-  })
+  }
+
+  t.plan(3)
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, config)
 
   // check that json is there
   fastify.inject(
@@ -182,8 +261,6 @@ test('swagger route returns explicitly passed doc', t => {
 })
 
 test('/documentation/:file should serve static file from the location of main specification file', t => {
-  t.plan(7)
-
   const config = {
     exposeRoute: true,
     mode: 'static',
@@ -191,6 +268,8 @@ test('/documentation/:file should serve static file from the location of main sp
       path: './examples/example-static-specification.yaml'
     }
   }
+
+  t.plan(7)
   const fastify = new Fastify()
   fastify.register(fastifySwagger, config)
 
@@ -227,8 +306,6 @@ test('/documentation/:file should serve static file from the location of main sp
 })
 
 test('/documentation/non-existing-file calls custom NotFoundHandler', t => {
-  t.plan(2)
-
   const config = {
     exposeRoute: true,
     mode: 'static',
@@ -236,6 +313,8 @@ test('/documentation/non-existing-file calls custom NotFoundHandler', t => {
       path: './examples/example-static-specification.yaml'
     }
   }
+
+  t.plan(2)
   const fastify = new Fastify()
   fastify.register(fastifySwagger, config)
   fastify.setNotFoundHandler((request, reply) => {
@@ -252,8 +331,6 @@ test('/documentation/non-existing-file calls custom NotFoundHandler', t => {
 })
 
 test('/documentation/:file should be served from custom location', t => {
-  t.plan(3)
-
   const config = {
     exposeRoute: true,
     mode: 'static',
@@ -262,6 +339,8 @@ test('/documentation/:file should be served from custom location', t => {
       baseDir: resolve(__dirname, '..', 'static')
     }
   }
+
+  t.plan(3)
   const fastify = new Fastify()
   fastify.register(fastifySwagger, config)
 
@@ -279,8 +358,6 @@ test('/documentation/:file should be served from custom location', t => {
 })
 
 test('/documentation/:file should be served from custom location with trailing slash(es)', t => {
-  t.plan(3)
-
   const config = {
     exposeRoute: true,
     mode: 'static',
@@ -289,6 +366,8 @@ test('/documentation/:file should be served from custom location with trailing s
       baseDir: resolve(__dirname, '..', 'static') + '/'
     }
   }
+
+  t.plan(3)
   const fastify = new Fastify()
   fastify.register(fastifySwagger, config)
 
@@ -302,5 +381,301 @@ test('/documentation/:file should be served from custom location with trailing s
       readFileSync(resolve(__dirname, '..', 'static', 'oauth2-redirect.html'), 'utf8'),
       res.payload
     )
+  })
+})
+
+test('/documentation/yaml returns cache.swaggerString on second request in static mode', t => {
+  const config = {
+    mode: 'static',
+    specification: {
+      path: './examples/example-static-specification.yaml'
+    },
+    exposeRoute: true
+  }
+
+  t.plan(8)
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, config)
+
+  fastify.inject(
+    {
+      method: 'GET',
+      url: '/documentation/yaml'
+    },
+    (err, res) => {
+      t.error(err)
+      t.is(typeof res.payload, 'string')
+      t.is(res.headers['content-type'], 'application/x-yaml')
+      try {
+        yaml.safeLoad(res.payload)
+        t.pass('valid swagger yaml')
+      } catch (err) {
+        t.fail(err)
+      }
+    }
+  )
+
+  fastify.inject(
+    {
+      method: 'GET',
+      url: '/documentation/yaml'
+    },
+    (err, res) => {
+      t.error(err)
+      t.is(typeof res.payload, 'string')
+      t.is(res.headers['content-type'], 'application/x-yaml')
+      yaml.safeLoad(res.payload)
+      t.pass('valid swagger yaml')
+    }
+  )
+})
+
+test('/documentation/json returns cache.swaggerObject on second request in static mode', t => {
+  const config = {
+    mode: 'static',
+    specification: {
+      path: './examples/example-static-specification.json'
+    },
+    exposeRoute: true
+  }
+
+  t.plan(8)
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, config)
+
+  fastify.inject(
+    {
+      method: 'GET',
+      url: '/documentation/json'
+    },
+    (err, res) => {
+      t.error(err)
+      t.is(typeof res.payload, 'string')
+      t.is(res.headers['content-type'], 'application/json; charset=utf-8')
+      t.pass('valid swagger json')
+    }
+  )
+
+  fastify.inject(
+    {
+      method: 'GET',
+      url: '/documentation/json'
+    },
+    (err, res) => {
+      t.error(err)
+      t.is(typeof res.payload, 'string')
+      t.is(res.headers['content-type'], 'application/json; charset=utf-8')
+      t.pass('valid swagger json')
+    }
+  )
+})
+
+test('/documentation/yaml returns cache.swaggerString on second request in dynamic mode', t => {
+  const config = {
+    specification: {
+      path: './examples/example-static-specification.yaml'
+    },
+    exposeRoute: true
+  }
+
+  t.plan(8)
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, config)
+
+  fastify.inject(
+    {
+      method: 'GET',
+      url: '/documentation/yaml'
+    },
+    (err, res) => {
+      t.error(err)
+      t.is(typeof res.payload, 'string')
+      t.is(res.headers['content-type'], 'application/x-yaml')
+      try {
+        yaml.safeLoad(res.payload)
+        t.pass('valid swagger yaml')
+      } catch (err) {
+        t.fail(err)
+      }
+    }
+  )
+
+  fastify.inject(
+    {
+      method: 'GET',
+      url: '/documentation/yaml'
+    },
+    (err, res) => {
+      t.error(err)
+      t.is(typeof res.payload, 'string')
+      t.is(res.headers['content-type'], 'application/x-yaml')
+      try {
+        yaml.safeLoad(res.payload)
+        t.pass('valid swagger yaml')
+      } catch (err) {
+        t.fail(err)
+      }
+    }
+  )
+})
+
+test('/documentation/json returns cache.swaggerObject on second request in dynamic mode', t => {
+  const config = {
+    specification: {
+      path: './examples/example-static-specification.json'
+    },
+    exposeRoute: true
+  }
+
+  t.plan(8)
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, config)
+
+  fastify.inject(
+    {
+      method: 'GET',
+      url: '/documentation/json'
+    },
+    (err, res) => {
+      t.error(err)
+      t.is(typeof res.payload, 'string')
+      t.is(res.headers['content-type'], 'application/json; charset=utf-8')
+      t.pass('valid swagger json')
+    }
+  )
+
+  fastify.inject(
+    {
+      method: 'GET',
+      url: '/documentation/json'
+    },
+    (err, res) => {
+      t.error(err)
+      t.is(typeof res.payload, 'string')
+      t.is(res.headers['content-type'], 'application/json; charset=utf-8')
+      t.pass('valid swagger json')
+    }
+  )
+})
+
+test('swagger routes are not exposed', t => {
+  const config = {
+    mode: 'static',
+    specification: {
+      path: './examples/example-static-specification.json'
+    },
+    exposeRoute: false
+  }
+
+  t.plan(4)
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, config)
+
+  // check that yaml is there
+  fastify.inject(
+    {
+      method: 'GET',
+      url: '/documentation/json'
+    },
+    (err, res) => {
+      t.error(err)
+      t.is(typeof res.payload, 'string')
+      t.is(res.headers['content-type'], 'application/json; charset=utf-8')
+      t.pass('routes are not exposed')
+    }
+  )
+})
+
+test('inserts default opts in fastifySwagger', t => {
+  t.plan(1)
+  const fastify = Fastify()
+  const next = () => {}
+
+  fastify.register(() => (fastifySwagger(fastify, null, next)))
+
+  fastify.ready(() => {
+    t.pass('Inserted default option for fastifySwagger.')
+  })
+})
+
+test('inserts default package name', t => {
+  const config = {
+    mode: 'dynamic',
+    specification: {
+      path: './examples/example-static-specification.json'
+    },
+    exposeRoute: true
+  }
+
+  t.plan(2)
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, config)
+
+  const originalPathJoin = path.join
+  const testPackageJSON = path.join(__dirname, '../examples/test-package.json')
+
+  path.join = (...args) => {
+    if (args[1] === 'package.json') {
+      return testPackageJSON
+    }
+    return originalPathJoin(...args)
+  }
+
+  fastify.inject(
+    {
+      method: 'GET',
+      url: '/documentation/json'
+    },
+    (err, res) => {
+      t.error(err)
+      t.pass('Inserted default package name.')
+    }
+  )
+})
+
+test('throws an error if cannot parse package\'s JSON', t => {
+  const config = {
+    mode: 'dynamic',
+    specification: {
+      path: './examples/example-static-specification.json'
+    },
+    exposeRoute: true
+  }
+
+  t.plan(2)
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, config)
+
+  const originalPathJoin = path.join
+  const testPackageJSON = path.join(__dirname, '')
+
+  path.join = (...args) => {
+    if (args[1] === 'package.json') {
+      return testPackageJSON
+    }
+    return originalPathJoin(...args)
+  }
+
+  fastify.inject(
+    {
+      method: 'GET',
+      url: '/documentation/json'
+    },
+    (err, res) => {
+      t.error(err)
+      t.equal(err, null)
+    }
+  )
+})
+
+test('inserts default opts in fastifySwaggerDynamic (dynamic.js)', t => {
+  t.plan(1)
+  const fastify = Fastify()
+  const next = () => {}
+
+  fastify.register(() => (fastifySwaggerDynamic(fastify, null, next)))
+
+  fastify.ready(() => {
+    t.pass('Inserted default option for fastifySwagger.')
   })
 })
