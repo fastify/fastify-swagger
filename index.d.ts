@@ -15,7 +15,7 @@ interface FastifySwaggerOptions {
   exposeRoute?: boolean;
 }
 
-interface FastifyDynamicSwaggerOptions extends FastifySwaggerOptions {
+export interface FastifyDynamicSwaggerOptions extends FastifySwaggerOptions {
   mode?: 'dynamic';
   swagger?: Partial<SwaggerSchema.Spec>;
   /**
@@ -34,7 +34,7 @@ interface StaticDocumentSpec {
   document: string;
 }
 
-interface FastifyStaticSwaggerOptions extends FastifySwaggerOptions {
+export interface FastifyStaticSwaggerOptions extends FastifySwaggerOptions {
   mode: 'static';
   specification: StaticPathSpec | StaticDocumentSpec;
 }
@@ -58,7 +58,7 @@ declare module 'fastify' {
   }
 }
 
-type SwaggerOptions = (FastifyStaticSwaggerOptions | FastifyDynamicSwaggerOptions)
+export type SwaggerOptions = (FastifyStaticSwaggerOptions | FastifyDynamicSwaggerOptions)
 
 declare const fastifySwagger: FastifyPlugin<SwaggerOptions>
 
