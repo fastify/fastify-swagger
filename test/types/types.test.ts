@@ -1,5 +1,6 @@
 import fastify from 'fastify';
 import fastifySwagger = require('../..');
+import { SwaggerOptions } from '../..'
 
 const app = fastify();
 
@@ -14,6 +15,16 @@ app.register(fastifySwagger, {
   routePrefix: '/documentation',
   exposeRoute: true,
 });
+
+const fastifySwaggerOptions: SwaggerOptions = {
+  mode: 'static',
+  specification: {
+    document: 'path'
+  },
+  routePrefix: '/documentation',
+  exposeRoute: true,
+}
+app.register(fastifySwagger, fastifySwaggerOptions);
 
 app.put('/some-route/:id', {
     schema: {
