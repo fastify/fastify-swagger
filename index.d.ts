@@ -1,44 +1,6 @@
 import { FastifyPlugin } from 'fastify';
 import * as SwaggerSchema from 'swagger-schema-official';
 
-interface FastifySwaggerOptions {
-  mode?: 'static' | 'dynamic';
-  /**
-   * Overwrite the swagger url end-point
-   * @default /documentation
-   */
-  routePrefix?: string;
-  /**
-   * To expose the documentation api
-   * @default false
-   */
-  exposeRoute?: boolean;
-}
-
-interface FastifyDynamicSwaggerOptions extends FastifySwaggerOptions {
-  mode?: 'dynamic';
-  swagger?: Partial<SwaggerSchema.Spec>;
-  /**
-   * Overwrite the route schema
-   */
-  transform?: Function;
-}
-
-interface StaticPathSpec {
-  path: string;
-  postProcessor?: (spec: SwaggerSchema.Spec) => SwaggerSchema.Spec;
-  baseDir: string;
-}
-
-interface StaticDocumentSpec {
-  document: string;
-}
-
-interface FastifyStaticSwaggerOptions extends FastifySwaggerOptions {
-  mode: 'static';
-  specification: StaticPathSpec | StaticDocumentSpec;
-}
-
 declare module 'fastify' {
   interface FastifyInstance {
     swagger: (
@@ -58,8 +20,48 @@ declare module 'fastify' {
   }
 }
 
-type SwaggerOptions = (FastifyStaticSwaggerOptions | FastifyDynamicSwaggerOptions)
+declare const fastifySwagger: FastifyPlugin<fastifySwagger.SwaggerOptions>
+ 
+declare namespace fastifySwagger {
+  type SwaggerOptions = (FastifyStaticSwaggerOptions | FastifyDynamicSwaggerOptions)
 
-declare const fastifySwagger: FastifyPlugin<SwaggerOptions>
+  interface FastifySwaggerOptions {
+    mode?: 'static' | 'dynamic';
+    /**
+     * Overwrite the swagger url end-point
+     * @default /documentation
+     */
+    routePrefix?: string;
+    /**
+     * To expose the documentation api
+     * @default false
+     */
+    exposeRoute?: boolean;
+  }
+  
+  interface FastifyDynamicSwaggerOptions extends FastifySwaggerOptions {
+    mode?: 'dynamic';
+    swagger?: Partial<SwaggerSchema.Spec>;
+    /**
+     * Overwrite the route schema
+     */
+    transform?: Function;
+  }
+  
+  interface StaticPathSpec {
+    path: string;
+    postProcessor?: (spec: SwaggerSchema.Spec) => SwaggerSchema.Spec;
+    baseDir: string;
+  }
+  
+  interface StaticDocumentSpec {
+    document: string;
+  }
+  
+  interface FastifyStaticSwaggerOptions extends FastifySwaggerOptions {
+    mode: 'static';
+    specification: StaticPathSpec | StaticDocumentSpec;
+  }
+}
 
 export = fastifySwagger;
