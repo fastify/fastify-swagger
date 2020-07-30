@@ -126,6 +126,10 @@ module.exports = function (fastify, opts, next) {
         continue
       }
 
+      if (route.schema && route.schema.tags && route.schema.tags.includes('X-HIDDEN')) {
+        continue
+      }
+
       const schema = transform
         ? transform(route.schema)
         : route.schema

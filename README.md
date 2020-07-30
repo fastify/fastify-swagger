@@ -273,7 +273,9 @@ There is a complete runnable example [here](examples/collection-format.js).
 
 <a name="hide"></a>
 ### Hide a route
-Sometimes you may need to hide a certain route from the documentation, just pass `{ hide: true }` to the schema object inside the route declaration.
+Sometimes you may need to hide a certain route from the documentation, there is 2 alternatives:
+- just pass `{ hide: true }` to the schema object inside the route declaration.
+- use the tag `X-HIDDEN` inside the route declaration.
 
 <a name="security"></a>
 ### Security
