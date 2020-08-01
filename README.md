@@ -191,6 +191,7 @@ fastify.register(require('fastify-swagger'), {
     },
     ...
   },
+  hiddenTag: 'X-HIDDEN',
   exposeRoute: true,
   routePrefix: '/documentations'
 }
@@ -274,8 +275,8 @@ There is a complete runnable example [here](examples/collection-format.js).
 <a name="hide"></a>
 ### Hide a route
 Sometimes you may need to hide a certain route from the documentation, there is 2 alternatives:
-- just pass `{ hide: true }` to the schema object inside the route declaration.
-- use the tag `X-HIDDEN` inside the route declaration.
+- Pass `{ hide: true }` to the schema object inside the route declaration.
+- Use the tag declared in `hiddenTag` options property inside the route declaration. Default is `X-HIDDEN`.
 
 <a name="security"></a>
 ### Security

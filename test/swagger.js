@@ -399,7 +399,7 @@ test('hide support - property', t => {
   })
 })
 
-test('hide support - tags', t => {
+test('hide support - tags Default', t => {
   t.plan(2)
   const fastify = Fastify()
 
@@ -408,6 +408,40 @@ test('hide support - tags', t => {
   const opts = {
     schema: {
       tags: ['X-HIDDEN'],
+      body: {
+        type: 'object',
+        properties: {
+          hello: { type: 'string' },
+          obj: {
+            type: 'object',
+            properties: {
+              some: { type: 'string' }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  fastify.get('/', opts, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+
+    const swaggerObject = fastify.swagger()
+    t.notOk(swaggerObject.paths['/'])
+  })
+})
+
+test('hide support - tags Custom', t => {
+  t.plan(2)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, {...swaggerInfo, hiddenTag:'NOP'})
+
+  const opts = {
+    schema: {
+      tags: ['NOP'],
       body: {
         type: 'object',
         properties: {

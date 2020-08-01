@@ -46,6 +46,7 @@ module.exports = function (fastify, opts, next) {
   const tags = opts.swagger.tags || null
   const externalDocs = opts.swagger.externalDocs || null
   const transform = opts.transform || null
+  const hiddenTag = opts.hiddenTag || 'X-HIDDEN'
 
   if (opts.exposeRoute === true) {
     const prefix = opts.routePrefix || '/documentation'
@@ -126,7 +127,7 @@ module.exports = function (fastify, opts, next) {
         continue
       }
 
-      if (route.schema && route.schema.tags && route.schema.tags.includes('X-HIDDEN')) {
+      if (route.schema && route.schema.tags && route.schema.tags.includes(hiddenTag)) {
         continue
       }
 
