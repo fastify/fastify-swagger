@@ -437,7 +437,7 @@ test('hide support - tags Custom', t => {
   t.plan(2)
   const fastify = Fastify()
 
-  fastify.register(fastifySwagger, {...swaggerInfo, hiddenTag:'NOP'})
+  fastify.register(fastifySwagger, { ...swaggerInfo, hiddenTag: 'NOP' })
 
   const opts = {
     schema: {
