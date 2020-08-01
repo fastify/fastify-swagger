@@ -22,7 +22,6 @@ const fastifySwaggerOptions: SwaggerOptions = {
     document: 'path'
   },
   routePrefix: '/documentation',
-  hiddenTag: 'Nop',
   exposeRoute: true,
 }
 app.register(fastifySwagger, fastifySwaggerOptions);
