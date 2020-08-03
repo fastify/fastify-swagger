@@ -42,6 +42,7 @@ declare namespace fastifySwagger {
   interface FastifyDynamicSwaggerOptions extends FastifySwaggerOptions {
     mode?: 'dynamic';
     swagger?: Partial<SwaggerSchema.Spec>;
+    hiddenTag?: string;
     /**
      * Overwrite the route schema
      */
