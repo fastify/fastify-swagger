@@ -1,6 +1,5 @@
 import fastify from 'fastify';
-import fastifySwagger = require('../..');
-import { SwaggerOptions } from '../..'
+import fastifySwagger, { SwaggerOptions } from '../..';
 
 const app = fastify();
 

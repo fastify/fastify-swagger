@@ -20,49 +20,46 @@ declare module 'fastify' {
   }
 }
 
-declare const fastifySwagger: FastifyPlugin<fastifySwagger.SwaggerOptions>
+export const fastifySwagger: FastifyPlugin<SwaggerOptions>;
  
-declare namespace fastifySwagger {
-  type SwaggerOptions = (FastifyStaticSwaggerOptions | FastifyDynamicSwaggerOptions)
-
-  interface FastifySwaggerOptions {
-    mode?: 'static' | 'dynamic';
-    /**
-     * Overwrite the swagger url end-point
-     * @default /documentation
-     */
-    routePrefix?: string;
-    /**
-     * To expose the documentation api
-     * @default false
-     */
-    exposeRoute?: boolean;
-  }
-  
-  interface FastifyDynamicSwaggerOptions extends FastifySwaggerOptions {
-    mode?: 'dynamic';
-    swagger?: Partial<SwaggerSchema.Spec>;
-    hiddenTag?: string;
-    /**
-     * Overwrite the route schema
-     */
-    transform?: Function;
-  }
-  
-  interface StaticPathSpec {
-    path: string;
-    postProcessor?: (spec: SwaggerSchema.Spec) => SwaggerSchema.Spec;
-    baseDir: string;
-  }
-  
-  interface StaticDocumentSpec {
-    document: string;
-  }
-  
-  interface FastifyStaticSwaggerOptions extends FastifySwaggerOptions {
-    mode: 'static';
-    specification: StaticPathSpec | StaticDocumentSpec;
-  }
+export type SwaggerOptions = (FastifyStaticSwaggerOptions | FastifyDynamicSwaggerOptions);
+export interface FastifySwaggerOptions {
+  mode?: 'static' | 'dynamic';
+  /**
+   * Overwrite the swagger url end-point
+   * @default /documentation
+   */
+  routePrefix?: string;
+  /**
+   * To expose the documentation api
+   * @default false
+   */
+  exposeRoute?: boolean;
 }
 
-export = fastifySwagger;
+export interface FastifyDynamicSwaggerOptions extends FastifySwaggerOptions {
+  mode?: 'dynamic';
+  swagger?: Partial<SwaggerSchema.Spec>;
+  hiddenTag?: string;
+  /**
+   * Overwrite the route schema
+   */
+  transform?: Function;
+}
+
+export interface StaticPathSpec {
+  path: string;
+  postProcessor?: (spec: SwaggerSchema.Spec) => SwaggerSchema.Spec;
+  baseDir: string;
+}
+
+export interface StaticDocumentSpec {
+  document: string;
+}
+
+export interface FastifyStaticSwaggerOptions extends FastifySwaggerOptions {
+  mode: 'static';
+  specification: StaticPathSpec | StaticDocumentSpec;
+}
+
+export default fastifySwagger;
