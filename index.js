@@ -22,7 +22,11 @@ function fastifySwagger (fastify, opts, next) {
   }
 }
 
-module.exports = fp(fastifySwagger, {
+const fastifySwaggerPlugin = fp(fastifySwagger, {
   fastify: '>=3.x',
   name: 'fastify-swagger'
 })
+
+module.exports = fastifySwaggerPlugin
+module.exports.default = fastifySwaggerPlugin
+module.exports.fastifySwagger = fastifySwaggerPlugin
