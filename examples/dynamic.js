@@ -1,6 +1,6 @@
 'use strict'
 
-const fastify = require('fastify')()
+const fastify = require('fastify')({ logger: true })
 
 fastify.register(require('../index'), {
   swagger: {
@@ -9,7 +9,14 @@ fastify.register(require('../index'), {
       description: 'testing the fastify swagger api',
       version: '0.1.0'
     },
-    host: 'localhost',
+    securityDefinitions: {
+      apiKey: {
+        type: 'apiKey',
+        name: 'apiKey',
+        in: 'header'
+      }
+    },
+    host: 'localhost:3000',
     schemes: ['http'],
     consumes: ['application/json'],
     produces: ['application/json']
@@ -22,6 +29,7 @@ fastify.put('/some-route/:id', {
     description: 'post some data',
     tags: ['user', 'code'],
     summary: 'qwerty',
+    security: [{ apiKey: [] }],
     params: {
       type: 'object',
       properties: {
@@ -53,7 +61,7 @@ fastify.put('/some-route/:id', {
       }
     }
   }
-}, (req, reply) => {})
+}, (req, reply) => { reply.send({ hello: `Hello ${req.body.hello}` }) })
 
 fastify.listen(3000, err => {
   if (err) throw err
