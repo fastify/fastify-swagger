@@ -46,6 +46,8 @@ fastify.register(require('fastify-swagger'), {
         required: ['id', 'email'],
         properties: {
           id: { type: 'string', format: 'uuid' },
+          firstName: { type: 'string' },
+          lastName: { type: 'string' },
           email: {type: 'string', format: 'email' }
         }
       }
