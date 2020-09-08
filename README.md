@@ -42,13 +42,12 @@ fastify.register(require('fastify-swagger'), {
     ],
     definitions: {
       User: {
-        $id: 'User',
         type: 'object',
         required: ['id', 'email'],
         properties: {
           id: { type: 'string', format: 'uuid' },
-          firstName: { type: 'string', nullable: true },
-          lastName: { type: 'string', nullable: true },
+          firstName: { type: 'string' },
+          lastName: { type: 'string' },
           email: {type: 'string', format: 'email' }
         }
       }
