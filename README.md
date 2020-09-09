@@ -147,7 +147,7 @@ fastify.ready(err => {
 <a name="mode.static"></a>
 
 ##### static
- `static` mode should be configured explicitly. In this mode `fastify-swagger` serves given specification, you should craft it yourselfe.
+ `static` mode should be configured explicitly. In this mode `fastify-swagger` serves given specification, you should craft it yourself.
   ```js
   {
     mode: 'static',
