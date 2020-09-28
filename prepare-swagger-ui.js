@@ -43,21 +43,25 @@ const sha = {
   script: [],
   style: []
 }
-const scriptRegex = /<script>(.*)<\/script>/gs
-const styleRegex = /<style>(.*)<\/style>/gs
-const indexSrc = fs.readFileSync(resolve('./static/index.html')).toString('utf8')
-let result = scriptRegex.exec(indexSrc)
-while (result !== null) {
-  const hash = crypto.createHash('sha256')
-  hash.update(result[1])
-  sha.script.push(`'sha256-${hash.digest().toString('base64')}'`)
-  result = scriptRegex.exec(indexSrc)
-}
-result = styleRegex.exec(indexSrc)
-while (result !== null) {
-  const hash = crypto.createHash('sha256')
-  hash.update(result[1])
-  sha.style.push(`'sha256-${hash.digest().toString('base64')}'`)
+function computeCSPHashes (path) {
+  const scriptRegex = /<script>(.*)<\/script>/gs
+  const styleRegex = /<style>(.*)<\/style>/gs
+  const indexSrc = fs.readFileSync(resolve(path)).toString('utf8')
+  let result = scriptRegex.exec(indexSrc)
+  while (result !== null) {
+    const hash = crypto.createHash('sha256')
+    hash.update(result[1])
+    sha.script.push(`'sha256-${hash.digest().toString('base64')}'`)
+    result = scriptRegex.exec(indexSrc)
+  }
   result = styleRegex.exec(indexSrc)
+  while (result !== null) {
+    const hash = crypto.createHash('sha256')
+    hash.update(result[1])
+    sha.style.push(`'sha256-${hash.digest().toString('base64')}'`)
+    result = styleRegex.exec(indexSrc)
+  }
 }
+computeCSPHashes('./static/index.html')
+computeCSPHashes('./static/oauth2-redirect.html')
 fse.writeFileSync(resolve('./static/csp.json'), JSON.stringify(sha))
