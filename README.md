@@ -277,6 +277,23 @@ Sometimes you may need to hide a certain route from the documentation, there is 
 - Pass `{ hide: true }` to the schema object inside the route declaration.
 - Use the tag declared in `hiddenTag` options property inside the route declaration. Default is `X-HIDDEN`.
 
+<a name="integration"></a>
+### Integration
+You can integration this plugin with ```fastify-helmet``` with some little work.
+
+```fastify-helmet``` options example:
+```javascript
+.register(helmet, {
+  contentSecurityPolicy: {
+    directives: {
+      imgSrc: ["'self'", 'data:', 'validator.swagger.io'],
+      scriptSrc: ["'self'"].concat(fastify['swagger-sha'].script),
+      styleSrc: ["'self'", 'https:'].concat(fastify['swagger-sha'].style)
+    }
+  }
+})
+``` 
+
 <a name="security"></a>
 ### Security
 Global security definitions and route level security provide documentation only. It does not implement authentication nor route security for you. Once your authentication is implemented, along with your defined security, users will be able to successfully authenticate and interact with your API using the user interfaces of the documentation.
