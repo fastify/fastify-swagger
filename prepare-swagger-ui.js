@@ -50,14 +50,14 @@ let result = scriptRegex.exec(indexSrc)
 while (result !== null) {
   const hash = crypto.createHash('sha256')
   hash.update(result[1])
-  sha.script.push(hash.digest().toString('base64'))
+  sha.script.push(`'sha256-${hash.digest().toString('base64')}'`)
   result = scriptRegex.exec(indexSrc)
 }
 result = styleRegex.exec(indexSrc)
 while (result !== null) {
   const hash = crypto.createHash('sha256')
   hash.update(result[1])
-  sha.style.push(hash.digest().toString('base64'))
+  sha.style.push(`'sha256-${hash.digest().toString('base64')}'`)
   result = styleRegex.exec(indexSrc)
 }
 fse.writeFileSync(resolve('./static/sha256.json'), JSON.stringify(sha))
