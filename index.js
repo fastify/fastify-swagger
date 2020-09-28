@@ -21,7 +21,7 @@ function fastifySwagger (fastify, opts, next) {
       return next(new Error("unsupported mode, should be one of ['static', 'dynamic']"))
   }
 
-  fastify.decorate('swagger-sha', require('./static/sha256.json'))
+  fastify.decorate('swaggerCSP', require('./static/csp.json'))
 }
 
 module.exports = fp(fastifySwagger, {

@@ -287,8 +287,8 @@ You can integration this plugin with ```fastify-helmet``` with some little work.
   contentSecurityPolicy: {
     directives: {
       imgSrc: ["'self'", 'data:', 'validator.swagger.io'],
-      scriptSrc: ["'self'"].concat(fastify['swagger-sha'].script),
-      styleSrc: ["'self'", 'https:'].concat(fastify['swagger-sha'].style)
+      scriptSrc: ["'self'"].concat(fastify.swaggerCSP.script),
+      styleSrc: ["'self'", 'https:'].concat(fastify.swaggerCSP.style)
     }
   }
 })

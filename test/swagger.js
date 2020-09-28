@@ -181,7 +181,7 @@ test('fastify.swagger-sha should exist', t => {
 
   fastify.ready(err => {
     t.error(err)
-    t.ok(fastify['swagger-sha'])
+    t.ok(fastify.swaggerCSP)
   })
 })
 

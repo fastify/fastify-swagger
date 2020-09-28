@@ -60,4 +60,4 @@ while (result !== null) {
   sha.style.push(`'sha256-${hash.digest().toString('base64')}'`)
   result = styleRegex.exec(indexSrc)
 }
-fse.writeFileSync(resolve('./static/sha256.json'), JSON.stringify(sha))
+fse.writeFileSync(resolve('./static/csp.json'), JSON.stringify(sha))

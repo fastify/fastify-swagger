@@ -9,7 +9,7 @@ declare module 'fastify' {
       }
     ) => SwaggerSchema.Spec;
 
-    ['swagger-sha']: {
+    swaggerCSP: {
       script: string[];
       style: string[];
     }
