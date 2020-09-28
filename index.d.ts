@@ -8,6 +8,11 @@ declare module 'fastify' {
         yaml?: boolean;
       }
     ) => SwaggerSchema.Spec;
+
+    ['swagger-sha']: {
+      script: string[];
+      style: string[];
+    }
   }
 
   interface FastifySchema {

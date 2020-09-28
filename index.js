@@ -20,6 +20,8 @@ function fastifySwagger (fastify, opts, next) {
     default:
       return next(new Error("unsupported mode, should be one of ['static', 'dynamic']"))
   }
+
+  fastify.decorate('swagger-sha', require('./static/sha256.json'))
 }
 
 module.exports = fp(fastifySwagger, {

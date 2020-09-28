@@ -173,6 +173,18 @@ test('fastify.swagger should exist', t => {
   })
 })
 
+test('fastify.swagger-sha should exist', t => {
+  t.plan(2)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger)
+
+  fastify.ready(err => {
+    t.error(err)
+    t.ok(fastify['swagger-sha'])
+  })
+})
+
 test('fastify.swagger should default swagger version', t => {
   t.plan(2)
   const fastify = Fastify()

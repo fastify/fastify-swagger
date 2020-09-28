@@ -1,5 +1,6 @@
 const fs = require('fs')
 const fse = require('fs-extra')
+const crypto = require('crypto')
 const swaggerUiAssetPath = require('swagger-ui-dist').getAbsoluteFSPath()
 const resolve = require('path').resolve
 
@@ -37,3 +38,26 @@ const newIndex = fs.readFileSync(resolve('./static/index.html'), 'utf8')
   )
 
 fse.writeFileSync(resolve('./static/index.html'), newIndex)
+
+const sha = {
+  script: [],
+  style: []
+}
+const scriptRegex = /<script>(.*)<\/script>/gs
+const styleRegex = /<style>(.*)<\/style>/gs
+const indexSrc = fs.readFileSync(resolve('./static/index.html')).toString('utf8')
+let result = scriptRegex.exec(indexSrc)
+while (result !== null) {
+  const hash = crypto.createHash('sha256')
+  hash.update(result[1])
+  sha.script.push(hash.digest().toString('base64'))
+  result = scriptRegex.exec(indexSrc)
+}
+result = styleRegex.exec(indexSrc)
+while (result !== null) {
+  const hash = crypto.createHash('sha256')
+  hash.update(result[1])
+  sha.style.push(hash.digest().toString('base64'))
+  result = styleRegex.exec(indexSrc)
+}
+fse.writeFileSync(resolve('./static/sha256.json'), JSON.stringify(sha))
