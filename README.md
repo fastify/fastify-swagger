@@ -283,12 +283,15 @@ You can integration this plugin with ```fastify-helmet``` with some little work.
 
 ```fastify-helmet``` options example:
 ```javascript
-.register(helmet, {
-  contentSecurityPolicy: {
-    directives: {
-      imgSrc: ["'self'", 'data:', 'validator.swagger.io'],
-      scriptSrc: ["'self'"].concat(fastify.swaggerCSP.script),
-      styleSrc: ["'self'", 'https:'].concat(fastify.swaggerCSP.style)
+.register(helmet, instance => {
+  return {
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"], // default source is mandatory
+        imgSrc: ["'self'", 'data:', 'validator.swagger.io'],
+        scriptSrc: ["'self'"].concat(instance.swaggerCSP.script),
+        styleSrc: ["'self'", 'https:'].concat(instance.swaggerCSP.style)
+      }
     }
   }
 })
