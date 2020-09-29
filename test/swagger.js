@@ -173,7 +173,7 @@ test('fastify.swagger should exist', t => {
   })
 })
 
-test('fastify.swagger-sha should exist', t => {
+test('fastify.swaggerCSP should exist', t => {
   t.plan(2)
   const fastify = Fastify()
 
