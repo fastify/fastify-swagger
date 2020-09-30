@@ -34,7 +34,7 @@
     "fastify": "^3.0.0",
     "fastify-helmet": "^5.0.3",
     "fs-extra": "^9.0.0",
-    "joi": "^14.3.1",
+    "joi": "^17.2.1",
     "joi-to-json-schema": "^5.1.0",
     "pre-commit": "^1.2.2",
     "standard": "^14.0.2",
