@@ -20,6 +20,8 @@ function fastifySwagger (fastify, opts, next) {
     default:
       return next(new Error("unsupported mode, should be one of ['static', 'dynamic']"))
   }
+
+  fastify.decorate('swaggerCSP', require('./static/csp.json'))
 }
 
 module.exports = fp(fastifySwagger, {
