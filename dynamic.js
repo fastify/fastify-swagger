@@ -285,7 +285,7 @@ module.exports = function (fastify, opts, next) {
 
         responsesContainer[key] = {
           schema: resolved,
-          description: 'Default Response'
+          description: rawJsonSchema.description || 'Default Response'
         }
       })
 
