@@ -47,6 +47,13 @@ module.exports = function (fastify, opts, next) {
   const externalDocs = opts.swagger.externalDocs || null
   const transform = opts.transform || null
   const hiddenTag = opts.hiddenTag || 'X-HIDDEN'
+  const extensions = []
+
+  for (const [key, value] of Object.entries(opts.swagger)) {
+    if (key.startsWith('x-')) {
+      extensions.push([key, value])
+    }
+  }
 
   if (opts.exposeRoute === true) {
     const prefix = opts.routePrefix || '/documentation'
@@ -105,6 +112,10 @@ module.exports = function (fastify, opts, next) {
     }
     if (externalDocs) {
       swaggerObject.externalDocs = externalDocs
+    }
+
+    for (const [key, value] of extensions) {
+      swaggerObject[key] = value
     }
 
     const externalSchemas = Array.from(sharedSchemasMap.values())
