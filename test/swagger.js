@@ -783,3 +783,28 @@ test('basePath with prefix ensure leading slash', t => {
     t.ok(swaggerObject.paths['/endpoint'])
   })
 })
+
+test('basePath maintained when FASTIFY_SWAGGER_LEAVE_BASE_PATH environment variable is set', t => {
+  t.plan(4)
+
+  process.env.FASTIFY_SWAGGER_LEAVE_BASE_PATH = true
+
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, {
+    swagger: Object.assign({}, swaggerInfo.swagger, {
+      basePath: '/foo'
+    })
+  })
+
+  fastify.get('/foo/endpoint', {}, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+
+    const swaggerObject = fastify.swagger()
+    t.notOk(swaggerObject.paths.endpoint)
+    t.notOk(swaggerObject.paths['/endpoint'])
+    t.ok(swaggerObject.paths['/foo/endpoint'])
+  })
+})

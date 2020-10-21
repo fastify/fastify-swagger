@@ -146,6 +146,9 @@ fastify.ready(err => {
   Example of the `fastify-swagger` usage in the `dynamic` mode is available [here](examples/dynamic.js).
 <a name="mode.static"></a>
 
+  If you would like to maintain your basePath setting without it being removed from your routes, you can set the `FASTIFY_SWAGGER_LEAVE_BASE_PATH` environment
+  variable to a truthy value.
+
 ##### static
  `static` mode should be configured explicitly. In this mode `fastify-swagger` serves given specification, you should craft it yourself.
   ```js

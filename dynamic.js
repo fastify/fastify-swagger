@@ -134,7 +134,7 @@ module.exports = function (fastify, opts, next) {
       const schema = transform
         ? transform(route.schema)
         : route.schema
-      let path = route.url.startsWith(basePath)
+      let path = route.url.startsWith(basePath) && !process.env.FASTIFY_SWAGGER_LEAVE_BASE_PATH
         ? route.url.replace(basePath, '')
         : route.url
       if (!path.startsWith('/')) {
