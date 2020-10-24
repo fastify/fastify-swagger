@@ -784,14 +784,13 @@ test('basePath with prefix ensure leading slash', t => {
   })
 })
 
-test('basePath maintained when FASTIFY_SWAGGER_LEAVE_BASE_PATH environment variable is set', t => {
+test('basePath maintained when stripBasePath is set to false', t => {
   t.plan(4)
-
-  process.env.FASTIFY_SWAGGER_LEAVE_BASE_PATH = true
 
   const fastify = Fastify()
 
   fastify.register(fastifySwagger, {
+    stripBasePath: false,
     swagger: Object.assign({}, swaggerInfo.swagger, {
       basePath: '/foo'
     })

@@ -146,8 +146,15 @@ fastify.ready(err => {
   Example of the `fastify-swagger` usage in the `dynamic` mode is available [here](examples/dynamic.js).
 <a name="mode.static"></a>
 
-  If you would like to maintain your basePath setting without it being removed from your routes, you can set the `FASTIFY_SWAGGER_LEAVE_BASE_PATH` environment
-  variable to a truthy value.
+##### options
+
+ | option        | default  | description                           |
+ |---------------|----------|---------------------------------------|
+ | exposeRoute   | false    | Exposes documentation route.          |
+ | hiddenTag     | X-HIDDEN | Tag to control hiding of routes.      |
+ | stripBasePath | true     | Strips base path from routes in docs. |
+ | swagger       | {}       | Swagger configuration.                |
+ | transform     | null     | Transform method for schema.          |
 
 ##### static
  `static` mode should be configured explicitly. In this mode `fastify-swagger` serves given specification, you should craft it yourself.
@@ -179,7 +186,6 @@ If you pass `{ exposeRoute: true }` during the registration the plugin will expo
 |`'/documentation/yaml'` | the yaml object representing the api  |
 |`'/documentation/'` | the swagger ui  |
 |`'/documentation/*'`| external files which you may use in `$ref`|
-
 
 ##### Overwrite swagger url end-point
 If you would like to overwrite the `/documentation` url you can use the `routePrefix` option.
