@@ -66,7 +66,7 @@ module.exports = function (fastify, opts, next) {
     }
 
     const swaggerObject = {}
-    var pkg
+    let pkg
 
     try {
       pkg = JSON.parse(fs.readFileSync(path.join(__dirname, 'package.json')))
@@ -122,7 +122,7 @@ module.exports = function (fastify, opts, next) {
       .forEach(_ => { delete _.$id })
 
     swaggerObject.paths = {}
-    for (var route of routes) {
+    for (const route of routes) {
       const schema = transform
         ? transform(route.schema)
         : route.schema
@@ -151,7 +151,7 @@ module.exports = function (fastify, opts, next) {
       // route.method should be either a String, like 'POST', or an Array of Strings, like ['POST','PUT','PATCH']
       const methods = typeof route.method === 'string' ? [route.method] : route.method
 
-      for (var method of methods) {
+      for (const method of methods) {
         swaggerRoute[method.toLowerCase()] = swaggerMethod
       }
 
@@ -312,10 +312,10 @@ function consumesFormOnly (schema) {
 // This function converts the url in a swagger compliant url string
 // => '/user/{id}'
 function formatParamUrl (url) {
-  var start = url.indexOf('/:')
+  let start = url.indexOf('/:')
   if (start === -1) return url
 
-  var end = url.indexOf('/', ++start)
+  const end = url.indexOf('/', ++start)
 
   if (end === -1) {
     return url.slice(0, start) + '{' + url.slice(++start) + '}'

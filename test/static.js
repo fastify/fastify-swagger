@@ -250,7 +250,7 @@ test('swagger route returns explicitly passed doc', t => {
       t.error(err)
 
       try {
-        var payload = JSON.parse(res.payload)
+        const payload = JSON.parse(res.payload)
         t.matchSnapshot(JSON.stringify(payload, null, 2))
         t.pass('valid explicitly passed spec document')
       } catch (error) {
