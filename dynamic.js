@@ -30,9 +30,13 @@ module.exports = function (fastify, opts, next) {
     })
   })
 
-  opts = opts || {}
-
-  opts.swagger = opts.swagger || {}
+  opts = Object.assign({}, {
+    exposeRoute: false,
+    hiddenTag: 'X-HIDDEN',
+    stripBasePath: true,
+    swagger: {},
+    transform: null
+  }, opts || {})
 
   const info = opts.swagger.info || null
   const host = opts.swagger.host || null
@@ -45,8 +49,9 @@ module.exports = function (fastify, opts, next) {
   const security = opts.swagger.security || null
   const tags = opts.swagger.tags || null
   const externalDocs = opts.swagger.externalDocs || null
-  const transform = opts.transform || null
-  const hiddenTag = opts.hiddenTag || 'X-HIDDEN'
+  const stripBasePath = opts.stripBasePath
+  const transform = opts.transform
+  const hiddenTag = opts.hiddenTag
 
   if (opts.exposeRoute === true) {
     const prefix = opts.routePrefix || '/documentation'
@@ -135,7 +140,7 @@ module.exports = function (fastify, opts, next) {
         continue
       }
 
-      let path = route.url.startsWith(basePath)
+      let path = stripBasePath && route.url.startsWith(basePath)
         ? route.url.replace(basePath, '')
         : route.url
       if (!path.startsWith('/')) {

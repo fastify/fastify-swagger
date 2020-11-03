@@ -47,6 +47,11 @@ export interface FastifyDynamicSwaggerOptions extends FastifySwaggerOptions {
   swagger?: Partial<SwaggerSchema.Spec>;
   hiddenTag?: string;
   /**
+   * Strips matching base path from routes in documentation
+   * @default true
+   */
+  stripBasePath?: boolean;
+  /**
    * Overwrite the route schema
    */
   transform?: Function;

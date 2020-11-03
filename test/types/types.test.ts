@@ -25,6 +25,14 @@ const fastifySwaggerOptions: SwaggerOptions = {
 }
 app.register(fastifySwagger, fastifySwaggerOptions);
 
+const fastifyDynamicSwaggerOptions: SwaggerOptions = {
+  mode: 'dynamic',
+  routePrefix: '/documentation',
+  exposeRoute: true,
+  stripBasePath: true
+}
+app.register(fastifySwagger, fastifyDynamicSwaggerOptions);
+
 app.put('/some-route/:id', {
     schema: {
       description: 'put me some data',

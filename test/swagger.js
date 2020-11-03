@@ -821,3 +821,27 @@ test('basePath with prefix ensure leading slash', t => {
     t.ok(swaggerObject.paths['/endpoint'])
   })
 })
+
+test('basePath maintained when stripBasePath is set to false', t => {
+  t.plan(4)
+
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, {
+    stripBasePath: false,
+    swagger: Object.assign({}, swaggerInfo.swagger, {
+      basePath: '/foo'
+    })
+  })
+
+  fastify.get('/foo/endpoint', {}, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+
+    const swaggerObject = fastify.swagger()
+    t.notOk(swaggerObject.paths.endpoint)
+    t.notOk(swaggerObject.paths['/endpoint'])
+    t.ok(swaggerObject.paths['/foo/endpoint'])
+  })
+})
