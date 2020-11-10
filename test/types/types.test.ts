@@ -39,7 +39,8 @@ app.put('/some-route/:id', {
       tags: ['user', 'code'],
       summary: 'qwerty',
       consumes: ['application/json', 'multipart/form-data'],
-      security: [{ apiKey: []}]
+      security: [{ apiKey: []}],
+      operationId: 'opeId',
     }
   }, (req, reply) => {});
 

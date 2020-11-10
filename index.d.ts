@@ -22,6 +22,10 @@ declare module 'fastify' {
     summary?: string;
     consumes?: string[];
     security?: Array<{ [securityLabel: string]: string[] }>;
+    /**
+     * OpenAPI operation unique identifier
+     */
+    operationId?: string;    
   }
 }
 
