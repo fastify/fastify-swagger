@@ -627,9 +627,9 @@ test('parses form parameters when all api consumes application/x-www-form-urlenc
 })
 
 test('includes swagger extensions', t => {
-  t.plan(3)
+  t.plan(5)
   const fastify = Fastify()
-  fastify.register(fastifySwagger, swaggerInfo)
+  fastify.register(fastifySwagger, { swagger: { 'x-ternal': true } })
   fastify.get('/', opts8, () => {})
 
   fastify.ready(err => {
@@ -638,6 +638,9 @@ test('includes swagger extensions', t => {
 
     Swagger.validate(swaggerObject)
       .then(function (api) {
+        t.ok(api['x-ternal'])
+        t.same(api['x-ternal'], true)
+
         const definedPath = api.paths['/'].get
         t.ok(definedPath)
         t.same(definedPath['x-tension'], true)
