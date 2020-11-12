@@ -22,6 +22,10 @@ declare module 'fastify' {
     summary?: string;
     consumes?: string[];
     security?: Array<{ [securityLabel: string]: string[] }>;
+    /**
+     * OpenAPI operation unique identifier
+     */
+    operationId?: string;    
   }
 }
 
@@ -46,6 +50,11 @@ export interface FastifyDynamicSwaggerOptions extends FastifySwaggerOptions {
   mode?: 'dynamic';
   swagger?: Partial<SwaggerSchema.Spec>;
   hiddenTag?: string;
+  /**
+   * Strips matching base path from routes in documentation
+   * @default true
+   */
+  stripBasePath?: boolean;
   /**
    * Overwrite the route schema
    */

@@ -25,13 +25,22 @@ const fastifySwaggerOptions: SwaggerOptions = {
 }
 app.register(fastifySwagger, fastifySwaggerOptions);
 
+const fastifyDynamicSwaggerOptions: SwaggerOptions = {
+  mode: 'dynamic',
+  routePrefix: '/documentation',
+  exposeRoute: true,
+  stripBasePath: true
+}
+app.register(fastifySwagger, fastifyDynamicSwaggerOptions);
+
 app.put('/some-route/:id', {
     schema: {
       description: 'put me some data',
       tags: ['user', 'code'],
       summary: 'qwerty',
       consumes: ['application/json', 'multipart/form-data'],
-      security: [{ apiKey: []}]
+      security: [{ apiKey: []}],
+      operationId: 'opeId',
     }
   }, (req, reply) => {});
 

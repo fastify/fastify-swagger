@@ -141,7 +141,7 @@ test('/documentation/json route', t => {
   }, (err, res) => {
     t.error(err)
 
-    var payload = JSON.parse(res.payload)
+    const payload = JSON.parse(res.payload)
 
     Swagger.validate(payload)
       .then(function (api) {
@@ -514,7 +514,7 @@ test('/documentation2/json route (overwrite)', t => {
   }, (err, res) => {
     t.error(err)
 
-    var payload = JSON.parse(res.payload)
+    const payload = JSON.parse(res.payload)
 
     Swagger.validate(payload)
       .then(function (api) {
