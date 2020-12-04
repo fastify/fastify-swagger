@@ -41,7 +41,7 @@
     "swagger-parser": "^10.0.2",
     "swagger-ui-dist": "3.37.2",
     "tap": "^14.10.8",
-    "tsd": "^0.13.1"
+    "tsd": "^0.14.0"
   },
   "dependencies": {
     "@types/swagger-schema-official": "^2.0.20",
