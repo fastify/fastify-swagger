@@ -1,5 +1,6 @@
 import fastify from 'fastify';
 import fastifySwagger from '../..';
+import { minimalOpenApiV3Document } from './minimal-openapiV3-document';
 
 const app = fastify({
   http2: true
@@ -11,7 +12,7 @@ app.register(fastifySwagger, { transform: (schema : any) => schema });
 app.register(fastifySwagger, {
   mode: 'static',
   specification: {
-    document: 'path'
+    document: minimalOpenApiV3Document
   },
   routePrefix: '/documentation',
   exposeRoute: true,
