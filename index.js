@@ -2,7 +2,7 @@
 
 const fp = require('fastify-plugin')
 
-const setup = { dynamic: require('./dynamic'), static: require('./static') }
+const setup = { dynamic: require('./lib/dynamic'), static: require('./lib/static') }
 
 function fastifySwagger (fastify, opts, next) {
   opts = opts || {}
