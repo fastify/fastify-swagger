@@ -172,6 +172,21 @@ const opts9 = {
   }
 }
 
+const opts10 = {
+  schema: {
+    querystring: {
+      allOf: [
+        {
+          type: 'object',
+          properties: {
+            foo: { type: 'string' }
+          }
+        }
+      ]
+    }
+  }
+}
+
 test('fastify.swagger should return a valid swagger object', t => {
   t.plan(3)
   const fastify = Fastify()
@@ -492,6 +507,38 @@ test('route with produces', t => {
             }
           }
         })
+      })
+      .catch(function (err) {
+        t.fail(err)
+      })
+  })
+})
+
+test('route oneOf, anyOf, allOf', t => {
+  t.plan(3)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, swaggerInfo)
+
+  fastify.get('/', opts10, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+    const swaggerObject = fastify.swagger()
+    Swagger.validate(swaggerObject)
+      .then(function (api) {
+        const definedPath = api.paths['/'].get
+        t.ok(definedPath)
+        t.same(definedPath.parameters, [
+          {
+            required: false,
+            in: 'query',
+            name: 'foo',
+            schema: {
+              type: 'string'
+            }
+          }
+        ])
       })
       .catch(function (err) {
         t.fail(err)
