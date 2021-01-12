@@ -154,6 +154,24 @@ const opts8 = {
   }
 }
 
+const opts9 = {
+  schema: {
+    produces: ['*/*'],
+    response: {
+      200: {
+        type: 'object',
+        properties: {
+          hello: {
+            description: 'hello',
+            type: 'string'
+          }
+        },
+        required: ['hello']
+      }
+    }
+  }
+}
+
 test('fastify.swagger should return a valid swagger object', t => {
   t.plan(3)
   const fastify = Fastify()
@@ -437,6 +455,43 @@ test('route meta info', t => {
         t.equal(opts.schema.description, definedPath.description)
         t.equal(opts.schema.servers, definedPath.servers)
         t.equal(opts.schema.externalDocs, definedPath.externalDocs)
+      })
+      .catch(function (err) {
+        t.fail(err)
+      })
+  })
+})
+
+test('route with produces', t => {
+  t.plan(3)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, swaggerInfo)
+
+  fastify.get('/', opts9, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+    const swaggerObject = fastify.swagger()
+
+    Swagger.validate(swaggerObject)
+      .then(function (api) {
+        const definedPath = api.paths['/'].get
+        t.ok(definedPath)
+        t.same(definedPath.responses[200].content, {
+          '*/*': {
+            schema: {
+              type: 'object',
+              properties: {
+                hello: {
+                  description: 'hello',
+                  type: 'string'
+                }
+              },
+              required: ['hello']
+            }
+          }
+        })
       })
       .catch(function (err) {
         t.fail(err)
