@@ -6,6 +6,7 @@ const Fastify = require('fastify')
 const Swagger = require('swagger-parser')
 const yaml = require('js-yaml')
 const fastifySwagger = require('../index')
+const { readPackageJson } = require('../lib/dynamicUtil')
 
 const swaggerInfo = {
   swagger: {
@@ -209,8 +210,9 @@ test('fastify.swagger should default info properties', t => {
     t.error(err)
 
     const swaggerObject = fastify.swagger()
-    t.equal(swaggerObject.info.title, 'fastify-swagger')
-    t.equal(swaggerObject.info.version, '1.0.0')
+    const pkg = readPackageJson(function () {})
+    t.equal(swaggerObject.info.title, pkg.name)
+    t.equal(swaggerObject.info.version, pkg.version)
   })
 })
 
