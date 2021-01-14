@@ -575,7 +575,7 @@ test('route cookies schema', t => {
         t.same(definedPath.parameters, [
           {
             required: false,
-            in: 'quecookiery',
+            in: 'cookie',
             name: 'bar',
             schema: {
               type: 'string'
