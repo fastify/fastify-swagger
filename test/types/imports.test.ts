@@ -2,12 +2,13 @@ import fastify from "fastify";
 
 import swaggerDefault, { fastifySwagger, SwaggerOptions } from "../..";
 import * as fastifySwaggerStar from "../..";
+import { minimalOpenApiV3Document } from './minimal-openapiV3-document';
 
 const app = fastify();
 const fastifySwaggerOptions: SwaggerOptions = {
   mode: "static",
   specification: {
-    document: "path",
+    document: minimalOpenApiV3Document,
   },
   routePrefix: "/documentation",
   exposeRoute: true,

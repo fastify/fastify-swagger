@@ -1,5 +1,6 @@
 import { FastifyPlugin } from 'fastify';
 import * as SwaggerSchema from 'swagger-schema-official';
+import { OpenAPIV2, OpenAPIV3 } from 'openapi-types';
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -68,7 +69,7 @@ export interface StaticPathSpec {
 }
 
 export interface StaticDocumentSpec {
-  document: string;
+  document: OpenAPIV2.Document | OpenAPIV3.Document;
 }
 
 export interface FastifyStaticSwaggerOptions extends FastifySwaggerOptions {
