@@ -187,6 +187,17 @@ const opts10 = {
   }
 }
 
+const opts11 = {
+  schema: {
+    cookies: {
+      type: 'object',
+      properties: {
+        bar: { type: 'string' }
+      }
+    }
+  }
+}
+
 test('fastify.swagger should return a valid swagger object', t => {
   t.plan(3)
   const fastify = Fastify()
@@ -534,6 +545,38 @@ test('route oneOf, anyOf, allOf', t => {
             required: false,
             in: 'query',
             name: 'foo',
+            schema: {
+              type: 'string'
+            }
+          }
+        ])
+      })
+      .catch(function (err) {
+        t.fail(err)
+      })
+  })
+})
+
+test('route cookies schema', t => {
+  t.plan(3)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, swaggerInfo)
+
+  fastify.get('/', opts11, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+    const swaggerObject = fastify.swagger()
+    Swagger.validate(swaggerObject)
+      .then(function (api) {
+        const definedPath = api.paths['/'].get
+        t.ok(definedPath)
+        t.same(definedPath.parameters, [
+          {
+            required: false,
+            in: 'quecookiery',
+            name: 'bar',
             schema: {
               type: 'string'
             }
