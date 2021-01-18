@@ -87,3 +87,32 @@ app
   .ready(err => {
     app.swagger();
   });
+
+app
+  .register(fastifySwagger, {
+    openapi: {
+      info: {
+        title: "Test openapi",
+        description: "testing the fastify swagger api",
+        version: "0.1.0",
+      },
+      servers: [{ url: "http://localhost" }],
+      externalDocs: {
+        url: "https://swagger.io",
+        description: "Find more info here",
+      },
+      components: {
+        schemas: {},
+        securitySchemes: {
+          apiKey: {
+            type: "apiKey",
+            name: "apiKey",
+            in: "header",
+          },
+        },
+      },
+    },
+  })
+  .ready((err) => {
+    app.swagger();
+  });

@@ -1,6 +1,6 @@
-import { FastifyPlugin } from 'fastify';
+import { FastifyPluginCallback } from 'fastify';
+import { OpenAPI, OpenAPIV2, OpenAPIV3 } from 'openapi-types';
 import * as SwaggerSchema from 'swagger-schema-official';
-import { OpenAPIV2, OpenAPIV3 } from 'openapi-types';
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -30,7 +30,7 @@ declare module 'fastify' {
   }
 }
 
-export const fastifySwagger: FastifyPlugin<SwaggerOptions>;
+export const fastifySwagger: FastifyPluginCallback<SwaggerOptions>;
  
 export type SwaggerOptions = (FastifyStaticSwaggerOptions | FastifyDynamicSwaggerOptions);
 export interface FastifySwaggerOptions {
@@ -49,7 +49,8 @@ export interface FastifySwaggerOptions {
 
 export interface FastifyDynamicSwaggerOptions extends FastifySwaggerOptions {
   mode?: 'dynamic';
-  swagger?: Partial<SwaggerSchema.Spec>;
+  swagger?: Partial<OpenAPIV2.Document>;
+  openapi?: Partial<OpenAPIV3.Document>
   hiddenTag?: string;
   /**
    * Strips matching base path from routes in documentation
@@ -64,7 +65,7 @@ export interface FastifyDynamicSwaggerOptions extends FastifySwaggerOptions {
 
 export interface StaticPathSpec {
   path: string;
-  postProcessor?: (spec: SwaggerSchema.Spec) => SwaggerSchema.Spec;
+  postProcessor?: (spec: OpenAPI.Document) => OpenAPI.Document;
   baseDir: string;
 }
 
