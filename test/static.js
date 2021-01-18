@@ -298,7 +298,7 @@ test('/documentation/:file should serve static file from the location of main sp
 
   fastify.inject({
     method: 'GET',
-    url: '/documentation/dynamic.js'
+    url: '/documentation/dynamic-swagger.js'
   }, (err, res) => {
     t.error(err)
     t.strictEqual(res.statusCode, 200)
