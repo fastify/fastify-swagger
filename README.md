@@ -139,25 +139,25 @@ fastify.ready(err => {
       securityDefinitions: Object
     },
     // openapi 3.0.3 options
-    openapi: {
-      info: {
-        title: String,
-        description: String,
-        version: String,
-      },
-      externalDocs: Object,
-      servers: [ Object ],
-      components: Object,
-      security: [ Object ],
-      tags: [ Object ]
-    }
+    // openapi: {
+    //   info: {
+    //     title: String,
+    //     description: String,
+    //     version: String,
+    //   },
+    //   externalDocs: Object,
+    //   servers: [ Object ],
+    //   components: Object,
+    //   security: [ Object ],
+    //   tags: [ Object ]
+    // }
   }
   ```
 
   *All the above parameters are optional.*
   You can use all the properties of the [swagger specification](https://swagger.io/specification/v2/) and [openapi specification](https://swagger.io/specification/), if you find anything missing, please open an issue or a pr!
 
-  *Please note that when you specify `openapi` option, it will take precedence and ignore the `swagger` option.
+  fastify-swagger will generate Swagger v2 by default. If you pass the `opeanapi` option it will generate OpenAPI instead.
 
   Example of the `fastify-swagger` usage in the `dynamic` mode, `swagger` option is available [here](examples/dynamic-swagger.js) and `openapi` option is avaiable [here](examples/dynamic-openapi.js).
 <a name="mode.static"></a>
