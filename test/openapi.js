@@ -776,3 +776,30 @@ test('route with multiple method', t => {
       })
   })
 })
+
+test('openapi $ref', t => {
+  t.plan(3)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, swaggerInfo)
+  fastify.register(function (instance, _, done) {
+    instance.addSchema({ $id: 'Order', type: 'object', properties: { id: { type: 'integer' } } })
+    instance.post('/', { schema: { body: { $ref: 'Order#' }, response: { 200: { $ref: 'Order#' } } } }, () => {})
+    done()
+  })
+
+  fastify.ready(err => {
+    t.error(err)
+
+    const swaggerObject = fastify.swagger()
+    t.is(typeof swaggerObject, 'object')
+
+    Swagger.validate(swaggerObject)
+      .then(function (api) {
+        t.pass('valid swagger object')
+      })
+      .catch(function (err) {
+        t.fail(err)
+      })
+  })
+})
