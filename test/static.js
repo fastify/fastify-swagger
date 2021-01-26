@@ -5,7 +5,7 @@ const t = require('tap')
 const test = t.test
 const Fastify = require('fastify')
 const fastifySwagger = require('../index')
-const fastifySwaggerDynamic = require('../dynamic')
+const fastifySwaggerDynamic = require('../lib/dynamic')
 const yaml = require('js-yaml')
 
 const resolve = require('path').resolve
@@ -298,7 +298,7 @@ test('/documentation/:file should serve static file from the location of main sp
 
   fastify.inject({
     method: 'GET',
-    url: '/documentation/dynamic.js'
+    url: '/documentation/dynamic-swagger.js'
   }, (err, res) => {
     t.error(err)
     t.strictEqual(res.statusCode, 200)
@@ -615,7 +615,45 @@ test('inserts default package name', t => {
   const testPackageJSON = path.join(__dirname, '../examples/test-package.json')
 
   path.join = (...args) => {
-    if (args[1] === 'package.json') {
+    if (args[2] === 'package.json') {
+      return testPackageJSON
+    }
+    return originalPathJoin(...args)
+  }
+
+  fastify.inject(
+    {
+      method: 'GET',
+      url: '/documentation/json'
+    },
+    (err, res) => {
+      t.error(err)
+      t.pass('Inserted default package name.')
+    }
+  )
+})
+
+test('inserts default package name - openapi', t => {
+  const config = {
+    mode: 'dynamic',
+    openapi: {
+      servers: []
+    },
+    specification: {
+      path: './examples/example-static-specification.json'
+    },
+    exposeRoute: true
+  }
+
+  t.plan(2)
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, config)
+
+  const originalPathJoin = path.join
+  const testPackageJSON = path.join(__dirname, '../examples/test-package.json')
+
+  path.join = (...args) => {
+    if (args[2] === 'package.json') {
       return testPackageJSON
     }
     return originalPathJoin(...args)
@@ -650,7 +688,45 @@ test('throws an error if cannot parse package\'s JSON', t => {
   const testPackageJSON = path.join(__dirname, '')
 
   path.join = (...args) => {
-    if (args[1] === 'package.json') {
+    if (args[2] === 'package.json') {
+      return testPackageJSON
+    }
+    return originalPathJoin(...args)
+  }
+
+  fastify.inject(
+    {
+      method: 'GET',
+      url: '/documentation/json'
+    },
+    (err, res) => {
+      t.error(err)
+      t.equal(err, null)
+    }
+  )
+})
+
+test('throws an error if cannot parse package\'s JSON - openapi', t => {
+  const config = {
+    mode: 'dynamic',
+    openapi: {
+      servers: []
+    },
+    specification: {
+      path: './examples/example-static-specification.json'
+    },
+    exposeRoute: true
+  }
+
+  t.plan(2)
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, config)
+
+  const originalPathJoin = path.join
+  const testPackageJSON = path.join(__dirname, '')
+
+  path.join = (...args) => {
+    if (args[2] === 'package.json') {
       return testPackageJSON
     }
     return originalPathJoin(...args)
