@@ -269,7 +269,7 @@ test('fastify.swagger should return a valid swagger yaml', t => {
     t.is(typeof swaggerYaml, 'string')
 
     try {
-      yaml.safeLoad(swaggerYaml)
+      yaml.load(swaggerYaml)
       t.pass('valid swagger yaml')
     } catch (err) {
       t.fail(err)
