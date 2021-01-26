@@ -5,8 +5,6 @@ const fp = require('fastify-plugin')
 const setup = { dynamic: require('./lib/dynamic'), static: require('./lib/static') }
 
 function fastifySwagger (fastify, opts, next) {
-  opts = opts || {}
-
   // by default the mode is dynamic, as plugin initially was developed
   opts.mode = opts.mode || 'dynamic'
 

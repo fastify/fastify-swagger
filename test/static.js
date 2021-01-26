@@ -139,7 +139,7 @@ test('swagger route returns yaml', t => {
       t.is(typeof res.payload, 'string')
       t.is(res.headers['content-type'], 'application/x-yaml')
       try {
-        yaml.safeLoad(res.payload)
+        yaml.load(res.payload)
         t.pass('valid swagger yaml')
       } catch (err) {
         t.fail(err)
@@ -172,7 +172,7 @@ test('swagger route returns json', t => {
       t.is(typeof res.payload, 'string')
       t.is(res.headers['content-type'], 'application/json; charset=utf-8')
       try {
-        yaml.safeLoad(res.payload)
+        yaml.load(res.payload)
         t.pass('valid swagger json')
       } catch (err) {
         t.fail(err)
@@ -209,7 +209,7 @@ test('postProcessor works, swagger route returns updated yaml', t => {
       t.is(typeof res.payload, 'string')
       t.is(res.headers['content-type'], 'application/x-yaml')
       try {
-        yaml.safeLoad(res.payload)
+        yaml.load(res.payload)
         t.matchSnapshot(res.payload)
         t.pass('valid swagger yaml')
       } catch (err) {
@@ -407,7 +407,7 @@ test('/documentation/yaml returns cache.swaggerString on second request in stati
       t.is(typeof res.payload, 'string')
       t.is(res.headers['content-type'], 'application/x-yaml')
       try {
-        yaml.safeLoad(res.payload)
+        yaml.load(res.payload)
         t.pass('valid swagger yaml')
       } catch (err) {
         t.fail(err)
@@ -424,7 +424,7 @@ test('/documentation/yaml returns cache.swaggerString on second request in stati
       t.error(err)
       t.is(typeof res.payload, 'string')
       t.is(res.headers['content-type'], 'application/x-yaml')
-      yaml.safeLoad(res.payload)
+      yaml.load(res.payload)
       t.pass('valid swagger yaml')
     }
   )
@@ -492,7 +492,7 @@ test('/documentation/yaml returns cache.swaggerString on second request in dynam
       t.is(typeof res.payload, 'string')
       t.is(res.headers['content-type'], 'application/x-yaml')
       try {
-        yaml.safeLoad(res.payload)
+        yaml.load(res.payload)
         t.pass('valid swagger yaml')
       } catch (err) {
         t.fail(err)
@@ -510,7 +510,7 @@ test('/documentation/yaml returns cache.swaggerString on second request in dynam
       t.is(typeof res.payload, 'string')
       t.is(res.headers['content-type'], 'application/x-yaml')
       try {
-        yaml.safeLoad(res.payload)
+        yaml.load(res.payload)
         t.pass('valid swagger yaml')
       } catch (err) {
         t.fail(err)
@@ -589,9 +589,8 @@ test('swagger routes are not exposed', t => {
 test('inserts default opts in fastifySwagger', t => {
   t.plan(1)
   const fastify = Fastify()
-  const next = () => {}
 
-  fastify.register(() => (fastifySwagger(fastify, null, next)))
+  fastify.register(fastifySwagger)
 
   fastify.ready(() => {
     t.pass('Inserted default option for fastifySwagger.')
@@ -747,9 +746,8 @@ test('throws an error if cannot parse package\'s JSON - openapi', t => {
 test('inserts default opts in fastifySwaggerDynamic (dynamic.js)', t => {
   t.plan(1)
   const fastify = Fastify()
-  const next = () => {}
 
-  fastify.register(() => (fastifySwaggerDynamic(fastify, null, next)))
+  fastify.register(fastifySwaggerDynamic)
 
   fastify.ready(() => {
     t.pass('Inserted default option for fastifySwagger.')
