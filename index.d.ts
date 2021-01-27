@@ -1,6 +1,5 @@
 import { FastifyPluginCallback } from 'fastify';
 import { OpenAPI, OpenAPIV2, OpenAPIV3 } from 'openapi-types';
-import * as SwaggerSchema from 'swagger-schema-official';
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -8,7 +7,7 @@ declare module 'fastify' {
       opts?: {
         yaml?: boolean;
       }
-    ) => SwaggerSchema.Spec;
+    ) => OpenAPI.Document;
 
     swaggerCSP: {
       script: string[];

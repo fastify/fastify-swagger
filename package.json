@@ -45,7 +45,6 @@
     "tsd": "^0.14.0"
   },
   "dependencies": {
-    "@types/swagger-schema-official": "^2.0.20",
     "fastify-plugin": "^3.0.0",
     "fastify-static": "^3.3.0",
     "js-yaml": "^4.0.0",

@@ -5,7 +5,7 @@ const t = require('tap')
 const test = t.test
 const Fastify = require('fastify')
 const fastifySwagger = require('../index')
-const fastifySwaggerDynamic = require('../lib/dynamic')
+const fastifySwaggerDynamic = require('../lib/mode/dynamic')
 const yaml = require('js-yaml')
 
 const resolve = require('path').resolve
@@ -614,7 +614,7 @@ test('inserts default package name', t => {
   const testPackageJSON = path.join(__dirname, '../examples/test-package.json')
 
   path.join = (...args) => {
-    if (args[2] === 'package.json') {
+    if (args[3] === 'package.json') {
       return testPackageJSON
     }
     return originalPathJoin(...args)
@@ -652,7 +652,7 @@ test('inserts default package name - openapi', t => {
   const testPackageJSON = path.join(__dirname, '../examples/test-package.json')
 
   path.join = (...args) => {
-    if (args[2] === 'package.json') {
+    if (args[3] === 'package.json') {
       return testPackageJSON
     }
     return originalPathJoin(...args)
@@ -687,7 +687,7 @@ test('throws an error if cannot parse package\'s JSON', t => {
   const testPackageJSON = path.join(__dirname, '')
 
   path.join = (...args) => {
-    if (args[2] === 'package.json') {
+    if (args[3] === 'package.json') {
       return testPackageJSON
     }
     return originalPathJoin(...args)
@@ -725,7 +725,7 @@ test('throws an error if cannot parse package\'s JSON - openapi', t => {
   const testPackageJSON = path.join(__dirname, '')
 
   path.join = (...args) => {
-    if (args[2] === 'package.json') {
+    if (args[3] === 'package.json') {
       return testPackageJSON
     }
     return originalPathJoin(...args)

@@ -2,19 +2,21 @@
 
 const fp = require('fastify-plugin')
 
-const setup = { dynamic: require('./lib/dynamic'), static: require('./lib/static') }
-
 function fastifySwagger (fastify, opts, next) {
   // by default the mode is dynamic, as plugin initially was developed
   opts.mode = opts.mode || 'dynamic'
 
   switch (opts.mode) {
-    case 'static':
-      setup.static(fastify, opts, next)
+    case 'static': {
+      const setup = require('./lib/mode/static')
+      setup(fastify, opts, next)
       break
-    case 'dynamic':
-      setup.dynamic(fastify, opts, next)
+    }
+    case 'dynamic': {
+      const setup = require('./lib/mode/dynamic')
+      setup(fastify, opts, next)
       break
+    }
     default:
       return next(new Error("unsupported mode, should be one of ['static', 'dynamic']"))
   }
