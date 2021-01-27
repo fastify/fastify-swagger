@@ -231,7 +231,7 @@ test('support response headers', async t => {
 
 test('response: description and responseDescription', async () => {
   const description = 'description - always that of response body, sometimes also that of response as a whole'
-  // const responseDescription = 'description only for the response as a whole'
+  const responseDescription = 'description only for the response as a whole'
 
   test('description without responseDescription doubles as responseDescription', async t => {
     // Given a /description endpoint with only a |description| field in its response schema
@@ -261,5 +261,37 @@ test('response: description and responseDescription', async () => {
     t.ok(responseObject)
     t.equal(responseObject.description, description)
     t.equal(responseObject.schema.description, description)
+  })
+
+  test('description alongside responseDescription only describes response body', async t => {
+    // Given a /responseDescription endpoint that also has a |responseDescription| field in its response schema
+    const fastify = Fastify()
+    fastify.register(fastifySwagger, {
+      routePrefix: '/docs',
+      exposeRoute: true
+    })
+    fastify.get('/responseDescription', {
+      schema: {
+        response: {
+          200: {
+            responseDescription,
+            description,
+            type: 'string'
+          }
+        }
+      }
+    }, () => {})
+    await fastify.ready()
+
+    // When the Swagger schema is generated
+    const swaggerObject = fastify.swagger()
+    const api = await Swagger.validate(swaggerObject)
+
+    // Then the /responseDescription endpoint uses the |responseDescription| only for the Response Object and the |description| only for the Schema Object
+    const responseObject = api.paths['/responseDescription'].get.responses['200']
+    t.ok(responseObject)
+    t.equal(responseObject.description, responseDescription)
+    t.equal(responseObject.schema.description, description)
+    t.equal(responseObject.schema.responseDescription, undefined)
   })
 })
