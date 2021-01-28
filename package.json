@@ -36,7 +36,6 @@
     "fs-extra": "^9.0.0",
     "joi": "^14.3.1",
     "joi-to-json-schema": "^5.1.0",
-    "openapi-types": "^7.0.1",
     "pre-commit": "^1.2.2",
     "standard": "^16.0.1",
     "swagger-parser": "^10.0.2",
@@ -48,7 +47,8 @@
     "fastify-plugin": "^3.0.0",
     "fastify-static": "^3.3.0",
     "js-yaml": "^4.0.0",
-    "json-schema-resolver": "^1.2.0"
+    "json-schema-resolver": "^1.2.0",
+    "openapi-types": "^7.2.3"
   },
   "standard": {
     "ignore": [
