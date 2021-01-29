@@ -1,0 +1,328 @@
+'use strict'
+
+const { test } = require('tap')
+const Fastify = require('fastify')
+const Swagger = require('swagger-parser')
+const yaml = require('js-yaml')
+const fastifySwagger = require('../../../index')
+const {
+  openapiOption,
+  schemaBody,
+  schemaConsumes,
+  schemaCookies,
+  schemaExtension,
+  schemaHeaders,
+  schemaHeadersParams,
+  schemaParams,
+  schemaProduces,
+  schemaQuerystring,
+  schemaSecurity
+} = require('../../../examples/options')
+
+test('openapi should return a valid swagger object', t => {
+  t.plan(3)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, openapiOption)
+
+  fastify.get('/', () => {})
+  fastify.post('/', () => {})
+  fastify.get('/example', schemaQuerystring, () => {})
+  fastify.post('/example', schemaBody, () => {})
+  fastify.get('/parameters/:id', schemaParams, () => {})
+  fastify.get('/headers', schemaHeaders, () => {})
+  fastify.get('/headers/:id', schemaHeadersParams, () => {})
+  fastify.get('/security', schemaSecurity, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+
+    const openapiObject = fastify.swagger()
+    t.is(typeof openapiObject, 'object')
+
+    Swagger.validate(openapiObject)
+      .then(function (api) {
+        t.pass('valid swagger object')
+      })
+      .catch(function (err) {
+        t.fail(err)
+      })
+  })
+})
+
+test('openapi should return a valid swagger yaml', t => {
+  t.plan(3)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, openapiOption)
+
+  fastify.get('/', () => {})
+  fastify.post('/', () => {})
+  fastify.get('/example', schemaQuerystring, () => {})
+  fastify.post('/example', schemaBody, () => {})
+  fastify.get('/parameters/:id', schemaParams, () => {})
+  fastify.get('/headers', schemaHeaders, () => {})
+  fastify.get('/headers/:id', schemaHeadersParams, () => {})
+  fastify.get('/security', schemaSecurity, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+
+    const swaggerYaml = fastify.swagger({ yaml: true })
+    t.is(typeof swaggerYaml, 'string')
+
+    try {
+      yaml.load(swaggerYaml)
+      t.pass('valid swagger yaml')
+    } catch (err) {
+      t.fail(err)
+    }
+  })
+})
+
+test('route options - deprecated', t => {
+  t.plan(3)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, openapiOption)
+
+  const opts = {
+    schema: {
+      deprecated: true,
+      body: {
+        type: 'object',
+        properties: {
+          hello: { type: 'string' },
+          obj: {
+            type: 'object',
+            properties: {
+              some: { type: 'string' }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  fastify.get('/', opts, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+    const openapiObject = fastify.swagger()
+
+    Swagger.validate(openapiObject)
+      .then(function (api) {
+        t.pass('valid swagger object')
+        t.ok(openapiObject.paths['/'])
+      })
+      .catch(function (err) {
+        t.fail(err)
+      })
+  })
+})
+
+test('route options - meta', t => {
+  t.plan(8)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, openapiOption)
+
+  const opts = {
+    schema: {
+      operationId: 'doSomething',
+      summary: 'Route summary',
+      tags: ['tag'],
+      description: 'Route description',
+      servers: [
+        {
+          url: 'https://localhost'
+        }
+      ],
+      externalDocs: {
+        description: 'Find more info here',
+        url: 'https://swagger.io'
+      }
+    }
+  }
+
+  fastify.get('/', opts, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+    const openapiObject = fastify.swagger()
+
+    Swagger.validate(openapiObject)
+      .then(function (api) {
+        const definedPath = api.paths['/'].get
+        t.ok(definedPath)
+        t.equal(opts.schema.operationId, definedPath.operationId)
+        t.equal(opts.schema.summary, definedPath.summary)
+        t.same(opts.schema.tags, definedPath.tags)
+        t.equal(opts.schema.description, definedPath.description)
+        t.equal(opts.schema.servers, definedPath.servers)
+        t.equal(opts.schema.externalDocs, definedPath.externalDocs)
+      })
+      .catch(function (err) {
+        t.fail(err)
+      })
+  })
+})
+
+test('route options - produces', t => {
+  t.plan(3)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, openapiOption)
+
+  fastify.get('/', schemaProduces, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+    const openapiObject = fastify.swagger()
+
+    Swagger.validate(openapiObject)
+      .then(function (api) {
+        const definedPath = api.paths['/'].get
+        t.ok(definedPath)
+        t.same(definedPath.responses[200].content, {
+          '*/*': {
+            schema: {
+              type: 'object',
+              properties: {
+                hello: {
+                  description: 'hello',
+                  type: 'string'
+                }
+              },
+              required: ['hello']
+            }
+          }
+        })
+      })
+      .catch(function (err) {
+        t.fail(err)
+      })
+  })
+})
+
+test('route options - cookies', t => {
+  t.plan(3)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, openapiOption)
+
+  fastify.get('/', schemaCookies, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+    const openapiObject = fastify.swagger()
+    Swagger.validate(openapiObject)
+      .then(function (api) {
+        const definedPath = api.paths['/'].get
+        t.ok(definedPath)
+        t.same(definedPath.parameters, [
+          {
+            required: false,
+            in: 'cookie',
+            name: 'bar',
+            schema: {
+              type: 'string'
+            }
+          }
+        ])
+      })
+      .catch(function (err) {
+        t.fail(err)
+      })
+  })
+})
+
+test('route options - extension', t => {
+  t.plan(5)
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, { openapi: { 'x-ternal': true } })
+  fastify.get('/', schemaExtension, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+    const openapiObject = fastify.swagger()
+
+    Swagger.validate(openapiObject)
+      .then(function (api) {
+        t.ok(api['x-ternal'])
+        t.same(api['x-ternal'], true)
+
+        const definedPath = api.paths['/'].get
+        t.ok(definedPath)
+        t.same(definedPath['x-tension'], true)
+      })
+      .catch(function (err) {
+        t.fail(err)
+      })
+  })
+})
+
+test('parses form parameters when all api consumes application/x-www-form-urlencoded', t => {
+  t.plan(3)
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, openapiOption)
+  fastify.get('/', schemaConsumes, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+    const openapiObject = fastify.swagger()
+
+    Swagger.validate(openapiObject)
+      .then(function (api) {
+        const definedPath = api.paths['/'].get
+        t.ok(definedPath)
+        t.same(definedPath.requestBody.content, {
+          'application/x-www-form-urlencoded': {
+            schema: {
+              type: 'object',
+              properties: {
+                hello: {
+                  description: 'hello',
+                  type: 'string'
+                }
+              },
+              required: ['hello']
+            }
+          }
+        })
+      })
+      .catch(function (err) {
+        t.fail(err)
+      })
+  })
+})
+
+test('route options - method', t => {
+  t.plan(3)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, openapiOption)
+
+  fastify.route({
+    method: ['GET', 'POST'],
+    url: '/',
+    handler: function (request, reply) {
+      reply.send({ hello: 'world' })
+    }
+  })
+
+  fastify.ready(err => {
+    t.error(err)
+
+    const openapiObject = fastify.swagger()
+    t.is(typeof openapiObject, 'object')
+
+    Swagger.validate(openapiObject)
+      .then(function (api) {
+        t.pass('valid swagger object')
+      })
+      .catch(function (err) {
+        t.fail(err)
+      })
+  })
+})

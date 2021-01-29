@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "prepare": "node lib/util/prepare-swagger-ui",
-    "test": "standard && tap --100 test/*.js test/esm/*.js && npm run typescript",
+    "test": "standard && tap --100 test/*.js test/spec/**/*.js test/mode/*.js test/esm/*.js && npm run typescript",
     "prepublishOnly": "npm run prepare",
     "typescript": "tsd"
   },
