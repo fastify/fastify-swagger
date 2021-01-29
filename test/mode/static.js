@@ -1,11 +1,10 @@
 'use strict'
 
 const path = require('path')
-const t = require('tap')
-const test = t.test
+const { test } = require('tap')
 const Fastify = require('fastify')
-const fastifySwagger = require('../index')
-const fastifySwaggerDynamic = require('../lib/dynamic')
+const fastifySwagger = require('../../index')
+const fastifySwaggerDynamic = require('../../lib/mode/dynamic')
 const yaml = require('js-yaml')
 
 const resolve = require('path').resolve
@@ -289,7 +288,7 @@ test('/documentation/:file should serve static file from the location of main sp
     t.strictEqual(res.statusCode, 200)
     t.strictEqual(
       readFileSync(
-        resolve(__dirname, '..', 'examples', 'example-static-specification.yaml'),
+        resolve(__dirname, '..', '..', 'examples', 'example-static-specification.yaml'),
         'utf8'
       ),
       res.payload
@@ -336,7 +335,7 @@ test('/documentation/:file should be served from custom location', t => {
     mode: 'static',
     specification: {
       path: './examples/example-static-specification.yaml',
-      baseDir: resolve(__dirname, '..', 'static')
+      baseDir: resolve(__dirname, '..', '..', 'static')
     }
   }
 
@@ -351,7 +350,7 @@ test('/documentation/:file should be served from custom location', t => {
     t.error(err)
     t.strictEqual(res.statusCode, 200)
     t.strictEqual(
-      readFileSync(resolve(__dirname, '..', 'static', 'oauth2-redirect.html'), 'utf8'),
+      readFileSync(resolve(__dirname, '..', '..', 'static', 'oauth2-redirect.html'), 'utf8'),
       res.payload
     )
   })
@@ -363,7 +362,7 @@ test('/documentation/:file should be served from custom location with trailing s
     mode: 'static',
     specification: {
       path: './examples/example-static-specification.yaml',
-      baseDir: resolve(__dirname, '..', 'static') + '/'
+      baseDir: resolve(__dirname, '..', '..', 'static') + '/'
     }
   }
 
@@ -378,7 +377,7 @@ test('/documentation/:file should be served from custom location with trailing s
     t.error(err)
     t.strictEqual(res.statusCode, 200)
     t.strictEqual(
-      readFileSync(resolve(__dirname, '..', 'static', 'oauth2-redirect.html'), 'utf8'),
+      readFileSync(resolve(__dirname, '..', '..', 'static', 'oauth2-redirect.html'), 'utf8'),
       res.payload
     )
   })
@@ -611,10 +610,10 @@ test('inserts default package name', t => {
   fastify.register(fastifySwagger, config)
 
   const originalPathJoin = path.join
-  const testPackageJSON = path.join(__dirname, '../examples/test-package.json')
+  const testPackageJSON = path.join(__dirname, '../../examples/test-package.json')
 
   path.join = (...args) => {
-    if (args[2] === 'package.json') {
+    if (args[3] === 'package.json') {
       return testPackageJSON
     }
     return originalPathJoin(...args)
@@ -649,10 +648,10 @@ test('inserts default package name - openapi', t => {
   fastify.register(fastifySwagger, config)
 
   const originalPathJoin = path.join
-  const testPackageJSON = path.join(__dirname, '../examples/test-package.json')
+  const testPackageJSON = path.join(__dirname, '../../examples/test-package.json')
 
   path.join = (...args) => {
-    if (args[2] === 'package.json') {
+    if (args[3] === 'package.json') {
       return testPackageJSON
     }
     return originalPathJoin(...args)
@@ -687,7 +686,7 @@ test('throws an error if cannot parse package\'s JSON', t => {
   const testPackageJSON = path.join(__dirname, '')
 
   path.join = (...args) => {
-    if (args[2] === 'package.json') {
+    if (args[3] === 'package.json') {
       return testPackageJSON
     }
     return originalPathJoin(...args)
@@ -725,7 +724,7 @@ test('throws an error if cannot parse package\'s JSON - openapi', t => {
   const testPackageJSON = path.join(__dirname, '')
 
   path.join = (...args) => {
-    if (args[2] === 'package.json') {
+    if (args[3] === 'package.json') {
       return testPackageJSON
     }
     return originalPathJoin(...args)

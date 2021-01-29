@@ -4,8 +4,8 @@
   "description": "Generate Swagger files automatically for Fastify.",
   "main": "index.js",
   "scripts": {
-    "prepare": "node prepare-swagger-ui",
-    "test": "standard && tap --100 test/*.js test/esm/*.js && npm run typescript",
+    "prepare": "node lib/util/prepare-swagger-ui",
+    "test": "standard && tap --100 test/*.js test/spec/**/*.js test/mode/*.js test/esm/*.js && npm run typescript",
     "prepublishOnly": "npm run prepare",
     "typescript": "tsd"
   },
@@ -44,12 +44,11 @@
     "tsd": "^0.14.0"
   },
   "dependencies": {
-    "@types/swagger-schema-official": "^2.0.20",
     "fastify-plugin": "^3.0.0",
     "fastify-static": "^3.3.0",
     "js-yaml": "^4.0.0",
     "json-schema-resolver": "^1.2.0",
-    "openapi-types": "^7.0.1"
+    "openapi-types": "^7.2.3"
   },
   "standard": {
     "ignore": [
