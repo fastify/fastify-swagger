@@ -40,3 +40,35 @@ test('suport - oneOf, anyOf, allOf', t => {
       })
   })
 })
+
+test('support 2xx response', async t => {
+  const opt = {
+    schema: {
+      response: {
+        '2XX': {
+          type: 'object'
+        },
+        '3xx': {
+          type: 'object'
+        }
+      }
+    }
+  }
+
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, {
+    openapi: true,
+    routePrefix: '/docs',
+    exposeRoute: true
+  })
+  fastify.get('/', opt, () => {})
+
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  const api = await Swagger.validate(swaggerObject)
+
+  const definedPath = api.paths['/'].get
+  t.same(definedPath.responses['2XX'].description, 'Default Response')
+  t.same(definedPath.responses['3XX'].description, 'Default Response')
+})

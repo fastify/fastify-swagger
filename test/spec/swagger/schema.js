@@ -100,3 +100,64 @@ test('response default description', async t => {
   const definedPath = api.paths['/'].get
   t.same(definedPath.responses['200'].description, 'Default Response')
 })
+
+test('response 2xx', async t => {
+  const opt = {
+    schema: {
+      response: {
+        '2xx': {
+          type: 'object'
+        }
+      }
+    }
+  }
+
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, {
+    routePrefix: '/docs',
+    exposeRoute: true
+  })
+  fastify.get('/', opt, () => {})
+
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  const api = await Swagger.validate(swaggerObject)
+
+  const definedPath = api.paths['/'].get
+  t.same(definedPath.responses['200'].description, 'Default Response')
+  t.notOk(definedPath.responses['2XX'])
+})
+
+test('response conflict 2xx and 200', async t => {
+  const opt = {
+    schema: {
+      response: {
+        '2xx': {
+          type: 'object',
+          description: '2xx'
+        },
+        200: {
+          type: 'object',
+          description: '200'
+        }
+      }
+    }
+  }
+
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, {
+    routePrefix: '/docs',
+    exposeRoute: true
+  })
+  fastify.get('/', opt, () => {})
+
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  const api = await Swagger.validate(swaggerObject)
+
+  const definedPath = api.paths['/'].get
+  t.same(definedPath.responses['200'].description, '200')
+  t.notOk(definedPath.responses['2XX'])
+})
