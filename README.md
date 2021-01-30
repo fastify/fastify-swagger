@@ -167,7 +167,7 @@ fastify.ready(err => {
 
   fastify-swagger will generate Swagger v2 by default. If you pass the `opeanapi` option it will generate OpenAPI instead.
 
-  Example of the `fastify-swagger` usage in the `dynamic` mode, `swagger` option is available [here](examples/dynamic-swagger.js) and `openapi` option is avaiable [here](examples/dynamic-openapi.js).
+  Example of the `fastify-swagger` usage in the `dynamic` mode, `swagger` option is available [here](examples/dynamic-swagger.js) and `openapi` option is available [here](examples/dynamic-openapi.js).
 
 ##### options
 
@@ -182,6 +182,183 @@ fastify.ready(err => {
  | uiConfig*     | {}       | Configuration options for [Swagger UI](https://github.com/swagger-api/swagger-ui/blob/master/docs/usage/configuration.md) |
 
 > `uiConfig` accepts only literal (number/string/object) configuration values since they are serialized in order to pass them to the generated UI. For more details see: [#5710](https://github.com/swagger-api/swagger-ui/issues/5710).
+
+<a name="response.description"></a>
+##### response description and response body description
+If you do not supply a `description` for your response, a default description will be provided for you, because this is a required field per the Swagger schema.
+
+So this:
+
+```js
+fastify.get('/defaultDescription', {
+    schema: {
+      response: {
+        200: {
+          type: 'string'
+        }
+      }
+    }
+  }, () => {})
+```
+
+Generates this in the Swagger (OAS2) schema's `paths`:
+
+```json
+{
+  "/defaultDescription": {
+    "get": {
+      "responses": {
+        "200": {
+          "description": "Default Response",
+          "schema": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+And this in the OAS 3 schema's `paths`:
+
+```
+{
+  "/defaultDescription": {
+    "get": {
+      "responses": {
+        "200": {
+          "description": "Default Response",
+          "schema": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+If you do supply just a `description`, it will be used both for the response as a whole and for the response body schema.
+
+So this:
+
+```js
+fastify.get('/description', {
+  schema: {
+    response: {
+      200: {
+        description: 'response and schema description',
+        type: 'string'
+      }
+    }
+  }
+}, () => {})
+```
+
+Generates this in the Swagger (OAS2) schema's `paths`:
+
+```json
+{
+  "/description": {
+    "get": {
+      "responses": {
+        "200": {
+          "description": "response and schema description",
+          "schema": {
+            "description": "response and schema description",
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+And this in the OAS 3 schema's `paths`:
+
+```json
+{
+  "/description": {
+    "get": {
+      "responses": {
+        "200": {
+          "description": "response and schema description",
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "response and schema description",
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+If you want to provide a different description for the response as a whole, instead use the `responseDescription` field alongside `description`:
+
+```js
+fastify.get('/responseDescription', {
+  schema: {
+    response: {
+      200: {
+        responseDescription: 'response description',
+        description: 'schema description',
+        type: 'string'
+      }
+    }
+  }
+}, () => {})
+```
+
+Which generates this in the Swagger (OAS2) schema's `paths`:
+
+```json
+{
+  "/responseDescription": {
+    "get": {
+      "responses": {
+        "200": {
+          "description": "response description",
+          "schema": {
+            "description": "schema description",
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+And this in the OAS 3 schema's `paths`:
+
+```json
+{
+  "/responseDescription": {
+    "get": {
+      "responses": {
+        "200": {
+          "description": "response description",
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "schema description",
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
 
 ##### 2XX status code
 `fastify` itself support the `2xx`, `3xx` status, however `swagger` itself do not support this featuer. We will help you to transform the `2xx` status code into `200` and we will omit `2xx` status code when you already declared `200` status code.
