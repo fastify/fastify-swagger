@@ -155,3 +155,71 @@ test('support response headers', async t => {
   })
   t.notOk(definedPath.responses['200'].content['application/json'].schema.headers)
 })
+
+test('response: description and responseDescription', async () => {
+  const description = 'description - always that of response body, sometimes also that of response as a whole'
+  const responseDescription = 'description only for the response as a whole'
+
+  test('description without responseDescription doubles as responseDescription', async t => {
+    // Given a /description endpoint with only a |description| field in its response schema
+    const fastify = Fastify()
+    fastify.register(fastifySwagger, openapiOption)
+    fastify.get('/description', {
+      schema: {
+        response: {
+          200: {
+            description,
+            type: 'string'
+          }
+        }
+      }
+    }, () => {})
+    await fastify.ready()
+
+    // When the Swagger schema is generated
+    const swaggerObject = fastify.swagger()
+    const api = await Swagger.validate(swaggerObject)
+
+    // Then the /description endpoint uses the |description| as both the description of the Response Object as well as of its Schema Object
+    /** @type {import('openapi-types').OpenAPIV3.ResponseObject} */
+    const responseObject = api.paths['/description'].get.responses['200']
+    t.ok(responseObject)
+    t.equal(responseObject.description, description)
+
+    const schemaObject = responseObject.content['application/json'].schema
+    t.ok(schemaObject)
+    t.equal(schemaObject.description, description)
+  })
+
+  test('description alongside responseDescription only describes response body', async t => {
+    // Given a /responseDescription endpoint that also has a |responseDescription| field in its response schema
+    const fastify = Fastify()
+    fastify.register(fastifySwagger, openapiOption)
+    fastify.get('/responseDescription', {
+      schema: {
+        response: {
+          200: {
+            responseDescription,
+            description,
+            type: 'string'
+          }
+        }
+      }
+    }, () => {})
+    await fastify.ready()
+
+    // When the Swagger schema is generated
+    const swaggerObject = fastify.swagger()
+    const api = await Swagger.validate(swaggerObject)
+
+    // Then the /responseDescription endpoint uses the |responseDescription| only for the Response Object and the |description| only for the Schema Object
+    const responseObject = api.paths['/responseDescription'].get.responses['200']
+    t.ok(responseObject)
+    t.equal(responseObject.description, responseDescription)
+
+    const schemaObject = responseObject.content['application/json'].schema
+    t.ok(schemaObject)
+    t.equal(schemaObject.description, description)
+    t.equal(schemaObject.responseDescription, undefined)
+  })
+})
