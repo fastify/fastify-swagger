@@ -173,6 +173,34 @@ fastify.ready(err => {
  | openapi       | {}       | Openapi configuration.                |
  | transform     | null     | Transform method for schema.          |
 
+##### 2XX status code
+`fastify` itself support the `2xx`, `3xx` status, however `swagger` itself do not support this featuer. We will help you to transform the `2xx` status code into `200` and we will omit `2xx` status code when you already declared `200` status code.
+Note: `openapi` will not be affected as it support the `2xx` syntax.
+
+Example:
+```js
+{
+  response: {
+    '2xx': {
+      description: '2xx'
+      type: 'object'
+    }
+  }
+}
+
+// it will becomes below
+{
+  response: {
+    200: {
+      schema: {
+        description: '2xx'
+        type: 'object'
+      }
+    }
+  }
+}
+```
+
 ##### static
  `static` mode should be configured explicitly. In this mode `fastify-swagger` serves given specification, you should craft it yourself.
   ```js
