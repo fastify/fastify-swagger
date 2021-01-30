@@ -126,7 +126,7 @@ test('response 2xx', async t => {
 
   const definedPath = api.paths['/'].get
   t.same(definedPath.responses['200'].description, 'Default Response')
-  t.notOk(definedPath.responses['2xx'])
+  t.notOk(definedPath.responses['2XX'])
 })
 
 test('response conflict 2xx and 200', async t => {
@@ -159,5 +159,5 @@ test('response conflict 2xx and 200', async t => {
 
   const definedPath = api.paths['/'].get
   t.same(definedPath.responses['200'].description, '200')
-  t.notOk(definedPath.responses['2xx'])
+  t.notOk(definedPath.responses['2XX'])
 })
