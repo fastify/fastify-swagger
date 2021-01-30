@@ -168,7 +168,6 @@ fastify.ready(err => {
   fastify-swagger will generate Swagger v2 by default. If you pass the `opeanapi` option it will generate OpenAPI instead.
 
   Example of the `fastify-swagger` usage in the `dynamic` mode, `swagger` option is available [here](examples/dynamic-swagger.js) and `openapi` option is avaiable [here](examples/dynamic-openapi.js).
-<a name="mode.static"></a>
 
 ##### options
 
@@ -228,7 +227,7 @@ You can decorate your own response headers by follow the below example.
   }
 }
 ```
-Note: You need to specify `type` property when you decorate the response headers, otherwise the schema will be modify by `fastify`.
+Note: You need to specify `type` property when you decorate the response headers, otherwise the schema will be modified by `fastify`.
 
 ##### status code 204
 We support status code 204 and return empty body. Please specify `type: 'null'` for the response otherwise `fastify` itself will fail to compile the schema.
@@ -243,6 +242,7 @@ We support status code 204 and return empty body. Please specify `type: 'null'` 
 }
 ```
 
+<a name="mode.static"></a>
 ##### static
  `static` mode should be configured explicitly. In this mode `fastify-swagger` serves given specification, you should craft it yourself.
   ```js
@@ -400,7 +400,7 @@ You can integration this plugin with ```fastify-helmet``` with some little work.
     }
   }
 })
-``` 
+```
 
 <a name="security"></a>
 ### Security
