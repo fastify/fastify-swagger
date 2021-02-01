@@ -161,3 +161,70 @@ test('response conflict 2xx and 200', async t => {
   t.same(definedPath.responses['200'].description, '200')
   t.notOk(definedPath.responses['2XX'])
 })
+
+test('support status code 204', async t => {
+  const opt = {
+    schema: {
+      response: {
+        204: {
+          type: 'null',
+          description: 'No Content'
+        }
+      }
+    }
+  }
+
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, {
+    routePrefix: '/docs',
+    exposeRoute: true
+  })
+  fastify.get('/', opt, () => {})
+
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  const api = await Swagger.validate(swaggerObject)
+
+  const definedPath = api.paths['/'].get
+  t.same(definedPath.responses['204'].description, 'No Content')
+  t.notOk(definedPath.responses['204'].schema)
+})
+
+test('support response headers', async t => {
+  const opt = {
+    schema: {
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            hello: {
+              type: 'string'
+            }
+          },
+          headers: {
+            'X-WORLD': {
+              type: 'string'
+            }
+          }
+        }
+      }
+    }
+  }
+
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, {
+    routePrefix: '/docs',
+    exposeRoute: true
+  })
+  fastify.get('/', opt, () => {})
+
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  const api = await Swagger.validate(swaggerObject)
+
+  const definedPath = api.paths['/'].get
+  t.same(definedPath.responses['200'].headers, opt.schema.response['200'].headers)
+  t.notOk(definedPath.responses['200'].schema.headers)
+})
