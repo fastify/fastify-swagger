@@ -201,6 +201,24 @@ Example:
 }
 ```
 
+##### response headers
+You can decorate your own response headers by follow the below example.
+```js
+{
+  response: {
+    200: {
+      type: 'object',
+      headers: {
+        'X-Foo': {
+          type: 'string'
+        }
+      }
+    }
+  }
+}
+```
+Note: You need to specify `type` property when you decorate the response headers, otherwise the schema will be modify by `fastify`.
+
 ##### static
  `static` mode should be configured explicitly. In this mode `fastify-swagger` serves given specification, you should craft it yourself.
   ```js
