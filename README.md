@@ -1,6 +1,8 @@
 # fastify-swagger
 
-[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](http://standardjs.com/)  ![CI workflow](https://github.com/fastify/fastify-swagger/workflows/CI%20workflow/badge.svg)
+![CI workflow](https://github.com/fastify/fastify-swagger/workflows/CI%20workflow/badge.svg)
+[![Known Vulnerabilities](https://snyk.io/test/github/fastify/fastify-swagger/badge.svg)](https://snyk.io/test/github/fastify/fastify-swagger)
+[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](http://standardjs.com/)
 
 [Swagger](https://swagger.io/) documentation generator for Fastify.
 It uses the schemas you declare in your routes to generate a swagger compliant doc.
