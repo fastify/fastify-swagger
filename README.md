@@ -1,6 +1,9 @@
 # fastify-swagger
 
-[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](http://standardjs.com/)  ![CI workflow](https://github.com/fastify/fastify-swagger/workflows/CI%20workflow/badge.svg)
+![CI workflow](https://github.com/fastify/fastify-swagger/workflows/CI%20workflow/badge.svg)
+[![Known Vulnerabilities](https://snyk.io/test/github/fastify/fastify-swagger/badge.svg)](https://snyk.io/test/github/fastify/fastify-swagger)
+[![Coverage Status](https://coveralls.io/repos/github/fastify/fastify-swagger/badge.svg?branch=master)](https://coveralls.io/github/fastify/fastify-swagger?branch=master)
+[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](https://standardjs.com/)
 
 [Swagger](https://swagger.io/) documentation generator for Fastify.
 It uses the schemas you declare in your routes to generate a swagger compliant doc.
@@ -304,8 +307,7 @@ fastify.route({
           minItems: 1,
           //
           // Note that this is an Open API version 2 configuration option.  The
-          // options changed in version 3. The plugin currently only supports
-          // version 2 of Open API.
+          // options changed in version 3.
           //
           // Put `collectionFormat` on the same property which you are defining
           // as an array of values. (i.e. `collectionFormat` should be a sibling
@@ -378,8 +380,8 @@ In that case checkout [fastify-swaggergen](https://github.com/seriousme/fastify-
 ## Acknowledgements
 
 This project is kindly sponsored by:
-- [nearForm](http://nearform.com)
-- [LetzDoIt](http://www.letzdoitapp.com/)
+- [nearForm](https://nearform.com)
+- [LetzDoIt](https://www.letzdoitapp.com/)
 
 <a name="license"></a>
 ## License
