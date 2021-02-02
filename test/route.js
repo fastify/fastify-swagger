@@ -115,7 +115,7 @@ test('/documentation/uiConfig route', t => {
     t.error(err)
 
     const payload = JSON.parse(res.payload)
-    
+
     t.match(payload, uiConfig, 'Invalid uiConfig received')
   })
 })
