@@ -86,6 +86,40 @@ test('/documentation/json route', t => {
   })
 })
 
+test('/documentation/uiConfig route', t => {
+  t.plan(2)
+  const fastify = Fastify()
+
+  const uiConfig = {
+    docExpansion: 'full'
+  }
+
+  const opts = {
+    ...swaggerOption,
+    uiConfig
+  }
+
+  fastify.register(fastifySwagger, opts)
+
+  fastify.get('/', () => {})
+  fastify.post('/', () => {})
+  fastify.get('/example', schemaQuerystring, () => {})
+  fastify.post('/example', schemaBody, () => {})
+  fastify.get('/parameters/:id', schemaParams, () => {})
+  fastify.get('/example1', schemaSecurity, () => {})
+
+  fastify.inject({
+    method: 'GET',
+    url: '/documentation/uiConfig'
+  }, (err, res) => {
+    t.error(err)
+
+    const payload = JSON.parse(res.payload)
+    
+    t.match(payload, uiConfig, 'Invalid uiConfig received')
+  })
+})
+
 test('fastify.swagger should return a valid swagger yaml', t => {
   t.plan(4)
   const fastify = Fastify()
