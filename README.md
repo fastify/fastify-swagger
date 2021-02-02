@@ -2,6 +2,7 @@
 
 ![CI workflow](https://github.com/fastify/fastify-swagger/workflows/CI%20workflow/badge.svg)
 [![Known Vulnerabilities](https://snyk.io/test/github/fastify/fastify-swagger/badge.svg)](https://snyk.io/test/github/fastify/fastify-swagger)
+[![Coverage Status](https://coveralls.io/repos/github/fastify/fastify-swagger/badge.svg?branch=master)](https://coveralls.io/github/fastify/fastify-swagger?branch=master)
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](https://standardjs.com/)
 
 [Swagger](https://swagger.io/) documentation generator for Fastify.

@@ -6,6 +6,7 @@
   "scripts": {
     "prepare": "node lib/util/prepare-swagger-ui",
     "test": "standard && tap --100 test/**/*.js && npm run typescript",
+    "test:ci": "standard && tap --100 test/**/*.js --coverage-report=lcovonly && npm run typescript",
     "prepublishOnly": "npm run prepare",
     "typescript": "tsd"
   },
