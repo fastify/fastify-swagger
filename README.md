@@ -2,7 +2,7 @@
 
 ![CI workflow](https://github.com/fastify/fastify-swagger/workflows/CI%20workflow/badge.svg)
 [![Known Vulnerabilities](https://snyk.io/test/github/fastify/fastify-swagger/badge.svg)](https://snyk.io/test/github/fastify/fastify-swagger)
-[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](http://standardjs.com/)
+[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](https://standardjs.com/)
 
 [Swagger](https://swagger.io/) documentation generator for Fastify.
 It uses the schemas you declare in your routes to generate a swagger compliant doc.
@@ -380,8 +380,8 @@ In that case checkout [fastify-swaggergen](https://github.com/seriousme/fastify-
 ## Acknowledgements
 
 This project is kindly sponsored by:
-- [nearForm](http://nearform.com)
-- [LetzDoIt](http://www.letzdoitapp.com/)
+- [nearForm](https://nearform.com)
+- [LetzDoIt](https://www.letzdoitapp.com/)
 
 <a name="license"></a>
 ## License
