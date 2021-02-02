@@ -306,8 +306,7 @@ fastify.route({
           minItems: 1,
           //
           // Note that this is an Open API version 2 configuration option.  The
-          // options changed in version 3. The plugin currently only supports
-          // version 2 of Open API.
+          // options changed in version 3.
           //
           // Put `collectionFormat` on the same property which you are defining
           // as an array of values. (i.e. `collectionFormat` should be a sibling
