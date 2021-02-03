@@ -72,3 +72,86 @@ test('support 2xx response', async t => {
   t.same(definedPath.responses['2XX'].description, 'Default Response')
   t.same(definedPath.responses['3XX'].description, 'Default Response')
 })
+
+test('support status code 204', async t => {
+  const opt = {
+    schema: {
+      response: {
+        204: {
+          type: 'null',
+          description: 'No Content'
+        }
+      }
+    }
+  }
+
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, {
+    openapi: true,
+    routePrefix: '/docs',
+    exposeRoute: true
+  })
+  fastify.get('/', opt, () => {})
+
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  const api = await Swagger.validate(swaggerObject)
+
+  const definedPath = api.paths['/'].get
+  t.same(definedPath.responses['204'].description, 'No Content')
+  t.notOk(definedPath.responses['204'].content)
+})
+
+test('support response headers', async t => {
+  const opt = {
+    schema: {
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            hello: {
+              type: 'string'
+            }
+          },
+          headers: {
+            'X-WORLD': {
+              type: 'string'
+            },
+            'X-DESCRIPTION': {
+              description: 'Foo',
+              type: 'string'
+            }
+          }
+        }
+      }
+    }
+  }
+
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, {
+    openapi: true,
+    routePrefix: '/docs',
+    exposeRoute: true
+  })
+  fastify.get('/', opt, () => {})
+
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  const api = await Swagger.validate(swaggerObject)
+
+  const definedPath = api.paths['/'].get
+  t.same(definedPath.responses['200'].headers['X-WORLD'], {
+    schema: {
+      type: 'string'
+    }
+  })
+  t.same(definedPath.responses['200'].headers['X-DESCRIPTION'], {
+    description: 'Foo',
+    schema: {
+      type: 'string'
+    }
+  })
+  t.notOk(definedPath.responses['200'].content['application/json'].schema.headers)
+})

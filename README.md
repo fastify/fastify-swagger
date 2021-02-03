@@ -211,6 +211,37 @@ Example:
 }
 ```
 
+##### response headers
+You can decorate your own response headers by follow the below example.
+```js
+{
+  response: {
+    200: {
+      type: 'object',
+      headers: {
+        'X-Foo': {
+          type: 'string'
+        }
+      }
+    }
+  }
+}
+```
+Note: You need to specify `type` property when you decorate the response headers, otherwise the schema will be modify by `fastify`.
+
+##### status code 204
+We support status code 204 and return empty body. Please specify `type: 'null'` for the response otherwise `fastify` itself will fail to compile the schema.
+```js
+{
+  response: {
+    204: {
+      type: 'null',
+      description: 'No Content'
+    }
+  }
+}
+```
+
 ##### static
  `static` mode should be configured explicitly. In this mode `fastify-swagger` serves given specification, you should craft it yourself.
   ```js
