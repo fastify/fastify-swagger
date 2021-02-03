@@ -6,8 +6,8 @@
   "scripts": {
     "prepare": "node lib/util/prepare-swagger-ui",
     "prepublishOnly": "npm run prepare",
-    "test": "standard && tap --100 test/**/*.js && npm run typescript",
-    "test:ci": "standard && tap test/**/*.js --coverage-report=lcovonly && npm run typescript",
+    "test": "standard && tap --100 'test/**/*.js' && npm run typescript",
+    "test:ci": "standard && tap 'test/**/*.js' --coverage-report=lcovonly && npm run typescript",
     "typescript": "tsd"
   },
   "repository": {
@@ -41,7 +41,7 @@
     "standard": "^16.0.1",
     "swagger-parser": "^10.0.2",
     "swagger-ui-dist": "3.41.1",
-    "tap": "^14.10.8",
+    "tap": "^14.11.0",
     "tsd": "^0.14.0"
   },
   "dependencies": {

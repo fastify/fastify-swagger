@@ -63,6 +63,10 @@ fastify.register(require('fastify-swagger'), {
       }
     }
   },
+  uiConfig: {
+    docExpansion: 'full',
+    deepLinking: false
+  },
   exposeRoute: true
 })
 
@@ -167,14 +171,17 @@ fastify.ready(err => {
 
 ##### options
 
- | option        | default  | description                           |
- |---------------|----------|---------------------------------------|
- | exposeRoute   | false    | Exposes documentation route.          |
- | hiddenTag     | X-HIDDEN | Tag to control hiding of routes.      |
- | stripBasePath | true     | Strips base path from routes in docs. |
- | swagger       | {}       | Swagger configuration.                |
- | openapi       | {}       | Openapi configuration.                |
- | transform     | null     | Transform method for schema.          |
+ | option        | default  | description                                                                                                               |
+ | ------------- | -------- | ------------------------------------------------------------------------------------------------------------------------- |
+ | exposeRoute   | false    | Exposes documentation route.                                                                                              |
+ | hiddenTag     | X-HIDDEN | Tag to control hiding of routes.                                                                                          |
+ | stripBasePath | true     | Strips base path from routes in docs.                                                                                     |
+ | swagger       | {}       | Swagger configuration.                                                                                                    |
+ | openapi       | {}       | Openapi configuration.                                                                                                    |
+ | transform     | null     | Transform method for schema.                                                                                              |
+ | uiConfig*     | {}       | Configuration options for [Swagger UI](https://github.com/swagger-api/swagger-ui/blob/master/docs/usage/configuration.md) |
+
+> `uiConfig` accepts only literal (number/string/object) configuration values since they are serialized in order to pass them to the generated UI. For more details see: [#5710](https://github.com/swagger-api/swagger-ui/issues/5710).
 
 ##### 2XX status code
 `fastify` itself support the `2xx`, `3xx` status, however `swagger` itself do not support this featuer. We will help you to transform the `2xx` status code into `200` and we will omit `2xx` status code when you already declared `200` status code.
@@ -226,17 +233,20 @@ Example:
   By default, this is the directory where the main spec file is located. Provided value should be an absolute path **without** trailing slash.
 <a name="additional"></a>
 #### additional
+
 If you pass `{ exposeRoute: true }` during the registration the plugin will expose the documentation with the following apis:
 
-|  url  |  description   |
-|-------|----------------|
-|`'/documentation/json'` | the json object representing the api  |
-|`'/documentation/yaml'` | the yaml object representing the api  |
-|`'/documentation/'` | the swagger ui  |
-|`'/documentation/*'`| external files which you may use in `$ref`|
+| url                     | description                                |
+| ----------------------- | ------------------------------------------ |
+| `'/documentation/json'` | the json object representing the api       |
+| `'/documentation/yaml'` | the yaml object representing the api       |
+| `'/documentation/'`     | the swagger ui                             |
+| `'/documentation/*'`    | external files which you may use in `$ref` |
 
 ##### Overwrite swagger url end-point
+
 If you would like to overwrite the `/documentation` url you can use the `routePrefix` option.
+
 ```js
 fastify.register(require('fastify-swagger'), {
   swagger: {
@@ -254,7 +264,9 @@ fastify.register(require('fastify-swagger'), {
 ```
 
 ##### Convert routes schema
+
 If you would like to use different schemas like, let's say [Joi](https://github.com/hapijs/joi), you can pass a synchronous `transform` method in the options to convert them back to standard JSON schemas expected by this plugin to generate the documentation (`dynamic` mode only).
+
 ```js
 const convert = require('joi-to-json-schema')
 
@@ -280,7 +292,9 @@ fastify.register(require('fastify-swagger'), {
 ```
 
 <a name="swagger.options"></a>
+
 ### swagger options
+
 Calling `fastify.swagger` will return to you a JSON object representing your api, if you pass `{ yaml: true }` to `fastify.swagger`, it will return you a yaml string.
 
 ### Open API (OA) Parameter Options
