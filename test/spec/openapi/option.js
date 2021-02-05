@@ -78,19 +78,17 @@ test('openapi components', t => {
   t.plan(2)
   const fastify = Fastify()
 
-  openapiOption.openapi.components = {
-    schemas: {
-      ExampleModel: {
-        type: 'object',
-        properties: {
-          id: {
-            type: 'integer',
-            description: 'Some id'
-          },
-          name: {
-            type: 'string',
-            description: 'Name of smthng'
-          }
+  openapiOption.openapi.components.schemas = {
+    ExampleModel: {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'integer',
+          description: 'Some id'
+        },
+        name: {
+          type: 'string',
+          description: 'Name of smthng'
         }
       }
     }
@@ -104,8 +102,8 @@ test('openapi components', t => {
     t.error(err)
 
     const openapiObject = fastify.swagger()
-    t.deepEquals(openapiObject.components, openapiOption.openapi.components)
-    delete openapiOption.openapi.components // remove what we just added
+    t.deepEquals(openapiObject.components.schemas, openapiOption.openapi.components.schemas)
+    delete openapiOption.openapi.components.schemas // remove what we just added
   })
 })
 
