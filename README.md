@@ -389,13 +389,13 @@ You can integration this plugin with ```fastify-helmet``` with some little work.
   return {
     contentSecurityPolicy: {
       directives: {
-					...helmet.contentSecurityPolicy.getDefaultDirectives(),
-					"form-action": ["'self'"],
-					"img-src": ["'self'", "data:", "validator.swagger.io"],
-					"script-src": ["'self'"].concat(instance.swaggerCSP.script),
-					"style-src": ["'self'", "https:"].concat(
-						instance.swaggerCSP.style
-					),
+        ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+        "form-action": ["'self'"],
+        "img-src": ["'self'", "data:", "validator.swagger.io"],
+        "script-src": ["'self'"].concat(instance.swaggerCSP.script),
+        "style-src": ["'self'", "https:"].concat(
+          instance.swaggerCSP.style
+        ),
       }
     }
   }
