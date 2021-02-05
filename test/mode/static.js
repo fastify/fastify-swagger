@@ -752,3 +752,54 @@ test('inserts default opts in fastifySwaggerDynamic (dynamic.js)', t => {
     t.pass('Inserted default option for fastifySwagger.')
   })
 })
+
+test('/documentation/uiConfig should have default', t => {
+  const config = {
+    exposeRoute: true,
+    mode: 'static',
+    specification: {
+      path: './examples/example-static-specification.yaml',
+      baseDir: resolve(__dirname, '..', '..', 'static')
+    }
+  }
+
+  t.plan(3)
+  const fastify = new Fastify()
+  fastify.register(fastifySwagger, config)
+
+  fastify.inject({
+    method: 'GET',
+    url: '/documentation/uiConfig'
+  }, (err, res) => {
+    t.error(err)
+    t.strictEqual(res.statusCode, 200)
+    t.strictEqual(res.payload, '{}')
+  })
+})
+
+test('/documentation/uiConfig can be customize', t => {
+  const config = {
+    exposeRoute: true,
+    mode: 'static',
+    specification: {
+      path: './examples/example-static-specification.yaml',
+      baseDir: resolve(__dirname, '..', '..', 'static')
+    },
+    uiConfig: {
+      docExpansion: 'full'
+    }
+  }
+
+  t.plan(3)
+  const fastify = new Fastify()
+  fastify.register(fastifySwagger, config)
+
+  fastify.inject({
+    method: 'GET',
+    url: '/documentation/uiConfig'
+  }, (err, res) => {
+    t.error(err)
+    t.strictEqual(res.statusCode, 200)
+    t.strictEqual(res.payload, '{"docExpansion":"full"}')
+  })
+})
