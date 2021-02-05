@@ -6,6 +6,7 @@ const Fastify = require('fastify')
 const fastifySwagger = require('../../index')
 const fastifySwaggerDynamic = require('../../lib/mode/dynamic')
 const yaml = require('js-yaml')
+const Swagger = require('swagger-parser')
 
 const resolve = require('path').resolve
 const readFileSync = require('fs').readFileSync
@@ -801,5 +802,44 @@ test('/documentation/uiConfig can be customize', t => {
     t.error(err)
     t.strictEqual(res.statusCode, 200)
     t.strictEqual(res.payload, '{"docExpansion":"full"}')
+  })
+})
+
+test('should still return valid swagger object when missing package.json', t => {
+  const config = {
+    mode: 'dynamic',
+    specification: {
+      path: './examples/example-static-specification.json'
+    },
+    exposeRoute: true
+  }
+
+  t.plan(3)
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, config)
+
+  const originalPathJoin = path.join
+  const testPackageJSON = path.join(__dirname, 'missing.json')
+
+  path.join = (...args) => {
+    if (args[3] === 'package.json') {
+      return testPackageJSON
+    }
+    return originalPathJoin(...args)
+  }
+
+  fastify.ready(err => {
+    t.error(err)
+
+    const swaggerObject = fastify.swagger()
+    t.is(typeof swaggerObject, 'object')
+
+    Swagger.validate(swaggerObject)
+      .then(function (api) {
+        t.pass('Swagger object is still valid.')
+      })
+      .catch(function (err) {
+        t.fail(err)
+      })
   })
 })
