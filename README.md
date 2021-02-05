@@ -1,5 +1,6 @@
 # fastify-swagger
 
+[![NPM version](https://img.shields.io/npm/v/fastify-swagger.svg?style=flat)](https://www.npmjs.com/package/fastify-swagger)
 ![CI workflow](https://github.com/fastify/fastify-swagger/workflows/CI%20workflow/badge.svg)
 [![Known Vulnerabilities](https://snyk.io/test/github/fastify/fastify-swagger/badge.svg)](https://snyk.io/test/github/fastify/fastify-swagger)
 [![Coverage Status](https://coveralls.io/repos/github/fastify/fastify-swagger/badge.svg?branch=master)](https://coveralls.io/github/fastify/fastify-swagger?branch=master)
