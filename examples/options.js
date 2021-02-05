@@ -44,6 +44,18 @@ const openapiOption = {
     tags: [
       { name: 'tag' }
     ],
+    components: {
+      securitySchemes: {
+        apiKey: {
+          type: 'apiKey',
+          name: 'apiKey',
+          in: 'header'
+        }
+      }
+    },
+    security: [{
+      apiKey: []
+    }],
     externalDocs: {
       description: 'Find more info here',
       url: 'https://swagger.io'
