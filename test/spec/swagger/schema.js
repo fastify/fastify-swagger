@@ -229,11 +229,11 @@ test('support response headers', async t => {
   t.notOk(definedPath.responses['200'].schema.headers)
 })
 
-test('response: description and responseDescription', async () => {
+test('response: description and x-response-description', async () => {
   const description = 'description - always that of response body, sometimes also that of response as a whole'
   const responseDescription = 'description only for the response as a whole'
 
-  test('description without responseDescription doubles as responseDescription', async t => {
+  test('description without x-response-description doubles as response description', async t => {
     // Given a /description endpoint with only a |description| field in its response schema
     const fastify = Fastify()
     fastify.register(fastifySwagger, {
@@ -263,8 +263,8 @@ test('response: description and responseDescription', async () => {
     t.equal(responseObject.schema.description, description)
   })
 
-  test('description alongside responseDescription only describes response body', async t => {
-    // Given a /responseDescription endpoint that also has a |responseDescription| field in its response schema
+  test('description alongside x-response-description only describes response body', async t => {
+    // Given a /responseDescription endpoint that also has a |'x-response-description'| field in its response schema
     const fastify = Fastify()
     fastify.register(fastifySwagger, {
       routePrefix: '/docs',
@@ -274,7 +274,7 @@ test('response: description and responseDescription', async () => {
       schema: {
         response: {
           200: {
-            responseDescription,
+            'x-response-description': responseDescription,
             description,
             type: 'string'
           }

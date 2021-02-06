@@ -300,14 +300,14 @@ And this in the OAS 3 schema's `paths`:
 }
 ```
 
-If you want to provide a different description for the response as a whole, instead use the `responseDescription` field alongside `description`:
+If you want to provide a different description for the response as a whole, instead use the `x-response-description` field alongside `description`:
 
 ```js
 fastify.get('/responseDescription', {
   schema: {
     response: {
       200: {
-        responseDescription: 'response description',
+        'x-response-description': 'response description',
         description: 'schema description',
         type: 'string'
       }
