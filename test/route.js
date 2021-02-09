@@ -86,6 +86,35 @@ test('/documentation/json route', t => {
   })
 })
 
+test('/documentation/uiConfig undefined config', t => {
+  t.plan(2)
+  const fastify = Fastify()
+
+  const opts = {
+    ...swaggerOption
+  }
+
+  fastify.register(fastifySwagger, opts)
+
+  fastify.get('/', () => {})
+  fastify.post('/', () => {})
+  fastify.get('/example', schemaQuerystring, () => {})
+  fastify.post('/example', schemaBody, () => {})
+  fastify.get('/parameters/:id', schemaParams, () => {})
+  fastify.get('/example1', schemaSecurity, () => {})
+
+  fastify.inject({
+    method: 'GET',
+    url: '/documentation/uiConfig'
+  }, (err, res) => {
+    t.error(err)
+
+    const payload = JSON.parse(res.payload)
+
+    t.match(payload, {}, 'uiConfig should be an empty object')
+  })
+})
+
 test('/documentation/uiConfig route', t => {
   t.plan(2)
   const fastify = Fastify()
