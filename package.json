@@ -1,7 +1,7 @@
 {
   "name": "fastify-swagger",
   "version": "4.3.0",
-  "description": "Generate Swagger files automatically for Fastify.",
+  "description": "Serve Swagger/OpenAPI documentation for Fastify, supporting dynamic generation",
   "main": "index.js",
   "scripts": {
     "prepare": "node lib/util/prepare-swagger-ui",
@@ -16,7 +16,11 @@
   },
   "keywords": [
     "fastify",
-    "swagger"
+    "swagger",
+    "openapi",
+    "serve",
+    "generate",
+    "static"
   ],
   "author": "Tomas Della Vedova - @delvedor (http://delved.org)",
   "contributors": [
