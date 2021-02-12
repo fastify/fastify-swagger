@@ -165,7 +165,7 @@ fastify.ready(err => {
   *All the above parameters are optional.*
   You can use all the properties of the [swagger specification](https://swagger.io/specification/v2/) and [openapi specification](https://swagger.io/specification/), if you find anything missing, please open an issue or a pr!
 
-  fastify-swagger will generate Swagger v2 by default. If you pass the `opeanapi` option it will generate OpenAPI instead.
+  fastify-swagger will generate Swagger v2 by default. If you pass the `openapi` option it will generate OpenAPI instead.
 
   Example of the `fastify-swagger` usage in the `dynamic` mode, `swagger` option is available [here](examples/dynamic-swagger.js) and `openapi` option is available [here](examples/dynamic-openapi.js).
 
@@ -177,7 +177,7 @@ fastify.ready(err => {
  | hiddenTag     | X-HIDDEN | Tag to control hiding of routes.                                                                                          |
  | stripBasePath | true     | Strips base path from routes in docs.                                                                                     |
  | swagger       | {}       | Swagger configuration.                                                                                                    |
- | openapi       | {}       | Openapi configuration.                                                                                                    |
+ | openapi       | {}       | OpenAPI configuration.                                                                                                    |
  | transform     | null     | Transform method for schema.                                                                                              |
  | uiConfig*     | {}       | Configuration options for [Swagger UI](https://github.com/swagger-api/swagger-ui/blob/master/docs/usage/configuration.md) |
 
@@ -436,7 +436,7 @@ We support status code 204 and return empty body. Please specify `type: 'null'` 
   ```
   Example of the `fastify-swagger` usage in the `static` mode is available [here](examples/static-file.js).
 
-  `specification.postProcessor` parameter is optional. It allows you to change your swagger object on the fly (for example - based on the environment). It accepts `swaggerObject` - basically a javascript object which was parsed from your `yaml` or `json` file and should return a swagger object.
+  `specification.postProcessor` parameter is optional. It allows you to change your swagger object on the fly (for example - based on the environment). It accepts `swaggerObject` - a JavaScript object which was parsed from your `yaml` or `json` file and should return a swagger object.
 
   `specification.baseDir` allows specifying the directory where all spec files that are included in the main one using `$ref` will be located.
   By default, this is the directory where the main spec file is located. Provided value should be an absolute path **without** trailing slash.
@@ -447,9 +447,9 @@ If you pass `{ exposeRoute: true }` during the registration the plugin will expo
 
 | url                     | description                                |
 | ----------------------- | ------------------------------------------ |
-| `'/documentation/json'` | the json object representing the api       |
-| `'/documentation/yaml'` | the yaml object representing the api       |
-| `'/documentation/'`     | the swagger ui                             |
+| `'/documentation/json'` | the JSON object representing the API       |
+| `'/documentation/yaml'` | the YAML object representing the API       |
+| `'/documentation/'`     | the swagger UI                             |
 | `'/documentation/*'`    | external files which you may use in `$ref` |
 
 ##### Overwrite swagger url end-point
@@ -510,7 +510,7 @@ Calling `fastify.swagger` will return to you a JSON object representing your api
 
 Note: OA's terminology differs from Fastify's. OA uses the term "parameter" to refer to those parts of a request that in [Fastify's validation documentation](https://www.fastify.io/docs/latest/Validation-and-Serialization/#validation) are called "querystring", "params", "headers".
 
-OA provides some options beyond those provided by the JSON schema specification for specifying the shape of parameters. A prime example of this the option for specifying how to encode those parameters that should be handled as arrays of values. There is no single universally accepted method for encoding such parameters appearing as part of query strings. OA2 provides a `collectionFormat` option which allows specifying how an array parameter should be encoded. (We're giving an example in the OA2 specification, as this is the default specification version used by this plugin. The same principles apply to OA3.) Specifying this option is easy. You just need to add it to the other options for the field you are defining. Like in this example:
+OA provides some options beyond those provided by the JSON schema specification for specifying the shape of parameters. A prime example of this the option for specifying how to encode those parameters that should be handled as arrays of values. There is no single universally accepted method for encoding such parameters appearing as part of query strings. OA2 provides a `collectionFormat` option that allows specifying how an array parameter should be encoded. (We're giving an example in the OA2 specification, as this is the default specification version used by this plugin. The same principles apply to OA3.) Specifying this option is easy. You just need to add it to the other options for the field you are defining. Like in this example:
 
 ```
 fastify.route({
