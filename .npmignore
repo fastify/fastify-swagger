@@ -47,3 +47,4 @@ package-lock.json
 
 # project specific
 *.tgz
+.idea

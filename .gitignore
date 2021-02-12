@@ -49,3 +49,4 @@ static
 
 # vscode files
 .vscode/
+.idea
