@@ -9,7 +9,7 @@ const {
   schemaAllOf
 } = require('../../../examples/options')
 
-test('suport - oneOf, anyOf, allOf', t => {
+test('support - oneOf, anyOf, allOf', t => {
   t.plan(3)
   const fastify = Fastify()
 

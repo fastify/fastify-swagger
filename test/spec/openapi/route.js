@@ -326,3 +326,97 @@ test('route options - method', t => {
       })
   })
 })
+
+test('cookie, query, path description', t => {
+  t.plan(7)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, openapiOption)
+
+  const schemaCookies = {
+    schema: {
+      cookies: {
+        type: 'object',
+        properties: {
+          bar: { type: 'string', description: 'Bar' }
+        }
+      }
+    }
+  }
+  const schemaQuerystring = {
+    schema: {
+      querystring: {
+        type: 'object',
+        properties: {
+          hello: { type: 'string', description: 'Hello' }
+        }
+      }
+    }
+  }
+  // test without description as other test case for params already have description
+  const schemaParams = {
+    schema: {
+      params: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' }
+        }
+      }
+    }
+  }
+
+  fastify.get('/', schemaCookies, () => {})
+  fastify.get('/example', schemaQuerystring, () => {})
+  fastify.get('/parameters/:id', schemaParams, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+
+    const openapiObject = fastify.swagger()
+    Swagger.validate(openapiObject)
+      .then(function (api) {
+        const cookiesPath = api.paths['/'].get
+        t.ok(cookiesPath)
+        t.same(cookiesPath.parameters, [
+          {
+            required: false,
+            in: 'cookie',
+            name: 'bar',
+            description: 'Bar',
+            schema: {
+              type: 'string'
+            }
+          }
+        ])
+        const querystringPath = api.paths['/example'].get
+        t.ok(querystringPath)
+        t.same(querystringPath.parameters, [
+          {
+            required: false,
+            in: 'query',
+            name: 'hello',
+            description: 'Hello',
+            schema: {
+              type: 'string'
+            }
+          }
+        ])
+        const paramPath = api.paths['/parameters/{id}'].get
+        t.ok(paramPath)
+        t.same(paramPath.parameters, [
+          {
+            required: true,
+            in: 'path',
+            name: 'id',
+            schema: {
+              type: 'string'
+            }
+          }
+        ])
+      })
+      .catch(function (err) {
+        console.log(err)
+        t.fail(err)
+      })
+  })
+})
