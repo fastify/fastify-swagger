@@ -415,7 +415,6 @@ test('cookie, query, path description', t => {
         ])
       })
       .catch(function (err) {
-        console.log(err)
         t.fail(err)
       })
   })
