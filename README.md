@@ -494,7 +494,7 @@ fastify.register(require('fastify-swagger'), {
     if (params) transformed.params = convert(params)
     if (body) transformed.body = convert(body)
     if (querystring) transformed.querystring = convert(querystring)
-    if (response) transformed.response = convert(response)
+    // if (response) transformed.response = convert(response)
     return transformed
   }
 }
