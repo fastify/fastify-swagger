@@ -487,7 +487,6 @@ fastify.register(require('fastify-swagger'), {
       params = undefined,
       body = undefined,
       querystring = undefined,
-      response = undefined,
       ...others
     } = schema
     const transformed = { ...others }
