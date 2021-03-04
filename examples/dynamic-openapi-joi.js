@@ -1,7 +1,9 @@
 'use strict'
 
 const fastify = require('fastify')()
-const joiToJson = require('joi-to-json')
+// joi-to-json is one of the packages that can convert joi to json schema
+// you are feel free to use other package that have the similar function
+const convert = require('joi-to-json')
 const Joi = require('joi')
 
 fastify.register(require('../index'), {
