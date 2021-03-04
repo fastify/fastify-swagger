@@ -35,7 +35,7 @@ fastify.register(require('../index'), {
       ...others
     } = schema
     const transformed = { ...others }
-    if (params) transformed.params = joiToJson(params)
+    if (params) transformed.params = convert(params)
     if (body) transformed.body = joiToJson(body)
     if (querystring) transformed.querystring = joiToJson(querystring)
     return transformed
