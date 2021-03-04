@@ -36,7 +36,7 @@ fastify.register(require('../index'), {
     } = schema
     const transformed = { ...others }
     if (params) transformed.params = convert(params)
-    if (body) transformed.body= convert(body)
+    if (body) transformed.body = convert(body)
     if (querystring) transformed.querystring = convert(querystring)
     return transformed
   }
