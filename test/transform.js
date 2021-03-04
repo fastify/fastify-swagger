@@ -4,7 +4,7 @@ const { test } = require('tap')
 const Fastify = require('fastify')
 const fastifySwagger = require('../index')
 const Joi = require('joi')
-const Convert = require('joi-to-json-schema')
+const Convert = require('joi-to-json')
 
 const params = Joi
   .object()

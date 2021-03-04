@@ -477,7 +477,7 @@ fastify.register(require('fastify-swagger'), {
 If you would like to use different schemas like, let's say [Joi](https://github.com/hapijs/joi), you can pass a synchronous `transform` method in the options to convert them back to standard JSON schemas expected by this plugin to generate the documentation (`dynamic` mode only).
 
 ```js
-const convert = require('joi-to-json-schema')
+const convert = require('joi-to-json')
 
 fastify.register(require('fastify-swagger'), {
   swagger: { ... },
@@ -487,14 +487,12 @@ fastify.register(require('fastify-swagger'), {
       params = undefined,
       body = undefined,
       querystring = undefined,
-      response = undefined,
       ...others
     } = schema
     const transformed = { ...others }
     if (params) transformed.params = convert(params)
     if (body) transformed.body = convert(body)
     if (querystring) transformed.querystring = convert(querystring)
-    if (response) transformed.response = convert(response)
     return transformed
   }
 }
