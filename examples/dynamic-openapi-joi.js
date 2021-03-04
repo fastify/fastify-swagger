@@ -37,7 +37,7 @@ fastify.register(require('../index'), {
     const transformed = { ...others }
     if (params) transformed.params = convert(params)
     if (body) transformed.body= convert(body)
-    if (querystring) transformed.querystring = joiToJson(querystring)
+    if (querystring) transformed.querystring = convert(querystring)
     return transformed
   }
 })
