@@ -60,6 +60,17 @@ export interface FastifyDynamicSwaggerOptions extends FastifySwaggerOptions {
    * Overwrite the route schema
    */
   transform?: Function;
+  initOAuth?: Partial<{
+    clientId: string,
+    clientSecret: string,
+    realm: string,
+    appName: string,
+    scopeSeparator: string,
+    scopes: string | string[],
+    additionalQueryStringParams: { [key: string]: any },
+    useBasicAuthenticationWithAccessCodeGrant: boolean,
+    usePkceWithAuthorizationCodeGrant: boolean
+  }>
 }
 
 export interface StaticPathSpec {

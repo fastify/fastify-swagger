@@ -112,6 +112,9 @@ app
         },
       },
     },
+    initOAuth: {
+      scopes: ['openid', 'profile', 'email', 'offline_access'],
+    },
   })
   .ready((err) => {
     app.swagger();

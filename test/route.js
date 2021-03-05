@@ -120,6 +120,40 @@ test('/documentation/uiConfig route', t => {
   })
 })
 
+test('/documentation/initOAuth route', t => {
+  t.plan(2)
+  const fastify = Fastify()
+
+  const initOAuth = {
+    scopes: ['openid', 'profile', 'email', 'offline_access']
+  }
+
+  const opts = {
+    ...swaggerOption,
+    initOAuth
+  }
+
+  fastify.register(fastifySwagger, opts)
+
+  fastify.get('/', () => {})
+  fastify.post('/', () => {})
+  fastify.get('/example', schemaQuerystring, () => {})
+  fastify.post('/example', schemaBody, () => {})
+  fastify.get('/parameters/:id', schemaParams, () => {})
+  fastify.get('/example1', schemaSecurity, () => {})
+
+  fastify.inject({
+    method: 'GET',
+    url: '/documentation/initOAuth'
+  }, (err, res) => {
+    t.error(err)
+
+    const payload = JSON.parse(res.payload)
+
+    t.match(payload, initOAuth, 'initOAuth should be valid')
+  })
+})
+
 test('fastify.swagger should return a valid swagger yaml', t => {
   t.plan(4)
   const fastify = Fastify()
