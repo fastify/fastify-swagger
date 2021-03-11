@@ -805,6 +805,57 @@ test('/documentation/uiConfig can be customize', t => {
   })
 })
 
+test('/documentation/initOAuth should have default', t => {
+  const config = {
+    exposeRoute: true,
+    mode: 'static',
+    specification: {
+      path: './examples/example-static-specification.yaml',
+      baseDir: resolve(__dirname, '..', '..', 'static')
+    }
+  }
+
+  t.plan(3)
+  const fastify = new Fastify()
+  fastify.register(fastifySwagger, config)
+
+  fastify.inject({
+    method: 'GET',
+    url: '/documentation/initOAuth'
+  }, (err, res) => {
+    t.error(err)
+    t.strictEqual(res.statusCode, 200)
+    t.strictEqual(res.payload, '{}')
+  })
+})
+
+test('/documentation/initOAuth can be customize', t => {
+  const config = {
+    exposeRoute: true,
+    mode: 'static',
+    specification: {
+      path: './examples/example-static-specification.yaml',
+      baseDir: resolve(__dirname, '..', '..', 'static')
+    },
+    initOAuth: {
+      scopes: ['openid', 'profile', 'email', 'offline_access']
+    }
+  }
+
+  t.plan(3)
+  const fastify = new Fastify()
+  fastify.register(fastifySwagger, config)
+
+  fastify.inject({
+    method: 'GET',
+    url: '/documentation/initOAuth'
+  }, (err, res) => {
+    t.error(err)
+    t.strictEqual(res.statusCode, 200)
+    t.strictEqual(res.payload, '{"scopes":["openid","profile","email","offline_access"]}')
+  })
+})
+
 test('should still return valid swagger object when missing package.json', t => {
   const config = {
     mode: 'dynamic',
