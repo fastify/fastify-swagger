@@ -1,6 +1,6 @@
 {
   "name": "fastify-swagger",
-  "version": "4.4.0",
+  "version": "4.4.1",
   "description": "Serve Swagger/OpenAPI documentation for Fastify, supporting dynamic generation",
   "main": "index.js",
   "scripts": {
