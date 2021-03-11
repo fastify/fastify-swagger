@@ -44,6 +44,40 @@ export interface FastifySwaggerOptions {
    * @default false
    */
   exposeRoute?: boolean;
+  /**
+   * Swagger UI Config
+   */
+  uiConfig?: Partial<{
+    deepLinking: boolean
+    displayOperationId: boolean
+    defaultModelsExpandDepth: number
+    defaultModelExpandDepth: number
+    defaultModelRendering: string
+    displayRequestDuration: boolean
+    docExpansion: string
+    filter: boolean | string
+    maxDisplayedTags: number
+    showExtensions: boolean
+    showCommonExtensions: boolean
+    useUnsafeMarkdown: boolean
+    syntaxHighlight: {
+      activate?: boolean
+      theme?: string
+    } | false
+    tryItOutEnabled: boolean
+  }>
+  
+  initOAuth?: Partial<{
+    clientId: string,
+    clientSecret: string,
+    realm: string,
+    appName: string,
+    scopeSeparator: string,
+    scopes: string | string[],
+    additionalQueryStringParams: { [key: string]: any },
+    useBasicAuthenticationWithAccessCodeGrant: boolean,
+    usePkceWithAuthorizationCodeGrant: boolean
+  }>
 }
 
 export interface FastifyDynamicSwaggerOptions extends FastifySwaggerOptions {
@@ -60,17 +94,6 @@ export interface FastifyDynamicSwaggerOptions extends FastifySwaggerOptions {
    * Overwrite the route schema
    */
   transform?: Function;
-  initOAuth?: Partial<{
-    clientId: string,
-    clientSecret: string,
-    realm: string,
-    appName: string,
-    scopeSeparator: string,
-    scopes: string | string[],
-    additionalQueryStringParams: { [key: string]: any },
-    useBasicAuthenticationWithAccessCodeGrant: boolean,
-    usePkceWithAuthorizationCodeGrant: boolean
-  }>
 }
 
 export interface StaticPathSpec {

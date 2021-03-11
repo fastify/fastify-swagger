@@ -119,3 +119,14 @@ app
   .ready((err) => {
     app.swagger();
   });
+
+app.register(fastifySwagger, {
+  uiConfig: {
+    deepLinking: true,
+    defaultModelsExpandDepth: -1,
+    defaultModelExpandDepth: 1
+  }
+})
+.ready((err) => {
+  app.swagger();
+})
