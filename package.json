@@ -6,8 +6,8 @@
   "scripts": {
     "prepare": "node lib/util/prepare-swagger-ui",
     "prepublishOnly": "npm run prepare",
-    "test": "standard && tap --100 'test/**/*.js' && npm run typescript",
-    "test:ci": "standard && tap 'test/**/*.js' --coverage-report=lcovonly && npm run typescript",
+    "test": "standard && tap --100 \"test/**/*.js\" && npm run typescript",
+    "test:ci": "standard && tap \"test/**/*.js\" --coverage-report=lcovonly && npm run typescript",
     "typescript": "tsd"
   },
   "repository": {
