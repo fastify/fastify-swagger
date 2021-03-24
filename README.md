@@ -362,7 +362,7 @@ And this in the OAS 3 schema's `paths`:
 ```
 
 ##### 2XX status code
-`fastify` itself support the `2xx`, `3xx` status, however `swagger` itself do not support this featuer. We will help you to transform the `2xx` status code into `200` and we will omit `2xx` status code when you already declared `200` status code.
+`fastify` itself support the `2xx`, `3xx` status, however `swagger` itself do not support this feature. We will help you to transform the `2xx` status code into `200` and we will omit `2xx` status code when you already declared `200` status code.
 Note: `openapi` will not be affected as it support the `2xx` syntax.
 
 Example:
