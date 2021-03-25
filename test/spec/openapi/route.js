@@ -419,3 +419,102 @@ test('cookie, query, path description', t => {
       })
   })
 })
+
+test('cookie and query with serialization type', t => {
+  t.plan(3)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, openapiOption)
+
+  const schemaCookies = {
+    schema: {
+      cookies: {
+        type: 'object',
+        properties: {
+          bar: {
+            type: 'object',
+            consume: 'application/json',
+            required: ['foo'],
+            properties: {
+              foo: { type: 'string' },
+              bar: { type: 'string' }
+            }
+          }
+        }
+      }
+    }
+  }
+  const schemaQuerystring = {
+    schema: {
+      querystring: {
+        type: 'object',
+        properties: {
+          hello: {
+            type: 'object',
+            consume: 'application/json',
+            required: ['bar'],
+            properties: {
+              bar: { type: 'string' },
+              baz: { type: 'string' }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  fastify.get('/', schemaCookies, () => {})
+  fastify.get('/example', schemaQuerystring, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+
+    try {
+      const openapiObject = fastify.swagger()
+
+      const cookiesPath = openapiObject.paths['/'].get
+      t.same(cookiesPath.parameters, [
+        {
+          required: false,
+          in: 'cookie',
+          name: 'bar',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: false,
+                properties: {
+                  foo: { type: 'string' },
+                  bar: { type: 'string' }
+                }
+              }
+            }
+          }
+        }
+      ])
+
+      const querystringPath = openapiObject.paths['/example'].get
+      t.same(querystringPath.parameters, [
+        {
+          required: false,
+          in: 'query',
+          name: 'hello',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: false,
+                properties: {
+                  bar: { type: 'string' },
+                  baz: { type: 'string' }
+                }
+              }
+            }
+          }
+        }
+      ])
+    } catch (e) {
+      t.fail(err)
+    }
+  })
+})
