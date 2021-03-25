@@ -469,54 +469,55 @@ test('cookie and query with serialization type', t => {
   fastify.ready(err => {
     t.error(err)
 
-    try {
-      const openapiObject = fastify.swagger()
-
-      const cookiesPath = openapiObject.paths['/'].get
-      t.ok(cookiesPath)
-      t.same(cookiesPath.parameters, [
-        {
-          required: false,
-          in: 'cookie',
-          name: 'bar',
-          content: {
-            'application/json': {
-              schema: {
-                type: 'object',
-                required: false,
-                properties: {
-                  foo: { type: 'string' },
-                  bar: { type: 'string' }
+    const openapiObject = fastify.swagger()
+    Swagger.validate(openapiObject)
+      .then(function (api) {
+        const cookiesPath = api.paths['/'].get
+        t.ok(cookiesPath)
+        t.same(cookiesPath.parameters, [
+          {
+            required: false,
+            in: 'cookie',
+            name: 'bar',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  required: ['foo'],
+                  properties: {
+                    foo: { type: 'string' },
+                    bar: { type: 'string' }
+                  }
                 }
               }
             }
           }
-        }
-      ])
+        ])
 
-      const querystringPath = openapiObject.paths['/example'].get
-      t.ok(querystringPath)
-      t.same(querystringPath.parameters, [
-        {
-          required: false,
-          in: 'query',
-          name: 'hello',
-          content: {
-            'application/json': {
-              schema: {
-                type: 'object',
-                required: false,
-                properties: {
-                  bar: { type: 'string' },
-                  baz: { type: 'string' }
+        const querystringPath = api.paths['/example'].get
+        t.ok(querystringPath)
+        t.same(querystringPath.parameters, [
+          {
+            required: false,
+            in: 'query',
+            name: 'hello',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  required: ['bar'],
+                  properties: {
+                    bar: { type: 'string' },
+                    baz: { type: 'string' }
+                  }
                 }
               }
             }
           }
-        }
-      ])
-    } catch (e) {
-      t.fail(err)
-    }
+        ])
+      })
+      .catch(function (err) {
+        t.fail(err)
+      })
   })
 })
