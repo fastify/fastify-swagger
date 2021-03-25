@@ -421,7 +421,7 @@ test('cookie, query, path description', t => {
 })
 
 test('cookie and query with serialization type', t => {
-  t.plan(3)
+  t.plan(5)
   const fastify = Fastify()
 
   fastify.register(fastifySwagger, openapiOption)
@@ -473,6 +473,7 @@ test('cookie and query with serialization type', t => {
       const openapiObject = fastify.swagger()
 
       const cookiesPath = openapiObject.paths['/'].get
+      t.ok(cookiesPath)
       t.same(cookiesPath.parameters, [
         {
           required: false,
@@ -494,6 +495,7 @@ test('cookie and query with serialization type', t => {
       ])
 
       const querystringPath = openapiObject.paths['/example'].get
+      t.ok(querystringPath)
       t.same(querystringPath.parameters, [
         {
           required: false,
