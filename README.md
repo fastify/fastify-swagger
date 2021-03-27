@@ -551,7 +551,7 @@ There is a complete runnable example [here](examples/collection-format.js).
 
 #### Complex serialization in query and cookie, eg. JSON
 
-Note: not supported for OA2 and lower specification
+Note: not supported for OA2 and lower version of specification. Read more in OA3 [documentation](https://swagger.io/docs/specification/describing-parameters/#schema-vs-content).
 
 ```
 http://localhost/?filter={"foo":"baz","bar":"qux"}
@@ -620,6 +620,8 @@ And this in the OAS 3 schema's `paths`:
   }
 }
 ```
+
+[Example](examples/json-in-querystring.js)
 
 <a name="hide"></a>
 ### Hide a route
