@@ -557,6 +557,8 @@ Note: not supported for OA2 and lower version of specification. Read more in OA3
 http://localhost/?filter={"foo":"baz","bar":"qux"}
 ```
 
+**IMPORTANT CAVEAT** You also need to change the default query string parser used by Fastify so that it produces a JavaScript object that will conform to the schema.
+
 ```js
 fastify.route({
   method: 'GET',
@@ -622,6 +624,7 @@ And this in the OAS 3 schema's `paths`:
 ```
 
 [Example](examples/json-in-querystring.js)
+
 
 <a name="hide"></a>
 ### Hide a route
