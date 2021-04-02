@@ -21,7 +21,7 @@ test('support $ref schema', t => {
     t.error(err)
 
     const openapiObject = fastify.swagger()
-    t.is(typeof openapiObject, 'object')
+    t.equal(typeof openapiObject, 'object')
 
     Swagger.validate(openapiObject)
       .then(function (api) {

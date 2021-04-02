@@ -101,7 +101,7 @@ test('swagger definitions', t => {
     t.error(err)
 
     const swaggerObject = fastify.swagger()
-    t.deepEquals(swaggerObject.definitions, swaggerOption.swagger.definitions)
+    t.same(swaggerObject.definitions, swaggerOption.swagger.definitions)
     delete swaggerOption.swagger.definitions // remove what we just added
   })
 })
@@ -397,7 +397,7 @@ test('cache - json', t => {
 
     fastify.swagger()
     const swaggerObject = fastify.swagger()
-    t.is(typeof swaggerObject, 'object')
+    t.equal(typeof swaggerObject, 'object')
 
     Swagger.validate(swaggerObject)
       .then(function (api) {
@@ -420,7 +420,7 @@ test('cache - yaml', t => {
 
     fastify.swagger({ yaml: true })
     const swaggerYaml = fastify.swagger({ yaml: true })
-    t.is(typeof swaggerYaml, 'string')
+    t.equal(typeof swaggerYaml, 'string')
 
     try {
       yaml.load(swaggerYaml)

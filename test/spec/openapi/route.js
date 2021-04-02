@@ -38,7 +38,7 @@ test('openapi should return a valid swagger object', t => {
     t.error(err)
 
     const openapiObject = fastify.swagger()
-    t.is(typeof openapiObject, 'object')
+    t.equal(typeof openapiObject, 'object')
 
     Swagger.validate(openapiObject)
       .then(function (api) {
@@ -69,7 +69,7 @@ test('openapi should return a valid swagger yaml', t => {
     t.error(err)
 
     const swaggerYaml = fastify.swagger({ yaml: true })
-    t.is(typeof swaggerYaml, 'string')
+    t.equal(typeof swaggerYaml, 'string')
 
     try {
       yaml.load(swaggerYaml)
@@ -315,7 +315,7 @@ test('route options - method', t => {
     t.error(err)
 
     const openapiObject = fastify.swagger()
-    t.is(typeof openapiObject, 'object')
+    t.equal(typeof openapiObject, 'object')
 
     Swagger.validate(openapiObject)
       .then(function (api) {

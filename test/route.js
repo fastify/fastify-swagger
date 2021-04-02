@@ -173,8 +173,8 @@ test('fastify.swagger should return a valid swagger yaml', t => {
     url: '/documentation/yaml'
   }, (err, res) => {
     t.error(err)
-    t.is(typeof res.payload, 'string')
-    t.is(res.headers['content-type'], 'application/x-yaml')
+    t.equal(typeof res.payload, 'string')
+    t.equal(res.headers['content-type'], 'application/x-yaml')
     try {
       yaml.load(res.payload)
       t.pass('valid swagger yaml')
@@ -201,9 +201,9 @@ test('/documentation should redirect to ./documentation/static/index.html', t =>
     url: '/documentation'
   }, (err, res) => {
     t.error(err)
-    t.strictEqual(res.statusCode, 302)
-    t.strictEqual(res.headers.location, './documentation/static/index.html')
-    t.is(typeof res.payload, 'string')
+    t.equal(res.statusCode, 302)
+    t.equal(res.headers.location, './documentation/static/index.html')
+    t.equal(typeof res.payload, 'string')
   })
 })
 
@@ -224,9 +224,9 @@ test('/documentation/ should redirect to ./static/index.html', t => {
     url: '/documentation/'
   }, (err, res) => {
     t.error(err)
-    t.strictEqual(res.statusCode, 302)
-    t.strictEqual(res.headers.location, './static/index.html')
-    t.is(typeof res.payload, 'string')
+    t.equal(res.statusCode, 302)
+    t.equal(res.headers.location, './static/index.html')
+    t.equal(typeof res.payload, 'string')
   })
 })
 
@@ -249,9 +249,9 @@ test('/v1/documentation should redirect to ./documentation/static/index.html', t
     url: '/v1/documentation'
   }, (err, res) => {
     t.error(err)
-    t.strictEqual(res.statusCode, 302)
-    t.strictEqual(res.headers.location, './documentation/static/index.html')
-    t.is(typeof res.payload, 'string')
+    t.equal(res.statusCode, 302)
+    t.equal(res.headers.location, './documentation/static/index.html')
+    t.equal(typeof res.payload, 'string')
   })
 })
 
@@ -274,9 +274,9 @@ test('/v1/documentation/ should redirect to ./static/index.html', t => {
     url: '/v1/documentation/'
   }, (err, res) => {
     t.error(err)
-    t.strictEqual(res.statusCode, 302)
-    t.strictEqual(res.headers.location, './static/index.html')
-    t.is(typeof res.payload, 'string')
+    t.equal(res.statusCode, 302)
+    t.equal(res.headers.location, './static/index.html')
+    t.equal(typeof res.payload, 'string')
   })
 })
 
@@ -304,9 +304,9 @@ test('/v1/foobar should redirect to ./foobar/static/index.html - in plugin', t =
     url: '/v1/foobar'
   }, (err, res) => {
     t.error(err)
-    t.strictEqual(res.statusCode, 302)
-    t.strictEqual(res.headers.location, './foobar/static/index.html')
-    t.is(typeof res.payload, 'string')
+    t.equal(res.statusCode, 302)
+    t.equal(res.headers.location, './foobar/static/index.html')
+    t.equal(typeof res.payload, 'string')
   })
 })
 
@@ -334,9 +334,9 @@ test('/v1/foobar/ should redirect to ./static/index.html - in plugin', t => {
     url: '/v1/foobar/'
   }, (err, res) => {
     t.error(err)
-    t.strictEqual(res.statusCode, 302)
-    t.strictEqual(res.headers.location, './static/index.html')
-    t.is(typeof res.payload, 'string')
+    t.equal(res.statusCode, 302)
+    t.equal(res.headers.location, './static/index.html')
+    t.equal(typeof res.payload, 'string')
   })
 })
 
@@ -355,9 +355,9 @@ test('with routePrefix: \'/\' should redirect to ./static/index.html', t => {
     url: '/'
   }, (err, res) => {
     t.error(err)
-    t.strictEqual(res.statusCode, 302)
-    t.strictEqual(res.headers.location, './static/index.html')
-    t.is(typeof res.payload, 'string')
+    t.equal(res.statusCode, 302)
+    t.equal(res.headers.location, './static/index.html')
+    t.equal(typeof res.payload, 'string')
   })
 })
 
@@ -379,8 +379,8 @@ test('/documentation/static/:file should send back the correct file', t => {
     url: '/documentation/'
   }, (err, res) => {
     t.error(err)
-    t.is(res.statusCode, 302)
-    t.is(res.headers.location, './static/index.html')
+    t.equal(res.statusCode, 302)
+    t.equal(res.headers.location, './static/index.html')
   })
 
   fastify.ready(() => {
@@ -389,9 +389,9 @@ test('/documentation/static/:file should send back the correct file', t => {
       url: '/documentation/static/'
     }, (err, res) => {
       t.error(err)
-      t.is(typeof res.payload, 'string')
-      t.is(res.headers['content-type'], 'text/html; charset=UTF-8')
-      t.strictEqual(
+      t.equal(typeof res.payload, 'string')
+      t.equal(res.headers['content-type'], 'text/html; charset=UTF-8')
+      t.equal(
         readFileSync(
           resolve(__dirname, '..', 'static', 'index.html'),
           'utf8'
@@ -407,9 +407,9 @@ test('/documentation/static/:file should send back the correct file', t => {
     url: '/documentation/static/oauth2-redirect.html'
   }, (err, res) => {
     t.error(err)
-    t.is(typeof res.payload, 'string')
-    t.is(res.headers['content-type'], 'text/html; charset=UTF-8')
-    t.strictEqual(
+    t.equal(typeof res.payload, 'string')
+    t.equal(res.headers['content-type'], 'text/html; charset=UTF-8')
+    t.equal(
       readFileSync(
         resolve(__dirname, '..', 'static', 'oauth2-redirect.html'),
         'utf8'
@@ -423,9 +423,9 @@ test('/documentation/static/:file should send back the correct file', t => {
     url: '/documentation/static/swagger-ui.css'
   }, (err, res) => {
     t.error(err)
-    t.is(typeof res.payload, 'string')
-    t.is(res.headers['content-type'], 'text/css; charset=UTF-8')
-    t.strictEqual(
+    t.equal(typeof res.payload, 'string')
+    t.equal(res.headers['content-type'], 'text/css; charset=UTF-8')
+    t.equal(
       readFileSync(
         resolve(__dirname, '..', 'static', 'swagger-ui.css'),
         'utf8'
@@ -439,9 +439,9 @@ test('/documentation/static/:file should send back the correct file', t => {
     url: '/documentation/static/swagger-ui-bundle.js'
   }, (err, res) => {
     t.error(err)
-    t.is(typeof res.payload, 'string')
-    t.is(res.headers['content-type'], 'application/javascript; charset=UTF-8')
-    t.strictEqual(
+    t.equal(typeof res.payload, 'string')
+    t.equal(res.headers['content-type'], 'application/javascript; charset=UTF-8')
+    t.equal(
       readFileSync(
         resolve(__dirname, '..', 'static', 'swagger-ui-bundle.js'),
         'utf8'
@@ -455,9 +455,9 @@ test('/documentation/static/:file should send back the correct file', t => {
     url: '/documentation/static/swagger-ui-standalone-preset.js'
   }, (err, res) => {
     t.error(err)
-    t.is(typeof res.payload, 'string')
-    t.is(res.headers['content-type'], 'application/javascript; charset=UTF-8')
-    t.strictEqual(
+    t.equal(typeof res.payload, 'string')
+    t.equal(res.headers['content-type'], 'application/javascript; charset=UTF-8')
+    t.equal(
       readFileSync(
         resolve(__dirname, '..', 'static', 'swagger-ui-standalone-preset.js'),
         'utf8'
@@ -486,7 +486,7 @@ test('/documentation/static/:file 404', t => {
   }, (err, res) => {
     t.error(err)
     const payload = JSON.parse(res.payload)
-    t.strictEqual(res.statusCode, 404)
+    t.equal(res.statusCode, 404)
     t.match(payload, {
       error: 'Not Found',
       statusCode: 404
@@ -537,7 +537,7 @@ test('/documentation/:myfile should return 404 in dynamic mode', t => {
     url: '/documentation/swagger-ui.js'
   }, (err, res) => {
     t.error(err)
-    t.strictEqual(res.statusCode, 404)
+    t.equal(res.statusCode, 404)
   })
 })
 
@@ -555,7 +555,7 @@ test('/documentation/:myfile should run custom NotFoundHandler in dynamic mode',
     url: '/documentation/swagger-ui.js'
   }, (err, res) => {
     t.error(err)
-    t.strictEqual(res.statusCode, 410)
+    t.equal(res.statusCode, 410)
   })
 })
 
@@ -569,7 +569,7 @@ test('/documentation/ should redirect to ./static/index.html', t => {
     url: '/documentation/'
   }, (err, res) => {
     t.error(err)
-    t.strictEqual(res.statusCode, 302)
-    t.strictEqual(res.headers.location, './static/index.html')
+    t.equal(res.statusCode, 302)
+    t.equal(res.headers.location, './static/index.html')
   })
 })

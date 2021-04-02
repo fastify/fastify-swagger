@@ -39,7 +39,7 @@ test('specification validation check works', t => {
     })
 
     fastify.ready(err => {
-      t.notEqual(err, undefined)
+      t.not(err, undefined)
       t.matchSnapshot(err.toString())
     })
   })
@@ -136,8 +136,8 @@ test('swagger route returns yaml', t => {
     },
     (err, res) => {
       t.error(err)
-      t.is(typeof res.payload, 'string')
-      t.is(res.headers['content-type'], 'application/x-yaml')
+      t.equal(typeof res.payload, 'string')
+      t.equal(res.headers['content-type'], 'application/x-yaml')
       try {
         yaml.load(res.payload)
         t.pass('valid swagger yaml')
@@ -169,8 +169,8 @@ test('swagger route returns json', t => {
     },
     (err, res) => {
       t.error(err)
-      t.is(typeof res.payload, 'string')
-      t.is(res.headers['content-type'], 'application/json; charset=utf-8')
+      t.equal(typeof res.payload, 'string')
+      t.equal(res.headers['content-type'], 'application/json; charset=utf-8')
       try {
         yaml.load(res.payload)
         t.pass('valid swagger json')
@@ -206,8 +206,8 @@ test('postProcessor works, swagger route returns updated yaml', t => {
     },
     (err, res) => {
       t.error(err)
-      t.is(typeof res.payload, 'string')
-      t.is(res.headers['content-type'], 'application/x-yaml')
+      t.equal(typeof res.payload, 'string')
+      t.equal(res.headers['content-type'], 'application/x-yaml')
       try {
         yaml.load(res.payload)
         t.matchSnapshot(res.payload)
@@ -278,7 +278,7 @@ test('/documentation/:file should serve static file from the location of main sp
     url: '/documentation/non-existing-file'
   }, (err, res) => {
     t.error(err)
-    t.strictEqual(res.statusCode, 404)
+    t.equal(res.statusCode, 404)
   })
 
   fastify.inject({
@@ -286,8 +286,8 @@ test('/documentation/:file should serve static file from the location of main sp
     url: '/documentation/example-static-specification.yaml'
   }, (err, res) => {
     t.error(err)
-    t.strictEqual(res.statusCode, 200)
-    t.strictEqual(
+    t.equal(res.statusCode, 200)
+    t.equal(
       readFileSync(
         resolve(__dirname, '..', '..', 'examples', 'example-static-specification.yaml'),
         'utf8'
@@ -301,7 +301,7 @@ test('/documentation/:file should serve static file from the location of main sp
     url: '/documentation/dynamic-swagger.js'
   }, (err, res) => {
     t.error(err)
-    t.strictEqual(res.statusCode, 200)
+    t.equal(res.statusCode, 200)
   })
 })
 
@@ -326,7 +326,7 @@ test('/documentation/non-existing-file calls custom NotFoundHandler', t => {
     url: '/documentation/some-file-that-does-not-exist.js'
   }, (err, res) => {
     t.error(err)
-    t.strictEqual(res.statusCode, 410)
+    t.equal(res.statusCode, 410)
   })
 })
 
@@ -349,8 +349,8 @@ test('/documentation/:file should be served from custom location', t => {
     url: '/documentation/oauth2-redirect.html'
   }, (err, res) => {
     t.error(err)
-    t.strictEqual(res.statusCode, 200)
-    t.strictEqual(
+    t.equal(res.statusCode, 200)
+    t.equal(
       readFileSync(resolve(__dirname, '..', '..', 'static', 'oauth2-redirect.html'), 'utf8'),
       res.payload
     )
@@ -376,8 +376,8 @@ test('/documentation/:file should be served from custom location with trailing s
     url: '/documentation/oauth2-redirect.html'
   }, (err, res) => {
     t.error(err)
-    t.strictEqual(res.statusCode, 200)
-    t.strictEqual(
+    t.equal(res.statusCode, 200)
+    t.equal(
       readFileSync(resolve(__dirname, '..', '..', 'static', 'oauth2-redirect.html'), 'utf8'),
       res.payload
     )
@@ -404,8 +404,8 @@ test('/documentation/yaml returns cache.swaggerString on second request in stati
     },
     (err, res) => {
       t.error(err)
-      t.is(typeof res.payload, 'string')
-      t.is(res.headers['content-type'], 'application/x-yaml')
+      t.equal(typeof res.payload, 'string')
+      t.equal(res.headers['content-type'], 'application/x-yaml')
       try {
         yaml.load(res.payload)
         t.pass('valid swagger yaml')
@@ -422,8 +422,8 @@ test('/documentation/yaml returns cache.swaggerString on second request in stati
     },
     (err, res) => {
       t.error(err)
-      t.is(typeof res.payload, 'string')
-      t.is(res.headers['content-type'], 'application/x-yaml')
+      t.equal(typeof res.payload, 'string')
+      t.equal(res.headers['content-type'], 'application/x-yaml')
       yaml.load(res.payload)
       t.pass('valid swagger yaml')
     }
@@ -450,8 +450,8 @@ test('/documentation/json returns cache.swaggerObject on second request in stati
     },
     (err, res) => {
       t.error(err)
-      t.is(typeof res.payload, 'string')
-      t.is(res.headers['content-type'], 'application/json; charset=utf-8')
+      t.equal(typeof res.payload, 'string')
+      t.equal(res.headers['content-type'], 'application/json; charset=utf-8')
       t.pass('valid swagger json')
     }
   )
@@ -463,8 +463,8 @@ test('/documentation/json returns cache.swaggerObject on second request in stati
     },
     (err, res) => {
       t.error(err)
-      t.is(typeof res.payload, 'string')
-      t.is(res.headers['content-type'], 'application/json; charset=utf-8')
+      t.equal(typeof res.payload, 'string')
+      t.equal(res.headers['content-type'], 'application/json; charset=utf-8')
       t.pass('valid swagger json')
     }
   )
@@ -489,8 +489,8 @@ test('/documentation/yaml returns cache.swaggerString on second request in dynam
     },
     (err, res) => {
       t.error(err)
-      t.is(typeof res.payload, 'string')
-      t.is(res.headers['content-type'], 'application/x-yaml')
+      t.equal(typeof res.payload, 'string')
+      t.equal(res.headers['content-type'], 'application/x-yaml')
       try {
         yaml.load(res.payload)
         t.pass('valid swagger yaml')
@@ -507,8 +507,8 @@ test('/documentation/yaml returns cache.swaggerString on second request in dynam
     },
     (err, res) => {
       t.error(err)
-      t.is(typeof res.payload, 'string')
-      t.is(res.headers['content-type'], 'application/x-yaml')
+      t.equal(typeof res.payload, 'string')
+      t.equal(res.headers['content-type'], 'application/x-yaml')
       try {
         yaml.load(res.payload)
         t.pass('valid swagger yaml')
@@ -538,8 +538,8 @@ test('/documentation/json returns cache.swaggerObject on second request in dynam
     },
     (err, res) => {
       t.error(err)
-      t.is(typeof res.payload, 'string')
-      t.is(res.headers['content-type'], 'application/json; charset=utf-8')
+      t.equal(typeof res.payload, 'string')
+      t.equal(res.headers['content-type'], 'application/json; charset=utf-8')
       t.pass('valid swagger json')
     }
   )
@@ -551,8 +551,8 @@ test('/documentation/json returns cache.swaggerObject on second request in dynam
     },
     (err, res) => {
       t.error(err)
-      t.is(typeof res.payload, 'string')
-      t.is(res.headers['content-type'], 'application/json; charset=utf-8')
+      t.equal(typeof res.payload, 'string')
+      t.equal(res.headers['content-type'], 'application/json; charset=utf-8')
       t.pass('valid swagger json')
     }
   )
@@ -579,8 +579,8 @@ test('swagger routes are not exposed', t => {
     },
     (err, res) => {
       t.error(err)
-      t.is(typeof res.payload, 'string')
-      t.is(res.headers['content-type'], 'application/json; charset=utf-8')
+      t.equal(typeof res.payload, 'string')
+      t.equal(res.headers['content-type'], 'application/json; charset=utf-8')
       t.pass('routes are not exposed')
     }
   )
@@ -773,8 +773,8 @@ test('/documentation/uiConfig should have default', t => {
     url: '/documentation/uiConfig'
   }, (err, res) => {
     t.error(err)
-    t.strictEqual(res.statusCode, 200)
-    t.strictEqual(res.payload, '{}')
+    t.equal(res.statusCode, 200)
+    t.equal(res.payload, '{}')
   })
 })
 
@@ -800,8 +800,8 @@ test('/documentation/uiConfig can be customize', t => {
     url: '/documentation/uiConfig'
   }, (err, res) => {
     t.error(err)
-    t.strictEqual(res.statusCode, 200)
-    t.strictEqual(res.payload, '{"docExpansion":"full"}')
+    t.equal(res.statusCode, 200)
+    t.equal(res.payload, '{"docExpansion":"full"}')
   })
 })
 
@@ -824,8 +824,8 @@ test('/documentation/initOAuth should have default', t => {
     url: '/documentation/initOAuth'
   }, (err, res) => {
     t.error(err)
-    t.strictEqual(res.statusCode, 200)
-    t.strictEqual(res.payload, '{}')
+    t.equal(res.statusCode, 200)
+    t.equal(res.payload, '{}')
   })
 })
 
@@ -851,8 +851,8 @@ test('/documentation/initOAuth can be customize', t => {
     url: '/documentation/initOAuth'
   }, (err, res) => {
     t.error(err)
-    t.strictEqual(res.statusCode, 200)
-    t.strictEqual(res.payload, '{"scopes":["openid","profile","email","offline_access"]}')
+    t.equal(res.statusCode, 200)
+    t.equal(res.payload, '{"scopes":["openid","profile","email","offline_access"]}')
   })
 })
 
@@ -883,7 +883,7 @@ test('should still return valid swagger object when missing package.json', t => 
     t.error(err)
 
     const swaggerObject = fastify.swagger()
-    t.is(typeof swaggerObject, 'object')
+    t.equal(typeof swaggerObject, 'object')
 
     Swagger.validate(swaggerObject)
       .then(function (api) {

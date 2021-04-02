@@ -102,7 +102,7 @@ test('openapi components', t => {
     t.error(err)
 
     const openapiObject = fastify.swagger()
-    t.deepEquals(openapiObject.components.schemas, openapiOption.openapi.components.schemas)
+    t.same(openapiObject.components.schemas, openapiOption.openapi.components.schemas)
     delete openapiOption.openapi.components.schemas // remove what we just added
   })
 })
@@ -277,7 +277,7 @@ test('cache - json', t => {
 
     fastify.swagger()
     const openapiObject = fastify.swagger()
-    t.is(typeof openapiObject, 'object')
+    t.equal(typeof openapiObject, 'object')
 
     Swagger.validate(openapiObject)
       .then(function (api) {
@@ -300,7 +300,7 @@ test('cache - yaml', t => {
 
     fastify.swagger({ yaml: true })
     const swaggerYaml = fastify.swagger({ yaml: true })
-    t.is(typeof swaggerYaml, 'string')
+    t.equal(typeof swaggerYaml, 'string')
 
     try {
       yaml.load(swaggerYaml)

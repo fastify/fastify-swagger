@@ -40,6 +40,6 @@ test('fastify will response swagger csp', t => {
     url: '/'
   }, (err, res) => {
     t.error(err)
-    t.deepEqual(res.headers['content-security-policy'], csp)
+    t.same(res.headers['content-security-policy'], csp)
   })
 })
