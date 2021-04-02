@@ -36,7 +36,7 @@ test('swagger should return valid swagger object', t => {
     t.error(err)
 
     const swaggerObject = fastify.swagger()
-    t.is(typeof swaggerObject, 'object')
+    t.equal(typeof swaggerObject, 'object')
 
     Swagger.validate(swaggerObject)
       .then(function (api) {
@@ -67,7 +67,7 @@ test('swagger should return a valid swagger yaml', t => {
     t.error(err)
 
     const swaggerYaml = fastify.swagger({ yaml: true })
-    t.is(typeof swaggerYaml, 'string')
+    t.equal(typeof swaggerYaml, 'string')
 
     try {
       yaml.load(swaggerYaml)
