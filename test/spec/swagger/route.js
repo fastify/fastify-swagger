@@ -313,7 +313,7 @@ test('swagger json output should not omit consume in querystring schema', async 
         properties: {
           hello: {
             type: 'object',
-            consume: 'application/json',
+            'x-consume': 'application/json',
             required: ['bar'],
             properties: {
               bar: { type: 'string' },

@@ -433,7 +433,7 @@ test('cookie and query with serialization type', async (t) => {
         properties: {
           bar: {
             type: 'object',
-            consume: 'application/json',
+            'x-consume': 'application/json',
             required: ['foo'],
             properties: {
               foo: { type: 'string' },
@@ -451,7 +451,7 @@ test('cookie and query with serialization type', async (t) => {
         properties: {
           hello: {
             type: 'object',
-            consume: 'application/json',
+            'x-consume': 'application/json',
             required: ['bar'],
             properties: {
               bar: { type: 'string' },
