@@ -40,7 +40,7 @@ fastify.route({
             foo: { type: 'string' },
             bar: { type: 'string' }
           },
-          consume: 'application/json'
+          'x-consume': 'application/json'
         }
       }
     }
