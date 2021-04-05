@@ -419,3 +419,99 @@ test('cookie, query, path description', t => {
       })
   })
 })
+
+test('cookie and query with serialization type', async (t) => {
+  t.plan(4)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, openapiOption)
+
+  const schemaCookies = {
+    schema: {
+      cookies: {
+        type: 'object',
+        properties: {
+          bar: {
+            type: 'object',
+            'x-consume': 'application/json',
+            required: ['foo'],
+            properties: {
+              foo: { type: 'string' },
+              bar: { type: 'string' }
+            }
+          }
+        }
+      }
+    }
+  }
+  const schemaQuerystring = {
+    schema: {
+      querystring: {
+        type: 'object',
+        properties: {
+          hello: {
+            type: 'object',
+            'x-consume': 'application/json',
+            required: ['bar'],
+            properties: {
+              bar: { type: 'string' },
+              baz: { type: 'string' }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  fastify.get('/', schemaCookies, () => {})
+  fastify.get('/example', schemaQuerystring, () => {})
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+  const api = await Swagger.validate(openapiObject)
+
+  const cookiesPath = api.paths['/'].get
+  t.ok(cookiesPath)
+  t.same(cookiesPath.parameters, [
+    {
+      required: false,
+      in: 'cookie',
+      name: 'bar',
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            required: ['foo'],
+            properties: {
+              foo: { type: 'string' },
+              bar: { type: 'string' }
+            }
+          }
+        }
+      }
+    }
+  ])
+
+  const querystringPath = api.paths['/example'].get
+  t.ok(querystringPath)
+  t.same(querystringPath.parameters, [
+    {
+      required: false,
+      in: 'query',
+      name: 'hello',
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            required: ['bar'],
+            properties: {
+              bar: { type: 'string' },
+              baz: { type: 'string' }
+            }
+          }
+        }
+      }
+    }
+  ])
+})

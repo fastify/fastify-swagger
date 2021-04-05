@@ -511,7 +511,7 @@ Note: OA's terminology differs from Fastify's. OA uses the term "parameter" to r
 
 OA provides some options beyond those provided by the JSON schema specification for specifying the shape of parameters. A prime example of this the option for specifying how to encode those parameters that should be handled as arrays of values. There is no single universally accepted method for encoding such parameters appearing as part of query strings. OA2 provides a `collectionFormat` option that allows specifying how an array parameter should be encoded. (We're giving an example in the OA2 specification, as this is the default specification version used by this plugin. The same principles apply to OA3.) Specifying this option is easy. You just need to add it to the other options for the field you are defining. Like in this example:
 
-```
+```js
 fastify.route({
   method: 'GET',
   url: '/',
@@ -548,6 +548,81 @@ fastify.route({
 There is a complete runnable example [here](examples/collection-format.js).
 
 **IMPORTANT CAVEAT** These encoding options you can set in your schema have no bearing on how, for instance, a query string parser parses the query string. They change how Swagger UI presents its documentation, and how it generates `curl` commands when you click the `Try it out` button. Depending on which options you set in your schema, you *may also need* to change the default query string parser used by Fastify so that it produces a JavaScript object that will conform to the schema. As far as arrays are concerned, the default query string parser conforms to the `collectionFormat: "multi"` specification. If you were to select `collectionFormat: "csv"`, you would have to replace the default query string parser with one that parses CSV parameter values into arrays. The same caveat applies to the other parts of a request that OA calls "parameters" (e.g. headers, path parameters) and which are not encoded as JSON in a request.
+
+#### Complex serialization in query and cookie, eg. JSON
+
+Note: not supported for OA2 and lower version of specification. Read more in OA3 [documentation](https://swagger.io/docs/specification/describing-parameters/#schema-vs-content).
+
+```
+http://localhost/?filter={"foo":"baz","bar":"qux"}
+```
+
+**IMPORTANT CAVEAT** You also need to change the default query string parser used by Fastify so that it produces a JavaScript object that will conform to the schema. See [example](examples/json-in-querystring.js).
+
+```js
+fastify.route({
+  method: 'GET',
+  url: '/',
+  schema: {
+    querystring: {
+      type: 'object',
+      required: ['filter'],
+      additionalProperties: false,
+      properties: {
+        filter: {
+          type: 'object',
+          required: ['foo'],
+          properties: {
+            foo: { type: 'string' },
+            bar: { type: 'string' }
+          },
+          'x-consume': 'application/json'
+        }
+      }
+    }
+  },
+  handler (request, reply) {
+    reply.send(request.query.filter)
+  }
+})
+```
+
+And this in the OAS 3 schema's `paths`:
+
+```json
+{
+  "/": {
+    "get": {
+      "parameters": [
+        {
+          "in": "query",
+          "name": "filter",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "foo"
+                ],
+                "properties": {
+                  "foo": {
+                    "type": "string"
+                  },
+                  "bar": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
+```
+
 
 <a name="hide"></a>
 ### Hide a route

@@ -299,3 +299,44 @@ test('swagger json output should not omit enum part in params config', t => {
       })
   })
 })
+
+test('swagger json output should not omit consume in querystring schema', async (t) => {
+  t.plan(1)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, swaggerOption)
+
+  const schemaQuerystring = {
+    schema: {
+      querystring: {
+        type: 'object',
+        properties: {
+          hello: {
+            type: 'object',
+            'x-consume': 'application/json',
+            required: ['bar'],
+            properties: {
+              bar: { type: 'string' },
+              baz: { type: 'string' }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  fastify.get('/', schemaQuerystring, () => {})
+
+  await fastify.ready()
+
+  try {
+    fastify.swagger()
+    t.fail('error was not thrown')
+  } catch (err) {
+    if (err.message.startsWith('Complex serialization is not supported by Swagger')) {
+      t.pass('error was thrown')
+    } else {
+      t.error(err)
+    }
+  }
+})
