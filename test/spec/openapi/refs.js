@@ -13,7 +13,17 @@ test('support $ref schema', t => {
   fastify.register(fastifySwagger, openapiOption)
   fastify.register(function (instance, _, done) {
     instance.addSchema({ $id: 'Order', type: 'object', properties: { id: { type: 'integer' } } })
-    instance.post('/', { schema: { body: { $ref: 'Order#' }, response: { 200: { $ref: 'Order#' } } } }, () => {})
+    instance.addSchema({ $id: 'Params', type: 'object', properties: { reqd: { type: 'string' } }, required: ['reqd'] })
+    instance.post('/', {
+      schema: {
+        body: { $ref: 'Order#' },
+        querystring: { $ref: 'Params#' },
+        params: { $ref: 'Params#' },
+        headers: { $ref: 'Params#' },
+        cookies: { $ref: 'Params#' },
+        response: { 200: { $ref: 'Order#' } }
+      }
+    }, () => {})
     done()
   })
 
@@ -23,7 +33,7 @@ test('support $ref schema', t => {
     const openapiObject = fastify.swagger()
     t.equal(typeof openapiObject, 'object')
 
-    Swagger.validate(openapiObject)
+    Swagger.validate(JSON.parse(JSON.stringify(openapiObject)))
       .then(function (api) {
         t.pass('valid swagger object')
       })
