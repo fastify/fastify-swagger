@@ -223,3 +223,33 @@ test('response: description and x-response-description', async () => {
     t.equal(schemaObject.responseDescription, undefined)
   })
 })
+
+test('support default=null', async t => {
+  const opt = {
+    schema: {
+      response: {
+        '2XX': {
+          type: 'string',
+          nullable: true,
+          default: null
+        }
+      }
+    }
+  }
+
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, {
+    openapi: true,
+    routePrefix: '/docs',
+    exposeRoute: true
+  })
+  fastify.get('/', opt, () => {})
+
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  const api = await Swagger.validate(swaggerObject)
+
+  const definedPath = api.paths['/'].get
+  t.same(definedPath.responses['2XX'].default, null)
+})
