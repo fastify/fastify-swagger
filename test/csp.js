@@ -16,9 +16,6 @@ let {
 } = require('../examples/options')
 const csp = require('../static/csp.json')
 
-// const resolve = require('path').resolve
-// const readFileSync = require('fs').readFileSync
-
 swaggerOption = {
   ...swaggerOption,
   exposeRoute: true
