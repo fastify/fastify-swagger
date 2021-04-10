@@ -184,7 +184,7 @@ fastify.ready(err => {
  | uiConfig*          | {}       | Configuration options for [Swagger UI](https://github.com/swagger-api/swagger-ui/blob/master/docs/usage/configuration.md) |
  | initOAuth          | {}       | Configuration options for [Swagger UI initOAuth](https://swagger.io/docs/open-source-tools/swagger-ui/usage/oauth2/)      |
  | staticCSP          | false    | Enable CSP Header for static resources.                                                                                   |
- | transformStaticCSP | false    | Transform CSP Header for static resources if exist only.                                                                  | 
+ | transformStaticCSP | undefined    | Synchronous function to transform CSP header for static resources if the header has been previously set.                                                                  | 
 
 > `uiConfig` accepts only literal (number/string/object) configuration values since they are serialized in order to pass them to the generated UI. For more details see: [#5710](https://github.com/swagger-api/swagger-ui/issues/5710).
 
