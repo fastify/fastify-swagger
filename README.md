@@ -173,18 +173,18 @@ fastify.ready(err => {
 
 ##### options
 
- | option             | default  | description                                                                                                               |
- | ------------------ | -------- | ------------------------------------------------------------------------------------------------------------------------- |
- | exposeRoute        | false    | Exposes documentation route.                                                                                              |
- | hiddenTag          | X-HIDDEN | Tag to control hiding of routes.                                                                                          |
- | stripBasePath      | true     | Strips base path from routes in docs.                                                                                     |
- | swagger            | {}       | Swagger configuration.                                                                                                    |
- | openapi            | {}       | OpenAPI configuration.                                                                                                    |
- | transform          | null     | Transform method for schema.                                                                                              |
- | uiConfig*          | {}       | Configuration options for [Swagger UI](https://github.com/swagger-api/swagger-ui/blob/master/docs/usage/configuration.md) |
- | initOAuth          | {}       | Configuration options for [Swagger UI initOAuth](https://swagger.io/docs/open-source-tools/swagger-ui/usage/oauth2/)      |
- | staticCSP          | false    | Enable CSP Header for static resources.                                                                                   |
- | transformStaticCSP | undefined    | Synchronous function to transform CSP header for static resources if the header has been previously set.                                                                  | 
+ | option             | default   | description                                                                                                               |
+ | ------------------ | --------- | ------------------------------------------------------------------------------------------------------------------------- |
+ | exposeRoute        | false     | Exposes documentation route.                                                                                              |
+ | hiddenTag          | X-HIDDEN  | Tag to control hiding of routes.                                                                                          |
+ | stripBasePath      | true      | Strips base path from routes in docs.                                                                                     |
+ | swagger            | {}        | Swagger configuration.                                                                                                    |
+ | openapi            | {}        | OpenAPI configuration.                                                                                                    |
+ | transform          | null      | Transform method for schema.                                                                                              |
+ | uiConfig*          | {}        | Configuration options for [Swagger UI](https://github.com/swagger-api/swagger-ui/blob/master/docs/usage/configuration.md) |
+ | initOAuth          | {}        | Configuration options for [Swagger UI initOAuth](https://swagger.io/docs/open-source-tools/swagger-ui/usage/oauth2/)      |
+ | staticCSP          | false     | Enable CSP header for static resources.                                                                                   |
+ | transformStaticCSP | undefined | Synchronous function to transform CSP header for static resources if the header has been previously set.                  | 
 
 > `uiConfig` accepts only literal (number/string/object) configuration values since they are serialized in order to pass them to the generated UI. For more details see: [#5710](https://github.com/swagger-api/swagger-ui/issues/5710).
 
