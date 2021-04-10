@@ -67,7 +67,7 @@ test('staticCSP = true', t => {
   }, (err, res) => {
     t.error(err)
     t.equal(res.statusCode, 200)
-    t.equal(res.headers['content-security-policy'], `default-src 'self'; base-uri 'self'; block-all-mixed-content; font-src 'self' https: data:; frame-ancestors 'self'; img-src 'self' data: validator.swagger.io; object-src 'none'; script-src 'self' ${csp.script.join(' ')}; script-src-attr 'none'; style-src 'self' https: 'unsafe-inline' ${csp.style.join(' ')}; upgrade-insecure-requests;`)
+    t.equal(res.headers['content-security-policy'], `default-src 'self'; base-uri 'self'; block-all-mixed-content; font-src 'self' https: data:; frame-ancestors 'self'; img-src 'self' data: validator.swagger.io; object-src 'none'; script-src 'self' ${csp.script.join(' ')}; script-src-attr 'none'; style-src 'self' https: ${csp.style.join(' ')}; upgrade-insecure-requests;`)
     t.equal(typeof res.payload, 'string')
   })
 
