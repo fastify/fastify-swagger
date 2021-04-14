@@ -78,6 +78,11 @@ export interface FastifySwaggerOptions {
     useBasicAuthenticationWithAccessCodeGrant: boolean,
     usePkceWithAuthorizationCodeGrant: boolean
   }>
+  /**
+   * CSP Config
+   */
+  staticCSP?: boolean | string | Record<string, string | string[]>
+  transformStaticCSP?: (header: string) => string
 }
 
 export interface FastifyDynamicSwaggerOptions extends FastifySwaggerOptions {

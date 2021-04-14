@@ -130,3 +130,37 @@ app.register(fastifySwagger, {
 .ready((err) => {
   app.swagger();
 })
+
+app.register(fastifySwagger, {
+  staticCSP: true,
+})
+.ready((err) => {
+  app.swagger();
+})
+
+app.register(fastifySwagger, {
+  staticCSP: "default-src: 'self'",
+})
+.ready((err) => {
+  app.swagger();
+})
+
+app.register(fastifySwagger, {
+  staticCSP: {
+    'default-src': "'self'",
+    'script-src': ["'self'"]
+  },
+})
+.ready((err) => {
+  app.swagger();
+})
+
+app.register(fastifySwagger, {
+  staticCSP: true,
+  transformStaticCSP(header) {
+    return header
+  }
+})
+.ready((err) => {
+  app.swagger();
+})
