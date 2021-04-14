@@ -9,7 +9,7 @@
 Serve [Swagger](https://swagger.io/specification/v2/) / [OpenAPI](https://swagger.io/specification) for Fastify.
 It can either use the schemas you declare in your routes to dynamically generate an OpenAPI/Swagger-compliant doc, or serve a static OpenAPI specification document.
 
-Supports Fastify versions `>=2.0.0`. Please refer to [this branch](https://github.com/fastify/fastify-swagger/tree/1.x) and related versions for Fastify `^1.9.0` compatibility.
+Supports Fastify versions `>=3.0.0`. For `fastify@2`, please refer to [`branch@2.x`](https://github.com/fastify/fastify-swagger/tree/2.x) and for `fastify@1.9`, please refer to [`branch@1.x`](https://github.com/fastify/fastify-swagger/tree/1.x).
 
 <a name="install"></a>
 ## Install
