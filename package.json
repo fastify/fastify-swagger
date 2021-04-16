@@ -45,7 +45,7 @@
     "qs": "^6.5.2",
     "standard": "^16.0.1",
     "swagger-parser": "^10.0.2",
-    "swagger-ui-dist": "3.46.0",
+    "swagger-ui-dist": "3.47.1",
     "tap": "^15.0.1",
     "tsd": "^0.14.0"
   },
