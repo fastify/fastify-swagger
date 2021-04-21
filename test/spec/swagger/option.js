@@ -414,8 +414,8 @@ test('hide support - hidden untagged', t => {
   fastify.ready(err => {
     t.error(err)
 
-    const openapiObject = fastify.swagger()
-    t.notOk(openapiObject.paths['/'])
+    const swaggerObject = fastify.swagger()
+    t.notOk(swaggerObject.paths['/'])
   })
 })
 
