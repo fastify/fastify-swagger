@@ -177,6 +177,7 @@ fastify.ready(err => {
  | ------------------ | --------- | ------------------------------------------------------------------------------------------------------------------------- |
  | exposeRoute        | false     | Exposes documentation route.                                                                                              |
  | hiddenTag          | X-HIDDEN  | Tag to control hiding of routes.                                                                                          |
+ | hideUntagged       | false     | If true remove routes without tags in schema from resulting swagger file                                                  |
  | stripBasePath      | true      | Strips base path from routes in docs.                                                                                     |
  | swagger            | {}        | Swagger configuration.                                                                                                    |
  | openapi            | {}        | OpenAPI configuration.                                                                                                    |
