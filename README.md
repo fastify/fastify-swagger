@@ -69,7 +69,7 @@ fastify.register(require('fastify-swagger'), {
     deepLinking: false
   },
   staticCSP: true,
-  transformStaticCSP: (header) => header
+  transformStaticCSP: (header) => header,
   exposeRoute: true
 })
 
