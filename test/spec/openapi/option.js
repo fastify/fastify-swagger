@@ -213,6 +213,39 @@ test('hide support - tags Custom', t => {
   })
 })
 
+test('hide support - hidden untagged', t => {
+  t.plan(2)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, { ...openapiOption, hideUntagged: true })
+
+  const opts = {
+    schema: {
+      body: {
+        type: 'object',
+        properties: {
+          hello: { type: 'string' },
+          obj: {
+            type: 'object',
+            properties: {
+              some: { type: 'string' }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  fastify.get('/', opts, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+
+    const openapiObject = fastify.swagger()
+    t.notOk(openapiObject.paths['/'])
+  })
+})
+
 test('basePath support', t => {
   t.plan(3)
   const fastify = Fastify()
