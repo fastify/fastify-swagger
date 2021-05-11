@@ -30,6 +30,8 @@ const fastifyDynamicSwaggerOptions: SwaggerOptions = {
   mode: 'dynamic',
   routePrefix: '/documentation',
   exposeRoute: true,
+  hiddenTag: 'X-HIDDEN',
+  hideUntagged: true,
   stripBasePath: true
 }
 app.register(fastifySwagger, fastifyDynamicSwaggerOptions);
