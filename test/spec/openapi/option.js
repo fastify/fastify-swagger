@@ -344,4 +344,79 @@ test('cache - yaml', t => {
   })
 })
 
+test('transforms examples in example if single string example', t => {
+  t.plan(4)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, openapiOption)
+
+  const opts = {
+    schema: {
+      body: {
+        type: 'object',
+        required: ['hello'],
+        properties: {
+          hello: {
+            type: 'string',
+            examples: ['world']
+          }
+        }
+      }
+    }
+  }
+
+  fastify.get('/', opts, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+
+    const openapiObject = fastify.swagger()
+    const schema = openapiObject.paths['/'].get.requestBody.content['application/json'].schema
+
+    t.ok(schema)
+    t.notOk(schema.properties.hello.examples)
+    t.equal(schema.properties.hello.example, 'world')
+  })
+})
+
+test('transforms examples in example if single object example', t => {
+  t.plan(4)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, openapiOption)
+
+  const opts = {
+    schema: {
+      body: {
+        type: 'object',
+        required: ['hello'],
+        properties: {
+          hello: {
+            type: 'object',
+            properties: {
+              lorem: {
+                type: 'string'
+              }
+            },
+            examples: [{ lorem: 'ipsum' }]
+          }
+        }
+      }
+    }
+  }
+
+  fastify.get('/', opts, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+
+    const openapiObject = fastify.swagger()
+    const schema = openapiObject.paths['/'].get.requestBody.content['application/json'].schema
+
+    t.ok(schema)
+    t.notOk(schema.properties.hello.examples)
+    t.same(schema.properties.hello.example, { lorem: 'ipsum' })
+  })
+})
+
 module.exports = { openapiOption }
