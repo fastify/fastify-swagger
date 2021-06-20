@@ -16,7 +16,8 @@ const {
   schemaParams,
   schemaProduces,
   schemaQuerystring,
-  schemaSecurity
+  schemaSecurity,
+  schemaOperationId
 } = require('../../../examples/options')
 
 test('openapi should return a valid swagger object', t => {
@@ -514,4 +515,184 @@ test('cookie and query with serialization type', async (t) => {
       }
     }
   ])
+})
+
+test('openapi should pass through operationId', t => {
+  t.plan(3)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, openapiOption)
+
+  fastify.get('/hello', schemaOperationId, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+
+    const openapiObject = fastify.swagger()
+    t.equal(typeof openapiObject, 'object')
+
+    Swagger.validate(openapiObject)
+      .then(function (api) {
+        t.pass('valid swagger object')
+      })
+      .catch(function (err) {
+        t.fail(err)
+      })
+  })
+})
+
+test('openapi should pass through Links', t => {
+  t.plan(4)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, openapiOption)
+
+  fastify.get('/user/:id', {
+    schema: {
+      params: {
+        type: 'object',
+        properties: {
+          id: {
+            type: 'string',
+            description: 'the user identifier, as userId'
+          }
+        },
+        required: ['id']
+      },
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            uuid: {
+              type: 'string',
+              format: 'uuid'
+            }
+          }
+        }
+      }
+    },
+    links: {
+      200: {
+        address: {
+          operationId: 'getUserAddress',
+          parameters: {
+            id: '$request.path.id'
+          }
+        }
+      }
+    }
+  }, () => {})
+
+  fastify.get('/user/:id/address', {
+    schema: {
+      operationId: 'getUserAddress',
+      params: {
+        type: 'object',
+        properties: {
+          id: {
+            type: 'string',
+            description: 'the user identifier, as userId'
+          }
+        },
+        required: ['id']
+      },
+      response: {
+        200: {
+          type: 'string'
+        }
+      }
+    }
+  }, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+
+    const openapiObject = fastify.swagger()
+    t.equal(typeof openapiObject, 'object')
+
+    Swagger.validate(openapiObject)
+      .then(function (api) {
+        t.pass('valid swagger object')
+        t.same(api.paths['/user/{id}'].get.responses['200'].links, {
+          address: {
+            operationId: 'getUserAddress',
+            parameters: {
+              id: '$request.path.id'
+            }
+          }
+        })
+      })
+      .catch(function (err) {
+        t.fail(err)
+      })
+  })
+})
+
+test('links without status code', t => {
+  t.plan(2)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, openapiOption)
+
+  fastify.get('/user/:id', {
+    schema: {
+      params: {
+        type: 'object',
+        properties: {
+          id: {
+            type: 'string',
+            description: 'the user identifier, as userId'
+          }
+        },
+        required: ['id']
+      },
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            uuid: {
+              type: 'string',
+              format: 'uuid'
+            }
+          }
+        }
+      }
+    },
+    links: {
+      201: {
+        address: {
+          operationId: 'getUserAddress',
+          parameters: {
+            id: '$request.path.id'
+          }
+        }
+      }
+    }
+  }, () => {})
+
+  fastify.get('/user/:id/address', {
+    schema: {
+      operationId: 'getUserAddress',
+      params: {
+        type: 'object',
+        properties: {
+          id: {
+            type: 'string',
+            description: 'the user identifier, as userId'
+          }
+        },
+        required: ['id']
+      },
+      response: {
+        200: {
+          type: 'string'
+        }
+      }
+    }
+  }, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+    t.throws(() => fastify.swagger(), 'missing status code 201 in route /user/:id')
+  })
 })

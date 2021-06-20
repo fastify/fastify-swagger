@@ -530,6 +530,74 @@ Will generate this in the OpenAPI v3 schema's `paths`:
 }
 ```
 
+<a name="route.links"></a>
+#### Links
+
+**Note:** not supported by Swagger (OpenAPI v2), [only OpenAPI v3](https://swagger.io/docs/specification/links/)
+
+OpenAPI v3 Links are added by adding a `links` property to the top-level options of a route. See:
+
+```js
+fastify.get('/user/:id', {
+  schema: {
+    params: {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'string',
+          description: 'the user identifier, as userId'
+        }
+      },
+      required: ['id']
+    },
+    response: {
+      200: {
+        type: 'object',
+        properties: {
+          uuid: {
+            type: 'string',
+            format: 'uuid'
+          }
+        }
+      }
+    }
+  },
+  links: {
+    // The status code must match the one in the response
+    200: {
+      address: {
+        // See the OpenAPI documentation
+        operationId: 'getUserAddress',
+        parameters: {
+          id: '$request.path.id'
+        }
+      }
+    }
+  }
+}, () => {})
+
+fastify.get('/user/:id/address', {
+  schema: {
+    operationId: 'getUserAddress',
+    params: {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'string',
+          description: 'the user identifier, as userId'
+        }
+      },
+      required: ['id']
+    },
+    response: {
+      200: {
+        type: 'string'
+      }
+    }
+  }
+}, () => {})
+```
+
 <a name="route.hide"></a>
 #### Hide a route
 There are two ways to hide a route from the Swagger UI:
