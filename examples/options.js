@@ -230,6 +230,24 @@ const schemaExtension = {
   }
 }
 
+const schemaOperationId = {
+  schema: {
+    operationId: 'helloWorld',
+    response: {
+      200: {
+        type: 'object',
+        properties: {
+          hello: {
+            description: 'hello',
+            type: 'string'
+          }
+        },
+        required: ['hello']
+      }
+    }
+  }
+}
+
 module.exports = {
   openapiOption,
   swaggerOption,
@@ -243,5 +261,6 @@ module.exports = {
   schemaProduces,
   schemaCookies,
   schemaAllOf,
-  schemaExtension
+  schemaExtension,
+  schemaOperationId
 }
