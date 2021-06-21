@@ -340,3 +340,73 @@ test('swagger json output should not omit consume in querystring schema', async 
     }
   }
 })
+
+test('swagger should not support Links', t => {
+  t.plan(2)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, swaggerOption)
+
+  fastify.get('/user/:id', {
+    schema: {
+      params: {
+        type: 'object',
+        properties: {
+          id: {
+            type: 'string',
+            description: 'the user identifier, as userId'
+          }
+        },
+        required: ['id']
+      },
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            uuid: {
+              type: 'string',
+              format: 'uuid'
+            }
+          }
+        }
+      }
+    },
+    links: {
+      200: {
+        address: {
+          operationId: 'getUserAddress',
+          parameters: {
+            id: '$request.path.id'
+          }
+        }
+      }
+    }
+  }, () => {})
+
+  fastify.get('/user/:id/address', {
+    schema: {
+      operationId: 'getUserAddress',
+      params: {
+        type: 'object',
+        properties: {
+          id: {
+            type: 'string',
+            description: 'the user identifier, as userId'
+          }
+        },
+        required: ['id']
+      },
+      response: {
+        200: {
+          type: 'string'
+        }
+      }
+    }
+  }, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+
+    t.throws(() => fastify.swagger(), new Error('Swagger (Open API v2) does not support Links. Upgrade to OpenAPI v3 (see fastify-swagger readme)'))
+  })
+})

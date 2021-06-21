@@ -693,6 +693,6 @@ test('links without status code', t => {
 
   fastify.ready(err => {
     t.error(err)
-    t.throws(() => fastify.swagger(), 'missing status code 201 in route /user/:id')
+    t.throws(() => fastify.swagger(), new Error('missing status code 201 in route /user/:id'))
   })
 })
