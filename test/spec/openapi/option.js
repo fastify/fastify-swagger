@@ -419,4 +419,79 @@ test('transforms examples in example if single object example', t => {
   })
 })
 
+test('uses examples if has multiple string examples', t => {
+  t.plan(4)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, openapiOption)
+
+  const opts = {
+    schema: {
+      body: {
+        type: 'object',
+        required: ['hello'],
+        properties: {
+          hello: {
+            type: 'string',
+            examples: ['hello', 'world']
+          }
+        }
+      }
+    }
+  }
+
+  fastify.get('/', opts, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+
+    const openapiObject = fastify.swagger()
+    const schema = openapiObject.paths['/'].get.requestBody.content['application/json'].schema
+
+    t.ok(schema)
+    t.ok(schema.properties.hello.examples)
+    t.same(schema.properties.hello.examples, ['hello', 'world'])
+  })
+})
+
+test('uses examples if has multiple object examples', t => {
+  t.plan(4)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, openapiOption)
+
+  const opts = {
+    schema: {
+      body: {
+        type: 'object',
+        required: ['hello'],
+        properties: {
+          hello: {
+            type: 'object',
+            properties: {
+              lorem: {
+                type: 'string'
+              }
+            },
+            examples: [{ lorem: 'ipsum' }, { hello: 'world' }]
+          }
+        }
+      }
+    }
+  }
+
+  fastify.get('/', opts, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+
+    const openapiObject = fastify.swagger()
+    const schema = openapiObject.paths['/'].get.requestBody.content['application/json'].schema
+
+    t.ok(schema)
+    t.ok(schema.properties.hello.examples)
+    t.same(schema.properties.hello.examples, [{ lorem: 'ipsum' }, { hello: 'world' }])
+  })
+})
+
 module.exports = { openapiOption }
