@@ -450,7 +450,14 @@ test('uses examples if has multiple string examples', t => {
 
     t.ok(schema)
     t.ok(schema.properties.hello.examples)
-    t.same(schema.properties.hello.examples, ['hello', 'world'])
+    t.same(schema.properties.hello.examples, {
+      hello: {
+        value: 'hello'
+      },
+      world: {
+        value: 'world'
+      }
+    })
   })
 })
 
@@ -490,7 +497,113 @@ test('uses examples if has multiple object examples', t => {
 
     t.ok(schema)
     t.ok(schema.properties.hello.examples)
-    t.same(schema.properties.hello.examples, [{ lorem: 'ipsum' }, { hello: 'world' }])
+    t.same(schema.properties.hello.examples, {
+      key0: {
+        value: {
+          lorem: 'ipsum'
+        }
+      },
+      key1: {
+        value: {
+          hello: 'world'
+        }
+      }
+    })
+  })
+})
+
+test('uses examples if has multiple array examples', t => {
+  t.plan(4)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, openapiOption)
+
+  const opts = {
+    schema: {
+      body: {
+        type: 'object',
+        required: ['hello'],
+        properties: {
+          hello: {
+            type: 'array',
+            items: {
+              type: 'string'
+            },
+            examples: [['a', 'b', 'c'], ['d', 'f', 'g']]
+          }
+        }
+      }
+    }
+  }
+
+  fastify.get('/', opts, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+
+    const openapiObject = fastify.swagger()
+    const schema = openapiObject.paths['/'].get.requestBody.content['application/json'].schema
+
+    t.ok(schema)
+    t.ok(schema.properties.hello.examples)
+    t.same(schema.properties.hello.examples, {
+      key0: {
+        value: [
+          'a',
+          'b',
+          'c'
+        ]
+      },
+      key1: {
+        value: [
+          'd',
+          'f',
+          'g'
+        ]
+      }
+    })
+  })
+})
+
+test('uses examples if has multiple numbers examples', t => {
+  t.plan(4)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, openapiOption)
+
+  const opts = {
+    schema: {
+      body: {
+        type: 'object',
+        required: ['hello'],
+        properties: {
+          hello: {
+            type: 'number',
+            examples: [1, 2]
+          }
+        }
+      }
+    }
+  }
+
+  fastify.get('/', opts, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+
+    const openapiObject = fastify.swagger()
+    const schema = openapiObject.paths['/'].get.requestBody.content['application/json'].schema
+
+    t.ok(schema)
+    t.ok(schema.properties.hello.examples)
+    t.same(schema.properties.hello.examples, {
+      1: {
+        value: 1
+      },
+      2: {
+        value: 2
+      }
+    })
   })
 })
 
