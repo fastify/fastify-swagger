@@ -607,4 +607,55 @@ test('uses examples if has multiple array examples', t => {
   })
 })
 
+test('passes $ref to header schema if specified', t => {
+  t.plan(6)
+  const headerToReference = 'someHeader'
+
+  const fastify = Fastify()
+  fastify.addSchema({ $id: `#/components/headers/${headerToReference}`, type: 'string' })
+
+  fastify.register(fastifySwagger, openapiOption)
+
+  const opts = {
+    schema: {
+      headers: {
+        type: 'object',
+        required: ['referencedHeader'],
+        properties: {
+          referencedHeader: {
+            $ref: `#/components/headers/${headerToReference}`
+          }
+        }
+      },
+      body: {
+        type: 'object',
+        required: ['hello'],
+        properties: {
+          hello: {
+            type: 'string'
+          }
+        }
+      }
+    }
+  }
+
+  fastify.get('/', opts, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+
+    const openapiObject = fastify.swagger()
+    const parameters = openapiObject.paths['/'].get.parameters
+
+    t.ok(parameters)
+    t.equal(parameters.length, 1)
+
+    const headerParameter = parameters[0]
+
+    t.ok(headerParameter)
+    t.ok(headerParameter.schema)
+    t.equal(headerParameter.schema.$ref, opts.schema.headers.properties.referencedHeader.$ref)
+  })
+})
+
 module.exports = { openapiOption }
