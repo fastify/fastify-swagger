@@ -253,3 +253,22 @@ test('support default=null', async t => {
   const definedPath = api.paths['/'].get
   t.same(definedPath.responses['2XX'].default, null)
 })
+
+test('support global schema reference', async t => {
+  const schema = {
+    type: 'object',
+    properties: {
+      hello: { type: 'string' }
+    },
+    required: ['hello']
+  }
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, { openapi: true, routePrefix: '/docs', exposeRoute: true })
+  fastify.addSchema({ ...schema, $id: 'requiredUniqueSchema' })
+  fastify.get('/', { schema: { query: { $ref: 'requiredUniqueSchema' } } }, () => {})
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  const api = await Swagger.validate(swaggerObject)
+  t.same(api.components.schemas['def-0'], schema)
+})
