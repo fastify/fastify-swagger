@@ -54,7 +54,7 @@
     "fastify-static": "^4.0.0",
     "js-yaml": "^4.0.0",
     "json-schema-resolver": "^1.2.0",
-    "openapi-types": "^8.0.0"
+    "openapi-types": "^9.1.0"
   },
   "standard": {
     "ignore": [
