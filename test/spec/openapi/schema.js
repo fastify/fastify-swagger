@@ -103,6 +103,44 @@ test('support status code 204', async t => {
   t.notOk(definedPath.responses['204'].content)
 })
 
+test('support empty response body for different status than 204', async t => {
+  const opt = {
+    schema: {
+      response: {
+        204: {
+          type: 'null',
+          description: 'No Content'
+        },
+        503: {
+          type: 'null',
+          description: 'Service Unavailable'
+        }
+      }
+    }
+  }
+
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, {
+    openapi: true,
+    routePrefix: '/docs',
+    exposeRoute: true
+  })
+  fastify.get('/', opt, () => {})
+
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  const api = await Swagger.validate(swaggerObject)
+
+  const definedPath = api.paths['/'].get
+
+  t.same(definedPath.responses['204'].description, 'No Content')
+  t.notOk(definedPath.responses['204'].content)
+
+  t.same(definedPath.responses['503'].description, 'Service Unavailable')
+  t.notOk(definedPath.responses['503'].content)
+})
+
 test('support response headers', async t => {
   const opt = {
     schema: {

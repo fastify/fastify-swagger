@@ -388,9 +388,9 @@ You can decorate your own response headers by following the below example:
 ```
 Note: You need to specify `type` property when you decorate the response headers, otherwise the schema will be modified by Fastify.
 
-<a name="route.response.204"></a>
-##### Status code 204
-Status code 204 is supported by `fastify-swagger` and returns an empty body.
+<a name="route.response.empty_body"></a>
+##### Empty Body Responses
+Empty body responses are supported by `fastify-swagger`.
 Please specify `type: 'null'` for the response otherwise Fastify itself will fail to compile the schema:
 
 ```js
@@ -399,6 +399,10 @@ Please specify `type: 'null'` for the response otherwise Fastify itself will fai
     204: {
       type: 'null',
       description: 'No Content'
+    },
+    503: {
+      type: 'null',
+      description: 'Service Unavailable'
     }
   }
 }
