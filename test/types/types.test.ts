@@ -7,6 +7,7 @@ const app = fastify();
 app.register(fastifySwagger);
 app.register(fastifySwagger, {});
 app.register(fastifySwagger, { transform: (schema : any) => schema });
+app.register(fastifySwagger, { transform: async (schema : any) => schema });
 app.register(fastifySwagger, {
   mode: 'static',
   specification: {
