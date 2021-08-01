@@ -231,7 +231,9 @@ If you set `exposeRoute` to `true` the plugin will expose the documentation with
 <a name="register.options.transform"></a>
 #### Transforms
 
-To use different schemas such as [Joi](https://github.com/hapijs/joi) you can pass a synchronous `transform` method in the options to convert them back to standard JSON schemas expected by this plugin to generate the documentation (`dynamic` mode only).
+To use different schemas such as [Joi](https://github.com/hapijs/joi) you can pass a synchronous or asynchronous `transform` method in the options to convert them back to standard JSON schemas expected by this plugin to generate the documentation (`dynamic` mode only).
+
+##### Synchronous transform
 
 ```js
 const convert = require('joi-to-json')
@@ -250,6 +252,30 @@ fastify.register(require('fastify-swagger'), {
     if (params) transformed.params = convert(params)
     if (body) transformed.body = convert(body)
     if (querystring) transformed.querystring = convert(querystring)
+    return transformed
+  }
+}
+```
+
+##### Asynchronous transform
+
+```js
+const convert = require('@openapi-contrib/json-schema-to-openapi-schema')
+
+fastify.register(require('fastify-swagger'), {
+  swagger: { ... },
+  ...
+  transform: async schema => {
+    const {
+      params = undefined,
+      body = undefined,
+      querystring = undefined,
+      ...others
+    } = schema
+    const transformed = { ...others }
+    if (params) transformed.params = await convert(params)
+    if (body) transformed.body = await convert(body)
+    if (querystring) transformed.querystring = await convert(querystring)
     return transformed
   }
 }
