@@ -7,7 +7,7 @@ declare module 'fastify' {
       opts?: {
         yaml?: boolean;
       }
-    ) => OpenAPI.Document;
+    ) => OpenAPI.Document | Promise<OpenAPI.Document>;
 
     swaggerCSP: {
       script: string[];
@@ -25,7 +25,7 @@ declare module 'fastify' {
     /**
      * OpenAPI operation unique identifier
      */
-    operationId?: string;    
+    operationId?: string;
   }
 }
 
@@ -99,7 +99,7 @@ export interface FastifyDynamicSwaggerOptions extends FastifySwaggerOptions {
   /**
    * Overwrite the route schema
    */
-  transform?: Function;
+  transform?: (schema: any) => any | Promise<any>;
 }
 
 export interface StaticPathSpec {
