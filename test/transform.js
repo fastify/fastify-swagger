@@ -61,8 +61,8 @@ test('transform should work with a Function', t => {
   })
 })
 
-test('transform should work with an AsyncFunction for openapi', t => {
-  t.plan(2)
+test('transform should work with an AsyncFunction for openapi', async t => {
+  t.plan(3)
   const fastify = Fastify()
 
   fastify.register(fastifySwagger, {
@@ -73,13 +73,22 @@ test('transform should work with an AsyncFunction for openapi', t => {
   fastify.setValidatorCompiler(({ schema }) => Joi.validate(schema))
   fastify.get('/example', opts, () => {})
 
-  fastify.ready(err => {
-    t.error(err)
-    t.resolves(fastify.swagger)
-  })
+  await fastify.ready()
+  const openapiObject = await fastify.swagger()
+
+  t.ok(openapiObject.paths)
+  t.ok(openapiObject.paths['/example'])
+  t.same(openapiObject.paths['/example'].get.parameters, [
+    {
+      in: 'path',
+      name: 'property',
+      required: true,
+      schema: { type: 'string' }
+    }
+  ])
 })
 
-test('openapi should skip untagged routes', t => {
+test('openapi should skip untagged routes', async t => {
   t.plan(2)
   const fastify = Fastify()
 
@@ -92,14 +101,15 @@ test('openapi should skip untagged routes', t => {
   fastify.setValidatorCompiler(({ schema }) => Joi.validate(schema))
   fastify.get('/example', opts, () => {})
 
-  fastify.ready(err => {
-    t.error(err)
-    t.resolves(fastify.swagger)
-  })
+  await fastify.ready()
+  const openapiObject = await fastify.swagger()
+
+  t.ok(openapiObject.paths)
+  t.same(openapiObject.paths, {})
 })
 
-test('transform should work with an AsyncFunction for swagger', t => {
-  t.plan(2)
+test('transform should work with an AsyncFunction for swagger', async t => {
+  t.plan(3)
   const fastify = Fastify()
 
   fastify.register(fastifySwagger, {
@@ -110,13 +120,22 @@ test('transform should work with an AsyncFunction for swagger', t => {
   fastify.setValidatorCompiler(({ schema }) => Joi.validate(schema))
   fastify.get('/example', opts, () => {})
 
-  fastify.ready(err => {
-    t.error(err)
-    t.resolves(fastify.swagger)
-  })
+  await fastify.ready()
+  const swaggerObject = await fastify.swagger()
+
+  t.ok(swaggerObject.paths)
+  t.ok(swaggerObject.paths['/example'])
+  t.same(swaggerObject.paths['/example'].get.parameters, [
+    {
+      in: 'path',
+      name: 'property',
+      required: true,
+      type: 'string'
+    }
+  ])
 })
 
-test('async transform for swagger should skip untagged routes', t => {
+test('async transform for swagger should skip untagged routes', async t => {
   t.plan(2)
   const fastify = Fastify()
 
@@ -129,8 +148,9 @@ test('async transform for swagger should skip untagged routes', t => {
   fastify.setValidatorCompiler(({ schema }) => Joi.validate(schema))
   fastify.get('/example', opts, () => {})
 
-  fastify.ready(err => {
-    t.error(err)
-    t.resolves(fastify.swagger)
-  })
+  await fastify.ready()
+  const swaggerObject = await fastify.swagger()
+
+  t.ok(swaggerObject.paths)
+  t.same(swaggerObject.paths, {})
 })
