@@ -258,6 +258,7 @@ fastify.register(require('fastify-swagger'), {
 ```
 
 ##### Asynchronous transform
+**NOTE:** When using an async transformer, any calls of `fastify.swagger()` will need to be awaited (or chained  with `.then`) since it will return a Promise instead of just a JSON object.
 
 ```js
 const convert = require('@openapi-contrib/json-schema-to-openapi-schema')
