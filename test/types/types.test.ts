@@ -126,7 +126,8 @@ app.register(fastifySwagger, {
   uiConfig: {
     deepLinking: true,
     defaultModelsExpandDepth: -1,
-    defaultModelExpandDepth: 1
+    defaultModelExpandDepth: 1,
+    validatorUrl: null
   }
 })
 .ready((err) => {
