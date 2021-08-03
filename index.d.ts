@@ -65,6 +65,7 @@ export interface FastifySwaggerOptions {
       theme?: string
     } | false
     tryItOutEnabled: boolean
+    validatorUrl: string | null
   }>
   
   initOAuth?: Partial<{
