@@ -51,7 +51,11 @@ app.get('/public/route', {
     schema: {
       description: 'returns 200 OK',
       summary: 'qwerty',
-      security: []
+      security: [],
+      response: { 200: {} }
+    },
+    links: {
+      200: {'some-route': { operationId: 'opeId'}}
     }
   }, (req, reply) => {});
 
