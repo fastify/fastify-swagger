@@ -27,6 +27,12 @@ declare module 'fastify' {
      */
     operationId?: string;
   }
+
+  interface RouteShorthandOptions {
+    links?: {
+      [statusCode: string]: OpenAPIV3.ResponseObject['links'];
+    }
+  }
 }
 
 export const fastifySwagger: FastifyPluginCallback<SwaggerOptions>;
@@ -65,6 +71,7 @@ export interface FastifySwaggerOptions {
       theme?: string
     } | false
     tryItOutEnabled: boolean
+    validatorUrl: string | null
   }>
   
   initOAuth?: Partial<{
