@@ -74,7 +74,7 @@ test('transform should work with an AsyncFunction for openapi', async t => {
   fastify.get('/example', opts, () => {})
 
   await fastify.ready()
-  const openapiObject = await fastify.swagger()
+  const openapiObject = fastify.swagger()
 
   t.ok(openapiObject.paths)
   t.ok(openapiObject.paths['/example'])
@@ -102,7 +102,7 @@ test('openapi should skip untagged routes', async t => {
   fastify.get('/example', opts, () => {})
 
   await fastify.ready()
-  const openapiObject = await fastify.swagger()
+  const openapiObject = fastify.swagger()
 
   t.ok(openapiObject.paths)
   t.same(openapiObject.paths, {})
@@ -121,7 +121,7 @@ test('transform should work with an AsyncFunction for swagger', async t => {
   fastify.get('/example', opts, () => {})
 
   await fastify.ready()
-  const swaggerObject = await fastify.swagger()
+  const swaggerObject = fastify.swagger()
 
   t.ok(swaggerObject.paths)
   t.ok(swaggerObject.paths['/example'])
@@ -149,7 +149,7 @@ test('async transform for swagger should skip untagged routes', async t => {
   fastify.get('/example', opts, () => {})
 
   await fastify.ready()
-  const swaggerObject = await fastify.swagger()
+  const swaggerObject = fastify.swagger()
 
   t.ok(swaggerObject.paths)
   t.same(swaggerObject.paths, {})
