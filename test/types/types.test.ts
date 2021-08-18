@@ -1,8 +1,17 @@
 import fastify from 'fastify';
-import fastifySwagger, { SwaggerOptions } from '../..';
+import fastifySwagger, { SwaggerOptions, FastifySwaggerInitOAuthOptions, FastifySwaggerUiConfigOptions } from '../..';
 import { minimalOpenApiV3Document } from './minimal-openapiV3-document';
 
 const app = fastify();
+const uiConfig: FastifySwaggerUiConfigOptions = {
+  deepLinking: true,
+  defaultModelsExpandDepth: -1,
+  defaultModelExpandDepth: 1,
+  validatorUrl: null,
+};
+const initOAuth: FastifySwaggerInitOAuthOptions = {
+  scopes: ['openid', 'profile', 'email', 'offline_access'],
+};
 
 app.register(fastifySwagger);
 app.register(fastifySwagger, {});
@@ -118,21 +127,14 @@ app
         },
       },
     },
-    initOAuth: {
-      scopes: ['openid', 'profile', 'email', 'offline_access'],
-    },
+    initOAuth
   })
   .ready((err) => {
     app.swagger();
   });
 
 app.register(fastifySwagger, {
-  uiConfig: {
-    deepLinking: true,
-    defaultModelsExpandDepth: -1,
-    defaultModelExpandDepth: 1,
-    validatorUrl: null
-  }
+  uiConfig
 })
 .ready((err) => {
   app.swagger();
