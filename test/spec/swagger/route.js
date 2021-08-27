@@ -300,6 +300,45 @@ test('swagger json output should not omit enum part in params config', t => {
   })
 })
 
+test('custom verbs should not be interpreted as path params', t => {
+  t.plan(3)
+  const opts = {
+    schema: {
+      params: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' }
+        }
+      }
+    }
+  }
+
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, swaggerOption)
+  fastify.get('/resource/:id/sub-resource::watch', opts, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+    const swaggerObject = fastify.swagger()
+
+    Swagger.validate(swaggerObject)
+      .then((api) => {
+        const definedPath = api.paths['/resource/{id}/sub-resource:watch'].get
+        t.ok(definedPath)
+        t.same(definedPath.parameters, [{
+          in: 'path',
+          name: 'id',
+          type: 'string',
+          required: true
+        }])
+      })
+      .catch(err => {
+        console.log(err)
+        t.error(err)
+      })
+  })
+})
+
 test('swagger json output should not omit consume in querystring schema', async (t) => {
   t.plan(1)
   const fastify = Fastify()
