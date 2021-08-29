@@ -42,8 +42,5 @@ const plugin = fp(fastifySwagger, {
 })
 
 module.exports.default = plugin
-
-module.exports = {
-  fastifySwagger: plugin,
-  validatorCompiler
-}
+module.exports.fastifySwagger = plugin
+module.exports.validatorCompiler = validatorCompiler
