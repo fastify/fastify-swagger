@@ -122,6 +122,51 @@ fastify.ready(err => {
   fastify.swagger()
 })
 ```
+
+<a name="openapi.spec"></a>
+## OpenAPI spec (specification)
+
+There are three way to enable open api specification
+
+1) ### Project Level
+
+```js
+const fastify = require('fastify')()
+
+fastify.register(require('fastify-swagger'), {
+  customCompiler: true
+})
+```
+
+2) ### Instance Level
+
+```js
+const{ fastifySwagger, validatorCompiler } = require("fastify-swagger");
+
+fastify.setValidatorCompiler(validatorCompiler)
+```
+
+2) ### Route Level
+
+```js
+const{ fastifySwagger, validatorCompiler } = require("fastify-swagger");
+
+fastify.get(
+  '/',
+  {
+    schema: {
+      body: {
+        type: 'object',
+        properties: { file: { type: 'string', format: 'binary' } }
+      }
+    },
+    validatorCompiler
+  },
+  ( ) => {}
+)
+```
+
+
 <a name="api"></a>
 ## API
 
@@ -207,6 +252,7 @@ An example of using `fastify-swagger` with `static` mode enabled can be found [h
  | Option             | Default          | Description                                                                                                               |
  | ------------------ | ---------------- | ------------------------------------------------------------------------------------------------------------------------- |
  | exposeRoute        | false            | Exposes documentation route.                                                                                              |
+ | customCompiler        | false  | if it's `true` means fastify will support swagger open api specs (binary, byte, int32, int64) as a schema                                                                                            |
  | hiddenTag          | X-HIDDEN         | Tag to control hiding of routes.                                                                                          |
  | hideUntagged       | false            | If `true` remove routes without tags from resulting Swagger/OpenAPI schema file.                                          |
  | initOAuth          | {}               | Configuration options for [Swagger UI initOAuth](https://swagger.io/docs/open-source-tools/swagger-ui/usage/oauth2/).     |
@@ -407,6 +453,8 @@ Please specify `type: 'null'` for the response otherwise Fastify itself will fai
   }
 }
 ```
+
+
 
 <a name="route.openapi"></a>
 #### OpenAPI Parameter Options
@@ -636,6 +684,37 @@ You can integration this plugin with ```fastify-helmet``` with some little work.
   }
 })
 ```
+
+
+<a name= "route.fileupload"></a>
+### upload File Schema
+
+1) Enable open api specification (`docs available in upper`)
+
+2) FileUpload Schema
+
+```javascript
+
+async function routes(fastify, opts, next){
+  fastify.post("/upload", { 
+    schema: {
+      type: "object",
+      body: {
+        type: "object",
+        properties: {
+          file: {
+            type: "file",
+            format: "binary"
+          }
+        }
+      }
+
+  }}, ()=>{})
+}
+
+```
+
+
 
 <a name="development"></a>
 ### Development
