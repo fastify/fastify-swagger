@@ -4,7 +4,7 @@ const { test } = require('tap')
 const Fastify = require('fastify')
 const Swagger = require('swagger-parser')
 const yaml = require('js-yaml')
-const { fastifySwagger } = require('../../../index')
+const fastifySwagger = require('../../../index')
 const {
   openapiOption,
   schemaBody,

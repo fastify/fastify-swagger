@@ -3,7 +3,7 @@
 const { test } = require('tap')
 const Fastify = require('fastify')
 const Swagger = require('swagger-parser')
-const { fastifySwagger } = require('../../../index')
+const fastifySwagger = require('../../../index')
 
 test('support $ref schema', async t => {
   t.plan(1)

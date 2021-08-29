@@ -3,7 +3,7 @@
 const { test } = require('tap')
 const Fastify = require('fastify')
 const Swagger = require('swagger-parser')
-const { fastifySwagger } = require('../../../index')
+const fastifySwagger = require('../../../index')
 const { openapiOption } = require('../../../examples/options')
 
 test('support $ref schema', t => {

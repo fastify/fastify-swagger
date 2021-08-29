@@ -1,6 +1,6 @@
 import t from 'tap'
 import Fastify from 'fastify'
-import { fastifySwagger } from '../../index.js'
+import fastifySwagger from '../../index.js'
 
 t.test('esm support', async t => {
   const fastify = Fastify()

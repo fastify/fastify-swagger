@@ -4,7 +4,7 @@ const { test } = require('tap')
 const Fastify = require('fastify')
 const Swagger = require('swagger-parser')
 const yaml = require('js-yaml')
-const { fastifySwagger } = require('../../../index')
+const fastifySwagger = require('../../../index')
 const { readPackageJson } = require('../../../lib/util/common')
 const { openapiOption } = require('../../../examples/options')
 
