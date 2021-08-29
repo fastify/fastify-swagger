@@ -9,7 +9,6 @@ const swaggerOption = {
     schemes: ['http'],
     consumes: ['application/json'],
     produces: ['application/json'],
-    customCompiler: false,
     tags: [
       { name: 'tag' }
     ],
@@ -31,6 +30,7 @@ const swaggerOption = {
 }
 
 const openapiOption = {
+  customCompiler: true,
   openapi: {
     info: {
       title: 'Test swagger',

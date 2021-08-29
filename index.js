@@ -6,7 +6,11 @@ const validatorCompiler = require('./lib/validatorCompiler')
 function fastifySwagger (fastify, opts, next) {
   // enabling custom or validator complier form opts object
   const customCompiler = opts.customCompiler || null
+  console.log(customCompiler)
+
   if (customCompiler && customCompiler !== null && typeof customCompiler !== typeof undefined) {
+    console.log('custom com')
+
     fastify.setValidatorCompiler(validatorCompiler)
   }
 
