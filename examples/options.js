@@ -9,6 +9,7 @@ const swaggerOption = {
     schemes: ['http'],
     consumes: ['application/json'],
     produces: ['application/json'],
+    customCompiler: false,
     tags: [
       { name: 'tag' }
     ],

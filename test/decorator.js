@@ -2,7 +2,7 @@
 
 const { test } = require('tap')
 const Fastify = require('fastify')
-const fastifySwagger = require('../index')
+const { fastifySwagger } = require('../index')
 
 test('fastify.swagger should exist', t => {
   t.plan(2)

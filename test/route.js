@@ -5,7 +5,7 @@ const test = t.test
 const Fastify = require('fastify')
 const Swagger = require('swagger-parser')
 const yaml = require('js-yaml')
-const fastifySwagger = require('../index')
+const { fastifySwagger } = require('../index')
 const {
   schemaQuerystring,
   schemaBody,

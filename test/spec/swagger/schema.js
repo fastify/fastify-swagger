@@ -3,7 +3,7 @@
 const { test } = require('tap')
 const Fastify = require('fastify')
 const Swagger = require('swagger-parser')
-const fastifySwagger = require('../../../index')
+const { fastifySwagger } = require('../../../index')
 
 test('support file in json schema', async t => {
   const opts7 = {

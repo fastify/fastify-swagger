@@ -3,7 +3,7 @@
 const path = require('path')
 const { test } = require('tap')
 const Fastify = require('fastify')
-const fastifySwagger = require('../../index')
+const { fastifySwagger } = require('../../index')
 const fastifySwaggerDynamic = require('../../lib/mode/dynamic')
 const yaml = require('js-yaml')
 const Swagger = require('swagger-parser')
