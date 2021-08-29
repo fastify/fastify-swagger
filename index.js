@@ -3,14 +3,13 @@
 const fp = require('fastify-plugin')
 const validatorCompiler = require('./lib/validatorCompiler')
 
-function fastifySwagger(fastify, opts, next) {
-
+function fastifySwagger (fastify, opts, next) {
   // enabling custom or validator complier form opts object
-  const customCompiler = opts.customCompiler || null;
-  if(customCompiler && customCompiler !== null && typeof customCompiler !== typeof undefined){
+  const customCompiler = opts.customCompiler || null
+  if (customCompiler && customCompiler !== null && typeof customCompiler !== typeof undefined) {
     fastify.setValidatorCompiler(validatorCompiler)
   }
-  
+
   // by default the mode is dynamic, as plugin initially was developed
   opts.mode = opts.mode || 'dynamic'
 
@@ -35,10 +34,10 @@ function fastifySwagger(fastify, opts, next) {
 
 const plugin = fp(fastifySwagger, {
   fastify: '>=3.x',
-  name: 'fastify-swagger',
+  name: 'fastify-swagger'
 })
 
-module.exports.default = plugin;
+module.exports.default = plugin
 
 module.exports = {
   fastifySwagger: plugin,
