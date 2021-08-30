@@ -211,13 +211,14 @@ An example of using `fastify-swagger` with `static` mode enabled can be found [h
  | hideUntagged       | false            | If `true` remove routes without tags from resulting Swagger/OpenAPI schema file.                                          |
  | initOAuth          | {}               | Configuration options for [Swagger UI initOAuth](https://swagger.io/docs/open-source-tools/swagger-ui/usage/oauth2/).     |
  | openapi            | {}               | [OpenAPI configuration](https://swagger.io/specification/#oasObject).                                                     |
- | routePrefix        | '/documentation' | Overwrite the default Swagger UI route prefix.                                                                            |
+ | routePrefix         | '/documentation' | Overwrite the default Swagger UI route prefix.                                                                            |
  | staticCSP          | false            | Enable CSP header for static resources.                                                                                   |
  | stripBasePath      | true             | Strips base path from routes in docs.                                                                                     |
  | swagger            | {}               | [Swagger configuration](https://swagger.io/specification/v2/#swaggerObject).                                              |
  | transform          | null             | Transform method for schema.                                                                                              |
- | transformStaticCSP | undefined        | Synchronous function to transform CSP header for static resources if the header has been previously set.                  |
- | uiConfig           | {}               | Configuration options for [Swagger UI](https://github.com/swagger-api/swagger-ui/blob/master/docs/usage/configuration.md). Must be literal values, see [#5710](https://github.com/swagger-api/swagger-ui/issues/5710).|
+ | transformStaticCSP | undefined         | Synchronous function to transform CSP header for static resources if the header has been previously set.                  |
+ | uiConfig            | {}               | Configuration options for [Swagger UI](https://github.com/swagger-api/swagger-ui/blob/master/docs/usage/configuration.md). Must be literal values, see [#5710](https://github.com/swagger-api/swagger-ui/issues/5710).|
+ | refResolver        | {}               | Option to manage the `$ref`s of your application's schemas. Read the [`$ref` documentation](#register.options.refResolver) |
 
 If you set `exposeRoute` to `true` the plugin will expose the documentation with the following APIs:
 
@@ -254,6 +255,32 @@ fastify.register(require('fastify-swagger'), {
   }
 }
 ```
+
+<a name="register.options.refResolver"></a>
+#### Managing your `$ref`s
+
+When this plugin is configured as `dynamic` mode, it will resolve all `$ref`s in your application's schemas.
+This process will create an new in-line schema that is going to reference itself.
+
+This logic stap it is done to make sure that the generated documentation is valid, otherwise the Swagger UI will try to fetch the schemas from the server or the network and fail.
+
+By default, this option will resolve all `$ref`s renaming them to `def-${counter}`, but your view models keep the original `$id` naming thanks to the [`title` parameter](https://swagger.io/docs/specification/2-0/basic-structure/#metadata).
+
+To customize this logic you can pass a `refResolver` option to the plugin:
+
+```js
+fastify.register(require('fastify-swagger'), {
+  swagger: { ... },
+  ...
+  refResolver: {
+    buildLocalReference (json, baseUri, fragment, i) {
+      return `my-fragment-${i}`
+    }
+  }
+}
+```
+
+To deep down the `buildLocalReference` arguments, you may read the [documentation](https://github.com/Eomm/json-schema-resolver#usage-resolve-one-schema-against-external-schemas).
 
 <a name="route.options"></a>
 ### Route options
@@ -637,8 +664,7 @@ You can integration this plugin with ```fastify-helmet``` with some little work.
 })
 ```
 
-<a name="development"></a>
-### Development
+## Development
 In order to start development run:
 ```
 npm i
@@ -647,11 +673,14 @@ npm run prepare
 
 So that [swagger-ui](https://github.com/swagger-api/swagger-ui) static folder will be generated for you.
 
-#### How it works under the hood
+### How it works under the hood
 
 `fastify-static` serves `swagger-ui` static files, then calls `/docs/json` to get the Swagger file and render it.
 
-<a name="acknowledgements"></a>
+#### How to work with $refs
+
+The `/docs/json` endpoint in dynamic mode produces a single `swagger.json` file resolving all your
+
 ## Acknowledgements
 
 This project is kindly sponsored by:
