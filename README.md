@@ -262,7 +262,7 @@ fastify.register(require('fastify-swagger'), {
 When this plugin is configured as `dynamic` mode, it will resolve all `$ref`s in your application's schemas.
 This process will create an new in-line schema that is going to reference itself.
 
-This logic stap it is done to make sure that the generated documentation is valid, otherwise the Swagger UI will try to fetch the schemas from the server or the network and fail.
+This logic step is done to make sure that the generated documentation is valid, otherwise the Swagger UI will try to fetch the schemas from the server or the network and fail.
 
 By default, this option will resolve all `$ref`s renaming them to `def-${counter}`, but your view models keep the original `$id` naming thanks to the [`title` parameter](https://swagger.io/docs/specification/2-0/basic-structure/#metadata).
 
@@ -274,7 +274,7 @@ fastify.register(require('fastify-swagger'), {
   ...
   refResolver: {
     buildLocalReference (json, baseUri, fragment, i) {
-      return `my-fragment-${i}`
+      return json.$id || `my-fragment-${i}`
     }
   }
 }
@@ -663,6 +663,10 @@ You can integration this plugin with ```fastify-helmet``` with some little work.
   }
 })
 ```
+
+<a name="usage"></a>
+## `$id` and `$ref` usage
+
 
 ## Development
 In order to start development run:
