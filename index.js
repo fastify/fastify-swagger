@@ -8,7 +8,7 @@ function fastifySwagger (fastify, opts, next) {
   const customCompiler = opts.customCompiler || null
   console.log(customCompiler)
 
-  if (customCompiler && customCompiler !== null && typeof customCompiler !== typeof undefined) {
+  if (customCompiler) {
     console.log('custom com')
 
     fastify.setValidatorCompiler(validatorCompiler)
