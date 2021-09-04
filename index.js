@@ -1,16 +1,12 @@
 'use strict'
 
 const fp = require('fastify-plugin')
-const validatorCompiler = require('./lib/validatorCompiler')
+const { validatorCompiler } = require('./lib/validatorCompiler')
 
 function fastifySwagger (fastify, opts, next) {
   // enabling custom or validator complier form opts object
   const customCompiler = opts.customCompiler || null
-  console.log(customCompiler)
-
   if (customCompiler) {
-    console.log('custom com')
-
     fastify.setValidatorCompiler(validatorCompiler)
   }
 
@@ -41,6 +37,5 @@ const plugin = fp(fastifySwagger, {
   name: 'fastify-swagger'
 })
 
-module.exports.default = plugin
-module.exports.fastifySwagger = plugin
+module.exports = plugin
 module.exports.validatorCompiler = validatorCompiler
