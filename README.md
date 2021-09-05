@@ -123,8 +123,8 @@ fastify.ready(err => {
 })
 ```
 
-<a name="openapi.spec"></a>
-## OpenAPI spec (specification)
+<a name="openapi.validation"></a>
+## OpenAPI validation formats
 
 There are three way to enable open api specification
 
@@ -689,7 +689,7 @@ You can integration this plugin with ```fastify-helmet``` with some little work.
 <a name= "route.fileupload"></a>
 ### upload File Schema
 
-1) Enable open api specification (`docs available in upper`)
+1) Enable open api validation formats (`docs available in upper`)
 
 2) FileUpload Schema
 

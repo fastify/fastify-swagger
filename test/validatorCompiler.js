@@ -2,7 +2,7 @@ const {
   test
 } = require('tap')
 const Fastify = require('fastify')
-// const Swagger = require('openapi-schema-validator')
+// const Swagger = require('swagger-parser')
 const {
   openapiOption
 } = require('../examples/options')
@@ -18,32 +18,6 @@ test('validator compiler is function', t => {
   t.type(validatorCompiler, 'function')
   t.ok('passed validator compiler is function')
   t.end()
-})
-
-test('validator compiler working', t => {
-  const fastify = Fastify()
-  fastify.register(fastifySwagger, openapiOption)
-  fastify.post('/', {
-    schema: {
-      type: 'object',
-      consumes: ['multipart/form-data'],
-      body: {
-        type: 'object',
-        properties: {
-          upload: {
-            type: 'file',
-            format: 'binary'
-          }
-        }
-      }
-    }
-
-  }, () => {})
-
-  fastify.ready(err => {
-    t.error(err)
-    t.end()
-  })
 })
 
 test('binary validation', t => {
@@ -101,4 +75,41 @@ test('int 64 bit validation', t => {
     t.fail()
   }
   t.end()
+})
+
+test('validator compiler working', t => {
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, openapiOption)
+  fastify.post('/', {
+    schema: {
+      type: 'object',
+      consumes: ['multipart/form-data'],
+      body: {
+        type: 'object',
+        properties: {
+          upload: {
+            type: 'file',
+            format: 'binary'
+          }
+        }
+      }
+    }
+
+  }, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+    t.end()
+  })
+
+  // fastify.inject({
+  //   method: 'POST',
+  //   url: '/'
+  // }, (err, res) => {
+  //   t.error(err)
+  //   t.equal(res.statusCode, 200)
+  //   t.ok()
+  //   // const payload = JSON.parse(res.payload)
+  // })
+  // t.end()
 })
