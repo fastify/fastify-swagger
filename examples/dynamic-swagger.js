@@ -25,31 +25,37 @@ fastify.register(require('../index'), {
   exposeRoute: true
 })
 
+fastify.addSchema({
+  $id: 'user',
+  type: 'object',
+  properties: {
+    id: {
+      type: 'string',
+      description: 'user id'
+    }
+  }
+})
+
+fastify.addSchema({
+  $id: 'some',
+  type: 'object',
+  properties: {
+    some: { type: 'string' }
+  }
+})
+
 fastify.put('/some-route/:id', {
   schema: {
     description: 'post some data',
     tags: ['user', 'code'],
     summary: 'qwerty',
     security: [{ apiKey: [] }],
-    params: {
-      type: 'object',
-      properties: {
-        id: {
-          type: 'string',
-          description: 'user id'
-        }
-      }
-    },
+    params: { $ref: 'user#' },
     body: {
       type: 'object',
       properties: {
         hello: { type: 'string' },
-        obj: {
-          type: 'object',
-          properties: {
-            some: { type: 'string' }
-          }
-        }
+        obj: { $ref: 'some#' }
       }
     },
     response: {
@@ -69,25 +75,12 @@ fastify.post('/some-route/:id', {
     description: 'post some data',
     summary: 'qwerty',
     security: [{ apiKey: [] }],
-    params: {
-      type: 'object',
-      properties: {
-        id: {
-          type: 'string',
-          description: 'user id'
-        }
-      }
-    },
+    params: { $ref: 'user#' },
     body: {
       type: 'object',
       properties: {
         hello: { type: 'string' },
-        obj: {
-          type: 'object',
-          properties: {
-            some: { type: 'string' }
-          }
-        }
+        obj: { $ref: 'some#' }
       }
     },
     response: {
