@@ -107,6 +107,13 @@ fastify.put('/some-route/:id', {
         properties: {
           hello: { type: 'string' }
         }
+      },
+      default: {
+        description: 'Default response',
+        type: 'object',
+        properties: {
+          foo: { type: 'string' }
+        }
       }
     },
     security: [
@@ -377,7 +384,7 @@ Example:
 {
   response: {
     '2xx': {
-      description: '2xx'
+      description: '2xx',
       type: 'object'
     }
   }
@@ -388,7 +395,7 @@ Example:
   response: {
     200: {
       schema: {
-        description: '2xx'
+        description: '2xx',
         type: 'object'
       }
     }

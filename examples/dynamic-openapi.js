@@ -60,6 +60,13 @@ fastify.put('/some-route/:id', {
         properties: {
           hello: { type: 'string' }
         }
+      },
+      default: {
+        description: 'Default response',
+        type: 'object',
+        properties: {
+          foo: { type: 'string' }
+        }
       }
     }
   }
