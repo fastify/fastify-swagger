@@ -126,7 +126,7 @@ fastify.ready(err => {
 <a name="openapi.validation"></a>
 ## OpenAPI validation formats
 
-There are three way to enable open api specification
+There are three way to enable the use of OpenAPI validation formats:
 
 1) ### Project Level
 
