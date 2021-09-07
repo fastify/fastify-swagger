@@ -252,7 +252,7 @@ An example of using `fastify-swagger` with `static` mode enabled can be found [h
  | Option             | Default          | Description                                                                                                               |
  | ------------------ | ---------------- | ------------------------------------------------------------------------------------------------------------------------- |
  | exposeRoute        | false            | Exposes documentation route.                                                                                              |
- | customCompiler        | false  | if it's `true` means fastify will support swagger open api specs (binary, byte, int32, int64) as a schema                                                                                            |
+ | customCompiler        | false  | If  `true` enable OpenAPI validation formats (binary, byte, int32, int64) as a schema                                                                                            |
  | hiddenTag          | X-HIDDEN         | Tag to control hiding of routes.                                                                                          |
  | hideUntagged       | false            | If `true` remove routes without tags from resulting Swagger/OpenAPI schema file.                                          |
  | initOAuth          | {}               | Configuration options for [Swagger UI initOAuth](https://swagger.io/docs/open-source-tools/swagger-ui/usage/oauth2/).     |
