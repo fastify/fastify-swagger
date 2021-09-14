@@ -69,6 +69,10 @@ fastify.register(require('fastify-swagger'), {
     docExpansion: 'full',
     deepLinking: false
   },
+  uiHooks: {
+    onRequest: function (request, reply, next) { next() },
+    preHandler: function (request, reply, next) { next() }
+  },
   staticCSP: true,
   transformStaticCSP: (header) => header,
   exposeRoute: true
@@ -225,6 +229,7 @@ An example of using `fastify-swagger` with `static` mode enabled can be found [h
  | transform          | null             | Transform method for schema.                                                                                              |
  | transformStaticCSP | undefined         | Synchronous function to transform CSP header for static resources if the header has been previously set.                  |
  | uiConfig            | {}               | Configuration options for [Swagger UI](https://github.com/swagger-api/swagger-ui/blob/master/docs/usage/configuration.md). Must be literal values, see [#5710](https://github.com/swagger-api/swagger-ui/issues/5710).|
+ | uiHooks            | {}               | Additional hooks for the documentation's routes. You can provide the `onRequest` and `preHandler` hooks with the same [route's options](https://www.fastify.io/docs/latest/Routes/#options) interface.|
  | refResolver        | {}               | Option to manage the `$ref`s of your application's schemas. Read the [`$ref` documentation](#register.options.refResolver) |
 
 If you set `exposeRoute` to `true` the plugin will expose the documentation with the following APIs:
@@ -641,6 +646,32 @@ fastify.get('/user/:id/address', {
 There are two ways to hide a route from the Swagger UI:
 - Pass `{ hide: true }` to the schema object inside the route declaration.
 - Use the tag declared in `hiddenTag` options property inside the route declaration. Default is `X-HIDDEN`.
+
+<a name="route.uiHooks"></a>
+#### Protect your documentation routes
+
+You can protect your documentation configuring an authentication hook.
+Here is an example with the [`fastify-basic-auth`](https://github.com/fastify/fastify-basic-auth) plugin:
+
+```js
+await fastify.register(require('fastify-basic-auth'), {
+  validate (username, password, req, reply, done) {
+    if (username === 'admin' && password === 'admin') {
+      done()
+    } else {
+      done(new Error('You can not access'))
+    }
+  },
+  authenticate: true
+})
+
+fastify.register(fastifySwagger, {
+  exposeRoute: true,
+  uiHooks: {
+    onRequest: fastify.basicAuth
+  }
+})
+```
 
 <a name="function.options"></a>
 ### Swagger function options
