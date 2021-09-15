@@ -651,7 +651,7 @@ There are two ways to hide a route from the Swagger UI:
 #### Protect your documentation routes
 
 You can protect your documentation by configuring an authentication hook.
-Here is an example using [`fastify-basic-auth`](https://github.com/fastify/fastify-basic-auth) plugin:
+Here is an example using the [`fastify-basic-auth`](https://github.com/fastify/fastify-basic-auth) plugin:
 
 ```js
 await fastify.register(require('fastify-basic-auth'), {
