@@ -40,7 +40,7 @@
     "fastify-helmet": "^5.0.3",
     "fs-extra": "^10.0.0",
     "joi": "^14.3.1",
-    "joi-to-json": "^1.2.0",
+    "joi-to-json": "^2.0.0",
     "pre-commit": "^1.2.2",
     "qs": "^6.5.2",
     "standard": "^16.0.1",
