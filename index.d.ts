@@ -21,11 +21,12 @@ declare module 'fastify' {
     description?: string;
     summary?: string;
     consumes?: string[];
+    produces?: string[];
     security?: Array<{ [securityLabel: string]: string[] }>;
     /**
      * OpenAPI operation unique identifier
      */
-    operationId?: string;    
+    operationId?: string;
   }
 
   interface RouteShorthandOptions {
@@ -36,7 +37,7 @@ declare module 'fastify' {
 }
 
 export const fastifySwagger: FastifyPluginCallback<SwaggerOptions>;
- 
+
 export type SwaggerOptions = (FastifyStaticSwaggerOptions | FastifyDynamicSwaggerOptions);
 export interface FastifySwaggerOptions {
   mode?: 'static' | 'dynamic';
