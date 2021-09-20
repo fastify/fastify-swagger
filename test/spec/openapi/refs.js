@@ -54,7 +54,7 @@ test('support nested $ref schema', (t) => {
     t.match(Object.keys(openapiObject.components.schemas), ['def-0', 'def-1'])
 
     // OrderItem ref is not prefixed by '#/components/schemas/'
-    t.equal(openapiObject.components.schemas['def-1'].properties.products.items.$ref, '#/components/schemas/OrderItem')
+    t.equal(openapiObject.components.schemas['def-1'].properties.products.items.$ref, '#/components/schemas/def-0')
 
     // open api validation failed
     // ENOENT: no such file or directory ${cwd}/OrderItem
