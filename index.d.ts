@@ -1,4 +1,4 @@
-import { FastifyPluginCallback, onRequestHookHandler, preHandlerHookHandler } from 'fastify'
+import { FastifyPluginCallback, onRequestHookHandler, preHandlerHookHandler } from 'fastify';
 import { OpenAPI, OpenAPIV2, OpenAPIV3 } from 'openapi-types';
 
 declare module 'fastify' {
@@ -63,7 +63,7 @@ export interface FastifySwaggerOptions {
   /**
    * route hooks
    */
-  uiHooks: {
+  uiHooks?: {
     onRequest?: onRequestHookHandler,
     preHandler?: preHandlerHookHandler,
   }
