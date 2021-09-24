@@ -1,5 +1,10 @@
 import fastify from 'fastify';
-import fastifySwagger, { SwaggerOptions, FastifySwaggerInitOAuthOptions, FastifySwaggerUiConfigOptions } from '../..';
+import fastifySwagger, {
+  SwaggerOptions,
+  FastifySwaggerInitOAuthOptions,
+  FastifySwaggerUiConfigOptions,
+  FastifySwaggerUiHooksOptions,
+} from "../.."
 import { minimalOpenApiV3Document } from './minimal-openapiV3-document';
 
 const app = fastify();
@@ -12,6 +17,10 @@ const uiConfig: FastifySwaggerUiConfigOptions = {
 const initOAuth: FastifySwaggerInitOAuthOptions = {
   scopes: ['openid', 'profile', 'email', 'offline_access'],
 };
+const uiHooks: FastifySwaggerUiHooksOptions = {
+  onRequest: (request, reply, done) => {done()},
+  preHandler: (request, reply, done) => {done()},
+}
 
 app.register(fastifySwagger);
 app.register(fastifySwagger, {});
@@ -169,6 +178,13 @@ app.register(fastifySwagger, {
   transformStaticCSP(header) {
     return header
   }
+})
+.ready((err) => {
+  app.swagger();
+})
+
+app.register(fastifySwagger, {
+  uiHooks,
 })
 .ready((err) => {
   app.swagger();

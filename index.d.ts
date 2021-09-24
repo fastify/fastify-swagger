@@ -1,4 +1,4 @@
-import { FastifyPluginCallback } from 'fastify';
+import { FastifyPluginCallback, onRequestHookHandler, preHandlerHookHandler } from 'fastify';
 import { OpenAPI, OpenAPIV2, OpenAPIV3 } from 'openapi-types';
 
 declare module 'fastify' {
@@ -25,7 +25,7 @@ declare module 'fastify' {
     /**
      * OpenAPI operation unique identifier
      */
-    operationId?: string;    
+    operationId?: string;
   }
 
   interface RouteShorthandOptions {
@@ -36,7 +36,7 @@ declare module 'fastify' {
 }
 
 export const fastifySwagger: FastifyPluginCallback<SwaggerOptions>;
- 
+
 export type SwaggerOptions = (FastifyStaticSwaggerOptions | FastifyDynamicSwaggerOptions);
 export interface FastifySwaggerOptions {
   mode?: 'static' | 'dynamic';
@@ -60,6 +60,10 @@ export interface FastifySwaggerOptions {
    */
   staticCSP?: boolean | string | Record<string, string | string[]>
   transformStaticCSP?: (header: string) => string
+  /**
+   * route hooks
+   */
+  uiHooks?: FastifySwaggerUiHooksOptions
 }
 
 export type FastifySwaggerUiConfigOptions = Partial<{
@@ -126,5 +130,10 @@ export interface FastifyStaticSwaggerOptions extends FastifySwaggerOptions {
   mode: 'static';
   specification: StaticPathSpec | StaticDocumentSpec;
 }
+
+export type FastifySwaggerUiHooksOptions = Partial<{
+  onRequest?: onRequestHookHandler,
+  preHandler?: preHandlerHookHandler,
+}>
 
 export default fastifySwagger;
