@@ -63,10 +63,7 @@ export interface FastifySwaggerOptions {
   /**
    * route hooks
    */
-  uiHooks?: {
-    onRequest?: onRequestHookHandler,
-    preHandler?: preHandlerHookHandler,
-  }
+  uiHooks?: FastifySwaggerUiHooksOptions
 }
 
 export type FastifySwaggerUiConfigOptions = Partial<{
@@ -133,5 +130,10 @@ export interface FastifyStaticSwaggerOptions extends FastifySwaggerOptions {
   mode: 'static';
   specification: StaticPathSpec | StaticDocumentSpec;
 }
+
+export type FastifySwaggerUiHooksOptions = Partial<{
+  onRequest?: onRequestHookHandler,
+  preHandler?: preHandlerHookHandler,
+}>
 
 export default fastifySwagger;
