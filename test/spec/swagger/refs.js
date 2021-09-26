@@ -64,3 +64,70 @@ test('support $ref schema', async t => {
   await Swagger.validate(res.json())
   t.pass('valid swagger object')
 })
+
+test('support nested $ref schema : complex case', async (t) => {
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, {
+    refResolver: {
+      buildLocalReference (json) {
+        return json.$id
+      }
+    }
+  })
+  fastify.register(async (instance) => {
+    instance.addSchema({ $id: 'schemaA', type: 'object', properties: { id: { type: 'integer' } } })
+    instance.addSchema({ $id: 'schemaB', type: 'object', properties: { id: { type: 'string' } } })
+    instance.addSchema({ $id: 'schemaC', type: 'object', properties: { a: { type: 'array', items: { $ref: 'schemaA' } } } })
+    instance.addSchema({ $id: 'schemaD', type: 'object', properties: { b: { $ref: 'schemaB' }, c: { $ref: 'schemaC' } } })
+    instance.post('/url1', { schema: { body: { $ref: 'schemaD' }, response: { 200: { $ref: 'schemaB' } } } }, () => {})
+    instance.post('/url2', { schema: { body: { $ref: 'schemaC' }, response: { 200: { $ref: 'schemaA' } } } }, () => {})
+  })
+
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  t.equal(typeof swaggerObject, 'object')
+
+  const definitions = swaggerObject.definitions
+
+  t.match(Object.keys(definitions), ['schemaA', 'schemaB', 'schemaC', 'schemaD'])
+
+  // ref must be prefixed by '#/definitions/'
+  t.equal(definitions.schemaC.properties.a.items.$ref, '#/definitions/schemaA')
+  t.equal(definitions.schemaD.properties.b.$ref, '#/definitions/schemaB')
+  t.equal(definitions.schemaD.properties.c.$ref, '#/definitions/schemaC')
+
+  await Swagger.validate(swaggerObject)
+})
+
+test('support nested $ref schema : complex case without modifying buildLocalReference', async (t) => {
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, {
+    routePrefix: '/docs',
+    exposeRoute: true
+  })
+  fastify.register(async (instance) => {
+    instance.addSchema({ $id: 'schemaA', type: 'object', properties: { id: { type: 'integer' } } })
+    instance.addSchema({ $id: 'schemaB', type: 'object', properties: { id: { type: 'string' } } })
+    instance.addSchema({ $id: 'schemaC', type: 'object', properties: { a: { type: 'array', items: { $ref: 'schemaA' } } } })
+    instance.addSchema({ $id: 'schemaD', type: 'object', properties: { b: { $ref: 'schemaB' }, c: { $ref: 'schemaC' } } })
+    instance.post('/url1', { schema: { body: { $ref: 'schemaD' }, response: { 200: { $ref: 'schemaB' } } } }, () => {})
+    instance.post('/url2', { schema: { body: { $ref: 'schemaC' }, response: { 200: { $ref: 'schemaA' } } } }, () => {})
+  })
+
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  t.equal(typeof swaggerObject, 'object')
+
+  const definitions = swaggerObject.definitions
+
+  t.match(Object.keys(definitions), ['def-0', 'def-1', 'def-2', 'def-3'])
+
+  // ref must be prefixed by '#/definitions/'
+  t.equal(definitions['def-2'].properties.a.items.$ref, '#/definitions/schemaA')
+  t.equal(definitions['def-3'].properties.b.$ref, '#/definitions/schemaB')
+  t.equal(definitions['def-3'].properties.c.$ref, '#/definitions/schemaC')
+
+  await Swagger.validate(swaggerObject)
+})
