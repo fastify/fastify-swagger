@@ -84,3 +84,22 @@ test('support nested $ref schema : complex case', async (t) => {
 
   await Swagger.validate(openapiObject)
 })
+
+test('support $ref schema', async (t) => {
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, openapiOption)
+  fastify.register(function (instance, _, done) {
+    instance.addSchema({ $id: 'order', type: 'string', enum: ['foo'] })
+    instance.post('/', { schema: { response: { 200: { type: 'object', properties: { order: { $ref: 'order' } } } } } }, () => {})
+
+    done()
+  })
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+  t.equal(typeof openapiObject, 'object')
+
+  await Swagger.validate(openapiObject)
+})
