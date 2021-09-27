@@ -103,3 +103,31 @@ test('support $ref in response schema', async (t) => {
 
   await Swagger.validate(openapiObject)
 })
+
+test('support nested $ref schema : complex case without modifying buildLocalReference', async (t) => {
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, { openapi: {} })
+  fastify.register(async (instance) => {
+    instance.addSchema({ $id: 'schemaA', type: 'object', properties: { id: { type: 'integer' } } })
+    instance.addSchema({ $id: 'schemaB', type: 'object', properties: { id: { type: 'string' } } })
+    instance.addSchema({ $id: 'schemaC', type: 'object', properties: { a: { type: 'array', items: { $ref: 'schemaA' } } } })
+    instance.addSchema({ $id: 'schemaD', type: 'object', properties: { b: { $ref: 'schemaB' }, c: { $ref: 'schemaC' } } })
+    instance.post('/url1', { schema: { body: { $ref: 'schemaD' }, response: { 200: { $ref: 'schemaB' } } } }, () => {})
+    instance.post('/url2', { schema: { body: { $ref: 'schemaC' }, response: { 200: { $ref: 'schemaA' } } } }, () => {})
+  })
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+  t.equal(typeof openapiObject, 'object')
+
+  const schemas = openapiObject.components.schemas
+  t.match(Object.keys(schemas), ['def-0', 'def-1', 'def-2', 'def-3'])
+
+  // ref must be prefixed by '#/components/schemas/'
+  t.equal(schemas['def-2'].properties.a.items.$ref, '#/components/schemas/def-0')
+  t.equal(schemas['def-3'].properties.b.$ref, '#/components/schemas/def-1')
+  t.equal(schemas['def-3'].properties.c.$ref, '#/components/schemas/def-2')
+
+  await Swagger.validate(openapiObject)
+})
