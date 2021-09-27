@@ -85,7 +85,7 @@ test('support nested $ref schema : complex case', async (t) => {
   await Swagger.validate(openapiObject)
 })
 
-test('support $ref schema', async (t) => {
+test('support $ref in response schema', async (t) => {
   const fastify = Fastify()
 
   fastify.register(fastifySwagger, openapiOption)
