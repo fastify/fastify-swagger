@@ -4,6 +4,7 @@ const { test } = require('tap')
 const Fastify = require('fastify')
 const Swagger = require('swagger-parser')
 const fastifySwagger = require('../../../index')
+const S = require('fluent-json-schema')
 
 test('support file in json schema', async t => {
   const opts7 = {
@@ -387,4 +388,30 @@ test('support "default" parameter', async t => {
       }
     }
   })
+})
+
+test('fluent-json-schema', async t => {
+  const opt = {
+    schema: {
+      response: {
+        200: S.object()
+      }
+    }
+  }
+
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, {
+    swagger: true,
+    routePrefix: '/docs',
+    exposeRoute: true
+  })
+  fastify.get('/', opt, () => {})
+
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  const api = await Swagger.validate(swaggerObject)
+
+  const definedPath = api.paths['/'].get
+  t.same(definedPath.responses['200'].description, 'Default Response')
 })
