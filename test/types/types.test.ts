@@ -65,6 +65,24 @@ app.put('/some-route/:id', {
     }
   }, (req, reply) => {});
 
+app.put('/image.png', {
+  schema: {
+    description: 'returns an image',
+    summary: 'qwerty',
+    consumes: ['application/json', 'multipart/form-data'],
+    produces: ['image/png'],
+    response: {
+      200: {
+        type: 'string',
+        format: 'binary'
+      }
+    }
+  }
+}, async (req, reply) => { reply
+    .type('image/png')
+    .send(Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAIAAAACDbGyAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAEnQAABJ0Ad5mH3gAAAAgSURBVBhXY/iPCkB8BgYkEiSIBICiCCEoB0SBwf///wGHRzXLSklJLQAAAABJRU5ErkJggg==', 'base64'));
+});
+
 app.get('/public/route', {
     schema: {
       description: 'returns 200 OK',
