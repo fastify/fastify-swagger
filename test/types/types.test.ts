@@ -8,6 +8,7 @@ const uiConfig: FastifySwaggerUiConfigOptions = {
   defaultModelsExpandDepth: -1,
   defaultModelExpandDepth: 1,
   validatorUrl: null,
+  layout: 'BaseLayout',
 };
 const initOAuth: FastifySwaggerInitOAuthOptions = {
   scopes: ['openid', 'profile', 'email', 'offline_access'],
