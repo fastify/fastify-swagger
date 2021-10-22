@@ -449,3 +449,164 @@ test('swagger should not support Links', t => {
     t.throws(() => fastify.swagger(), new Error('Swagger (Open API v2) does not support Links. Upgrade to OpenAPI v3 (see fastify-swagger readme)'))
   })
 })
+
+test('security headers ignored when declared in security and securityScheme', t => {
+  t.plan(7)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, swaggerOption)
+
+  fastify.get('/address1/:id', {
+    schema: {
+      params: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' }
+        }
+      },
+      headers: {
+        type: 'object',
+        properties: {
+          apiKey: {
+            type: 'string',
+            description: 'api token'
+          },
+          somethingElse: {
+            type: 'string',
+            description: 'common field'
+          }
+        }
+      }
+    }
+  }, () => {})
+
+  fastify.get('/address2/:id', {
+    schema: {
+      params: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' }
+        }
+      },
+      headers: {
+        type: 'object',
+        properties: {
+          authKey: {
+            type: 'string',
+            description: 'auth token'
+          },
+          somethingElse: {
+            type: 'string',
+            description: 'common field'
+          }
+        }
+      }
+    }
+  }, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+
+    const swaggerObject = fastify.swagger()
+    t.equal(typeof swaggerObject, 'object')
+
+    Swagger.validate(swaggerObject)
+      .then(function (api) {
+        t.pass('valid swagger object')
+        t.ok(api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'id')))
+        t.ok(api.paths['/address2/{id}'].get.parameters.find(({ name }) => (name === 'id')))
+        t.notOk(api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'apiKey')))
+        t.ok(api.paths['/address2/{id}'].get.parameters.find(({ name }) => (name === 'authKey')))
+      })
+      .catch(function (err) {
+        t.error(err)
+      })
+  })
+})
+
+test('security querystrings ignored when declared in security and securityScheme', t => {
+  t.plan(7)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, {
+    swagger: {
+      securityDefinitions: {
+        apiKey: {
+          type: 'apiKey',
+          name: 'apiKey',
+          in: 'query'
+        }
+      },
+      security: [{
+        apiKey: []
+      }]
+    }
+  })
+
+  fastify.get('/address1/:id', {
+    schema: {
+      params: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' }
+        }
+      },
+      querystring: {
+        type: 'object',
+        properties: {
+          apiKey: {
+            type: 'string',
+            description: 'api token'
+          },
+          somethingElse: {
+            type: 'string',
+            description: 'common field'
+          }
+        }
+      }
+    }
+  }, () => {})
+
+  fastify.get('/address2/:id', {
+    schema: {
+      params: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' }
+        }
+      },
+      querystring: {
+        type: 'object',
+        properties: {
+          authKey: {
+            type: 'string',
+            description: 'auth token'
+          },
+          somethingElse: {
+            type: 'string',
+            description: 'common field'
+          }
+        }
+      }
+    }
+  }, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+
+    const swaggerObject = fastify.swagger()
+    t.equal(typeof swaggerObject, 'object')
+
+    Swagger.validate(swaggerObject)
+      .then(function (api) {
+        t.pass('valid swagger object')
+        t.ok(api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'somethingElse')))
+        t.ok(api.paths['/address2/{id}'].get.parameters.find(({ name }) => (name === 'somethingElse')))
+        t.notOk(api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'apiKey')))
+        t.ok(api.paths['/address2/{id}'].get.parameters.find(({ name }) => (name === 'authKey')))
+      })
+      .catch(function (err) {
+        t.error(err)
+      })
+  })
+})
