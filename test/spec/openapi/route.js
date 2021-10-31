@@ -696,3 +696,219 @@ test('links without status code', t => {
     t.throws(() => fastify.swagger(), new Error('missing status code 201 in route /user/:id'))
   })
 })
+
+test('security headers ignored when declared in security and securityScheme', t => {
+  t.plan(7)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, openapiOption)
+
+  fastify.get('/address1/:id', {
+    schema: {
+      headers: {
+        type: 'object',
+        properties: {
+          apiKey: {
+            type: 'string',
+            description: 'api token'
+          },
+          id: {
+            type: 'string',
+            description: 'common field'
+          }
+        }
+      }
+    }
+  }, () => {})
+
+  fastify.get('/address2/:id', {
+    schema: {
+      headers: {
+        type: 'object',
+        properties: {
+          authKey: {
+            type: 'string',
+            description: 'auth token'
+          },
+          id: {
+            type: 'string',
+            description: 'common field'
+          }
+        }
+      }
+    }
+  }, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+
+    const openapiObject = fastify.swagger()
+    t.equal(typeof openapiObject, 'object')
+
+    Swagger.validate(openapiObject)
+      .then(function (api) {
+        t.pass('valid swagger object')
+        t.ok(api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'id')))
+        t.ok(api.paths['/address2/{id}'].get.parameters.find(({ name }) => (name === 'id')))
+        t.notOk(api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'apiKey')))
+        t.ok(api.paths['/address2/{id}'].get.parameters.find(({ name }) => (name === 'authKey')))
+      })
+      .catch(function (err) {
+        t.error(err)
+      })
+  })
+})
+
+test('security querystrings ignored when declared in security and securityScheme', t => {
+  t.plan(7)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, {
+    openapi: {
+      components: {
+        securitySchemes: {
+          apiKey: {
+            type: 'apiKey',
+            name: 'apiKey',
+            in: 'query'
+          }
+        }
+      },
+      security: [{
+        apiKey: []
+      }]
+    }
+  })
+
+  fastify.get('/address1/:id', {
+    schema: {
+      querystring: {
+        type: 'object',
+        properties: {
+          apiKey: {
+            type: 'string',
+            description: 'api token'
+          },
+          id: {
+            type: 'string',
+            description: 'common field'
+          }
+        }
+      }
+    }
+  }, () => {})
+
+  fastify.get('/address2/:id', {
+    schema: {
+      querystring: {
+        type: 'object',
+        properties: {
+          authKey: {
+            type: 'string',
+            description: 'auth token'
+          },
+          id: {
+            type: 'string',
+            description: 'common field'
+          }
+        }
+      }
+    }
+  }, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+
+    const openapiObject = fastify.swagger()
+    t.equal(typeof openapiObject, 'object')
+
+    Swagger.validate(openapiObject)
+      .then(function (api) {
+        t.pass('valid swagger object')
+        t.ok(api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'id')))
+        t.ok(api.paths['/address2/{id}'].get.parameters.find(({ name }) => (name === 'id')))
+        t.notOk(api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'apiKey')))
+        t.ok(api.paths['/address2/{id}'].get.parameters.find(({ name }) => (name === 'authKey')))
+      })
+      .catch(function (err) {
+        t.error(err)
+      })
+  })
+})
+
+test('security cookies ignored when declared in security and securityScheme', t => {
+  t.plan(7)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, {
+    openapi: {
+      components: {
+        securitySchemes: {
+          apiKey: {
+            type: 'apiKey',
+            name: 'apiKey',
+            in: 'cookie'
+          }
+        }
+      },
+      security: [{
+        apiKey: []
+      }]
+    }
+  })
+
+  fastify.get('/address1/:id', {
+    schema: {
+      cookies: {
+        type: 'object',
+        properties: {
+          apiKey: {
+            type: 'string',
+            description: 'api token'
+          },
+          id: {
+            type: 'string',
+            description: 'common field'
+          }
+        }
+      }
+    }
+  }, () => {})
+
+  fastify.get('/address2/:id', {
+    schema: {
+      cookies: {
+        type: 'object',
+        properties: {
+          authKey: {
+            type: 'string',
+            description: 'auth token'
+          },
+          id: {
+            type: 'string',
+            description: 'common field'
+          }
+        }
+      }
+    }
+  }, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+
+    const openapiObject = fastify.swagger()
+    t.equal(typeof openapiObject, 'object')
+
+    Swagger.validate(openapiObject)
+      .then(function (api) {
+        t.pass('valid swagger object')
+        t.ok(api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'id')))
+        t.ok(api.paths['/address2/{id}'].get.parameters.find(({ name }) => (name === 'id')))
+        t.notOk(api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'apiKey')))
+        t.ok(api.paths['/address2/{id}'].get.parameters.find(({ name }) => (name === 'authKey')))
+      })
+      .catch(function (err) {
+        t.error(err)
+      })
+  })
+})

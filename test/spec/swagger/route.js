@@ -300,6 +300,45 @@ test('swagger json output should not omit enum part in params config', t => {
   })
 })
 
+test('custom verbs should not be interpreted as path params', t => {
+  t.plan(3)
+  const opts = {
+    schema: {
+      params: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' }
+        }
+      }
+    }
+  }
+
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, swaggerOption)
+  fastify.get('/resource/:id/sub-resource::watch', opts, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+    const swaggerObject = fastify.swagger()
+
+    Swagger.validate(swaggerObject)
+      .then((api) => {
+        const definedPath = api.paths['/resource/{id}/sub-resource:watch'].get
+        t.ok(definedPath)
+        t.same(definedPath.parameters, [{
+          in: 'path',
+          name: 'id',
+          type: 'string',
+          required: true
+        }])
+      })
+      .catch(err => {
+        console.log(err)
+        t.error(err)
+      })
+  })
+})
+
 test('swagger json output should not omit consume in querystring schema', async (t) => {
   t.plan(1)
   const fastify = Fastify()
@@ -408,5 +447,166 @@ test('swagger should not support Links', t => {
     t.error(err)
 
     t.throws(() => fastify.swagger(), new Error('Swagger (Open API v2) does not support Links. Upgrade to OpenAPI v3 (see fastify-swagger readme)'))
+  })
+})
+
+test('security headers ignored when declared in security and securityScheme', t => {
+  t.plan(7)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, swaggerOption)
+
+  fastify.get('/address1/:id', {
+    schema: {
+      params: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' }
+        }
+      },
+      headers: {
+        type: 'object',
+        properties: {
+          apiKey: {
+            type: 'string',
+            description: 'api token'
+          },
+          somethingElse: {
+            type: 'string',
+            description: 'common field'
+          }
+        }
+      }
+    }
+  }, () => {})
+
+  fastify.get('/address2/:id', {
+    schema: {
+      params: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' }
+        }
+      },
+      headers: {
+        type: 'object',
+        properties: {
+          authKey: {
+            type: 'string',
+            description: 'auth token'
+          },
+          somethingElse: {
+            type: 'string',
+            description: 'common field'
+          }
+        }
+      }
+    }
+  }, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+
+    const swaggerObject = fastify.swagger()
+    t.equal(typeof swaggerObject, 'object')
+
+    Swagger.validate(swaggerObject)
+      .then(function (api) {
+        t.pass('valid swagger object')
+        t.ok(api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'id')))
+        t.ok(api.paths['/address2/{id}'].get.parameters.find(({ name }) => (name === 'id')))
+        t.notOk(api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'apiKey')))
+        t.ok(api.paths['/address2/{id}'].get.parameters.find(({ name }) => (name === 'authKey')))
+      })
+      .catch(function (err) {
+        t.error(err)
+      })
+  })
+})
+
+test('security querystrings ignored when declared in security and securityScheme', t => {
+  t.plan(7)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, {
+    swagger: {
+      securityDefinitions: {
+        apiKey: {
+          type: 'apiKey',
+          name: 'apiKey',
+          in: 'query'
+        }
+      },
+      security: [{
+        apiKey: []
+      }]
+    }
+  })
+
+  fastify.get('/address1/:id', {
+    schema: {
+      params: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' }
+        }
+      },
+      querystring: {
+        type: 'object',
+        properties: {
+          apiKey: {
+            type: 'string',
+            description: 'api token'
+          },
+          somethingElse: {
+            type: 'string',
+            description: 'common field'
+          }
+        }
+      }
+    }
+  }, () => {})
+
+  fastify.get('/address2/:id', {
+    schema: {
+      params: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' }
+        }
+      },
+      querystring: {
+        type: 'object',
+        properties: {
+          authKey: {
+            type: 'string',
+            description: 'auth token'
+          },
+          somethingElse: {
+            type: 'string',
+            description: 'common field'
+          }
+        }
+      }
+    }
+  }, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+
+    const swaggerObject = fastify.swagger()
+    t.equal(typeof swaggerObject, 'object')
+
+    Swagger.validate(swaggerObject)
+      .then(function (api) {
+        t.pass('valid swagger object')
+        t.ok(api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'somethingElse')))
+        t.ok(api.paths['/address2/{id}'].get.parameters.find(({ name }) => (name === 'somethingElse')))
+        t.notOk(api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'apiKey')))
+        t.ok(api.paths['/address2/{id}'].get.parameters.find(({ name }) => (name === 'authKey')))
+      })
+      .catch(function (err) {
+        t.error(err)
+      })
   })
 })

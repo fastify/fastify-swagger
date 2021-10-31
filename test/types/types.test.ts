@@ -1,8 +1,27 @@
 import fastify from 'fastify';
-import fastifySwagger, { SwaggerOptions } from '../..';
+import fastifySwagger, {
+  SwaggerOptions,
+  FastifySwaggerInitOAuthOptions,
+  FastifySwaggerUiConfigOptions,
+  FastifySwaggerUiHooksOptions,
+} from "../.."
 import { minimalOpenApiV3Document } from './minimal-openapiV3-document';
 
 const app = fastify();
+const uiConfig: FastifySwaggerUiConfigOptions = {
+  deepLinking: true,
+  defaultModelsExpandDepth: -1,
+  defaultModelExpandDepth: 1,
+  validatorUrl: null,
+  layout: 'BaseLayout',
+};
+const initOAuth: FastifySwaggerInitOAuthOptions = {
+  scopes: ['openid', 'profile', 'email', 'offline_access'],
+};
+const uiHooks: FastifySwaggerUiHooksOptions = {
+  onRequest: (request, reply, done) => {done()},
+  preHandler: (request, reply, done) => {done()},
+}
 
 app.register(fastifySwagger);
 app.register(fastifySwagger, {});
@@ -47,6 +66,24 @@ app.put('/some-route/:id', {
       operationId: 'opeId',
     }
   }, (req, reply) => {});
+
+app.put('/image.png', {
+  schema: {
+    description: 'returns an image',
+    summary: 'qwerty',
+    consumes: ['application/json', 'multipart/form-data'],
+    produces: ['image/png'],
+    response: {
+      200: {
+        type: 'string',
+        format: 'binary'
+      }
+    }
+  }
+}, async (req, reply) => { reply
+    .type('image/png')
+    .send(Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAIAAAACDbGyAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAEnQAABJ0Ad5mH3gAAAAgSURBVBhXY/iPCkB8BgYkEiSIBICiCCEoB0SBwf///wGHRzXLSklJLQAAAABJRU5ErkJggg==', 'base64'));
+});
 
 app.get('/public/route', {
     schema: {
@@ -119,21 +156,14 @@ app
         },
       },
     },
-    initOAuth: {
-      scopes: ['openid', 'profile', 'email', 'offline_access'],
-    },
+    initOAuth
   })
   .ready((err) => {
     app.swagger();
   });
 
 app.register(fastifySwagger, {
-  uiConfig: {
-    deepLinking: true,
-    defaultModelsExpandDepth: -1,
-    defaultModelExpandDepth: 1,
-    validatorUrl: null
-  }
+  uiConfig
 })
 .ready((err) => {
   app.swagger();
@@ -168,6 +198,13 @@ app.register(fastifySwagger, {
   transformStaticCSP(header) {
     return header
   }
+})
+.ready((err) => {
+  app.swagger();
+})
+
+app.register(fastifySwagger, {
+  uiHooks,
 })
 .ready((err) => {
   app.swagger();

@@ -1,4 +1,4 @@
-import { FastifyPluginCallback } from 'fastify';
+import { FastifyPluginCallback, onRequestHookHandler, preHandlerHookHandler } from 'fastify';
 import { OpenAPI, OpenAPIV2, OpenAPIV3 } from 'openapi-types';
 
 declare module 'fastify' {
@@ -21,6 +21,7 @@ declare module 'fastify' {
     description?: string;
     summary?: string;
     consumes?: string[];
+    produces?: string[];
     security?: Array<{ [securityLabel: string]: string[] }>;
     /**
      * OpenAPI operation unique identifier
@@ -36,7 +37,7 @@ declare module 'fastify' {
 }
 
 export const fastifySwagger: FastifyPluginCallback<SwaggerOptions>;
- 
+
 export type SwaggerOptions = (FastifyStaticSwaggerOptions | FastifyDynamicSwaggerOptions);
 export interface FastifySwaggerOptions {
   mode?: 'static' | 'dynamic';
@@ -53,44 +54,52 @@ export interface FastifySwaggerOptions {
   /**
    * Swagger UI Config
    */
-  uiConfig?: Partial<{
-    deepLinking: boolean
-    displayOperationId: boolean
-    defaultModelsExpandDepth: number
-    defaultModelExpandDepth: number
-    defaultModelRendering: string
-    displayRequestDuration: boolean
-    docExpansion: string
-    filter: boolean | string
-    maxDisplayedTags: number
-    showExtensions: boolean
-    showCommonExtensions: boolean
-    useUnsafeMarkdown: boolean
-    syntaxHighlight: {
-      activate?: boolean
-      theme?: string
-    } | false
-    tryItOutEnabled: boolean
-    validatorUrl: string | null
-  }>
-  
-  initOAuth?: Partial<{
-    clientId: string,
-    clientSecret: string,
-    realm: string,
-    appName: string,
-    scopeSeparator: string,
-    scopes: string | string[],
-    additionalQueryStringParams: { [key: string]: any },
-    useBasicAuthenticationWithAccessCodeGrant: boolean,
-    usePkceWithAuthorizationCodeGrant: boolean
-  }>
+  uiConfig?: FastifySwaggerUiConfigOptions
+  initOAuth?: FastifySwaggerInitOAuthOptions
   /**
    * CSP Config
    */
   staticCSP?: boolean | string | Record<string, string | string[]>
   transformStaticCSP?: (header: string) => string
+  /**
+   * route hooks
+   */
+  uiHooks?: FastifySwaggerUiHooksOptions
 }
+
+export type FastifySwaggerUiConfigOptions = Partial<{
+  deepLinking: boolean
+  displayOperationId: boolean
+  defaultModelsExpandDepth: number
+  defaultModelExpandDepth: number
+  defaultModelRendering: string
+  displayRequestDuration: boolean
+  docExpansion: string
+  filter: boolean | string
+  layout: string
+  maxDisplayedTags: number
+  showExtensions: boolean
+  showCommonExtensions: boolean
+  useUnsafeMarkdown: boolean
+  syntaxHighlight: {
+    activate?: boolean
+    theme?: string
+  } | false
+  tryItOutEnabled: boolean
+  validatorUrl: string | null
+}>
+
+export type FastifySwaggerInitOAuthOptions = Partial<{
+  clientId: string,
+  clientSecret: string,
+  realm: string,
+  appName: string,
+  scopeSeparator: string,
+  scopes: string | string[],
+  additionalQueryStringParams: { [key: string]: any },
+  useBasicAuthenticationWithAccessCodeGrant: boolean,
+  usePkceWithAuthorizationCodeGrant: boolean
+}>
 
 export interface FastifyDynamicSwaggerOptions extends FastifySwaggerOptions {
   mode?: 'dynamic';
@@ -123,5 +132,10 @@ export interface FastifyStaticSwaggerOptions extends FastifySwaggerOptions {
   mode: 'static';
   specification: StaticPathSpec | StaticDocumentSpec;
 }
+
+export type FastifySwaggerUiHooksOptions = Partial<{
+  onRequest?: onRequestHookHandler,
+  preHandler?: preHandlerHookHandler,
+}>
 
 export default fastifySwagger;
