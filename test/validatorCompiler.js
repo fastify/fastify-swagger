@@ -116,9 +116,7 @@ test('validator compiler working', t => {
         fileName: 'aditya_picture'
       }
     }, (err, res) => {
-      console.log('res..............')
       const data = res.json()
-      console.log()
       t.error(err)
       t.equal(data.code, 200)
       t.same(data, { status: 'success', code: 200, msg: 'operation completed successfully' })
