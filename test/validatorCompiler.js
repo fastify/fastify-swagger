@@ -2,7 +2,6 @@ const {
   test
 } = require('tap')
 const Fastify = require('fastify')
-// const Swagger = require('swagger-parser')
 const {
   openapiOption
 } = require('../examples/options')
@@ -101,15 +100,4 @@ test('validator compiler working', t => {
     t.error(err)
     t.end()
   })
-
-  // fastify.inject({
-  //   method: 'POST',
-  //   url: '/'
-  // }, (err, res) => {
-  //   t.error(err)
-  //   t.equal(res.statusCode, 200)
-  //   t.ok()
-  //   // const payload = JSON.parse(res.payload)
-  // })
-  // t.end()
 })
