@@ -82,10 +82,13 @@ test('validator compiler working', t => {
   fastify.post('/', {
     schema: {
       type: 'object',
-      consumes: ['multipart/form-data'],
+      consumes: ['multipart/form-data', 'application/json'],
       body: {
         type: 'object',
         properties: {
+          fileName: {
+            type: 'string'
+          },
           upload: {
             type: 'file',
             format: 'binary'
@@ -94,10 +97,32 @@ test('validator compiler working', t => {
       }
     }
 
-  }, () => {})
+  }, (req, res) => {
+    return {
+      status: 'success',
+      code: 200,
+      msg: 'operation completed successfully'
+    }
+  })
 
-  fastify.ready(err => {
-    t.error(err)
-    t.end()
+  fastify.ready(() => {
+    fastify.inject({
+      method: 'POST',
+      url: '/',
+      headers: {
+        'content-type': 'application/json'
+      },
+      payload: {
+        fileName: 'aditya_picture'
+      }
+    }, (err, res) => {
+      console.log('res..............')
+      const data = res.json()
+      console.log()
+      t.error(err)
+      t.equal(data.code, 200)
+      t.same(data, { status: 'success', code: 200, msg: 'operation completed successfully' })
+      t.end()
+    })
   })
 })
