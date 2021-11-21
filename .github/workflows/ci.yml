@@ -19,10 +19,10 @@ jobs:
         os: [macos-latest, ubuntu-latest, windows-latest]
 
     steps:
-    - uses: actions/checkout@v2.3.4
+    - uses: actions/checkout@v2.4.0
 
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v2.4.0
+      uses: actions/setup-node@v2.4.1
       with:
         node-version: ${{ matrix.node-version }}
 
@@ -56,7 +56,7 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     steps:
-      - uses: fastify/github-action-merge-dependabot@v2.4.0
+      - uses: fastify/github-action-merge-dependabot@v2.6.0
         if: ${{ github.actor == 'dependabot[bot]' && github.event_name == 'pull_request' }}
         with:
           github-token: ${{secrets.github_token}}

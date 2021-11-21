@@ -69,6 +69,10 @@ fastify.register(require('fastify-swagger'), {
     docExpansion: 'full',
     deepLinking: false
   },
+  uiHooks: {
+    onRequest: function (request, reply, next) { next() },
+    preHandler: function (request, reply, next) { next() }
+  },
   staticCSP: true,
   transformStaticCSP: (header) => header,
   exposeRoute: true
@@ -106,6 +110,13 @@ fastify.put('/some-route/:id', {
         type: 'object',
         properties: {
           hello: { type: 'string' }
+        }
+      },
+      default: {
+        description: 'Default response',
+        type: 'object',
+        properties: {
+          foo: { type: 'string' }
         }
       }
     },
@@ -257,13 +268,15 @@ An example of using `fastify-swagger` with `static` mode enabled can be found [h
  | hideUntagged       | false            | If `true` remove routes without tags from resulting Swagger/OpenAPI schema file.                                          |
  | initOAuth          | {}               | Configuration options for [Swagger UI initOAuth](https://swagger.io/docs/open-source-tools/swagger-ui/usage/oauth2/).     |
  | openapi            | {}               | [OpenAPI configuration](https://swagger.io/specification/#oasObject).                                                     |
- | routePrefix        | '/documentation' | Overwrite the default Swagger UI route prefix.                                                                            |
+ | routePrefix         | '/documentation' | Overwrite the default Swagger UI route prefix.                                                                            |
  | staticCSP          | false            | Enable CSP header for static resources.                                                                                   |
  | stripBasePath      | true             | Strips base path from routes in docs.                                                                                     |
  | swagger            | {}               | [Swagger configuration](https://swagger.io/specification/v2/#swaggerObject).                                              |
  | transform          | null             | Transform method for schema.                                                                                              |
- | transformStaticCSP | undefined        | Synchronous function to transform CSP header for static resources if the header has been previously set.                  |
- | uiConfig           | {}               | Configuration options for [Swagger UI](https://github.com/swagger-api/swagger-ui/blob/master/docs/usage/configuration.md). Must be literal values, see [#5710](https://github.com/swagger-api/swagger-ui/issues/5710).|
+ | transformStaticCSP | undefined         | Synchronous function to transform CSP header for static resources if the header has been previously set.                  |
+ | uiConfig            | {}               | Configuration options for [Swagger UI](https://github.com/swagger-api/swagger-ui/blob/master/docs/usage/configuration.md). Must be literal values, see [#5710](https://github.com/swagger-api/swagger-ui/issues/5710).|
+ | uiHooks            | {}               | Additional hooks for the documentation's routes. You can provide the `onRequest` and `preHandler` hooks with the same [route's options](https://www.fastify.io/docs/latest/Routes/#options) interface.|
+ | refResolver        | {}               | Option to manage the `$ref`s of your application's schemas. Read the [`$ref` documentation](#register.options.refResolver) |
 
 If you set `exposeRoute` to `true` the plugin will expose the documentation with the following APIs:
 
@@ -300,6 +313,32 @@ fastify.register(require('fastify-swagger'), {
   }
 }
 ```
+
+<a name="register.options.refResolver"></a>
+#### Managing your `$ref`s
+
+When this plugin is configured as `dynamic` mode, it will resolve all `$ref`s in your application's schemas.
+This process will create an new in-line schema that is going to reference itself.
+
+This logic step is done to make sure that the generated documentation is valid, otherwise the Swagger UI will try to fetch the schemas from the server or the network and fail.
+
+By default, this option will resolve all `$ref`s renaming them to `def-${counter}`, but your view models keep the original `$id` naming thanks to the [`title` parameter](https://swagger.io/docs/specification/2-0/basic-structure/#metadata).
+
+To customize this logic you can pass a `refResolver` option to the plugin:
+
+```js
+fastify.register(require('fastify-swagger'), {
+  swagger: { ... },
+  ...
+  refResolver: {
+    buildLocalReference (json, baseUri, fragment, i) {
+      return json.$id || `my-fragment-${i}`
+    }
+  }
+}
+```
+
+To deep down the `buildLocalReference` arguments, you may read the [documentation](https://github.com/Eomm/json-schema-resolver#usage-resolve-one-schema-against-external-schemas).
 
 <a name="route.options"></a>
 ### Route options
@@ -396,7 +435,7 @@ Example:
 {
   response: {
     '2xx': {
-      description: '2xx'
+      description: '2xx',
       type: 'object'
     }
   }
@@ -407,7 +446,7 @@ Example:
   response: {
     200: {
       schema: {
-        description: '2xx'
+        description: '2xx',
         type: 'object'
       }
     }
@@ -656,6 +695,32 @@ There are two ways to hide a route from the Swagger UI:
 - Pass `{ hide: true }` to the schema object inside the route declaration.
 - Use the tag declared in `hiddenTag` options property inside the route declaration. Default is `X-HIDDEN`.
 
+<a name="route.uiHooks"></a>
+#### Protect your documentation routes
+
+You can protect your documentation by configuring an authentication hook.
+Here is an example using the [`fastify-basic-auth`](https://github.com/fastify/fastify-basic-auth) plugin:
+
+```js
+await fastify.register(require('fastify-basic-auth'), {
+  validate (username, password, req, reply, done) {
+    if (username === 'admin' && password === 'admin') {
+      done()
+    } else {
+      done(new Error('You can not access'))
+    }
+  },
+  authenticate: true
+})
+
+fastify.register(fastifySwagger, {
+  exposeRoute: true,
+  uiHooks: {
+    onRequest: fastify.basicAuth
+  }
+})
+```
+
 <a name="function.options"></a>
 ### Swagger function options
 
@@ -714,10 +779,13 @@ async function routes(fastify, opts, next){
 
 ```
 
-
+<a name="usage"></a>
+## `$id` and `$ref` usage
 
 <a name="development"></a>
 ### Development
+
+
 In order to start development run:
 ```
 npm i
@@ -726,11 +794,14 @@ npm run prepare
 
 So that [swagger-ui](https://github.com/swagger-api/swagger-ui) static folder will be generated for you.
 
-#### How it works under the hood
+### How it works under the hood
 
 `fastify-static` serves `swagger-ui` static files, then calls `/docs/json` to get the Swagger file and render it.
 
-<a name="acknowledgements"></a>
+#### How to work with $refs
+
+The `/docs/json` endpoint in dynamic mode produces a single `swagger.json` file resolving all your
+
 ## Acknowledgements
 
 This project is kindly sponsored by:

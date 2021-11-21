@@ -4,6 +4,7 @@ const { test } = require('tap')
 const Fastify = require('fastify')
 const Swagger = require('swagger-parser')
 const fastifySwagger = require('../../../index')
+const S = require('fluent-json-schema')
 
 test('support file in json schema', async t => {
   const opts7 = {
@@ -333,4 +334,84 @@ test('response: description and x-response-description', async () => {
     t.equal(responseObject.schema.description, description)
     t.equal(responseObject.schema.responseDescription, undefined)
   })
+})
+
+test('support "default" parameter', async t => {
+  const opt = {
+    schema: {
+      response: {
+        200: {
+          description: 'Expected Response',
+          type: 'object',
+          properties: {
+            foo: {
+              type: 'string'
+            }
+          }
+        },
+        default: {
+          description: 'Default Response',
+          type: 'object',
+          properties: {
+            bar: {
+              type: 'string'
+            }
+          }
+        }
+      }
+    }
+  }
+
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, {
+    routePrefix: '/docs',
+    exposeRoute: true
+  })
+  fastify.get('/', opt, () => {})
+
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  const api = await Swagger.validate(swaggerObject)
+
+  const definedPath = api.paths['/'].get
+
+  t.same(definedPath.responses.default, {
+    description: 'Default Response',
+    schema: {
+      description: 'Default Response',
+      type: 'object',
+      properties: {
+        bar: {
+          type: 'string'
+        }
+      }
+    }
+  })
+})
+
+test('fluent-json-schema', async t => {
+  const opt = {
+    schema: {
+      response: {
+        200: S.object()
+      }
+    }
+  }
+
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, {
+    swagger: true,
+    routePrefix: '/docs',
+    exposeRoute: true
+  })
+  fastify.get('/', opt, () => {})
+
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  const api = await Swagger.validate(swaggerObject)
+
+  const definedPath = api.paths['/'].get
+  t.same(definedPath.responses['200'].description, 'Default Response')
 })

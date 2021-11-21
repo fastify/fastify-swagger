@@ -4,6 +4,7 @@ const { test } = require('tap')
 const Fastify = require('fastify')
 const Swagger = require('swagger-parser')
 const fastifySwagger = require('../../../index')
+const S = require('fluent-json-schema')
 const {
   openapiOption,
   schemaAllOf
@@ -308,5 +309,110 @@ test('support global schema reference', async t => {
 
   const swaggerObject = fastify.swagger()
   const api = await Swagger.validate(swaggerObject)
-  t.same(api.components.schemas['def-0'], schema)
+  t.match(api.components.schemas['def-0'], schema)
+})
+
+test('support global schema reference with title', async t => {
+  const schema = {
+    title: 'schema view title',
+    type: 'object',
+    properties: {
+      hello: { type: 'string' }
+    },
+    required: ['hello']
+  }
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, { openapi: true, routePrefix: '/docs', exposeRoute: true })
+  fastify.addSchema({ ...schema, $id: 'requiredUniqueSchema' })
+  fastify.get('/', { schema: { query: { $ref: 'requiredUniqueSchema' } } }, () => {})
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  const api = await Swagger.validate(swaggerObject)
+  t.match(api.components.schemas['def-0'], schema)
+})
+
+test('support "default" parameter', async t => {
+  const opt = {
+    schema: {
+      response: {
+        200: {
+          description: 'Expected Response',
+          type: 'object',
+          properties: {
+            foo: {
+              type: 'string'
+            }
+          }
+        },
+        default: {
+          description: 'Default Response',
+          type: 'object',
+          properties: {
+            bar: {
+              type: 'string'
+            }
+          }
+        }
+      }
+    }
+  }
+
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, {
+    openapi: true,
+    routePrefix: '/docs',
+    exposeRoute: true
+  })
+  fastify.get('/', opt, () => {})
+
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  const api = await Swagger.validate(swaggerObject)
+
+  const definedPath = api.paths['/'].get
+
+  t.same(definedPath.responses.default, {
+    description: 'Default Response',
+    content: {
+      'application/json': {
+        schema: {
+          description: 'Default Response',
+          type: 'object',
+          properties: {
+            bar: {
+              type: 'string'
+            }
+          }
+        }
+      }
+    }
+  })
+})
+
+test('fluent-json-schema', async t => {
+  const opt = {
+    schema: {
+      response: {
+        200: S.object()
+      }
+    }
+  }
+
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, {
+    openapi: true,
+    routePrefix: '/docs',
+    exposeRoute: true
+  })
+  fastify.get('/', opt, () => {})
+
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  const api = await Swagger.validate(swaggerObject)
+
+  const definedPath = api.paths['/'].get
+  t.same(definedPath.responses['200'].description, 'Default Response')
 })
