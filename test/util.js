@@ -3,30 +3,25 @@
 const { test } = require('tap')
 const { formatParamUrl } = require('../lib/util/common')
 
+const cases = [
+  ['/example/:userId', '/example/{userId}'],
+  ['/example/:userId/:secretToken', '/example/{userId}/{secretToken}'],
+  ['/example/near/:lat-:lng/radius/:r', '/example/near/{lat}-{lng}/radius/{r}'],
+  ['/example/near/:lat_1-:lng_1/radius/:r_1', '/example/near/{lat_1}-{lng_1}/radius/{r_1}'],
+  ['/example/*', '/example/{wildcard}'],
+  ['/example/:file(^\\d+).png', '/example/{file}.png'],
+  ['/example/at/:hour(^\\d{2})h:minute(^\\d{2})m', '/example/at/{hour}h{minute}m'],
+  ['/example/at/(^\\d{2})h(^\\d{2})m', '/example/at/{regexp1}h{regexp2}m'],
+  ['/example/at/(^([0-9]{2})h$)-(^([0-9]{2})m$)', '/example/at/{regexp1}-{regexp2}'],
+  ['/name::verb', '/name:verb'],
+  ['/api/v1/postalcode-jp/:code(^[0-9]{7}$)', '/api/v1/postalcode-jp/{code}'],
+  ['/api/v1/postalcode-jp/(^[0-9]{7}$)', '/api/v1/postalcode-jp/{regexp1}']
+]
+
 test('formatParamUrl', t => {
-  t.plan(4)
+  t.plan(cases.length)
 
-  t.test('support /example/:userId', t => {
-    t.plan(1)
-    const url = formatParamUrl('/example/:userId')
-    t.equal(url, '/example/{userId}')
-  })
-
-  t.test('support /example/:userId/:secretToken', t => {
-    t.plan(1)
-    const url = formatParamUrl('/example/:userId/:secretToken')
-    t.equal(url, '/example/{userId}/{secretToken}')
-  })
-
-  t.test('support /example/near/:lat-:lng/radius/:r', t => {
-    t.plan(1)
-    const url = formatParamUrl('/example/near/:lat-:lng/radius/:r')
-    t.equal(url, '/example/near/{lat}-{lng}/radius/{r}')
-  })
-
-  t.test('support /example/near/:lat_1-:lng_1/radius/:r_1', t => {
-    t.plan(1)
-    const url = formatParamUrl('/example/near/:lat_1-:lng_1/radius/:r_1')
-    t.equal(url, '/example/near/{lat_1}-{lng_1}/radius/{r_1}')
-  })
+  for (const kase of cases) {
+    t.equal(formatParamUrl(kase[0]), kase[1])
+  }
 })
