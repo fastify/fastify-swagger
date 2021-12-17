@@ -416,3 +416,60 @@ test('fluent-json-schema', async t => {
   const definedPath = api.paths['/'].get
   t.same(definedPath.responses['200'].description, 'Default Response')
 })
+
+test('support "patternProperties" parameter', async t => {
+  const opt = {
+    schema: {
+      response: {
+        200: {
+          description: 'Expected Response',
+          type: 'object',
+          properties: {
+            foo: {
+              type: 'object',
+              patternProperties: {
+                '^[a-z]{2,3}-[a-zA-Z]{2}$': {
+                  type: 'string'
+                }
+              },
+              additionalProperties: false
+            }
+          }
+        }
+      }
+    }
+  }
+
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, {
+    openapi: true,
+    routePrefix: '/docs',
+    exposeRoute: true
+  })
+  fastify.get('/', opt, () => {})
+
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  const api = await Swagger.validate(swaggerObject)
+
+  const definedPath = api.paths['/'].get
+
+  t.same(definedPath.responses[200], {
+    description: 'Expected Response',
+    content: {
+      'application/json': {
+        schema: {
+          description: 'Expected Response',
+          type: 'object',
+          properties: {
+            foo: {
+              type: 'object',
+              additionalProperties: { type: 'string' }
+            }
+          }
+        }
+      }
+    }
+  })
+})
