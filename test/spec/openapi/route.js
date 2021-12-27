@@ -7,6 +7,7 @@ const yaml = require('js-yaml')
 const fastifySwagger = require('../../../index')
 const {
   openapiOption,
+  openapiRelaiveOptions,
   schemaBody,
   schemaConsumes,
   schemaCookies,
@@ -909,6 +910,49 @@ test('security cookies ignored when declared in security and securityScheme', t 
       })
       .catch(function (err) {
         t.error(err)
+      })
+  })
+})
+
+test('path params on relative url', t => {
+  t.plan(3)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, openapiRelaiveOptions)
+
+  const schemaParams = {
+    schema: {
+      params: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' }
+        }
+      }
+    }
+  }
+  fastify.get('/parameters/:id', schemaParams, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+
+    const openapiObject = fastify.swagger()
+    Swagger.validate(openapiObject)
+      .then(function (api) {
+        const paramPath = api.paths['/parameters/{id}'].get
+        t.ok(paramPath)
+        t.same(paramPath.parameters, [
+          {
+            required: true,
+            in: 'path',
+            name: 'id',
+            schema: {
+              type: 'string'
+            }
+          }
+        ])
+      })
+      .catch(function (err) {
+        t.fail(err)
       })
   })
 })
