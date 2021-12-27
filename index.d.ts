@@ -116,6 +116,10 @@ export interface FastifyDynamicSwaggerOptions extends FastifySwaggerOptions {
    * Overwrite the route schema
    */
   transform?: Function;
+  /**
+   * Allow overriding swagger properties. Cannot be used together with 'transform'
+   */
+  customPropertyOverrides?:boolean
 }
 
 export interface StaticPathSpec {
