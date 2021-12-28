@@ -7,7 +7,7 @@ const yaml = require('js-yaml')
 const fastifySwagger = require('../../../index')
 const {
   openapiOption,
-  openapiRelaiveOptions,
+  openapiRelativeOptions,
   schemaBody,
   schemaConsumes,
   schemaCookies,
@@ -918,7 +918,7 @@ test('path params on relative url', t => {
   t.plan(3)
   const fastify = Fastify()
 
-  fastify.register(fastifySwagger, openapiRelaiveOptions)
+  fastify.register(fastifySwagger, openapiRelativeOptions)
 
   const schemaParams = {
     schema: {

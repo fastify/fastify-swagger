@@ -63,7 +63,7 @@ const openapiOption = {
   }
 }
 
-const openapiRelaiveOptions = {
+const openapiRelativeOptions = {
   openapi: {
     info: {
       title: 'Test swagger',
@@ -285,7 +285,7 @@ const schemaOperationId = {
 
 module.exports = {
   openapiOption,
-  openapiRelaiveOptions,
+  openapiRelativeOptions,
   swaggerOption,
   schemaQuerystring,
   schemaBody,
