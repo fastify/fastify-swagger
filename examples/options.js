@@ -89,7 +89,8 @@ const schemaBody = {
         obj: {
           type: 'object',
           properties: {
-            some: { type: 'string' }
+            some: { type: 'string' },
+            constantProp: { const: 'my-const' }
           }
         }
       },
