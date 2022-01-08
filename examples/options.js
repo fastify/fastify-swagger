@@ -63,6 +63,41 @@ const openapiOption = {
   }
 }
 
+const openapiRelativeOptions = {
+  openapi: {
+    info: {
+      title: 'Test swagger',
+      description: 'testing the fastify swagger api',
+      version: '0.1.0'
+    },
+    servers: [
+      {
+        url: '/test'
+      }
+    ],
+    tags: [
+      { name: 'tag' }
+    ],
+    components: {
+      securitySchemes: {
+        apiKey: {
+          type: 'apiKey',
+          name: 'apiKey',
+          in: 'header'
+        }
+      }
+    },
+    security: [{
+      apiKey: []
+    }],
+    externalDocs: {
+      description: 'Find more info here',
+      url: 'https://swagger.io'
+    }
+  },
+  stripBasePath: false
+}
+
 const schemaQuerystring = {
   schema: {
     response: {
@@ -251,6 +286,7 @@ const schemaOperationId = {
 
 module.exports = {
   openapiOption,
+  openapiRelativeOptions,
   swaggerOption,
   schemaQuerystring,
   schemaBody,
