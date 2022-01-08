@@ -481,3 +481,47 @@ test('support "patternProperties" in json schema', async t => {
     }
   })
 })
+
+test('support "const" keyword', async t => {
+  const opt = {
+    schema: {
+      body: {
+        type: 'object',
+        properties: {
+          obj: {
+            type: 'object',
+            properties: {
+              constantProp: { const: 'my-const' }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, {
+    routePrefix: '/docs',
+    exposeRoute: true
+  })
+  fastify.get('/', opt, () => {})
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  const api = await Swagger.validate(swaggerObject)
+
+  const definedPath = api.paths['/'].get
+  t.same(definedPath.parameters[0].schema, {
+    type: 'object',
+    properties: {
+      obj: {
+        type: 'object',
+        properties: {
+          constantProp: {
+            enum: ['my-const']
+          }
+        }
+      }
+    }
+  })
+})
