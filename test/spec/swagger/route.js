@@ -120,7 +120,7 @@ test('route options - deprecated', t => {
 })
 
 test('route options - meta', t => {
-  t.plan(8)
+  t.plan(9)
   const fastify = Fastify()
 
   fastify.register(fastifySwagger, swaggerOption)
@@ -132,7 +132,11 @@ test('route options - meta', t => {
       tags: ['tag'],
       description: 'Route description',
       produces: ['application/octet-stream'],
-      consumes: ['application/x-www-form-urlencoded']
+      consumes: ['application/x-www-form-urlencoded'],
+      externalDocs: {
+        description: 'Find more info here',
+        url: 'https://swagger.io'
+      }
     }
   }
 
@@ -152,6 +156,7 @@ test('route options - meta', t => {
         t.equal(opts.schema.description, definedPath.description)
         t.same(opts.schema.produces, definedPath.produces)
         t.same(opts.schema.consumes, definedPath.consumes)
+        t.equal(opts.schema.externalDocs, definedPath.externalDocs)
       })
       .catch(function (err) {
         t.fail(err)
