@@ -22,6 +22,7 @@ declare module 'fastify' {
     summary?: string;
     consumes?: string[];
     produces?: string[];
+    externalDocs?: OpenAPIV2.ExternalDocumentationObject | OpenAPIV3.ExternalDocumentationObject;
     security?: Array<{ [securityLabel: string]: string[] }>;
     /**
      * OpenAPI operation unique identifier

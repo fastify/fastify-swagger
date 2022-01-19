@@ -63,6 +63,10 @@ app.put('/some-route/:id', {
       consumes: ['application/json', 'multipart/form-data'],
       security: [{ apiKey: []}],
       operationId: 'opeId',
+      externalDocs: {
+        url: 'https://swagger.io',
+        description: 'Find more info here'
+      },
     }
   }, (req, reply) => {});
 
