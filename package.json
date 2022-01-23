@@ -4,11 +4,17 @@
   "description": "Serve Swagger/OpenAPI documentation for Fastify, supporting dynamic generation",
   "main": "index.js",
   "scripts": {
+    "coverage": "npm run unit -- --coverage-report=lcovonly",
+    "lint": "standard",
+    "lint:fix": "npm run lint -- --fix",
     "prepare": "node lib/util/prepare-swagger-ui",
     "prepublishOnly": "npm run prepare",
-    "test": "standard && tap --100 \"test/**/*.js\" && npm run typescript",
-    "test:ci": "standard && tap \"test/**/*.js\" --coverage-report=lcovonly && npm run typescript",
-    "typescript": "tsd"
+    "test": "npm run lint && npm run unit && npm run typescript",
+    "test:ci": "npm run coverage && npm run typescript",
+    "typescript": "tsd",
+    "unit": "tap -J \"test/**/*.js\"",
+    "unit:report": "npm run unit -- --coverage-report=html",
+    "unit:verbose": "npm run unit -- -Rspec"
   },
   "repository": {
     "type": "git",
