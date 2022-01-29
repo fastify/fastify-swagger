@@ -1,10 +1,9 @@
 'use strict'
 
-const t = require('tap')
-const test = t.test
+const { test } = require('tap')
 const Fastify = require('fastify')
 const fastifyHelmet = require('fastify-helmet')
-const fastifySwagger = require('../index')
+const fastifySwagger = require('..')
 const {
   schemaQuerystring,
   schemaBody,
@@ -204,7 +203,7 @@ test('transformStaticCSP = function, with fastify-helmet', t => {
   fastify.register(fastifySwagger, {
     ...swaggerOption,
     transformStaticCSP: function (header) {
-      t.equal(header, "default-src 'self';base-uri 'self';block-all-mixed-content;font-src 'self' https: data:;frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests")
+      t.equal(header, "default-src 'self';base-uri 'self';block-all-mixed-content;font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests")
       return "default-src 'self'; script-src 'self';"
     }
   })
@@ -232,6 +231,6 @@ test('transformStaticCSP = function, with fastify-helmet', t => {
   }, (err, res) => {
     t.error(err)
     t.equal(res.statusCode, 200)
-    t.equal(res.headers['content-security-policy'], "default-src 'self';base-uri 'self';block-all-mixed-content;font-src 'self' https: data:;frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests")
+    t.equal(res.headers['content-security-policy'], "default-src 'self';base-uri 'self';block-all-mixed-content;font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests")
   })
 })
