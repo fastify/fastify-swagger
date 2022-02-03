@@ -620,7 +620,7 @@ test('uses examples if has property required in body', t => {
         required: ['hello'],
         properties: {
           hello: {
-            type: 'string',
+            type: 'string'
           }
         }
       }
@@ -641,6 +641,5 @@ test('uses examples if has property required in body', t => {
     t.same(requestBody.required, true)
   })
 })
-
 
 module.exports = { openapiOption }
