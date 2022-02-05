@@ -607,4 +607,42 @@ test('uses examples if has multiple array examples', t => {
   })
 })
 
+test('uses examples if has property required in body', t => {
+  t.plan(5)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, openapiOption)
+
+  const body = {
+    type: 'object',
+    required: ['hello'],
+    properties: {
+      hello: {
+        type: 'string'
+      }
+    }
+  }
+
+  const opts = {
+    schema: {
+      body
+    }
+  }
+
+  fastify.get('/', opts, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+
+    const openapiObject = fastify.swagger()
+    const schema = openapiObject.paths['/'].get.requestBody.content['application/json'].schema
+    const requestBody = openapiObject.paths['/'].get.requestBody
+
+    t.ok(schema)
+    t.ok(schema.properties)
+    t.same(body.required, ['hello'])
+    t.same(requestBody.required, true)
+  })
+})
+
 module.exports = { openapiOption }
