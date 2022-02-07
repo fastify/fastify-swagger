@@ -1,6 +1,6 @@
 {
   "name": "fastify-swagger",
-  "version": "4.13.1",
+  "version": "4.14.0",
   "description": "Serve Swagger/OpenAPI documentation for Fastify, supporting dynamic generation",
   "main": "index.js",
   "types": "index.d.ts",
@@ -54,7 +54,7 @@
     "qs": "^6.10.3",
     "standard": "^16.0.4",
     "swagger-parser": "^10.0.3",
-    "swagger-ui-dist": "^4.4.0",
+    "swagger-ui-dist": "4.5.0",
     "tap": "^15.1.6",
     "tsd": "^0.19.1"
   },
