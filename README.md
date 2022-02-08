@@ -489,7 +489,7 @@ fastify.route({
           collectionFormat: 'multi'
         }
       },
-     // OpenAPI 3 serializtion options
+     // OpenAPI 3 serialization options
      explode: false,
      style: "deepObject"
     }
