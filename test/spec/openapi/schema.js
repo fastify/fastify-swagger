@@ -524,3 +524,34 @@ test('support "const" keyword', async t => {
     }
   })
 })
+
+test('support query serialization params', async t => {
+  const opt = {
+    schema: {
+      querystring: {
+        style: 'deepObject',
+        explode: false,
+        type: 'object',
+        properties: {
+          obj: {
+            type: 'string'
+          }
+        }
+      }
+    }
+  }
+
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, {
+    openapi: true,
+    routePrefix: '/docs',
+    exposeRoute: true
+  })
+  fastify.get('/', opt, () => {})
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  const api = await Swagger.validate(swaggerObject)
+  t.is(api.paths['/'].get.parameters[0].style, 'deepObject')
+  t.is(api.paths['/'].get.parameters[0].explode, false)
+})
