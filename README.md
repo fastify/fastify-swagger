@@ -459,6 +459,8 @@ As far as arrays are concerned, the default query string parser conforms to the 
 If you were to select `collectionFormat: "csv"`, you would have to replace the default query string parser with one that parses CSV parameter values into arrays.
 The same applies to the other parts of a request that OpenAPI calls "parameters" and which are not encoded as JSON in a request.
 
+You can also apply different serialization `style` and `explode` as specified [here](https://swagger.io/docs/specification/serialization/#query).
+
 `fastify-swagger` supports these options as shown in this example:
 
 ```js
@@ -486,7 +488,10 @@ fastify.route({
           // of the `type: "array"` specification.)
           collectionFormat: 'multi'
         }
-      }
+      },
+     // OpenAPI 3 serializtion options
+     explode: false,
+     style: "deepObject"
     }
   },
   handler (request, reply) {
