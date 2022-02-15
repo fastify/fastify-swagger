@@ -55,6 +55,13 @@ const fastifyDynamicSwaggerOptions: SwaggerOptions = {
 }
 app.register(fastifySwagger, fastifyDynamicSwaggerOptions);
 
+app.get('/deprecated', {
+  schema: {
+    deprecated: true,
+    hide: true
+  }
+}, (req, reply) => {});
+
 app.put('/some-route/:id', {
     schema: {
       description: 'put me some data',
