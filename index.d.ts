@@ -17,6 +17,7 @@ declare module 'fastify' {
 
   interface FastifySchema {
     hide?: boolean;
+    deprecated?: boolean;
     tags?: string[];
     description?: string;
     summary?: string;
