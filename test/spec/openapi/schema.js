@@ -525,6 +525,126 @@ test('support "const" keyword', async t => {
   })
 })
 
+test('support object properties named "const"', async t => {
+  const opt = {
+    schema: {
+      body: {
+        type: 'object',
+        properties: {
+          obj: {
+            type: 'object',
+            properties: {
+              const: { type: 'string' }
+            },
+            required: ['const']
+          }
+        }
+      }
+    }
+  }
+
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, {
+    openapi: true,
+    routePrefix: '/docs',
+    exposeRoute: true
+  })
+  fastify.get('/', opt, () => { })
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  const api = await Swagger.validate(swaggerObject)
+
+  const definedPath = api.paths['/'].get
+  t.same(definedPath.requestBody, {
+    content: {
+      'application/json': {
+        schema: {
+          type: 'object',
+          properties: {
+            obj: {
+              type: 'object',
+              properties: {
+                const: {
+                  type: 'string'
+                }
+              },
+              required: ['const']
+            }
+          }
+        }
+      }
+    }
+  })
+})
+
+test('support object properties with special names', async t => {
+  const opt = {
+    schema: {
+      body: {
+        type: 'object',
+        properties: {
+          obj: {
+            type: 'object',
+            properties: {
+              properties: {
+                type: 'string'
+              },
+              patternProperties: {
+                type: 'string'
+              },
+              additionalProperties: {
+                type: 'number'
+              }
+            },
+            required: ['const', 'patternProperties', 'additionalProperties']
+          }
+        }
+      }
+    }
+  }
+
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, {
+    openapi: true,
+    routePrefix: '/docs',
+    exposeRoute: true
+  })
+  fastify.get('/', opt, () => { })
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  const api = await Swagger.validate(swaggerObject)
+
+  const definedPath = api.paths['/'].get
+  t.same(definedPath.requestBody, {
+    content: {
+      'application/json': {
+        schema: {
+          type: 'object',
+          properties: {
+            obj: {
+              type: 'object',
+              properties: {
+                properties: {
+                  type: 'string'
+                },
+                patternProperties: {
+                  type: 'string'
+                },
+                additionalProperties: {
+                  type: 'number'
+                }
+              },
+              required: ['const', 'patternProperties', 'additionalProperties']
+            }
+          }
+        }
+      }
+    }
+  })
+})
+
 test('support query serialization params', async t => {
   const opt = {
     schema: {
