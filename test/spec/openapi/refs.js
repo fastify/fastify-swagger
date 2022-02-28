@@ -32,6 +32,37 @@ test('support $ref schema', async (t) => {
   await Swagger.validate(openapiObject)
 })
 
+test("support $ref relative pointers in params", async (t) => {
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, openapiOption)
+  fastify.register(async (instance) => {
+    instance.addSchema({
+      $id: 'Order',
+      type: 'object',
+      properties: {
+        OrderId: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'string'
+            }
+          }
+        }
+      }
+    })
+    instance.get('/:id', { schema: { params: { $ref: "Order#/properties/OrderId" }, response: { 200: { $ref: 'Order#' } } } }, () => {})
+  })
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+  t.equal(typeof openapiObject, 'object')
+  t.match(Object.keys(openapiObject.components.schemas), ['Order'])
+
+  await Swagger.validate(openapiObject)
+})
+
 test('support nested $ref schema : simple test', async (t) => {
   const fastify = Fastify()
   fastify.register(fastifySwagger, openapiOption)
