@@ -210,7 +210,7 @@ It accepts `swaggerObject` - a JavaScript object that was parsed from your `yaml
 `specification.baseDir` allows specifying the directory where all spec files that are included in the main one using `$ref` will be located.
 By default, this is the directory where the main spec file is located. Provided value should be an absolute path **without** trailing slash.
 
-An example of using `fastify-swagger` with `static` mode enabled can be found [here](examples/static-file.js).
+An example of using `fastify-swagger` with `static` mode enabled can be found [here](examples/static-json-file.js).
 
 #### Options
 
