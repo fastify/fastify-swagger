@@ -286,8 +286,8 @@ test('hide support when property set in transform() - property', t => {
 
   fastify.register(fastifySwagger, {
     ...swaggerOption,
-    transform: schema => {
-      return { ...schema, hide: true }
+    transform: ({ schema, url }) => {
+      return { schema: { ...schema, hide: true }, url }
     }
   })
 
