@@ -51,7 +51,10 @@ const fastifyDynamicSwaggerOptions: SwaggerOptions = {
   exposeRoute: true,
   hiddenTag: 'X-HIDDEN',
   hideUntagged: true,
-  stripBasePath: true
+  stripBasePath: true,
+  refResolver: {
+    buildLocalReference: (json, baseUri, fragment, i) => `${fragment}-${i}`
+  }
 }
 app.register(fastifySwagger, fastifyDynamicSwaggerOptions);
 

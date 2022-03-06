@@ -103,6 +103,18 @@ export type FastifySwaggerInitOAuthOptions = Partial<{
   usePkceWithAuthorizationCodeGrant: boolean
 }>
 
+type JSONValue =
+    | string
+    | null
+    | number
+    | boolean
+    | JSONObject
+    | Array<JSONValue>;
+
+interface JSONObject {
+  [key: string]: JSONValue;
+}
+
 export interface FastifyDynamicSwaggerOptions extends FastifySwaggerOptions {
   mode?: 'dynamic';
   swagger?: Partial<OpenAPIV2.Document>;
@@ -118,6 +130,31 @@ export interface FastifyDynamicSwaggerOptions extends FastifySwaggerOptions {
    * Overwrite the route schema
    */
   transform?: Function;
+
+  refResolver?: {
+    /** Clone the input schema without changing it. Default to `false`. */
+    clone?: boolean;
+    buildLocalReference: (
+      /** The `json` that is being resolved. */
+      json: JSONObject,
+      /** The `baseUri` object of the schema. */
+      baseUri: {
+        scheme?: string;
+        userinfo?: string;
+        host?: string;
+        port?: number | string;
+        path?: string;
+        query?: string;
+        fragment?: string;
+        reference?: string;
+        error?: string;
+      },
+      /** `fragment` is the `$ref` string when the `$ref` is a relative reference. */
+      fragment: string,
+      /** `i` is a local counter to generate a unique key. */
+      i: number
+    ) => string;
+  }
 }
 
 export interface StaticPathSpec {
