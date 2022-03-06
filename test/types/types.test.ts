@@ -51,6 +51,7 @@ const fastifyDynamicSwaggerOptions: SwaggerOptions = {
   exposeRoute: true,
   hiddenTag: 'X-HIDDEN',
   hideUntagged: true,
+  hideRoutePredicate: (_url, _schema) => { return false },
   stripBasePath: true
 }
 app.register(fastifySwagger, fastifyDynamicSwaggerOptions);

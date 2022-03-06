@@ -109,6 +109,7 @@ export interface FastifyDynamicSwaggerOptions extends FastifySwaggerOptions {
   openapi?: Partial<OpenAPIV3.Document>
   hiddenTag?: string;
   hideUntagged?: boolean;
+  hideRoutePredicate?: (url: string, schema: any) => boolean;
   /**
    * Strips matching base path from routes in documentation
    * @default true
