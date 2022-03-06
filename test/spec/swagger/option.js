@@ -6,7 +6,7 @@ const Swagger = require('swagger-parser')
 const yaml = require('js-yaml')
 const fastifySwagger = require('../../../index')
 const { readPackageJson } = require('../../../lib/util/common')
-const { swaggerOption } = require('../../../examples/options')
+const { swaggerOption, openapiOption } = require('../../../examples/options')
 
 test('swagger should have default version', t => {
   t.plan(2)
@@ -241,6 +241,39 @@ test('basePath maintained when stripBasePath is set to false', t => {
     t.notOk(swaggerObject.paths.endpoint)
     t.notOk(swaggerObject.paths['/endpoint'])
     t.ok(swaggerObject.paths['/foo/endpoint'])
+  })
+})
+
+test('transformUrl and interaction with basePath', t => {
+  t.plan(6)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, {
+    stripBasePath: true,
+    swagger: Object.assign({}, swaggerOption.swagger, {
+      basePath: '/foo'
+    }),
+    transformUrl: (url) => {
+      if (url.startsWith('/api')) return `/v1/${url.substring(5)}`
+      else if (url.startsWith('/to-foo')) return `/foo/${url.substring(8)}`
+      else return url
+    }
+  })
+
+  fastify.get('/api/transformed-to-v1', {}, () => {})
+  fastify.get('/to-foo/this-will-be-transformed-then-base-path-stripped', {}, () => {})
+  fastify.get('/not-api/stays-same', {}, () => {})
+  fastify.get('/foo/base-path-stripped-as-normal', {}, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+
+    const swaggerObject = fastify.swagger()
+    t.notOk(swaggerObject.paths['/api/transformed-to-v1'])
+    t.ok(swaggerObject.paths['/v1/transformed-to-v1'])
+    t.ok(swaggerObject.paths['/not-api/stays-same'])
+    t.ok(swaggerObject.paths['/this-will-be-transformed-then-base-path-stripped'])
+    t.ok(swaggerObject.paths['/base-path-stripped-as-normal'])
   })
 })
 

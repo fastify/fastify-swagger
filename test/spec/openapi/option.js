@@ -299,6 +299,28 @@ test('basePath maintained when stripBasePath is set to false', t => {
   })
 })
 
+test('transformUrl', t => {
+  t.plan(4)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, {
+    openapi: Object.assign({}, openapiOption.openapi),
+    transformUrl: (url) => { return url.startsWith('/api') ? `/v1/${url.substring(5)}` : url }
+  })
+
+  fastify.get('/api/endpoint', {}, () => {})
+  fastify.get('/not-api/endpoint', {}, () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+
+    const openapiObject = fastify.swagger()
+    t.notOk(openapiObject.paths['/api/endpoint'])
+    t.ok(openapiObject.paths['/v1/endpoint'])
+    t.ok(openapiObject.paths['/not-api/endpoint'])
+  })
+})
+
 test('cache - json', t => {
   t.plan(3)
   const fastify = Fastify()

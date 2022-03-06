@@ -118,6 +118,10 @@ export interface FastifyDynamicSwaggerOptions extends FastifySwaggerOptions {
    * Overwrite the route schema
    */
   transform?: Function;
+  /**
+   * transform route url before adding it to the routes in the schema.
+   */
+  transformUrl?: (url: string) => string;
 }
 
 export interface StaticPathSpec {

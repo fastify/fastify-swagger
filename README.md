@@ -225,6 +225,7 @@ An example of using `fastify-swagger` with `static` mode enabled can be found [h
  | staticCSP          | false            | Enable CSP header for static resources.                                                                                   |
  | stripBasePath      | true             | Strips base path from routes in docs.                                                                                     |
  | swagger            | {}               | [Swagger configuration](https://swagger.io/specification/v2/#swaggerObject).                                              |
+ | transformUrl       | null             | Transform method for url.                                                                                              |
  | transform          | null             | Transform method for schema.                                                                                              |
  | transformStaticCSP | undefined         | Synchronous function to transform CSP header for static resources if the header has been previously set.                  |
  | uiConfig            | {}               | Configuration options for [Swagger UI](https://github.com/swagger-api/swagger-ui/blob/master/docs/usage/configuration.md). Must be literal values, see [#5710](https://github.com/swagger-api/swagger-ui/issues/5710).|
@@ -241,7 +242,7 @@ If you set `exposeRoute` to `true` the plugin will expose the documentation with
 | `'/documentation/*'`    | External files that you may use in `$ref`  |
 
 <a name="register.options.transform"></a>
-#### Transforms
+#### Transform
 
 To use different schemas such as [Joi](https://github.com/hapijs/joi) you can pass a synchronous `transform` method in the options to convert them back to standard JSON schemas expected by this plugin to generate the documentation (`dynamic` mode only).
 
@@ -263,6 +264,25 @@ fastify.register(require('fastify-swagger'), {
     if (body) transformed.body = convert(body)
     if (querystring) transformed.querystring = convert(querystring)
     return transformed
+  }
+}
+```
+<a name="register.options.transformUrl"></a>
+#### Transform Url
+
+Lets you pass in a function to transform your route urls before it gets inserted into paths area of the spec.
+
+This transformation function is called before `stripBasePath` option takes effect.
+
+only available in `dynamic` mode.
+
+```js
+
+fastify.register(require('fastify-swagger'), {
+  swagger: { ... },
+  ...
+  transformUrl: (url) => {
+    return url.startsWith('versioned/endpoint') ? 'v1/endpoint' : url
   }
 }
 ```
