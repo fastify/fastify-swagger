@@ -6,7 +6,7 @@ const Swagger = require('swagger-parser')
 const yaml = require('js-yaml')
 const fastifySwagger = require('../../../index')
 const { readPackageJson } = require('../../../lib/util/common')
-const { swaggerOption, openapiOption } = require('../../../examples/options')
+const { swaggerOption } = require('../../../examples/options')
 
 test('swagger should have default version', t => {
   t.plan(2)
