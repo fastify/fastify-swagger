@@ -219,15 +219,16 @@ An example of using `fastify-swagger` with `static` mode enabled can be found [h
  | exposeRoute        | false            | Exposes documentation route.                                                                                              |
  | hiddenTag          | X-HIDDEN         | Tag to control hiding of routes.                                                                                          |
  | hideUntagged       | false            | If `true` remove routes without tags from resulting Swagger/OpenAPI schema file.                                          |
+ | hideRoutePredicate | null             | predicate function (url, schema) => boolean to decide if should hide route                                                |
  | initOAuth          | {}               | Configuration options for [Swagger UI initOAuth](https://swagger.io/docs/open-source-tools/swagger-ui/usage/oauth2/).     |
  | openapi            | {}               | [OpenAPI configuration](https://swagger.io/specification/#oasObject).                                                     |
- | routePrefix         | '/documentation' | Overwrite the default Swagger UI route prefix.                                                                            |
+ | routePrefix        | '/documentation' | Overwrite the default Swagger UI route prefix.                                                                            |
  | staticCSP          | false            | Enable CSP header for static resources.                                                                                   |
  | stripBasePath      | true             | Strips base path from routes in docs.                                                                                     |
  | swagger            | {}               | [Swagger configuration](https://swagger.io/specification/v2/#swaggerObject).                                              |
  | transform          | null             | Transform method for schema.                                                                                              |
- | transformStaticCSP | undefined         | Synchronous function to transform CSP header for static resources if the header has been previously set.                  |
- | uiConfig            | {}               | Configuration options for [Swagger UI](https://github.com/swagger-api/swagger-ui/blob/master/docs/usage/configuration.md). Must be literal values, see [#5710](https://github.com/swagger-api/swagger-ui/issues/5710).|
+ | transformStaticCSP | undefined        | Synchronous function to transform CSP header for static resources if the header has been previously set.                  |
+ | uiConfig           | {}               | Configuration options for [Swagger UI](https://github.com/swagger-api/swagger-ui/blob/master/docs/usage/configuration.md). Must be literal values, see [#5710](https://github.com/swagger-api/swagger-ui/issues/5710).|
  | uiHooks            | {}               | Additional hooks for the documentation's routes. You can provide the `onRequest` and `preHandler` hooks with the same [route's options](https://www.fastify.io/docs/latest/Routes/#options) interface.|
  | refResolver        | {}               | Option to manage the `$ref`s of your application's schemas. Read the [`$ref` documentation](#register.options.refResolver) |
 
@@ -647,9 +648,17 @@ fastify.get('/user/:id/address', {
 
 <a name="route.hide"></a>
 #### Hide a route
-There are two ways to hide a route from the Swagger UI:
+There are three ways to hide a route from the Swagger UI:
 - Pass `{ hide: true }` to the schema object inside the route declaration.
 - Use the tag declared in `hiddenTag` options property inside the route declaration. Default is `X-HIDDEN`.
+- use `hideRoutePredicate` option to pass a predicate fn (url, schema) => boolean to decide if a route should be hidden.
+  - note: if the `transform` option is used then the transformed schema is the one passed to this predicate 
+
+hiding options cascade: schema hide -> tag -> predicate, returning on the first "true" found.
+
+example: if a route is hidden through the schema hide flag then the other hide options will be ignored.
+
+another example: if the route is hidden through a tag then the hide predicate will be ignored. 
 
 <a name="route.uiHooks"></a>
 #### Protect your documentation routes

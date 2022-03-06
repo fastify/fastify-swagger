@@ -419,6 +419,26 @@ test('hide support - hidden untagged', t => {
   })
 })
 
+test('hide support - hide predicate function', t => {
+  t.plan(4)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, { ...swaggerOption, hideRoutePredicate: (url) => url.startsWith('/hideme') })
+
+  fastify.get('/public', () => {})
+  fastify.get('/hideme', () => {})
+  fastify.get('/hideme/too', () => {})
+
+  fastify.ready(err => {
+    t.error(err)
+
+    const swaggerObject = fastify.swagger()
+    t.ok(swaggerObject.paths['/public'])
+    t.notOk(swaggerObject.paths['/hideme'])
+    t.notOk(swaggerObject.paths['/hideme/too'])
+  })
+})
+
 test('cache - json', t => {
   t.plan(3)
   const fastify = Fastify()
