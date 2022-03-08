@@ -267,9 +267,8 @@ fastify.register(require('fastify-swagger'), {
       querystring,
       headers,
       response,
-      ...restOfFastifySchema
     } = schema
-    const transformedSchema = { ...restOfFastifySchema }
+    const transformedSchema = Object.assign({}, schema) //shallow copy of schema
     let transformedUrl = url
 
     // Transform the schema as you wish with your own custom logic.
