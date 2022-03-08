@@ -262,19 +262,19 @@ fastify.register(require('fastify-swagger'), {
   swagger: { ... },
   transform: ({ schema, url }) => {
     const {
-      params = undefined,
-      body = undefined,
-      querystring = undefined,
-      headers = undefined,
-      response = undefined,
-      ...rest
+      params,
+      body,
+      querystring,
+      headers,
+      response,
+      ...restOfFastifySchema
     } = schema
-    const transformedSchema = { ...rest }
+    const transformedSchema = { ...restOfFastifySchema }
     let transformedUrl = url
 
     // Transform the schema as you wish with your own custom logic.
     // In this example convert is from 'joi-to-json' lib and converts a Joi based schema to json schema
-    if (params) transfotransformedSchemarmed.params = convert(params)
+    if (params) transformedSchema.params = convert(params)
     if (body) transformedSchema.body = convert(body)
     if (querystring) transformedSchema.querystring = convert(querystring)
     if (headers) transformedSchema.headers = convert(headers)
