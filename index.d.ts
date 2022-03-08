@@ -1,4 +1,4 @@
-import { FastifyPluginCallback, onRequestHookHandler, preHandlerHookHandler } from 'fastify';
+import {FastifyPluginCallback, FastifySchema, onRequestHookHandler, preHandlerHookHandler} from 'fastify';
 import { OpenAPI, OpenAPIV2, OpenAPIV3 } from 'openapi-types';
 
 declare module 'fastify' {
@@ -111,7 +111,7 @@ type JSONValue =
     | JSONObject
     | Array<JSONValue>;
 
-interface JSONObject {
+export interface JSONObject {
   [key: string]: JSONValue;
 }
 
@@ -127,9 +127,9 @@ export interface FastifyDynamicSwaggerOptions extends FastifySwaggerOptions {
    */
   stripBasePath?: boolean;
   /**
-   * Overwrite the route schema
+   * custom function to transform the route's schema and url
    */
-  transform?: Function;
+  transform?: <S extends FastifySchema = FastifySchema>({schema, url}: {schema: S, url: string}) => { schema: JSONObject, url: string };
 
   refResolver?: {
     /** Clone the input schema without changing it. Default to `false`. */

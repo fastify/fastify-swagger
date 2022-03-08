@@ -16,13 +16,16 @@ const opts = {
 }
 const convertible = ['params', 'body', 'querystring']
 const valid = {
-  transform: schema => Object.keys(schema).reduce((transformed, key) => {
-    transformed[key] = convertible.includes(key)
-      ? Convert(schema[key])
-      : schema[key]
-    return transformed
-  },
-  {})
+  transform: ({ schema, url }) => {
+    const newSchema = Object.keys(schema).reduce((transformed, key) => {
+      transformed[key] = convertible.includes(key)
+        ? Convert(schema[key])
+        : schema[key]
+      return transformed
+    },
+    {})
+    return { schema: newSchema, url }
+  }
 }
 const invalid = {
   transform: 'wrong type'
