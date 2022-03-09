@@ -210,7 +210,7 @@ It accepts `swaggerObject` - a JavaScript object that was parsed from your `yaml
 `specification.baseDir` allows specifying the directory where all spec files that are included in the main one using `$ref` will be located.
 By default, this is the directory where the main spec file is located. Provided value should be an absolute path **without** trailing slash.
 
-An example of using `fastify-swagger` with `static` mode enabled can be found [here](examples/static-file.js).
+An example of using `fastify-swagger` with `static` mode enabled can be found [here](examples/static-json-file.js).
 
 #### Options
 
@@ -225,7 +225,7 @@ An example of using `fastify-swagger` with `static` mode enabled can be found [h
  | staticCSP          | false            | Enable CSP header for static resources.                                                                                   |
  | stripBasePath      | true             | Strips base path from routes in docs.                                                                                     |
  | swagger            | {}               | [Swagger configuration](https://swagger.io/specification/v2/#swaggerObject).                                              |
- | transform          | null             | Transform method for schema.                                                                                              |
+ | transform          | null             | Transform method for the route's schema and url. [documentation](#register.options.transform).                                                                                              |
  | transformStaticCSP | undefined         | Synchronous function to transform CSP header for static resources if the header has been previously set.                  |
  | uiConfig            | {}               | Configuration options for [Swagger UI](https://github.com/swagger-api/swagger-ui/blob/master/docs/usage/configuration.md). Must be literal values, see [#5710](https://github.com/swagger-api/swagger-ui/issues/5710).|
  | uiHooks            | {}               | Additional hooks for the documentation's routes. You can provide the `onRequest` and `preHandler` hooks with the same [route's options](https://www.fastify.io/docs/latest/Routes/#options) interface.|
@@ -241,30 +241,53 @@ If you set `exposeRoute` to `true` the plugin will expose the documentation with
 | `'/documentation/*'`    | External files that you may use in `$ref`  |
 
 <a name="register.options.transform"></a>
-#### Transforms
+#### Transform
 
-To use different schemas such as [Joi](https://github.com/hapijs/joi) you can pass a synchronous `transform` method in the options to convert them back to standard JSON schemas expected by this plugin to generate the documentation (`dynamic` mode only).
+By passing a synchronous `transform` function you can modify the route's url and schema.
+
+Some possible uses of this are:
+
+- add the `hide` flag on schema according to your own logic based on url & schema
+- altering the route url into something that's more suitable for the api spec
+- using different schemas such as [Joi](https://github.com/hapijs/joi) and transforming them to standard JSON schemas expected by this plugin
+
+This option is available in `dynamic` mode only.
+
+Examples of all the possible uses mentioned:
 
 ```js
 const convert = require('joi-to-json')
 
 fastify.register(require('fastify-swagger'), {
   swagger: { ... },
-  ...
-  transform: schema => {
+  transform: ({ schema, url }) => {
     const {
-      params = undefined,
-      body = undefined,
-      querystring = undefined,
-      ...others
+      params,
+      body,
+      querystring,
+      headers,
+      response,
     } = schema
-    const transformed = { ...others }
-    if (params) transformed.params = convert(params)
-    if (body) transformed.body = convert(body)
-    if (querystring) transformed.querystring = convert(querystring)
-    return transformed
+    const transformedSchema = Object.assign({}, schema) //shallow copy of schema
+    let transformedUrl = url
+
+    // Transform the schema as you wish with your own custom logic.
+    // In this example convert is from 'joi-to-json' lib and converts a Joi based schema to json schema
+    if (params) transformedSchema.params = convert(params)
+    if (body) transformedSchema.body = convert(body)
+    if (querystring) transformedSchema.querystring = convert(querystring)
+    if (headers) transformedSchema.headers = convert(headers)
+    if (response) transformedSchema.response = convert(response)
+
+    // can add the hide tag if needed
+    if (url.startsWith('/internal')) transformedSchema.hide = true
+
+    // can transform the url
+    if (url.startsWith('/latest_version/endpoint')) transformedUrl = url.replace('latest_version', 'v3')
+
+    return { schema: transformedSchema, url: transformedUrl }
   }
-}
+})
 ```
 
 <a name="register.options.refResolver"></a>

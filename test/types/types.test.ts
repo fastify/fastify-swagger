@@ -3,7 +3,7 @@ import fastifySwagger, {
   SwaggerOptions,
   FastifySwaggerInitOAuthOptions,
   FastifySwaggerUiConfigOptions,
-  FastifySwaggerUiHooksOptions,
+  FastifySwaggerUiHooksOptions, JSONObject,
 } from "../.."
 import { minimalOpenApiV3Document } from './minimal-openapiV3-document';
 
@@ -25,7 +25,10 @@ const uiHooks: FastifySwaggerUiHooksOptions = {
 
 app.register(fastifySwagger);
 app.register(fastifySwagger, {});
-app.register(fastifySwagger, { transform: (schema : any) => schema });
+app.register(fastifySwagger, { transform: ({schema, url}) => ({
+    schema: schema as unknown as JSONObject,
+    url: url,
+})});
 app.register(fastifySwagger, {
   mode: 'static',
   specification: {
@@ -51,7 +54,10 @@ const fastifyDynamicSwaggerOptions: SwaggerOptions = {
   exposeRoute: true,
   hiddenTag: 'X-HIDDEN',
   hideUntagged: true,
-  stripBasePath: true
+  stripBasePath: true,
+  refResolver: {
+    buildLocalReference: (json, baseUri, fragment, i) => `${fragment}-${i}`
+  }
 }
 app.register(fastifySwagger, fastifyDynamicSwaggerOptions);
 
