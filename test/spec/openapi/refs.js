@@ -135,6 +135,36 @@ test('support $ref in response schema', async (t) => {
   await Swagger.validate(openapiObject)
 })
 
+test('support $ref for enums in other schemas', async (t) => {
+  const fastify = Fastify()
+
+  const enumSchema = { $id: 'order', anyOf: [{ type: 'string', const: 'foo' }, { type: 'string', const: 'bar' }] }
+  const enumRef = { $ref: 'order' }
+  const objectWithEnumSchema = { $id: 'object', type: 'object', properties: { type: enumRef }, required: ['type'] }
+
+  await fastify.register(fastifySwagger, openapiOption)
+  await fastify.register(async (instance) => {
+    instance.addSchema(enumSchema)
+    instance.addSchema(objectWithEnumSchema)
+    instance.post('/', { schema: { body: { type: 'object', properties: { order: { $ref: 'order' } } } } }, async () => ({ result: 'OK' }))
+  })
+
+  await fastify.ready()
+
+  const responseBeforeSwagger = await fastify.inject({ method: 'POST', url: '/', payload: { order: 'foo' } })
+
+  t.equal(responseBeforeSwagger.statusCode, 200)
+  const openapiObject = fastify.swagger()
+
+  t.equal(typeof openapiObject, 'object')
+
+  await Swagger.validate(openapiObject)
+
+  const responseAfterSwagger = await fastify.inject({ method: 'POST', url: '/', payload: { order: 'foo' } })
+
+  t.equal(responseAfterSwagger.statusCode, 200)
+})
+
 test('support nested $ref schema : complex case without modifying buildLocalReference', async (t) => {
   const fastify = Fastify()
   fastify.register(fastifySwagger, { openapi: {} })
