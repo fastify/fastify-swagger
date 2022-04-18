@@ -9,7 +9,7 @@ A Fastify plugin for serving a [Swagger UI](https://swagger.io/tools/swagger-ui/
 
 Supports Fastify versions `>=3.0.0`. For `fastify@2`, please refer to [`branch@2.x`](https://github.com/fastify/fastify-swagger/tree/2.x) and for `fastify@1.9`, please refer to [`branch@1.x`](https://github.com/fastify/fastify-swagger/tree/1.x).
 
-If you are looking for a plugin to generate routes from an existing OpenAPI schema, check out [fastify-swaggergen](https://github.com/seriousme/fastify-swaggergen).
+If you are looking for a plugin to generate routes from an existing OpenAPI schema, check out [fastify-openapi-glue](https://github.com/seriousme/fastify-openapi-glue).
 
 <a name="install"></a>
 ## Install
@@ -267,8 +267,8 @@ fastify.register(require('fastify-swagger'), {
       querystring,
       headers,
       response,
+      ...transformedSchema
     } = schema
-    const transformedSchema = Object.assign({}, schema) //shallow copy of schema
     let transformedUrl = url
 
     // Transform the schema as you wish with your own custom logic.
