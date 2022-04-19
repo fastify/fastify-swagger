@@ -106,3 +106,31 @@ test('hooks on dynamic swagger', async t => {
   t.ok(swaggerObject.paths)
   t.ok(swaggerObject.paths['/fooBar123'])
 })
+
+test('catch all added schema', async t => {
+  const fastify = Fastify()
+  fastify.register(fastifySwagger, {
+    openapi: {},
+    refResolver: {
+      buildLocalReference: (json, baseUri, fragment, i) => {
+        return json.$id || `def-${i}`
+      }
+    }
+  })
+
+  fastify.addSchema({ $id: 'Root', type: 'object', properties: {} })
+
+  fastify.register(function (instance, _, done) {
+    instance.addSchema({ $id: 'Instance', type: 'object', properties: {} })
+
+    instance.register(function (instance, _, done) {
+      instance.addSchema({ $id: 'Sub-Instance', type: 'object', properties: {} })
+      done()
+    })
+    done()
+  })
+
+  await fastify.ready()
+  const openapi = await fastify.swagger()
+  t.same(Object.keys(openapi.components.schemas), ['Root', 'Instance', 'Sub-Instance'])
+})
