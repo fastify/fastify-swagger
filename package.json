@@ -51,7 +51,7 @@
     "joi-to-json": "^2.0.0",
     "pre-commit": "^1.2.2",
     "qs": "^6.5.2",
-    "standard": "^16.0.1",
+    "standard": "^17.0.0",
     "swagger-parser": "^10.0.2",
     "swagger-ui-dist": "4.6.2",
     "tap": "^16.0.0",
