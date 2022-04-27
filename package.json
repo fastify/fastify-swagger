@@ -55,7 +55,7 @@
     "swagger-parser": "^10.0.2",
     "swagger-ui-dist": "4.6.2",
     "tap": "^16.0.0",
-    "tsd": "^0.19.0"
+    "tsd": "^0.20.0"
   },
   "dependencies": {
     "fastify-plugin": "^3.0.0",
