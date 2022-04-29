@@ -3,7 +3,7 @@
 const { test } = require('tap')
 const Fastify = require('fastify')
 const fastifySwagger = require('../index')
-const fastifyHelmet = require('fastify-helmet')
+const fastifyHelmet = require('@fastify/helmet')
 const swaggerCSP = require('../static/csp.json')
 test('fastify will response swagger csp', t => {
   t.plan(2)

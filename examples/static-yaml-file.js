@@ -1,7 +1,7 @@
 'use strict'
 
 const fastify = require('fastify')({ logger: true })
-// const swagger = require('fastify-swagger')
+// const swagger = require('@fastify/swagger')
 const swagger = require('..')
 
 fastify.register(swagger, {

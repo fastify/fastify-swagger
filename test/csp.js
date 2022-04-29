@@ -3,7 +3,7 @@
 const t = require('tap')
 const test = t.test
 const Fastify = require('fastify')
-const fastifyHelmet = require('fastify-helmet')
+const fastifyHelmet = require('@fastify/helmet')
 const fastifySwagger = require('../index')
 const {
   schemaQuerystring,
@@ -196,7 +196,7 @@ test('transformStaticCSP = function', t => {
   })
 })
 
-test('transformStaticCSP = function, with fastify-helmet', t => {
+test('transformStaticCSP = function, with @fastify/helmet', t => {
   t.plan(8)
 
   const fastify = Fastify()
