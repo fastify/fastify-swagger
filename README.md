@@ -744,7 +744,7 @@ So that [swagger-ui](https://github.com/swagger-api/swagger-ui) static folder wi
 
 ### How it works under the hood
 
-`fastify-static` serves `swagger-ui` static files, then calls `/docs/json` to get the Swagger file and render it.
+`@fastify/static` serves `swagger-ui` static files, then calls `/docs/json` to get the Swagger file and render it.
 
 #### How to work with $refs
 
