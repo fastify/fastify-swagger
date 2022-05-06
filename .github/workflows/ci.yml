@@ -12,6 +12,6 @@ on:
 
 jobs:
   test:
-    uses: fastify/workflows/.github/workflows/plugins-ci.yml@v2
+    uses: fastify/workflows/.github/workflows/plugins-ci.yml@v3
     with:
       lint: true
