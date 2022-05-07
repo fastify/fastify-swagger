@@ -737,6 +737,6 @@ test('support query serialization params', async t => {
 
   const swaggerObject = fastify.swagger()
   const api = await Swagger.validate(swaggerObject)
-  t.is(api.paths['/'].get.parameters[0].style, 'deepObject')
-  t.is(api.paths['/'].get.parameters[0].explode, false)
+  t.equal(api.paths['/'].get.parameters[0].style, 'deepObject')
+  t.equal(api.paths['/'].get.parameters[0].explode, false)
 })
