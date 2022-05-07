@@ -1,6 +1,6 @@
-# fastify-swagger
+# @fastify/swagger
 
-[![NPM version](https://img.shields.io/npm/v/fastify-swagger.svg?style=flat)](https://www.npmjs.com/package/fastify-swagger)
+[![NPM version](https://img.shields.io/npm/v/@fastify/swagger.svg?style=flat)](https://www.npmjs.com/package/@fastify/swagger)
 ![CI workflow](https://github.com/fastify/fastify-swagger/workflows/CI%20workflow/badge.svg)
 [![Known Vulnerabilities](https://snyk.io/test/github/fastify/fastify-swagger/badge.svg)](https://snyk.io/test/github/fastify/fastify-swagger)
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](https://standardjs.com/)
@@ -14,7 +14,7 @@ If you are looking for a plugin to generate routes from an existing OpenAPI sche
 <a name="install"></a>
 ## Install
 ```
-npm i fastify-swagger --save
+npm i @fastify/swagger --save
 ```
 
 <a name="usage"></a>
@@ -24,7 +24,7 @@ Add it to your project with `register`, pass it some options, call the `swagger`
 ```js
 const fastify = require('fastify')()
 
-fastify.register(require('fastify-swagger'), {
+fastify.register(require('@fastify/swagger'), {
   routePrefix: '/documentation',
   swagger: {
     info: {
@@ -140,11 +140,11 @@ fastify.ready(err => {
 
 <a name="register.options.modes"></a>
 #### Modes
-`fastify-swagger` supports two registration modes `dynamic` and `static`:
+`@fastify/swagger` supports two registration modes `dynamic` and `static`:
 
 <a name="register.options.mode.dynamic"></a>
 ##### Dynamic
-`dynamic` is the default mode, if you use `fastify-swagger` this way API schemas will be auto-generated from route schemas:
+`dynamic` is the default mode, if you use `@fastify/swagger` this way API schemas will be auto-generated from route schemas:
 ```js
 // All of the below parameters are optional but are included for demonstration purposes
 {
@@ -180,16 +180,16 @@ fastify.ready(err => {
 ```
 
 All properties detailed in the [Swagger (OpenAPI v2)](https://swagger.io/specification/v2/) and [OpenAPI v3](https://swagger.io/specification/) specifications can be used.
-`fastify-swagger` will generate API schemas that adhere to the Swagger specification by default.
+`@fastify/swagger` will generate API schemas that adhere to the Swagger specification by default.
 If provided an `openapi` option it will generate OpenAPI compliant API schemas instead.
 
-Examples of using `fastify-swagger` in `dynamic` mode:
+Examples of using `@fastify/swagger` in `dynamic` mode:
 - [Using the `swagger` option](examples/dynamic-swagger.js)
 - [Using the `openapi` option](examples/dynamic-openapi.js)
 
 <a name="register.options.mode.static"></a>
 ##### Static
- `static` mode must be configured explicitly. In this mode `fastify-swagger` serves an already existing Swagger or OpenAPI schema that is passed to it in `specification.path`:
+ `static` mode must be configured explicitly. In this mode `@fastify/swagger` serves an already existing Swagger or OpenAPI schema that is passed to it in `specification.path`:
 
 ```js
 {
@@ -210,7 +210,7 @@ It accepts `swaggerObject` - a JavaScript object that was parsed from your `yaml
 `specification.baseDir` allows specifying the directory where all spec files that are included in the main one using `$ref` will be located.
 By default, this is the directory where the main spec file is located. Provided value should be an absolute path **without** trailing slash.
 
-An example of using `fastify-swagger` with `static` mode enabled can be found [here](examples/static-json-file.js).
+An example of using `@fastify/swagger` with `static` mode enabled can be found [here](examples/static-json-file.js).
 
 #### Options
 
@@ -258,7 +258,7 @@ Examples of all the possible uses mentioned:
 ```js
 const convert = require('joi-to-json')
 
-fastify.register(require('fastify-swagger'), {
+fastify.register(require('@fastify/swagger'), {
   swagger: { ... },
   transform: ({ schema, url }) => {
     const {
@@ -303,7 +303,7 @@ By default, this option will resolve all `$ref`s renaming them to `def-${counter
 To customize this logic you can pass a `refResolver` option to the plugin:
 
 ```js
-fastify.register(require('fastify-swagger'), {
+fastify.register(require('@fastify/swagger'), {
   swagger: { ... },
   ...
   refResolver: {
@@ -402,7 +402,7 @@ fastify.get('/responseDescription', {
 <a name="route.response.2xx"></a>
 ##### Status code 2xx
 Fastify supports both the `2xx` and `3xx` status codes, however Swagger (OpenAPI v2) itself does not.
-`fastify-swagger` transforms `2xx` status codes into `200`, but will omit it if a `200` status code has already been declared.
+`@fastify/swagger` transforms `2xx` status codes into `200`, but will omit it if a `200` status code has already been declared.
 OpenAPI v3 [supports the `2xx` syntax](https://swagger.io/specification/#http-codes) so is unaffected.
 
 Example:
@@ -451,7 +451,7 @@ Note: You need to specify `type` property when you decorate the response headers
 
 <a name="route.response.empty_body"></a>
 ##### Empty Body Responses
-Empty body responses are supported by `fastify-swagger`.
+Empty body responses are supported by `@fastify/swagger`.
 Please specify `type: 'null'` for the response otherwise Fastify itself will fail to compile the schema:
 
 ```js
@@ -484,7 +484,7 @@ The same applies to the other parts of a request that OpenAPI calls "parameters"
 
 You can also apply different serialization `style` and `explode` as specified [here](https://swagger.io/docs/specification/serialization/#query).
 
-`fastify-swagger` supports these options as shown in this example:
+`@fastify/swagger` supports these options as shown in this example:
 
 ```js
 fastify.route({
@@ -678,10 +678,10 @@ There are two ways to hide a route from the Swagger UI:
 #### Protect your documentation routes
 
 You can protect your documentation by configuring an authentication hook.
-Here is an example using the [`fastify-basic-auth`](https://github.com/fastify/fastify-basic-auth) plugin:
+Here is an example using the [`@fastify/basic-auth`](https://github.com/fastify/fastify-basic-auth) plugin:
 
 ```js
-await fastify.register(require('fastify-basic-auth'), {
+await fastify.register(require('@fastify/basic-auth'), {
   validate (username, password, req, reply, done) {
     if (username === 'admin' && password === 'admin') {
       done()
@@ -703,14 +703,14 @@ fastify.register(fastifySwagger, {
 <a name="function.options"></a>
 ### Swagger function options
 
-Registering `fastify-swagger` decorates the fastify instance with `fastify.swagger()`, which returns a JSON object representing the API.
+Registering `@fastify/swagger` decorates the fastify instance with `fastify.swagger()`, which returns a JSON object representing the API.
 If `{ yaml: true }` is passed to `fastify.swagger()` it will return a YAML string.
 
 <a name="integration"></a>
 ### Integration
-You can integration this plugin with ```fastify-helmet``` with some little work.
+You can integration this plugin with ```@fastify/helmet``` with some little work.
 
-```fastify-helmet``` options example:
+```@fastify/helmet``` options example:
 ```javascript
 .register(helmet, instance => {
   return {
@@ -744,7 +744,7 @@ So that [swagger-ui](https://github.com/swagger-api/swagger-ui) static folder wi
 
 ### How it works under the hood
 
-`fastify-static` serves `swagger-ui` static files, then calls `/docs/json` to get the Swagger file and render it.
+`@fastify/static` serves `swagger-ui` static files, then calls `/docs/json` to get the Swagger file and render it.
 
 #### How to work with $refs
 

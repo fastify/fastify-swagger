@@ -1,6 +1,6 @@
 {
-  "name": "fastify-swagger",
-  "version": "5.1.1",
+  "name": "@fastify/swagger",
+  "version": "6.0.1",
   "description": "Serve Swagger/OpenAPI documentation for Fastify, supporting dynamic generation",
   "main": "index.js",
   "types": "index.d.ts",
@@ -52,15 +52,15 @@
     "joi-to-json": "^2.1.1",
     "pre-commit": "^1.2.2",
     "qs": "^6.10.3",
-    "standard": "^16.0.4",
+    "standard": "^17.0.0",
     "swagger-parser": "^10.0.3",
     "swagger-ui-dist": "4.6.2",
     "tap": "^16.0.0",
-    "tsd": "^0.19.1"
+    "tsd": "^0.20.0"
   },
   "dependencies": {
-    "fastify-plugin": "^3.0.1",
-    "fastify-static": "^4.5.0",
+    "@fastify/static": "^5.0.0",
+    "fastify-plugin": "^3.0.0",
     "js-yaml": "^4.1.0",
     "json-schema-resolver": "^1.3.0",
     "openapi-types": "^10.0.0",
@@ -74,5 +74,8 @@
   },
   "tsd": {
     "directory": "test/types"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
