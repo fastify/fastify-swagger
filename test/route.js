@@ -398,7 +398,12 @@ test('/documentation/static/:file should send back the correct file', t => {
         ),
         res.payload
       )
-      t.ok(res.payload.indexOf('resolveUrl') !== -1)
+      t.ok(
+        readFileSync(
+          resolve(__dirname, '..', 'static', 'swagger-initializer.js'),
+          'utf8'
+        ).indexOf('resolveUrl') !== -1
+      )
     })
   })
 
