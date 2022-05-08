@@ -2,15 +2,15 @@
 
 const { test } = require('tap')
 const Fastify = require('fastify')
-const fastifySwagger = require('../index')
-const fastifyHelmet = require('fastify-helmet')
+const fastifySwagger = require('..')
+const fastifyHelmet = require('@fastify/helmet')
 const swaggerCSP = require('../static/csp.json')
 test('fastify will response swagger csp', t => {
   t.plan(2)
 
   const scriptCSP = swaggerCSP.script.length > 0 ? ` ${swaggerCSP.script.join(' ')}` : ''
   const styleCSP = swaggerCSP.style.length > 0 ? ` ${swaggerCSP.style.join(' ')}` : ''
-  const csp = `default-src 'self';img-src 'self' data: validator.swagger.io;script-src 'self'${scriptCSP};style-src 'self' https:${styleCSP}`
+  const csp = `default-src 'self';img-src 'self' data: validator.swagger.io;script-src 'self'${scriptCSP};style-src 'self' https:${styleCSP};base-uri 'self';block-all-mixed-content;font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';object-src 'none';script-src-attr 'none';upgrade-insecure-requests`
 
   const fastify = Fastify()
 

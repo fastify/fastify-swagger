@@ -451,7 +451,7 @@ test('swagger should not support Links', t => {
   fastify.ready(err => {
     t.error(err)
 
-    t.throws(() => fastify.swagger(), new Error('Swagger (Open API v2) does not support Links. Upgrade to OpenAPI v3 (see fastify-swagger readme)'))
+    t.throws(() => fastify.swagger(), new Error('Swagger (Open API v2) does not support Links. Upgrade to OpenAPI v3 (see @fastify/swagger readme)'))
   })
 })
 
