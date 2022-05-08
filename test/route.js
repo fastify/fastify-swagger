@@ -362,7 +362,7 @@ test('with routePrefix: \'/\' should redirect to ./static/index.html', t => {
 })
 
 test('/documentation/static/:file should send back the correct file', t => {
-  t.plan(24)
+  t.plan(29)
   const fastify = Fastify()
 
   fastify.register(fastifySwagger, swaggerOption)
@@ -398,13 +398,25 @@ test('/documentation/static/:file should send back the correct file', t => {
         ),
         res.payload
       )
-      t.ok(
-        readFileSync(
-          resolve(__dirname, '..', 'static', 'swagger-initializer.js'),
-          'utf8'
-        ).indexOf('resolveUrl') !== -1
-      )
+      t.ok(res.payload.indexOf('swagger-initializer.js') !== -1)
     })
+  })
+
+  fastify.inject({
+    method: 'GET',
+    url: '/documentation/static/swagger-initializer.js'
+  }, (err, res) => {
+    t.error(err)
+    t.equal(typeof res.payload, 'string')
+    t.equal(res.headers['content-type'], 'application/javascript; charset=UTF-8')
+    t.equal(
+      readFileSync(
+        resolve(__dirname, '..', 'static', 'swagger-initializer.js'),
+        'utf8'
+      ),
+      res.payload
+    )
+    t.ok(res.payload.indexOf('resolveUrl') !== -1)
   })
 
   fastify.inject({
