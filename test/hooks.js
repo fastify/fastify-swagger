@@ -24,7 +24,7 @@ function basicAuthEncode (username, password) {
 
 test('hooks on static swagger', async t => {
   const fastify = Fastify()
-  await fastify.register(require('fastify-basic-auth'), authOptions)
+  await fastify.register(require('@fastify/basic-auth'), authOptions)
   fastify.register(fastifySwagger, {
     mode: 'static',
     specification: {
@@ -74,7 +74,7 @@ test('hooks on static swagger', async t => {
 
 test('hooks on dynamic swagger', async t => {
   const fastify = Fastify()
-  await fastify.register(require('fastify-basic-auth'), authOptions)
+  await fastify.register(require('@fastify/basic-auth'), authOptions)
 
   fastify.register(fastifySwagger, {
     ...swaggerOption,
