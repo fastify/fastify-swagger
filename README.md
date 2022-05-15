@@ -23,7 +23,7 @@ Add it to your project with `register`, pass it some options, call the `swagger`
 ```js
 const fastify = require('fastify')()
 
-fastify.register(require('@fastify/swagger'), {
+await fastify.register(require('@fastify/swagger'), {
   routePrefix: '/documentation',
   swagger: {
     info: {
@@ -126,10 +126,8 @@ fastify.put('/some-route/:id', {
   }
 }, (req, reply) => {})
 
-fastify.ready(err => {
-  if (err) throw err
-  fastify.swagger()
-})
+await fastify.ready()
+fastify.swagger()
 ```
 <a name="api"></a>
 ## API
@@ -257,7 +255,7 @@ Examples of all the possible uses mentioned:
 ```js
 const convert = require('joi-to-json')
 
-fastify.register(require('@fastify/swagger'), {
+await fastify.register(require('@fastify/swagger'), {
   swagger: { ... },
   transform: ({ schema, url }) => {
     const {
@@ -302,7 +300,7 @@ By default, this option will resolve all `$ref`s renaming them to `def-${counter
 To customize this logic you can pass a `refResolver` option to the plugin:
 
 ```js
-fastify.register(require('@fastify/swagger'), {
+await fastify.register(require('@fastify/swagger'), {
   swagger: { ... },
   ...
   refResolver: {
@@ -691,7 +689,7 @@ await fastify.register(require('@fastify/basic-auth'), {
   authenticate: true
 })
 
-fastify.register(fastifySwagger, {
+await fastify.register(fastifySwagger, {
   exposeRoute: true,
   uiHooks: {
     onRequest: fastify.basicAuth
