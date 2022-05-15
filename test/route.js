@@ -55,11 +55,11 @@ const schemaParamsWithKey = {
   }
 }
 
-test('/documentation/json route', t => {
-  t.plan(2)
+test('/documentation/json route', async (t) => {
+  t.plan(1)
   const fastify = Fastify()
 
-  fastify.register(fastifySwagger, swaggerOption)
+  await fastify.register(fastifySwagger, swaggerOption)
 
   fastify.get('/', () => {})
   fastify.post('/', () => {})
@@ -68,26 +68,19 @@ test('/documentation/json route', t => {
   fastify.get('/parameters/:id', schemaParams, () => {})
   fastify.get('/example1', schemaSecurity, () => {})
 
-  fastify.inject({
+  const res = await fastify.inject({
     method: 'GET',
     url: '/documentation/json'
-  }, (err, res) => {
-    t.error(err)
-
-    const payload = JSON.parse(res.payload)
-
-    Swagger.validate(payload)
-      .then(function (api) {
-        t.pass('valid swagger object')
-      })
-      .catch(function (err) {
-        t.fail(err)
-      })
   })
+
+  const payload = JSON.parse(res.payload)
+
+  await Swagger.validate(payload)
+  t.pass('valid swagger object')
 })
 
-test('/documentation/uiConfig route', t => {
-  t.plan(2)
+test('/documentation/uiConfig route', async (t) => {
+  t.plan(1)
   const fastify = Fastify()
 
   const uiConfig = {
@@ -99,7 +92,7 @@ test('/documentation/uiConfig route', t => {
     uiConfig
   }
 
-  fastify.register(fastifySwagger, opts)
+  await fastify.register(fastifySwagger, opts)
 
   fastify.get('/', () => {})
   fastify.post('/', () => {})
@@ -108,20 +101,18 @@ test('/documentation/uiConfig route', t => {
   fastify.get('/parameters/:id', schemaParams, () => {})
   fastify.get('/example1', schemaSecurity, () => {})
 
-  fastify.inject({
+  const res = await fastify.inject({
     method: 'GET',
     url: '/documentation/uiConfig'
-  }, (err, res) => {
-    t.error(err)
-
-    const payload = JSON.parse(res.payload)
-
-    t.match(payload, uiConfig, 'uiConfig should be valid')
   })
+
+  const payload = JSON.parse(res.payload)
+
+  t.match(payload, uiConfig, 'uiConfig should be valid')
 })
 
-test('/documentation/initOAuth route', t => {
-  t.plan(2)
+test('/documentation/initOAuth route', async (t) => {
+  t.plan(1)
   const fastify = Fastify()
 
   const initOAuth = {
@@ -133,7 +124,7 @@ test('/documentation/initOAuth route', t => {
     initOAuth
   }
 
-  fastify.register(fastifySwagger, opts)
+  await fastify.register(fastifySwagger, opts)
 
   fastify.get('/', () => {})
   fastify.post('/', () => {})
@@ -142,23 +133,21 @@ test('/documentation/initOAuth route', t => {
   fastify.get('/parameters/:id', schemaParams, () => {})
   fastify.get('/example1', schemaSecurity, () => {})
 
-  fastify.inject({
+  const res = await fastify.inject({
     method: 'GET',
     url: '/documentation/initOAuth'
-  }, (err, res) => {
-    t.error(err)
-
-    const payload = JSON.parse(res.payload)
-
-    t.match(payload, initOAuth, 'initOAuth should be valid')
   })
+
+  const payload = JSON.parse(res.payload)
+
+  t.match(payload, initOAuth, 'initOAuth should be valid')
 })
 
-test('fastify.swagger should return a valid swagger yaml', t => {
-  t.plan(4)
+test('fastify.swagger should return a valid swagger yaml', async (t) => {
+  t.plan(3)
   const fastify = Fastify()
 
-  fastify.register(fastifySwagger, swaggerOption)
+  await fastify.register(fastifySwagger, swaggerOption)
 
   fastify.get('/', () => {})
   fastify.post('/', () => {})
@@ -168,26 +157,21 @@ test('fastify.swagger should return a valid swagger yaml', t => {
   fastify.get('/example1', schemaSecurity, () => {})
   fastify.all('/parametersWithoutDesc/:id', schemaParamsWithoutDesc, () => {})
 
-  fastify.inject({
+  const res = await fastify.inject({
     method: 'GET',
     url: '/documentation/yaml'
-  }, (err, res) => {
-    t.error(err)
-    t.equal(typeof res.payload, 'string')
-    t.equal(res.headers['content-type'], 'application/x-yaml')
-    try {
-      yaml.load(res.payload)
-      t.pass('valid swagger yaml')
-    } catch (err) {
-      t.fail(err)
-    }
   })
+
+  t.equal(typeof res.payload, 'string')
+  t.equal(res.headers['content-type'], 'application/x-yaml')
+  yaml.load(res.payload)
+  t.pass('valid swagger yaml')
 })
 
-test('/documentation should redirect to ./documentation/static/index.html', t => {
-  t.plan(4)
+test('/documentation should redirect to ./documentation/static/index.html', async (t) => {
+  t.plan(3)
   const fastify = Fastify()
-  fastify.register(fastifySwagger, swaggerOption)
+  await fastify.register(fastifySwagger, swaggerOption)
 
   fastify.get('/', () => {})
   fastify.post('/', () => {})
@@ -196,21 +180,19 @@ test('/documentation should redirect to ./documentation/static/index.html', t =>
   fastify.get('/parameters/:id', schemaParams, () => {})
   fastify.get('/example1', schemaSecurity, () => {})
 
-  fastify.inject({
+  const res = await fastify.inject({
     method: 'GET',
     url: '/documentation'
-  }, (err, res) => {
-    t.error(err)
-    t.equal(res.statusCode, 302)
-    t.equal(res.headers.location, './documentation/static/index.html')
-    t.equal(typeof res.payload, 'string')
   })
+  t.equal(res.statusCode, 302)
+  t.equal(res.headers.location, './documentation/static/index.html')
+  t.equal(typeof res.payload, 'string')
 })
 
-test('/documentation/ should redirect to ./static/index.html', t => {
-  t.plan(4)
+test('/documentation/ should redirect to ./static/index.html', async (t) => {
+  t.plan(3)
   const fastify = Fastify()
-  fastify.register(fastifySwagger, swaggerOption)
+  await fastify.register(fastifySwagger, swaggerOption)
 
   fastify.get('/', () => {})
   fastify.post('/', () => {})
@@ -219,23 +201,21 @@ test('/documentation/ should redirect to ./static/index.html', t => {
   fastify.get('/parameters/:id', schemaParams, () => {})
   fastify.get('/example1', schemaSecurity, () => {})
 
-  fastify.inject({
+  const res = await fastify.inject({
     method: 'GET',
     url: '/documentation/'
-  }, (err, res) => {
-    t.error(err)
-    t.equal(res.statusCode, 302)
-    t.equal(res.headers.location, './static/index.html')
-    t.equal(typeof res.payload, 'string')
   })
+  t.equal(res.statusCode, 302)
+  t.equal(res.headers.location, './static/index.html')
+  t.equal(typeof res.payload, 'string')
 })
 
-test('/v1/documentation should redirect to ./documentation/static/index.html', t => {
-  t.plan(4)
+test('/v1/documentation should redirect to ./documentation/static/index.html', async (t) => {
+  t.plan(3)
   const fastify = Fastify()
   const opts = JSON.parse(JSON.stringify(swaggerOption))
   opts.routePrefix = '/v1/documentation'
-  fastify.register(fastifySwagger, opts)
+  await fastify.register(fastifySwagger, opts)
 
   fastify.get('/', () => {})
   fastify.post('/', () => {})
@@ -244,23 +224,21 @@ test('/v1/documentation should redirect to ./documentation/static/index.html', t
   fastify.get('/parameters/:id', schemaParams, () => {})
   fastify.get('/example1', schemaSecurity, () => {})
 
-  fastify.inject({
+  const res = await fastify.inject({
     method: 'GET',
     url: '/v1/documentation'
-  }, (err, res) => {
-    t.error(err)
-    t.equal(res.statusCode, 302)
-    t.equal(res.headers.location, './documentation/static/index.html')
-    t.equal(typeof res.payload, 'string')
   })
+  t.equal(res.statusCode, 302)
+  t.equal(res.headers.location, './documentation/static/index.html')
+  t.equal(typeof res.payload, 'string')
 })
 
-test('/v1/documentation/ should redirect to ./static/index.html', t => {
-  t.plan(4)
+test('/v1/documentation/ should redirect to ./static/index.html', async (t) => {
+  t.plan(3)
   const fastify = Fastify()
   const opts = JSON.parse(JSON.stringify(swaggerOption))
   opts.routePrefix = '/v1/documentation'
-  fastify.register(fastifySwagger, opts)
+  await fastify.register(fastifySwagger, opts)
 
   fastify.get('/', () => {})
   fastify.post('/', () => {})
@@ -269,25 +247,23 @@ test('/v1/documentation/ should redirect to ./static/index.html', t => {
   fastify.get('/parameters/:id', schemaParams, () => {})
   fastify.get('/example1', schemaSecurity, () => {})
 
-  fastify.inject({
+  const res = await fastify.inject({
     method: 'GET',
     url: '/v1/documentation/'
-  }, (err, res) => {
-    t.error(err)
-    t.equal(res.statusCode, 302)
-    t.equal(res.headers.location, './static/index.html')
-    t.equal(typeof res.payload, 'string')
   })
+  t.equal(res.statusCode, 302)
+  t.equal(res.headers.location, './static/index.html')
+  t.equal(typeof res.payload, 'string')
 })
 
-test('/v1/foobar should redirect to ./foobar/static/index.html - in plugin', t => {
-  t.plan(4)
+test('/v1/foobar should redirect to ./foobar/static/index.html - in plugin', async (t) => {
+  t.plan(3)
   const fastify = Fastify()
 
-  fastify.register(function (fastify, options, next) {
+  fastify.register(async function (fastify, options) {
     const opts = JSON.parse(JSON.stringify(swaggerOption))
     opts.routePrefix = '/foobar'
-    fastify.register(fastifySwagger, opts)
+    await fastify.register(fastifySwagger, opts)
 
     fastify.get('/', () => {})
     fastify.post('/', () => {})
@@ -295,29 +271,25 @@ test('/v1/foobar should redirect to ./foobar/static/index.html - in plugin', t =
     fastify.post('/example', schemaBody, () => {})
     fastify.get('/parameters/:id', schemaParams, () => {})
     fastify.get('/example1', schemaSecurity, () => {})
-
-    next()
   }, { prefix: '/v1' })
 
-  fastify.inject({
+  const res = await fastify.inject({
     method: 'GET',
     url: '/v1/foobar'
-  }, (err, res) => {
-    t.error(err)
-    t.equal(res.statusCode, 302)
-    t.equal(res.headers.location, './foobar/static/index.html')
-    t.equal(typeof res.payload, 'string')
   })
+  t.equal(res.statusCode, 302)
+  t.equal(res.headers.location, './foobar/static/index.html')
+  t.equal(typeof res.payload, 'string')
 })
 
-test('/v1/foobar/ should redirect to ./static/index.html - in plugin', t => {
-  t.plan(4)
+test('/v1/foobar/ should redirect to ./static/index.html - in plugin', async (t) => {
+  t.plan(3)
   const fastify = Fastify()
 
-  fastify.register(function (fastify, options, next) {
+  fastify.register(async function (fastify, options) {
     const opts = JSON.parse(JSON.stringify(swaggerOption))
     opts.routePrefix = '/foobar'
-    fastify.register(fastifySwagger, opts)
+    await fastify.register(fastifySwagger, opts)
 
     fastify.get('/', () => {})
     fastify.post('/', () => {})
@@ -325,47 +297,41 @@ test('/v1/foobar/ should redirect to ./static/index.html - in plugin', t => {
     fastify.post('/example', schemaBody, () => {})
     fastify.get('/parameters/:id', schemaParams, () => {})
     fastify.get('/example1', schemaSecurity, () => {})
-
-    next()
   }, { prefix: '/v1' })
 
-  fastify.inject({
+  const res = await fastify.inject({
     method: 'GET',
     url: '/v1/foobar/'
-  }, (err, res) => {
-    t.error(err)
-    t.equal(res.statusCode, 302)
-    t.equal(res.headers.location, './static/index.html')
-    t.equal(typeof res.payload, 'string')
   })
+  t.equal(res.statusCode, 302)
+  t.equal(res.headers.location, './static/index.html')
+  t.equal(typeof res.payload, 'string')
 })
 
-test('with routePrefix: \'/\' should redirect to ./static/index.html', t => {
-  t.plan(4)
+test('with routePrefix: \'/\' should redirect to ./static/index.html', async (t) => {
+  t.plan(3)
   const fastify = Fastify()
 
   const opts = JSON.parse(JSON.stringify(swaggerOption))
   opts.routePrefix = '/'
-  fastify.register(fastifySwagger, opts)
+  await fastify.register(fastifySwagger, opts)
 
   fastify.get('/foo', () => {})
 
-  fastify.inject({
+  const res = await fastify.inject({
     method: 'GET',
     url: '/'
-  }, (err, res) => {
-    t.error(err)
-    t.equal(res.statusCode, 302)
-    t.equal(res.headers.location, './static/index.html')
-    t.equal(typeof res.payload, 'string')
   })
+  t.equal(res.statusCode, 302)
+  t.equal(res.headers.location, './static/index.html')
+  t.equal(typeof res.payload, 'string')
 })
 
-test('/documentation/static/:file should send back the correct file', t => {
-  t.plan(29)
+test('/documentation/static/:file should send back the correct file', async (t) => {
+  t.plan(22)
   const fastify = Fastify()
 
-  fastify.register(fastifySwagger, swaggerOption)
+  await fastify.register(fastifySwagger, swaggerOption)
 
   fastify.get('/', () => {})
   fastify.post('/', () => {})
@@ -374,39 +340,39 @@ test('/documentation/static/:file should send back the correct file', t => {
   fastify.get('/parameters/:id', schemaParams, () => {})
   fastify.get('/example1', schemaSecurity, () => {})
 
-  fastify.inject({
-    method: 'GET',
-    url: '/documentation/'
-  }, (err, res) => {
-    t.error(err)
+  await fastify.ready()
+
+  {
+    const res = await fastify.inject({
+      method: 'GET',
+      url: '/documentation/'
+    })
     t.equal(res.statusCode, 302)
     t.equal(res.headers.location, './static/index.html')
-  })
+  }
 
-  fastify.ready(() => {
-    fastify.inject({
+  {
+    const res = await fastify.inject({
       method: 'GET',
       url: '/documentation/static/'
-    }, (err, res) => {
-      t.error(err)
-      t.equal(typeof res.payload, 'string')
-      t.equal(res.headers['content-type'], 'text/html; charset=UTF-8')
-      t.equal(
-        readFileSync(
-          resolve(__dirname, '..', 'static', 'index.html'),
-          'utf8'
-        ),
-        res.payload
-      )
-      t.ok(res.payload.indexOf('swagger-initializer.js') !== -1)
     })
-  })
+    t.equal(typeof res.payload, 'string')
+    t.equal(res.headers['content-type'], 'text/html; charset=UTF-8')
+    t.equal(
+      readFileSync(
+        resolve(__dirname, '..', 'static', 'index.html'),
+        'utf8'
+      ),
+      res.payload
+    )
+    t.ok(res.payload.indexOf('swagger-initializer.js') !== -1)
+  }
 
-  fastify.inject({
-    method: 'GET',
-    url: '/documentation/static/swagger-initializer.js'
-  }, (err, res) => {
-    t.error(err)
+  {
+    const res = await fastify.inject({
+      method: 'GET',
+      url: '/documentation/static/swagger-initializer.js'
+    })
     t.equal(typeof res.payload, 'string')
     t.equal(res.headers['content-type'], 'application/javascript; charset=UTF-8')
     t.equal(
@@ -417,13 +383,13 @@ test('/documentation/static/:file should send back the correct file', t => {
       res.payload
     )
     t.ok(res.payload.indexOf('resolveUrl') !== -1)
-  })
+  }
 
-  fastify.inject({
-    method: 'GET',
-    url: '/documentation/static/oauth2-redirect.html'
-  }, (err, res) => {
-    t.error(err)
+  {
+    const res = await fastify.inject({
+      method: 'GET',
+      url: '/documentation/static/oauth2-redirect.html'
+    })
     t.equal(typeof res.payload, 'string')
     t.equal(res.headers['content-type'], 'text/html; charset=UTF-8')
     t.equal(
@@ -433,13 +399,13 @@ test('/documentation/static/:file should send back the correct file', t => {
       ),
       res.payload
     )
-  })
+  }
 
-  fastify.inject({
-    method: 'GET',
-    url: '/documentation/static/swagger-ui.css'
-  }, (err, res) => {
-    t.error(err)
+  {
+    const res = await fastify.inject({
+      method: 'GET',
+      url: '/documentation/static/swagger-ui.css'
+    })
     t.equal(typeof res.payload, 'string')
     t.equal(res.headers['content-type'], 'text/css; charset=UTF-8')
     t.equal(
@@ -449,13 +415,13 @@ test('/documentation/static/:file should send back the correct file', t => {
       ),
       res.payload
     )
-  })
+  }
 
-  fastify.inject({
-    method: 'GET',
-    url: '/documentation/static/swagger-ui-bundle.js'
-  }, (err, res) => {
-    t.error(err)
+  {
+    const res = await fastify.inject({
+      method: 'GET',
+      url: '/documentation/static/swagger-ui-bundle.js'
+    })
     t.equal(typeof res.payload, 'string')
     t.equal(res.headers['content-type'], 'application/javascript; charset=UTF-8')
     t.equal(
@@ -465,13 +431,13 @@ test('/documentation/static/:file should send back the correct file', t => {
       ),
       res.payload
     )
-  })
+  }
 
-  fastify.inject({
-    method: 'GET',
-    url: '/documentation/static/swagger-ui-standalone-preset.js'
-  }, (err, res) => {
-    t.error(err)
+  {
+    const res = await fastify.inject({
+      method: 'GET',
+      url: '/documentation/static/swagger-ui-standalone-preset.js'
+    })
     t.equal(typeof res.payload, 'string')
     t.equal(res.headers['content-type'], 'application/javascript; charset=UTF-8')
     t.equal(
@@ -481,14 +447,14 @@ test('/documentation/static/:file should send back the correct file', t => {
       ),
       res.payload
     )
-  })
+  }
 })
 
-test('/documentation/static/:file 404', t => {
-  t.plan(3)
+test('/documentation/static/:file 404', async (t) => {
+  t.plan(2)
   const fastify = Fastify()
 
-  fastify.register(fastifySwagger, swaggerOption)
+  await fastify.register(fastifySwagger, swaggerOption)
 
   fastify.get('/', () => {})
   fastify.post('/', () => {})
@@ -497,26 +463,24 @@ test('/documentation/static/:file 404', t => {
   fastify.get('/parameters/:id', schemaParams, () => {})
   fastify.get('/example1', schemaSecurity, () => {})
 
-  fastify.inject({
+  const res = await fastify.inject({
     method: 'GET',
     url: '/documentation/static/stuff.css'
-  }, (err, res) => {
-    t.error(err)
-    const payload = JSON.parse(res.payload)
-    t.equal(res.statusCode, 404)
-    t.match(payload, {
-      error: 'Not Found',
-      statusCode: 404
-    })
+  })
+  const payload = JSON.parse(res.payload)
+  t.equal(res.statusCode, 404)
+  t.match(payload, {
+    error: 'Not Found',
+    statusCode: 404
   })
 })
 
-test('/documentation2/json route (overwrite)', t => {
-  t.plan(2)
+test('/documentation2/json route (overwrite)', async (t) => {
+  t.plan(1)
   const fastify = Fastify()
   const swaggerOptionWithRouteOverwrite = JSON.parse(JSON.stringify(swaggerOption))
   swaggerOptionWithRouteOverwrite.routePrefix = '/documentation2'
-  fastify.register(fastifySwagger, swaggerOptionWithRouteOverwrite)
+  await fastify.register(fastifySwagger, swaggerOptionWithRouteOverwrite)
 
   fastify.get('/', () => {})
   fastify.post('/', () => {})
@@ -526,67 +490,54 @@ test('/documentation2/json route (overwrite)', t => {
   fastify.get('/example1', schemaSecurity, () => {})
   fastify.get('/parameters/:id/:key', schemaParamsWithKey, () => {})
 
-  fastify.inject({
+  const res = await fastify.inject({
     method: 'GET',
     url: '/documentation2/json'
-  }, (err, res) => {
-    t.error(err)
-
-    const payload = JSON.parse(res.payload)
-
-    Swagger.validate(payload)
-      .then(function (api) {
-        t.pass('valid swagger object')
-      })
-      .catch(function (err) {
-        t.fail(err)
-      })
   })
+
+  const payload = JSON.parse(res.payload)
+
+  await Swagger.validate(payload)
+  t.pass('valid swagger object')
 })
 
-test('/documentation/:myfile should return 404 in dynamic mode', t => {
-  t.plan(2)
+test('/documentation/:myfile should return 404 in dynamic mode', async (t) => {
+  t.plan(1)
   const fastify = Fastify()
-  fastify.register(fastifySwagger, swaggerOption)
+  await fastify.register(fastifySwagger, swaggerOption)
 
-  fastify.inject({
+  const res = await fastify.inject({
     method: 'GET',
     url: '/documentation/swagger-ui.js'
-  }, (err, res) => {
-    t.error(err)
-    t.equal(res.statusCode, 404)
   })
+  t.equal(res.statusCode, 404)
 })
 
-test('/documentation/:myfile should run custom NotFoundHandler in dynamic mode', t => {
-  t.plan(2)
+test('/documentation/:myfile should run custom NotFoundHandler in dynamic mode', async (t) => {
+  t.plan(1)
   const fastify = Fastify()
   const notFoundHandler = function (req, reply) {
     reply.code(410).send()
   }
   fastify.setNotFoundHandler(notFoundHandler)
-  fastify.register(fastifySwagger, swaggerOption)
+  await fastify.register(fastifySwagger, swaggerOption)
 
-  fastify.inject({
+  const res = await fastify.inject({
     method: 'GET',
     url: '/documentation/swagger-ui.js'
-  }, (err, res) => {
-    t.error(err)
-    t.equal(res.statusCode, 410)
   })
+  t.equal(res.statusCode, 410)
 })
 
-test('/documentation/ should redirect to ./static/index.html', t => {
-  t.plan(3)
+test('/documentation/ should redirect to ./static/index.html', async (t) => {
+  t.plan(2)
   const fastify = Fastify()
-  fastify.register(fastifySwagger, swaggerOption)
+  await fastify.register(fastifySwagger, swaggerOption)
 
-  fastify.inject({
+  const res = await fastify.inject({
     method: 'GET',
     url: '/documentation/'
-  }, (err, res) => {
-    t.error(err)
-    t.equal(res.statusCode, 302)
-    t.equal(res.headers.location, './static/index.html')
   })
+  t.equal(res.statusCode, 302)
+  t.equal(res.headers.location, './static/index.html')
 })

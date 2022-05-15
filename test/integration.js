@@ -5,8 +5,8 @@ const Fastify = require('fastify')
 const fastifySwagger = require('..')
 const fastifyHelmet = require('@fastify/helmet')
 const swaggerCSP = require('../static/csp.json')
-test('fastify will response swagger csp', t => {
-  t.plan(2)
+test('fastify will response swagger csp', async (t) => {
+  t.plan(1)
 
   const scriptCSP = swaggerCSP.script.length > 0 ? ` ${swaggerCSP.script.join(' ')}` : ''
   const styleCSP = swaggerCSP.style.length > 0 ? ` ${swaggerCSP.style.join(' ')}` : ''
@@ -14,7 +14,7 @@ test('fastify will response swagger csp', t => {
 
   const fastify = Fastify()
 
-  fastify.register(fastifySwagger)
+  await fastify.register(fastifySwagger)
   fastify.register(fastifyHelmet, instance => {
     return {
       contentSecurityPolicy: {
@@ -35,11 +35,9 @@ test('fastify will response swagger csp', t => {
     })
   })
 
-  fastify.inject({
+  const res = await fastify.inject({
     method: 'GET',
     url: '/'
-  }, (err, res) => {
-    t.error(err)
-    t.same(res.headers['content-security-policy'], csp)
   })
+  t.same(res.headers['content-security-policy'], csp)
 })

@@ -8,41 +8,38 @@ const fastifySwagger = require('../../../index')
 const { readPackageJson } = require('../../../lib/util/common')
 const { swaggerOption } = require('../../../examples/options')
 
-test('swagger should have default version', t => {
+test('swagger should have default version', async (t) => {
+  t.plan(1)
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger)
+
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  t.equal(swaggerObject.swagger, '2.0')
+})
+
+test('swagger should have default info properties', async (t) => {
   t.plan(2)
   const fastify = Fastify()
 
-  fastify.register(fastifySwagger)
+  await fastify.register(fastifySwagger)
 
-  fastify.ready(err => {
-    t.error(err)
+  await fastify.ready()
 
-    const swaggerObject = fastify.swagger()
-    t.equal(swaggerObject.swagger, '2.0')
-  })
+  const swaggerObject = fastify.swagger()
+  const pkg = readPackageJson()
+
+  t.equal(swaggerObject.info.title, pkg.name)
+  t.equal(swaggerObject.info.version, pkg.version)
 })
 
-test('swagger should have default info properties', t => {
-  t.plan(3)
+test('swagger basic properties', async (t) => {
+  t.plan(5)
   const fastify = Fastify()
 
-  fastify.register(fastifySwagger)
-
-  fastify.ready(err => {
-    t.error(err)
-
-    const swaggerObject = fastify.swagger()
-    const pkg = readPackageJson(function () {})
-    t.equal(swaggerObject.info.title, pkg.name)
-    t.equal(swaggerObject.info.version, pkg.version)
-  })
-})
-
-test('swagger basic properties', t => {
-  t.plan(6)
-  const fastify = Fastify()
-
-  fastify.register(fastifySwagger, swaggerOption)
+  await fastify.register(fastifySwagger, swaggerOption)
 
   const opts = {
     schema: {
@@ -61,22 +58,20 @@ test('swagger basic properties', t => {
     }
   }
 
-  fastify.get('/', opts, () => {})
+  fastify.post('/', opts, () => {})
 
-  fastify.ready(err => {
-    t.error(err)
+  await fastify.ready()
 
-    const swaggerObject = fastify.swagger()
-    t.equal(swaggerObject.info, swaggerOption.swagger.info)
-    t.equal(swaggerObject.host, swaggerOption.swagger.host)
-    t.equal(swaggerObject.schemes, swaggerOption.swagger.schemes)
-    t.ok(swaggerObject.paths)
-    t.ok(swaggerObject.paths['/'])
-  })
+  const swaggerObject = fastify.swagger()
+  t.equal(swaggerObject.info, swaggerOption.swagger.info)
+  t.equal(swaggerObject.host, swaggerOption.swagger.host)
+  t.equal(swaggerObject.schemes, swaggerOption.swagger.schemes)
+  t.ok(swaggerObject.paths)
+  t.ok(swaggerObject.paths['/'])
 })
 
-test('swagger definitions', t => {
-  t.plan(2)
+test('swagger definitions', async (t) => {
+  t.plan(1)
   const fastify = Fastify()
 
   swaggerOption.swagger.definitions = {
@@ -95,50 +90,44 @@ test('swagger definitions', t => {
     }
   }
 
-  fastify.register(fastifySwagger, swaggerOption)
+  await fastify.register(fastifySwagger, swaggerOption)
 
-  fastify.ready(err => {
-    t.error(err)
+  await fastify.ready()
 
-    const swaggerObject = fastify.swagger()
-    t.same(swaggerObject.definitions, swaggerOption.swagger.definitions)
-    delete swaggerOption.swagger.definitions // remove what we just added
-  })
+  const swaggerObject = fastify.swagger()
+  t.same(swaggerObject.definitions, swaggerOption.swagger.definitions)
+  delete swaggerOption.swagger.definitions // remove what we just added
 })
 
-test('swagger tags', t => {
+test('swagger tags', async (t) => {
+  t.plan(1)
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, swaggerOption)
+
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  t.equal(swaggerObject.tags, swaggerOption.swagger.tags)
+})
+
+test('swagger externalDocs', async (t) => {
+  t.plan(1)
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, swaggerOption)
+
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  t.equal(swaggerObject.externalDocs, swaggerOption.swagger.externalDocs)
+})
+
+test('basePath support', async (t) => {
   t.plan(2)
   const fastify = Fastify()
 
-  fastify.register(fastifySwagger, swaggerOption)
-
-  fastify.ready(err => {
-    t.error(err)
-
-    const swaggerObject = fastify.swagger()
-    t.equal(swaggerObject.tags, swaggerOption.swagger.tags)
-  })
-})
-
-test('swagger externalDocs', t => {
-  t.plan(2)
-  const fastify = Fastify()
-
-  fastify.register(fastifySwagger, swaggerOption)
-
-  fastify.ready(err => {
-    t.error(err)
-
-    const swaggerObject = fastify.swagger()
-    t.equal(swaggerObject.externalDocs, swaggerOption.swagger.externalDocs)
-  })
-})
-
-test('basePath support', t => {
-  t.plan(3)
-  const fastify = Fastify()
-
-  fastify.register(fastifySwagger, {
+  await fastify.register(fastifySwagger, {
     swagger: Object.assign({}, swaggerOption.swagger, {
       basePath: '/prefix'
     })
@@ -146,20 +135,18 @@ test('basePath support', t => {
 
   fastify.get('/prefix/endpoint', {}, () => {})
 
-  fastify.ready(err => {
-    t.error(err)
+  await fastify.ready()
 
-    const swaggerObject = fastify.swagger()
-    t.notOk(swaggerObject.paths['/prefix/endpoint'])
-    t.ok(swaggerObject.paths['/endpoint'])
-  })
+  const swaggerObject = fastify.swagger()
+  t.notOk(swaggerObject.paths['/prefix/endpoint'])
+  t.ok(swaggerObject.paths['/endpoint'])
 })
 
-test('basePath support with prefix', t => {
-  t.plan(3)
+test('basePath support with prefix', async (t) => {
+  t.plan(2)
   const fastify = Fastify()
 
-  fastify.register(fastifySwagger, {
+  await fastify.register(fastifySwagger, {
     prefix: '/prefix',
     swagger: Object.assign({}, swaggerOption.swagger, {
       basePath: '/prefix'
@@ -168,20 +155,18 @@ test('basePath support with prefix', t => {
 
   fastify.get('/endpoint', {}, () => {})
 
-  fastify.ready(err => {
-    t.error(err)
+  await fastify.ready()
 
-    const swaggerObject = fastify.swagger()
-    t.notOk(swaggerObject.paths['/prefix/endpoint'])
-    t.ok(swaggerObject.paths['/endpoint'])
-  })
+  const swaggerObject = fastify.swagger()
+  t.notOk(swaggerObject.paths['/prefix/endpoint'])
+  t.ok(swaggerObject.paths['/endpoint'])
 })
 
-test('basePath ensure leading slash', t => {
-  t.plan(3)
+test('basePath ensure leading slash', async (t) => {
+  t.plan(2)
   const fastify = Fastify()
 
-  fastify.register(fastifySwagger, {
+  await fastify.register(fastifySwagger, {
     swagger: Object.assign({}, swaggerOption.swagger, {
       basePath: '/'
     })
@@ -189,20 +174,18 @@ test('basePath ensure leading slash', t => {
 
   fastify.get('/endpoint', {}, () => {})
 
-  fastify.ready(err => {
-    t.error(err)
+  await fastify.ready()
 
-    const swaggerObject = fastify.swagger()
-    t.notOk(swaggerObject.paths.endpoint)
-    t.ok(swaggerObject.paths['/endpoint'])
-  })
+  const swaggerObject = fastify.swagger()
+  t.notOk(swaggerObject.paths.endpoint)
+  t.ok(swaggerObject.paths['/endpoint'])
 })
 
-test('basePath with prefix ensure leading slash', t => {
-  t.plan(3)
+test('basePath with prefix ensure leading slash', async (t) => {
+  t.plan(2)
   const fastify = Fastify()
 
-  fastify.register(fastifySwagger, {
+  await fastify.register(fastifySwagger, {
     prefix: '/',
     swagger: Object.assign({}, swaggerOption.swagger, {
       basePath: '/'
@@ -211,21 +194,19 @@ test('basePath with prefix ensure leading slash', t => {
 
   fastify.get('/endpoint', {}, () => {})
 
-  fastify.ready(err => {
-    t.error(err)
+  await fastify.ready()
 
-    const swaggerObject = fastify.swagger()
-    t.notOk(swaggerObject.paths.endpoint)
-    t.ok(swaggerObject.paths['/endpoint'])
-  })
+  const swaggerObject = fastify.swagger()
+  t.notOk(swaggerObject.paths.endpoint)
+  t.ok(swaggerObject.paths['/endpoint'])
 })
 
-test('basePath maintained when stripBasePath is set to false', t => {
-  t.plan(4)
+test('basePath maintained when stripBasePath is set to false', async (t) => {
+  t.plan(3)
 
   const fastify = Fastify()
 
-  fastify.register(fastifySwagger, {
+  await fastify.register(fastifySwagger, {
     stripBasePath: false,
     swagger: Object.assign({}, swaggerOption.swagger, {
       basePath: '/foo'
@@ -234,23 +215,21 @@ test('basePath maintained when stripBasePath is set to false', t => {
 
   fastify.get('/foo/endpoint', {}, () => {})
 
-  fastify.ready(err => {
-    t.error(err)
+  await fastify.ready()
 
-    const swaggerObject = fastify.swagger()
-    t.notOk(swaggerObject.paths.endpoint)
-    t.notOk(swaggerObject.paths['/endpoint'])
-    t.ok(swaggerObject.paths['/foo/endpoint'])
-  })
+  const swaggerObject = fastify.swagger()
+  t.notOk(swaggerObject.paths.endpoint)
+  t.notOk(swaggerObject.paths['/endpoint'])
+  t.ok(swaggerObject.paths['/foo/endpoint'])
 })
 
 // hide testing
 
-test('hide support - property', t => {
-  t.plan(2)
+test('hide support - property', async (t) => {
+  t.plan(1)
   const fastify = Fastify()
 
-  fastify.register(fastifySwagger, swaggerOption)
+  await fastify.register(fastifySwagger, swaggerOption)
 
   const opts = {
     schema: {
@@ -270,21 +249,19 @@ test('hide support - property', t => {
     }
   }
 
-  fastify.get('/', opts, () => {})
+  fastify.post('/', opts, () => {})
 
-  fastify.ready(err => {
-    t.error(err)
+  await fastify.ready()
 
-    const swaggerObject = fastify.swagger()
-    t.notOk(swaggerObject.paths['/'])
-  })
+  const swaggerObject = fastify.swagger()
+  t.notOk(swaggerObject.paths['/'])
 })
 
-test('hide support when property set in transform() - property', t => {
-  t.plan(2)
+test('hide support when property set in transform() - property', async (t) => {
+  t.plan(1)
   const fastify = Fastify()
 
-  fastify.register(fastifySwagger, {
+  await fastify.register(fastifySwagger, {
     ...swaggerOption,
     transform: ({ schema, url }) => {
       return { schema: { ...schema, hide: true }, url }
@@ -308,21 +285,19 @@ test('hide support when property set in transform() - property', t => {
     }
   }
 
-  fastify.get('/', opts, () => {})
+  fastify.post('/', opts, () => {})
 
-  fastify.ready(err => {
-    t.error(err)
+  await fastify.ready()
 
-    const swaggerObject = fastify.swagger()
-    t.notOk(swaggerObject.paths['/'])
-  })
+  const swaggerObject = fastify.swagger()
+  t.notOk(swaggerObject.paths['/'])
 })
 
-test('hide support - tags Default', t => {
-  t.plan(2)
+test('hide support - tags Default', async (t) => {
+  t.plan(1)
   const fastify = Fastify()
 
-  fastify.register(fastifySwagger, swaggerOption)
+  await fastify.register(fastifySwagger, swaggerOption)
 
   const opts = {
     schema: {
@@ -342,21 +317,19 @@ test('hide support - tags Default', t => {
     }
   }
 
-  fastify.get('/', opts, () => {})
+  fastify.post('/', opts, () => {})
 
-  fastify.ready(err => {
-    t.error(err)
+  await fastify.ready()
 
-    const swaggerObject = fastify.swagger()
-    t.notOk(swaggerObject.paths['/'])
-  })
+  const swaggerObject = fastify.swagger()
+  t.notOk(swaggerObject.paths['/'])
 })
 
-test('hide support - tags Custom', t => {
-  t.plan(2)
+test('hide support - tags Custom', async (t) => {
+  t.plan(1)
   const fastify = Fastify()
 
-  fastify.register(fastifySwagger, { ...swaggerOption, hiddenTag: 'NOP' })
+  await fastify.register(fastifySwagger, { ...swaggerOption, hiddenTag: 'NOP' })
 
   const opts = {
     schema: {
@@ -376,21 +349,19 @@ test('hide support - tags Custom', t => {
     }
   }
 
-  fastify.get('/', opts, () => {})
+  fastify.post('/', opts, () => {})
 
-  fastify.ready(err => {
-    t.error(err)
+  await fastify.ready()
 
-    const swaggerObject = fastify.swagger()
-    t.notOk(swaggerObject.paths['/'])
-  })
+  const swaggerObject = fastify.swagger()
+  t.notOk(swaggerObject.paths['/'])
 })
 
-test('hide support - hidden untagged', t => {
-  t.plan(2)
+test('hide support - hidden untagged', async (t) => {
+  t.plan(1)
   const fastify = Fastify()
 
-  fastify.register(fastifySwagger, { ...swaggerOption, hideUntagged: true })
+  await fastify.register(fastifySwagger, { ...swaggerOption, hideUntagged: true })
 
   const opts = {
     schema: {
@@ -409,59 +380,43 @@ test('hide support - hidden untagged', t => {
     }
   }
 
-  fastify.get('/', opts, () => {})
+  fastify.post('/', opts, () => {})
 
-  fastify.ready(err => {
-    t.error(err)
+  await fastify.ready()
 
-    const swaggerObject = fastify.swagger()
-    t.notOk(swaggerObject.paths['/'])
-  })
+  const swaggerObject = fastify.swagger()
+  t.notOk(swaggerObject.paths['/'])
 })
 
-test('cache - json', t => {
-  t.plan(3)
+test('cache - json', async (t) => {
+  t.plan(2)
   const fastify = Fastify()
 
-  fastify.register(fastifySwagger, swaggerOption)
+  await fastify.register(fastifySwagger, swaggerOption)
 
-  fastify.ready(err => {
-    t.error(err)
+  await fastify.ready()
 
-    fastify.swagger()
-    const swaggerObject = fastify.swagger()
-    t.equal(typeof swaggerObject, 'object')
+  fastify.swagger()
+  const swaggerObject = fastify.swagger()
+  t.equal(typeof swaggerObject, 'object')
 
-    Swagger.validate(swaggerObject)
-      .then(function (api) {
-        t.pass('valid swagger object')
-      })
-      .catch(function (err) {
-        t.fail(err)
-      })
-  })
+  await Swagger.validate(swaggerObject)
+  t.pass('valid swagger object')
 })
 
-test('cache - yaml', t => {
-  t.plan(3)
+test('cache - yaml', async (t) => {
+  t.plan(2)
   const fastify = Fastify()
 
-  fastify.register(fastifySwagger, swaggerOption)
+  await fastify.register(fastifySwagger, swaggerOption)
 
-  fastify.ready(err => {
-    t.error(err)
+  await fastify.ready()
 
-    fastify.swagger({ yaml: true })
-    const swaggerYaml = fastify.swagger({ yaml: true })
-    t.equal(typeof swaggerYaml, 'string')
-
-    try {
-      yaml.load(swaggerYaml)
-      t.pass('valid swagger yaml')
-    } catch (err) {
-      t.fail(err)
-    }
-  })
+  fastify.swagger({ yaml: true })
+  const swaggerYaml = fastify.swagger({ yaml: true })
+  t.equal(typeof swaggerYaml, 'string')
+  yaml.load(swaggerYaml)
+  t.pass('valid swagger yaml')
 })
 
 module.exports = { swaggerOption }

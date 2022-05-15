@@ -5,7 +5,7 @@ import swaggerDefault from '../../index.js'
 t.test('esm support', async t => {
   const fastify = Fastify()
 
-  fastify.register(swaggerDefault)
+  await fastify.register(swaggerDefault)
 
   await fastify.ready()
 

@@ -30,31 +30,29 @@ const valid = {
 const invalid = {
   transform: 'wrong type'
 }
-test('transform should fail with a value other than Function', t => {
-  t.plan(2)
+
+test('transform should fail with a value other than Function', async (t) => {
+  t.plan(1)
   const fastify = Fastify()
 
-  fastify.register(fastifySwagger, invalid)
+  await fastify.register(fastifySwagger, invalid)
 
   fastify.setValidatorCompiler(({ schema }) => params.validate(schema))
   fastify.get('/example', opts, () => {})
 
-  fastify.ready(err => {
-    t.error(err)
-    t.throws(fastify.swagger)
-  })
+  await fastify.ready()
+  t.throws(fastify.swagger)
 })
-test('transform should work with a Function', t => {
-  t.plan(2)
+
+test('transform should work with a Function', async (t) => {
+  t.plan(1)
   const fastify = Fastify()
 
-  fastify.register(fastifySwagger, valid)
+  await fastify.register(fastifySwagger, valid)
 
   fastify.setValidatorCompiler(({ schema }) => params.validate(schema))
   fastify.get('/example', opts, () => {})
 
-  fastify.ready(err => {
-    t.error(err)
-    t.doesNotThrow(fastify.swagger)
-  })
+  await fastify.ready()
+  t.doesNotThrow(fastify.swagger)
 })
