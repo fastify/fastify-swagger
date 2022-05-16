@@ -25,18 +25,18 @@ test('support file in json schema', async t => {
   }
 
   const fastify = Fastify()
-  fastify.register(fastifySwagger, {
+  await fastify.register(fastifySwagger, {
     routePrefix: '/docs',
     exposeRoute: true
   })
-  fastify.get('/', opts7, () => {})
+  fastify.post('/', opts7, () => {})
 
   await fastify.ready()
 
   const swaggerObject = fastify.swagger()
   const api = await Swagger.validate(swaggerObject)
 
-  const definedPath = api.paths['/'].get
+  const definedPath = api.paths['/'].post
   t.ok(definedPath)
   t.same(definedPath.parameters, [{
     in: 'formData',
@@ -60,7 +60,7 @@ test('support response description', async t => {
   }
 
   const fastify = Fastify()
-  fastify.register(fastifySwagger, {
+  await fastify.register(fastifySwagger, {
     routePrefix: '/docs',
     exposeRoute: true
   })
@@ -87,7 +87,7 @@ test('response default description', async t => {
   }
 
   const fastify = Fastify()
-  fastify.register(fastifySwagger, {
+  await fastify.register(fastifySwagger, {
     routePrefix: '/docs',
     exposeRoute: true
   })
@@ -114,7 +114,7 @@ test('response 2xx', async t => {
   }
 
   const fastify = Fastify()
-  fastify.register(fastifySwagger, {
+  await fastify.register(fastifySwagger, {
     routePrefix: '/docs',
     exposeRoute: true
   })
@@ -147,7 +147,7 @@ test('response conflict 2xx and 200', async t => {
   }
 
   const fastify = Fastify()
-  fastify.register(fastifySwagger, {
+  await fastify.register(fastifySwagger, {
     routePrefix: '/docs',
     exposeRoute: true
   })
@@ -176,7 +176,7 @@ test('support status code 204', async t => {
   }
 
   const fastify = Fastify()
-  fastify.register(fastifySwagger, {
+  await fastify.register(fastifySwagger, {
     routePrefix: '/docs',
     exposeRoute: true
   })
@@ -209,7 +209,7 @@ test('support empty response body for different status than 204', async t => {
   }
 
   const fastify = Fastify()
-  fastify.register(fastifySwagger, {
+  await fastify.register(fastifySwagger, {
     routePrefix: '/docs',
     exposeRoute: true
   })
@@ -253,7 +253,7 @@ test('support response headers', async t => {
   }
 
   const fastify = Fastify()
-  fastify.register(fastifySwagger, {
+  await fastify.register(fastifySwagger, {
     routePrefix: '/docs',
     exposeRoute: true
   })
@@ -276,7 +276,7 @@ test('response: description and x-response-description', async () => {
   test('description without x-response-description doubles as response description', async t => {
     // Given a /description endpoint with only a |description| field in its response schema
     const fastify = Fastify()
-    fastify.register(fastifySwagger, {
+    await fastify.register(fastifySwagger, {
       routePrefix: '/docs',
       exposeRoute: true
     })
@@ -306,7 +306,7 @@ test('response: description and x-response-description', async () => {
   test('description alongside x-response-description only describes response body', async t => {
     // Given a /responseDescription endpoint that also has a |'x-response-description'| field in its response schema
     const fastify = Fastify()
-    fastify.register(fastifySwagger, {
+    await fastify.register(fastifySwagger, {
       routePrefix: '/docs',
       exposeRoute: true
     })
@@ -363,7 +363,7 @@ test('support "default" parameter', async t => {
   }
 
   const fastify = Fastify()
-  fastify.register(fastifySwagger, {
+  await fastify.register(fastifySwagger, {
     routePrefix: '/docs',
     exposeRoute: true
   })
@@ -400,7 +400,7 @@ test('fluent-json-schema', async t => {
   }
 
   const fastify = Fastify()
-  fastify.register(fastifySwagger, {
+  await fastify.register(fastifySwagger, {
     swagger: true,
     routePrefix: '/docs',
     exposeRoute: true
@@ -448,19 +448,19 @@ test('support "patternProperties" in json schema', async t => {
   }
 
   const fastify = Fastify()
-  fastify.register(fastifySwagger, {
+  await fastify.register(fastifySwagger, {
     swagger: true,
     routePrefix: '/docs',
     exposeRoute: true
   })
-  fastify.get('/', opt, () => {})
+  fastify.post('/', opt, () => {})
 
   await fastify.ready()
 
   const swaggerObject = fastify.swagger()
   const api = await Swagger.validate(swaggerObject)
 
-  const definedPath = api.paths['/'].get
+  const definedPath = api.paths['/'].post
 
   t.same(definedPath.parameters[0].schema, {
     type: 'object',
@@ -500,17 +500,17 @@ test('support "const" keyword', async t => {
   }
 
   const fastify = Fastify()
-  fastify.register(fastifySwagger, {
+  await fastify.register(fastifySwagger, {
     routePrefix: '/docs',
     exposeRoute: true
   })
-  fastify.get('/', opt, () => {})
+  fastify.post('/', opt, () => {})
   await fastify.ready()
 
   const swaggerObject = fastify.swagger()
   const api = await Swagger.validate(swaggerObject)
 
-  const definedPath = api.paths['/'].get
+  const definedPath = api.paths['/'].post
   t.same(definedPath.parameters[0].schema, {
     type: 'object',
     properties: {

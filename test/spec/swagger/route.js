@@ -17,11 +17,11 @@ const {
   schemaSecurity
 } = require('../../../examples/options')
 
-test('swagger should return valid swagger object', t => {
-  t.plan(3)
+test('swagger should return valid swagger object', async (t) => {
+  t.plan(2)
   const fastify = Fastify()
 
-  fastify.register(fastifySwagger, swaggerOption)
+  await fastify.register(fastifySwagger, swaggerOption)
 
   fastify.get('/', () => {})
   fastify.post('/', () => {})
@@ -32,27 +32,20 @@ test('swagger should return valid swagger object', t => {
   fastify.get('/headers/:id', schemaHeadersParams, () => {})
   fastify.get('/security', schemaSecurity, () => {})
 
-  fastify.ready(err => {
-    t.error(err)
+  await fastify.ready()
 
-    const swaggerObject = fastify.swagger()
-    t.equal(typeof swaggerObject, 'object')
+  const swaggerObject = fastify.swagger()
+  t.equal(typeof swaggerObject, 'object')
 
-    Swagger.validate(swaggerObject)
-      .then(function (api) {
-        t.pass('valid swagger object')
-      })
-      .catch(function (err) {
-        t.fail(err)
-      })
-  })
+  await Swagger.validate(swaggerObject)
+  t.pass('valid swagger object')
 })
 
-test('swagger should return a valid swagger yaml', t => {
-  t.plan(3)
+test('swagger should return a valid swagger yaml', async (t) => {
+  t.plan(2)
   const fastify = Fastify()
 
-  fastify.register(fastifySwagger, swaggerOption)
+  await fastify.register(fastifySwagger, swaggerOption)
 
   fastify.get('/', () => {})
   fastify.post('/', () => {})
@@ -63,26 +56,19 @@ test('swagger should return a valid swagger yaml', t => {
   fastify.get('/headers/:id', schemaHeadersParams, () => {})
   fastify.get('/security', schemaSecurity, () => {})
 
-  fastify.ready(err => {
-    t.error(err)
+  await fastify.ready()
 
-    const swaggerYaml = fastify.swagger({ yaml: true })
-    t.equal(typeof swaggerYaml, 'string')
-
-    try {
-      yaml.load(swaggerYaml)
-      t.pass('valid swagger yaml')
-    } catch (err) {
-      t.fail(err)
-    }
-  })
+  const swaggerYaml = fastify.swagger({ yaml: true })
+  t.equal(typeof swaggerYaml, 'string')
+  yaml.load(swaggerYaml)
+  t.pass('valid swagger yaml')
 })
 
-test('route options - deprecated', t => {
-  t.plan(3)
+test('route options - deprecated', async (t) => {
+  t.plan(2)
   const fastify = Fastify()
 
-  fastify.register(fastifySwagger, swaggerOption)
+  await fastify.register(fastifySwagger, swaggerOption)
 
   const opts = {
     schema: {
@@ -102,28 +88,22 @@ test('route options - deprecated', t => {
     }
   }
 
-  fastify.get('/', opts, () => {})
+  fastify.post('/', opts, () => {})
 
-  fastify.ready(err => {
-    t.error(err)
-    const swaggerObject = fastify.swagger()
+  await fastify.ready()
 
-    Swagger.validate(swaggerObject)
-      .then(function (api) {
-        t.pass('valid swagger object')
-        t.ok(swaggerObject.paths['/'])
-      })
-      .catch(function (err) {
-        t.fail(err)
-      })
-  })
+  const swaggerObject = fastify.swagger()
+
+  await Swagger.validate(swaggerObject)
+  t.pass('valid swagger object')
+  t.ok(swaggerObject.paths['/'])
 })
 
-test('route options - meta', t => {
-  t.plan(9)
+test('route options - meta', async (t) => {
+  t.plan(8)
   const fastify = Fastify()
 
-  fastify.register(fastifySwagger, swaggerOption)
+  await fastify.register(fastifySwagger, swaggerOption)
 
   const opts = {
     schema: {
@@ -142,83 +122,65 @@ test('route options - meta', t => {
 
   fastify.get('/', opts, () => {})
 
-  fastify.ready(err => {
-    t.error(err)
-    const swaggerObject = fastify.swagger()
+  await fastify.ready()
 
-    Swagger.validate(swaggerObject)
-      .then(function (api) {
-        const definedPath = api.paths['/'].get
-        t.ok(definedPath)
-        t.equal(opts.schema.operationId, definedPath.operationId)
-        t.equal(opts.schema.summary, definedPath.summary)
-        t.same(opts.schema.tags, definedPath.tags)
-        t.equal(opts.schema.description, definedPath.description)
-        t.same(opts.schema.produces, definedPath.produces)
-        t.same(opts.schema.consumes, definedPath.consumes)
-        t.equal(opts.schema.externalDocs, definedPath.externalDocs)
-      })
-      .catch(function (err) {
-        t.fail(err)
-      })
-  })
+  const swaggerObject = fastify.swagger()
+
+  const api = await Swagger.validate(swaggerObject)
+  const definedPath = api.paths['/'].get
+  t.ok(definedPath)
+  t.equal(opts.schema.operationId, definedPath.operationId)
+  t.equal(opts.schema.summary, definedPath.summary)
+  t.same(opts.schema.tags, definedPath.tags)
+  t.equal(opts.schema.description, definedPath.description)
+  t.same(opts.schema.produces, definedPath.produces)
+  t.same(opts.schema.consumes, definedPath.consumes)
+  t.equal(opts.schema.externalDocs, definedPath.externalDocs)
 })
 
-test('route options - consumes', t => {
-  t.plan(3)
+test('route options - consumes', async (t) => {
+  t.plan(2)
   const fastify = Fastify()
-  fastify.register(fastifySwagger, swaggerOption)
-  fastify.get('/', schemaConsumes, () => {})
+  await fastify.register(fastifySwagger, swaggerOption)
+  fastify.post('/', schemaConsumes, () => {})
 
-  fastify.ready(err => {
-    t.error(err)
-    const swaggerObject = fastify.swagger()
+  await fastify.ready()
 
-    Swagger.validate(swaggerObject)
-      .then(function (api) {
-        const definedPath = api.paths['/'].get
-        t.ok(definedPath)
-        t.same(definedPath.parameters, [{
-          in: 'formData',
-          name: 'hello',
-          description: 'hello',
-          required: true,
-          type: 'string'
-        }])
-      })
-      .catch(function (err) {
-        t.fail(err)
-      })
-  })
+  const swaggerObject = fastify.swagger()
+
+  const api = await Swagger.validate(swaggerObject)
+  const definedPath = api.paths['/'].post
+  t.ok(definedPath)
+  t.same(definedPath.parameters, [{
+    in: 'formData',
+    name: 'hello',
+    description: 'hello',
+    required: true,
+    type: 'string'
+  }])
 })
 
-test('route options - extension', t => {
-  t.plan(5)
+test('route options - extension', async (t) => {
+  t.plan(4)
   const fastify = Fastify()
-  fastify.register(fastifySwagger, { swagger: { 'x-ternal': true } })
+  await fastify.register(fastifySwagger, { swagger: { 'x-ternal': true } })
   fastify.get('/', schemaExtension, () => {})
 
-  fastify.ready(err => {
-    t.error(err)
-    const swaggerObject = fastify.swagger()
+  await fastify.ready()
 
-    Swagger.validate(swaggerObject)
-      .then(function (api) {
-        t.ok(api['x-ternal'])
-        t.same(api['x-ternal'], true)
+  const swaggerObject = fastify.swagger()
 
-        const definedPath = api.paths['/'].get
-        t.ok(definedPath)
-        t.same(definedPath['x-tension'], true)
-      })
-      .catch(function (err) {
-        t.fail(err)
-      })
-  })
+  const api = await Swagger.validate(swaggerObject)
+  t.ok(api['x-ternal'])
+  t.same(api['x-ternal'], true)
+
+  const definedPath = api.paths['/'].get
+  t.ok(definedPath)
+  t.same(definedPath['x-tension'], true)
 })
 
-test('route options - querystring', t => {
-  t.plan(3)
+test('route options - querystring', async (t) => {
+  t.plan(2)
 
   const opts = {
     schema: {
@@ -234,41 +196,35 @@ test('route options - querystring', t => {
   }
 
   const fastify = Fastify()
-  fastify.register(fastifySwagger, swaggerOption)
+  await fastify.register(fastifySwagger, swaggerOption)
   fastify.get('/', opts, () => {})
 
-  fastify.ready(err => {
-    t.error(err)
-    const swaggerObject = fastify.swagger()
+  await fastify.ready()
 
-    Swagger.validate(swaggerObject)
-      .then(function (api) {
-        const definedPath = api.paths['/'].get
-        t.ok(definedPath)
-        t.same(definedPath.parameters, [
-          {
-            in: 'query',
-            name: 'hello',
-            type: 'string',
-            required: true
-          },
-          {
-            in: 'query',
-            name: 'world',
-            type: 'string',
-            required: false,
-            description: 'world description'
-          }
-        ])
-      })
-      .catch(function (err) {
-        t.fail(err)
-      })
-  })
+  const swaggerObject = fastify.swagger()
+
+  const api = await Swagger.validate(swaggerObject)
+  const definedPath = api.paths['/'].get
+  t.ok(definedPath)
+  t.same(definedPath.parameters, [
+    {
+      in: 'query',
+      name: 'hello',
+      type: 'string',
+      required: true
+    },
+    {
+      in: 'query',
+      name: 'world',
+      type: 'string',
+      required: false,
+      description: 'world description'
+    }
+  ])
 })
 
-test('swagger json output should not omit enum part in params config', t => {
-  t.plan(3)
+test('swagger json output should not omit enum part in params config', async (t) => {
+  t.plan(2)
   const opts = {
     schema: {
       params: {
@@ -281,32 +237,27 @@ test('swagger json output should not omit enum part in params config', t => {
   }
 
   const fastify = Fastify()
-  fastify.register(fastifySwagger, swaggerOption)
+  await fastify.register(fastifySwagger, swaggerOption)
   fastify.get('/test/:enumKey', opts, () => {})
 
-  fastify.ready(err => {
-    t.error(err)
-    const swaggerObject = fastify.swagger()
-    Swagger.validate(swaggerObject)
-      .then((api) => {
-        const definedPath = api.paths['/test/{enumKey}'].get
-        t.ok(definedPath)
-        t.same(definedPath.parameters, [{
-          in: 'path',
-          name: 'enumKey',
-          type: 'string',
-          enum: ['enum1', 'enum2'],
-          required: true
-        }])
-      })
-      .catch(err => {
-        t.error(err)
-      })
-  })
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+
+  const api = await Swagger.validate(swaggerObject)
+  const definedPath = api.paths['/test/{enumKey}'].get
+  t.ok(definedPath)
+  t.same(definedPath.parameters, [{
+    in: 'path',
+    name: 'enumKey',
+    type: 'string',
+    enum: ['enum1', 'enum2'],
+    required: true
+  }])
 })
 
-test('custom verbs should not be interpreted as path params', t => {
-  t.plan(3)
+test('custom verbs should not be interpreted as path params', async (t) => {
+  t.plan(2)
   const opts = {
     schema: {
       params: {
@@ -319,36 +270,37 @@ test('custom verbs should not be interpreted as path params', t => {
   }
 
   const fastify = Fastify()
-  fastify.register(fastifySwagger, swaggerOption)
+  await fastify.register(fastifySwagger, swaggerOption)
   fastify.get('/resource/:id/sub-resource::watch', opts, () => {})
 
-  fastify.ready(err => {
-    t.error(err)
-    const swaggerObject = fastify.swagger()
+  await fastify.ready()
 
-    Swagger.validate(swaggerObject)
-      .then((api) => {
-        const definedPath = api.paths['/resource/{id}/sub-resource:watch'].get
-        t.ok(definedPath)
-        t.same(definedPath.parameters, [{
-          in: 'path',
-          name: 'id',
-          type: 'string',
-          required: true
-        }])
-      })
-      .catch(err => {
-        console.log(err)
-        t.error(err)
-      })
-  })
+  const swaggerObject = fastify.swagger()
+
+  const api = await Swagger.validate(swaggerObject)
+  const definedPath = api.paths['/resource/{id}/sub-resource:watch'].get
+  t.ok(definedPath)
+  t.same(definedPath.parameters, [{
+    in: 'path',
+    name: 'id',
+    type: 'string',
+    required: true
+  }])
 })
 
 test('swagger json output should not omit consume in querystring schema', async (t) => {
   t.plan(1)
-  const fastify = Fastify()
+  const fastify = Fastify({
+    ajv: {
+      plugins: [
+        function (ajv) {
+          ajv.addKeyword({ keyword: 'x-consume' })
+        }
+      ]
+    }
+  })
 
-  fastify.register(fastifySwagger, swaggerOption)
+  await fastify.register(fastifySwagger, swaggerOption)
 
   const schemaQuerystring = {
     schema: {
@@ -385,11 +337,11 @@ test('swagger json output should not omit consume in querystring schema', async 
   }
 })
 
-test('swagger should not support Links', t => {
-  t.plan(2)
+test('swagger should not support Links', async (t) => {
+  t.plan(1)
   const fastify = Fastify()
 
-  fastify.register(fastifySwagger, swaggerOption)
+  await fastify.register(fastifySwagger, swaggerOption)
 
   fastify.get('/user/:id', {
     schema: {
@@ -448,18 +400,16 @@ test('swagger should not support Links', t => {
     }
   }, () => {})
 
-  fastify.ready(err => {
-    t.error(err)
+  await fastify.ready()
 
-    t.throws(() => fastify.swagger(), new Error('Swagger (Open API v2) does not support Links. Upgrade to OpenAPI v3 (see @fastify/swagger readme)'))
-  })
+  t.throws(() => fastify.swagger(), new Error('Swagger (Open API v2) does not support Links. Upgrade to OpenAPI v3 (see @fastify/swagger readme)'))
 })
 
-test('security headers ignored when declared in security and securityScheme', t => {
-  t.plan(7)
+test('security headers ignored when declared in security and securityScheme', async (t) => {
+  t.plan(6)
   const fastify = Fastify()
 
-  fastify.register(fastifySwagger, swaggerOption)
+  await fastify.register(fastifySwagger, swaggerOption)
 
   fastify.get('/address1/:id', {
     schema: {
@@ -509,31 +459,24 @@ test('security headers ignored when declared in security and securityScheme', t 
     }
   }, () => {})
 
-  fastify.ready(err => {
-    t.error(err)
+  await fastify.ready()
 
-    const swaggerObject = fastify.swagger()
-    t.equal(typeof swaggerObject, 'object')
+  const swaggerObject = fastify.swagger()
+  t.equal(typeof swaggerObject, 'object')
 
-    Swagger.validate(swaggerObject)
-      .then(function (api) {
-        t.pass('valid swagger object')
-        t.ok(api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'id')))
-        t.ok(api.paths['/address2/{id}'].get.parameters.find(({ name }) => (name === 'id')))
-        t.notOk(api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'apiKey')))
-        t.ok(api.paths['/address2/{id}'].get.parameters.find(({ name }) => (name === 'authKey')))
-      })
-      .catch(function (err) {
-        t.error(err)
-      })
-  })
+  const api = await Swagger.validate(swaggerObject)
+  t.pass('valid swagger object')
+  t.ok(api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'id')))
+  t.ok(api.paths['/address2/{id}'].get.parameters.find(({ name }) => (name === 'id')))
+  t.notOk(api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'apiKey')))
+  t.ok(api.paths['/address2/{id}'].get.parameters.find(({ name }) => (name === 'authKey')))
 })
 
-test('security querystrings ignored when declared in security and securityScheme', t => {
-  t.plan(7)
+test('security querystrings ignored when declared in security and securityScheme', async (t) => {
+  t.plan(6)
   const fastify = Fastify()
 
-  fastify.register(fastifySwagger, {
+  await fastify.register(fastifySwagger, {
     swagger: {
       securityDefinitions: {
         apiKey: {
@@ -596,22 +539,15 @@ test('security querystrings ignored when declared in security and securityScheme
     }
   }, () => {})
 
-  fastify.ready(err => {
-    t.error(err)
+  await fastify.ready()
 
-    const swaggerObject = fastify.swagger()
-    t.equal(typeof swaggerObject, 'object')
+  const swaggerObject = fastify.swagger()
+  t.equal(typeof swaggerObject, 'object')
 
-    Swagger.validate(swaggerObject)
-      .then(function (api) {
-        t.pass('valid swagger object')
-        t.ok(api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'somethingElse')))
-        t.ok(api.paths['/address2/{id}'].get.parameters.find(({ name }) => (name === 'somethingElse')))
-        t.notOk(api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'apiKey')))
-        t.ok(api.paths['/address2/{id}'].get.parameters.find(({ name }) => (name === 'authKey')))
-      })
-      .catch(function (err) {
-        t.error(err)
-      })
-  })
+  const api = await Swagger.validate(swaggerObject)
+  t.pass('valid swagger object')
+  t.ok(api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'somethingElse')))
+  t.ok(api.paths['/address2/{id}'].get.parameters.find(({ name }) => (name === 'somethingElse')))
+  t.notOk(api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'apiKey')))
+  t.ok(api.paths['/address2/{id}'].get.parameters.find(({ name }) => (name === 'authKey')))
 })

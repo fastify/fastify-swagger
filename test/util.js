@@ -18,7 +18,7 @@ const cases = [
   ['/api/v1/postalcode-jp/(^[0-9]{7}$)', '/api/v1/postalcode-jp/{regexp1}']
 ]
 
-test('formatParamUrl', t => {
+test('formatParamUrl', async (t) => {
   t.plan(cases.length)
 
   for (const kase of cases) {

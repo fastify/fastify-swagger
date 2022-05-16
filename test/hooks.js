@@ -25,7 +25,7 @@ function basicAuthEncode (username, password) {
 test('hooks on static swagger', async t => {
   const fastify = Fastify()
   await fastify.register(require('@fastify/basic-auth'), authOptions)
-  fastify.register(fastifySwagger, {
+  await fastify.register(fastifySwagger, {
     mode: 'static',
     specification: {
       path: './examples/example-static-specification.yaml'
@@ -76,7 +76,7 @@ test('hooks on dynamic swagger', async t => {
   const fastify = Fastify()
   await fastify.register(require('@fastify/basic-auth'), authOptions)
 
-  fastify.register(fastifySwagger, {
+  await fastify.register(fastifySwagger, {
     ...swaggerOption,
     exposeRoute: true,
     uiHooks: {
@@ -84,7 +84,7 @@ test('hooks on dynamic swagger', async t => {
     }
   })
 
-  fastify.get('/fooBar123', schemaBody, () => {})
+  fastify.post('/fooBar123', schemaBody, () => {})
 
   let res = await fastify.inject('/documentation')
   t.equal(res.statusCode, 401, 'root auth required')
@@ -109,7 +109,7 @@ test('hooks on dynamic swagger', async t => {
 
 test('catch all added schema', async t => {
   const fastify = Fastify()
-  fastify.register(fastifySwagger, {
+  await fastify.register(fastifySwagger, {
     openapi: {},
     refResolver: {
       buildLocalReference: (json, baseUri, fragment, i) => {

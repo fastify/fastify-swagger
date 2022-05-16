@@ -17,7 +17,7 @@ const openapiOption = {
 test('support $ref schema', async (t) => {
   const fastify = Fastify()
 
-  fastify.register(fastifySwagger, openapiOption)
+  await fastify.register(fastifySwagger, openapiOption)
   fastify.register(async (instance) => {
     instance.addSchema({ $id: 'Order', type: 'object', properties: { id: { type: 'integer' } } })
     instance.post('/', { schema: { body: { $ref: 'Order#' }, response: { 200: { $ref: 'Order#' } } } }, () => {})
@@ -35,7 +35,7 @@ test('support $ref schema', async (t) => {
 test('support $ref relative pointers in params', async (t) => {
   const fastify = Fastify()
 
-  fastify.register(fastifySwagger, openapiOption)
+  await fastify.register(fastifySwagger, openapiOption)
   fastify.register(async (instance) => {
     instance.addSchema({
       $id: 'Order',
@@ -65,7 +65,7 @@ test('support $ref relative pointers in params', async (t) => {
 
 test('support nested $ref schema : simple test', async (t) => {
   const fastify = Fastify()
-  fastify.register(fastifySwagger, openapiOption)
+  await fastify.register(fastifySwagger, openapiOption)
   fastify.register(async (instance) => {
     instance.addSchema({ $id: 'OrderItem', type: 'object', properties: { id: { type: 'integer' } } })
     instance.addSchema({ $id: 'ProductItem', type: 'object', properties: { id: { type: 'integer' } } })
@@ -90,7 +90,7 @@ test('support nested $ref schema : simple test', async (t) => {
 
 test('support nested $ref schema : complex case', async (t) => {
   const fastify = Fastify()
-  fastify.register(fastifySwagger, openapiOption)
+  await fastify.register(fastifySwagger, openapiOption)
   fastify.register(async (instance) => {
     instance.addSchema({ $id: 'schemaA', type: 'object', properties: { id: { type: 'integer' } } })
     instance.addSchema({ $id: 'schemaB', type: 'object', properties: { id: { type: 'string' } } })
@@ -119,7 +119,7 @@ test('support nested $ref schema : complex case', async (t) => {
 test('support $ref in response schema', async (t) => {
   const fastify = Fastify()
 
-  fastify.register(fastifySwagger, openapiOption)
+  await fastify.register(fastifySwagger, openapiOption)
   fastify.register(function (instance, _, done) {
     instance.addSchema({ $id: 'order', type: 'string', enum: ['foo'] })
     instance.post('/', { schema: { response: { 200: { type: 'object', properties: { order: { $ref: 'order' } } } } } }, () => {})
@@ -167,7 +167,7 @@ test('support $ref for enums in other schemas', async (t) => {
 
 test('support nested $ref schema : complex case without modifying buildLocalReference', async (t) => {
   const fastify = Fastify()
-  fastify.register(fastifySwagger, { openapi: {} })
+  await fastify.register(fastifySwagger, { openapi: {} })
   fastify.register(async (instance) => {
     instance.addSchema({ $id: 'schemaA', type: 'object', properties: { id: { type: 'integer' } } })
     instance.addSchema({ $id: 'schemaB', type: 'object', properties: { id: { type: 'string' } } })

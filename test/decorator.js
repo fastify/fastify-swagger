@@ -4,26 +4,22 @@ const { test } = require('tap')
 const Fastify = require('fastify')
 const fastifySwagger = require('../index')
 
-test('fastify.swagger should exist', t => {
-  t.plan(2)
+test('fastify.swagger should exist', async (t) => {
+  t.plan(1)
   const fastify = Fastify()
 
-  fastify.register(fastifySwagger)
+  await fastify.register(fastifySwagger)
 
-  fastify.ready(err => {
-    t.error(err)
-    t.ok(fastify.swagger)
-  })
+  await fastify.ready()
+  t.ok(fastify.swagger)
 })
 
-test('fastify.swaggerCSP should exist', t => {
-  t.plan(2)
+test('fastify.swaggerCSP should exist', async (t) => {
+  t.plan(1)
   const fastify = Fastify()
 
-  fastify.register(fastifySwagger)
+  await fastify.register(fastifySwagger)
 
-  fastify.ready(err => {
-    t.error(err)
-    t.ok(fastify.swaggerCSP)
-  })
+  await fastify.ready()
+  t.ok(fastify.swaggerCSP)
 })
