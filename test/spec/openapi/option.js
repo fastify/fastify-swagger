@@ -22,6 +22,20 @@ test('openapi should have default version', t => {
   })
 })
 
+test('openapi version can be overridden', t => {
+  t.plan(2)
+  const fastify = Fastify()
+
+  fastify.register(fastifySwagger, { openapi: { openapi: '3.1.0' } })
+
+  fastify.ready(err => {
+    t.error(err)
+
+    const openapiObject = fastify.swagger()
+    t.equal(openapiObject.openapi, '3.1.0')
+  })
+})
+
 test('openapi should have default info properties', t => {
   t.plan(3)
   const fastify = Fastify()
