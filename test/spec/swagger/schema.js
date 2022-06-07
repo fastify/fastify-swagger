@@ -336,7 +336,7 @@ test('response: description and x-response-description', async () => {
   })
 })
 
-test('support "default" parameter', async t => {
+test('support "default" parameter', { skip: true }, async t => {
   const opt = {
     schema: {
       response: {
