@@ -198,7 +198,7 @@ test('support $ref schema in allOf in querystring', async (t) => {
   await fastify.register(fastifySwagger, { openapi: {} })
   fastify.register(async (instance) => {
     instance.addSchema({ $id: 'schemaA', type: 'object', properties: { field1: { type: 'integer' } } })
-    instance.get('/url1', { schema: { query: { type: 'object', allOf: [{ $ref: 'schemaA' }, { type: 'object', properties: { field3: { type: 'boolean' }}}] }, response: { 200: { type: 'object' } } } }, async () => ({ result: 'OK' }))
+    instance.get('/url1', { schema: { query: { type: 'object', allOf: [{ $ref: 'schemaA' }, { type: 'object', properties: { field3: { type: 'boolean' } } }] }, response: { 200: { type: 'object' } } } }, async () => ({ result: 'OK' }))
   })
 
   await fastify.ready()
@@ -221,7 +221,7 @@ test('support $ref schema in allOf in headers', async (t) => {
   await fastify.register(fastifySwagger, { openapi: {} })
   fastify.register(async (instance) => {
     instance.addSchema({ $id: 'headerA', type: 'object', properties: { 'x-header-1': { type: 'string', description: 'Custom desc' } } })
-    instance.get('/url1', { schema: { headers: { allOf: [{ $ref: 'headerA' }, { type: 'object', properties: { 'x-header-2': { type: 'string', description: 'Custom desc' }}}] }, response: { 200: { type: 'object' } } } }, async () => ({ result: 'OK' }))
+    instance.get('/url1', { schema: { headers: { allOf: [{ $ref: 'headerA' }, { type: 'object', properties: { 'x-header-2': { type: 'string', description: 'Custom desc' } } }] }, response: { 200: { type: 'object' } } } }, async () => ({ result: 'OK' }))
   })
 
   await fastify.ready()
