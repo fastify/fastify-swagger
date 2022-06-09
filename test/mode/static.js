@@ -6,7 +6,7 @@ const Fastify = require('fastify')
 const fastifySwagger = require('../../index')
 const fastifySwaggerDynamic = require('../../lib/mode/dynamic')
 const yaml = require('js-yaml')
-const Swagger = require('swagger-parser')
+const Swagger = require('@apidevtools/swagger-parser')
 
 const resolve = require('path').resolve
 const readFileSync = require('fs').readFileSync
