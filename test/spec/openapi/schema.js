@@ -326,7 +326,7 @@ test('support global schema reference with title', async t => {
   t.match(api.components.schemas['def-0'], schema)
 })
 
-test('support "default" parameter', { skip: true }, async t => {
+test('support "default" parameter', async t => {
   const opt = {
     schema: {
       response: {
