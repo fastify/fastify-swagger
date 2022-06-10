@@ -393,6 +393,78 @@ test('transforms examples in example if single object example', async (t) => {
   t.same(schema.properties.hello.example, { lorem: 'ipsum' })
 })
 
+test('copy example from component to media', async (t) => {
+  t.plan(4)
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, openapiOption)
+
+  const body = {
+    type: 'object',
+    properties: {
+      hello: {
+        type: 'string'
+      }
+    },
+    examples: [{ hello: 'world' }]
+  }
+
+  const opts = {
+    schema: {
+      body
+    }
+  }
+
+  fastify.post('/', opts, () => {})
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+  const content = openapiObject.paths['/'].post.requestBody.content['application/json']
+  const schema = content.schema
+
+  t.ok(schema)
+  t.ok(schema.properties)
+  t.same(schema.example, { hello: 'world' })
+  t.same(content.example, { hello: 'world' })
+})
+
+test('move examples from component to media', async (t) => {
+  t.plan(4)
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, openapiOption)
+
+  const body = {
+    type: 'object',
+    properties: {
+      hello: {
+        type: 'string'
+      }
+    },
+    examples: [{ hello: 'world' }, { hello: 'lorem' }]
+  }
+
+  const opts = {
+    schema: {
+      body
+    }
+  }
+
+  fastify.post('/', opts, () => {})
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+  const content = openapiObject.paths['/'].post.requestBody.content['application/json']
+  const schema = content.schema
+
+  t.ok(schema)
+  t.ok(schema.properties)
+  t.notOk(schema.examples)
+  t.same(content.examples, { example1: { value: { hello: 'world' } }, example2: { value: { hello: 'lorem' } } })
+})
+
 test('uses examples if has multiple string examples', async (t) => {
   t.plan(3)
   const fastify = Fastify()
