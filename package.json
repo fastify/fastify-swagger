@@ -42,6 +42,7 @@
   },
   "homepage": "https://github.com/fastify/fastify-swagger#readme",
   "devDependencies": {
+    "@apidevtools/swagger-parser": "^10.1.0",
     "@fastify/basic-auth": "^4.0.0",
     "@fastify/helmet": "^9.0.0",
     "@types/node": "^17.0.13",
@@ -53,7 +54,6 @@
     "pre-commit": "^1.2.2",
     "qs": "^6.10.3",
     "standard": "^17.0.0",
-    "swagger-parser": "^10.0.3",
     "swagger-ui-dist": "4.11.1",
     "tap": "^16.2.0",
     "tsd": "^0.20.0"

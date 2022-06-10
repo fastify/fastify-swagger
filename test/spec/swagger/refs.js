@@ -2,7 +2,7 @@
 
 const { test } = require('tap')
 const Fastify = require('fastify')
-const Swagger = require('swagger-parser')
+const Swagger = require('@apidevtools/swagger-parser')
 const fastifySwagger = require('../../../index')
 
 test('support $ref schema', async t => {

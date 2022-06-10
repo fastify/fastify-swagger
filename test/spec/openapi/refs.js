@@ -2,7 +2,7 @@
 
 const { test } = require('tap')
 const Fastify = require('fastify')
-const Swagger = require('swagger-parser')
+const Swagger = require('@apidevtools/swagger-parser')
 const fastifySwagger = require('../../../index')
 
 const openapiOption = {
@@ -191,4 +191,50 @@ test('support nested $ref schema : complex case without modifying buildLocalRefe
   t.equal(schemas['def-3'].properties.c.$ref, '#/components/schemas/def-2')
 
   await Swagger.validate(openapiObject)
+})
+
+test('support $ref schema in allOf in querystring', async (t) => {
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, { openapi: {} })
+  fastify.register(async (instance) => {
+    instance.addSchema({ $id: 'schemaA', type: 'object', properties: { field1: { type: 'integer' } } })
+    instance.get('/url1', { schema: { query: { type: 'object', allOf: [{ $ref: 'schemaA#' }, { type: 'object', properties: { field3: { type: 'boolean' } } }] }, response: { 200: { type: 'object' } } } }, async () => ({ result: 'OK' }))
+  })
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+  t.equal(typeof openapiObject, 'object')
+
+  const schemas = openapiObject.components.schemas
+  t.match(Object.keys(schemas), ['def-0'])
+
+  await Swagger.validate(openapiObject)
+
+  const responseAfterSwagger = await fastify.inject({ method: 'GET', url: '/url1', query: { field1: 10, field3: false } })
+
+  t.equal(responseAfterSwagger.statusCode, 200)
+})
+
+test('support $ref schema in allOf in headers', async (t) => {
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, { openapi: {} })
+  fastify.register(async (instance) => {
+    instance.addSchema({ $id: 'headerA', type: 'object', properties: { 'x-header-1': { type: 'string' } } })
+    instance.get('/url1', { schema: { headers: { allOf: [{ $ref: 'headerA#' }, { type: 'object', properties: { 'x-header-2': { type: 'string' } } }] }, response: { 200: { type: 'object' } } } }, async () => ({ result: 'OK' }))
+  })
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+  t.equal(typeof openapiObject, 'object')
+
+  const schemas = openapiObject.components.schemas
+  t.match(Object.keys(schemas), ['def-0'])
+
+  await Swagger.validate(openapiObject)
+
+  const responseAfterSwagger = await fastify.inject({ method: 'GET', url: '/url1', headers: { 'x-header-1': 'test', 'x-header-2': 'test' } })
+
+  t.equal(responseAfterSwagger.statusCode, 200)
 })

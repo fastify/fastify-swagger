@@ -2,7 +2,7 @@
 
 const { test } = require('tap')
 const Fastify = require('fastify')
-const Swagger = require('swagger-parser')
+const Swagger = require('@apidevtools/swagger-parser')
 const fastifySwagger = require('../../../index')
 const S = require('fluent-json-schema')
 const {
@@ -29,6 +29,48 @@ test('support - oneOf, anyOf, allOf', async (t) => {
       required: false,
       in: 'query',
       name: 'foo',
+      schema: {
+        type: 'string'
+      }
+    }
+  ])
+})
+
+test('support - oneOf, anyOf, allOf in headers', async (t) => {
+  t.plan(2)
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, openapiOption)
+
+  const schema = {
+    schema: {
+      headers: {
+        allOf: [
+          {
+            type: 'object',
+            properties: {
+              foo: { type: 'string' }
+            }
+          }
+        ]
+      }
+    }
+  }
+  fastify.get('/', schema, () => {})
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+
+  const api = await Swagger.validate(openapiObject)
+  const definedPath = api.paths['/'].get
+  t.ok(definedPath)
+  t.same(definedPath.parameters, [
+    {
+      required: false,
+      in: 'header',
+      name: 'foo',
+      description: undefined,
       schema: {
         type: 'string'
       }
