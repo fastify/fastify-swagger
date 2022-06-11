@@ -420,12 +420,12 @@ test('move examples from "x-examples" to examples field', async (t) => {
                 type: 'string'
               }
             },
-            'x-examples': {
-              'lorem ipsum': {
-                summary: 'Roman statesman',
-                value: { lorem: 'ipsum' }
-              }
-            }
+          }
+        },
+        'x-examples': {
+          'lorem ipsum': {
+            summary: 'Roman statesman',
+            value: { lorem: 'ipsum' }
           }
         }
       }
@@ -437,11 +437,12 @@ test('move examples from "x-examples" to examples field', async (t) => {
   await fastify.ready()
 
   const openapiObject = fastify.swagger()
-  const schema = openapiObject.paths['/'].post.requestBody.content['application/json'].schema
+  const content = openapiObject.paths['/'].post.requestBody.content['application/json']
+  const schema = content.schema
 
   t.ok(schema)
-  t.notOk(schema.properties.hello['x-examples'])
-  t.same(schema.properties.hello.examples, {
+  t.notOk(schema['x-examples'])
+  t.same(content.examples, {
     'lorem ipsum': {
       summary: 'Roman statesman',
       value: { lorem: 'ipsum' }

@@ -823,15 +823,8 @@ fastify.route({
             type: 'string'
           },
           minItems: 1,
-          // You can set examples for the property
-          "x-examples": [
-            {
-              animals: ["Tom", "Spike"]
-            }
-          ]
         }
       },
-      // Or set examples for the whole scheme
       "x-examples": {
         Cats: {
           summary: "Feed cats",
