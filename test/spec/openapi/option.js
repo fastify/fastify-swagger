@@ -419,7 +419,7 @@ test('move examples from "x-examples" to examples field', async (t) => {
               lorem: {
                 type: 'string'
               }
-            },
+            }
           }
         },
         'x-examples': {
