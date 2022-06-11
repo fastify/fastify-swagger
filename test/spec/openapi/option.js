@@ -393,6 +393,62 @@ test('transforms examples in example if single object example', async (t) => {
   t.same(schema.properties.hello.example, { lorem: 'ipsum' })
 })
 
+test('move examples from "x-examples" to examples field', async (t) => {
+  t.plan(3)
+  const fastify = Fastify({
+    ajv: {
+      plugins: [
+        function (ajv) {
+          ajv.addKeyword({ keyword: 'x-examples' })
+        }
+      ]
+    }
+  })
+
+  await fastify.register(fastifySwagger, openapiOption)
+
+  const opts = {
+    schema: {
+      body: {
+        type: 'object',
+        required: ['hello'],
+        properties: {
+          hello: {
+            type: 'object',
+            properties: {
+              lorem: {
+                type: 'string'
+              }
+            },
+            'x-examples': {
+              'lorem ipsum': {
+                summary: 'Roman statesman',
+                value: { lorem: 'ipsum' }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  fastify.post('/', opts, () => {})
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+  const schema = openapiObject.paths['/'].post.requestBody.content['application/json'].schema
+
+  t.ok(schema)
+  t.notOk(schema.properties.hello['x-examples'])
+  t.same(schema.properties.hello.examples, {
+    'lorem ipsum': {
+      summary: 'Roman statesman',
+      value: { lorem: 'ipsum' }
+    }
+  })
+})
+
 test('copy example from component to media', async (t) => {
   t.plan(4)
   const fastify = Fastify()
