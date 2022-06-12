@@ -830,11 +830,15 @@ fastify.route({
           summary: "Feed cats",
           description: 
             "A longer **description** of the options with cats",
-          value: ["Tom", "Garfield", "Felix"]
+          value: { 
+            animals: ["Tom", "Garfield", "Felix"] 
+          }
         },
         Dogs: {
           summary: "Feed dogs",
-          value: ["Spike", "Odie", "Snoopy"]
+          value: { 
+            animals: ["Spike", "Odie", "Snoopy"] 
+          }
         }
       }
     }
