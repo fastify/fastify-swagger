@@ -806,7 +806,7 @@ Will generate this in the OpenAPI v3 schema's `path`:
 }
 ```
 
-If you want to set your own names or add descriptions to the examples of schemas, you can use `x-examples` field to set examples in OpenAPI format:
+If you want to set your own names or add descriptions to the examples of schemas, you can use `x-examples` field to set examples in [OpenAPI format](https://swagger.io/specification/#example-object):
 
 ```js
 fastify.route({
