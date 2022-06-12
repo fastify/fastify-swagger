@@ -566,7 +566,7 @@ test('copy example of parameters from component to media', async (t) => {
   t.ok(queryParam)
   t.same(queryParam.example, 8080)
 
-  const pathParam = paramsMap.get('query')
+  const pathParam = paramsMap.get('path')
   t.ok(pathParam)
   t.same(pathParam.example, 8080)
 })
@@ -692,7 +692,7 @@ test('move examples of parameters from component to media', async (t) => {
   t.ok(queryParam)
   t.same(queryParam.examples, expectedExamples)
 
-  const pathParam = paramsMap.get('query')
+  const pathParam = paramsMap.get('path')
   t.ok(pathParam)
   t.same(pathParam.examples, expectedExamples)
 })
