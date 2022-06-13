@@ -1,6 +1,14 @@
 'use strict'
 
 const qs = require('qs')
+const Ajv = require('ajv')
+
+const ajv = new Ajv({
+  removeAdditional: true,
+  useDefaults: true,
+  coerceTypes: true,
+})
+
 const fastify = require('fastify')({
   querystringParser: (str) => {
     const result = qs.parse(str)
@@ -13,6 +21,13 @@ const fastify = require('fastify')({
   }
 })
 
+ajv.addKeyword({
+  keyword: 'x-consume', 
+  code: (ctx) => Promise.resolve(true)
+})
+
+fastify.setValidatorCompiler(({ schema }) => ajv.compile(schema));
+
 fastify.register(require('../index'), {
   openapi: {
     info: {
@@ -24,33 +39,34 @@ fastify.register(require('../index'), {
   exposeRoute: true
 })
 
-fastify.route({
-  method: 'GET',
-  url: '/',
-  schema: {
-    querystring: {
-      type: 'object',
-      required: ['filter'],
-      additionalProperties: false,
-      properties: {
-        filter: {
-          type: 'object',
-          required: ['foo'],
-          properties: {
-            foo: { type: 'string' },
-            bar: { type: 'string' }
-          },
-          'x-consume': 'application/json'
+fastify.register(async function (fastify) {
+  fastify.route({
+    method: 'GET',
+    url: '/',
+    schema: {
+      querystring: {
+        type: 'object',
+        required: ['filter'],
+        additionalProperties: false,
+        properties: {
+          filter: {
+            type: 'object',
+            required: ['foo'],
+            properties: {
+              foo: { type: 'string' },
+              bar: { type: 'string' }
+            },
+            'x-consume': 'application/json'
+          }
         }
       }
+    },
+    handler (request, reply) {
+      reply.send(request.query.filter)
     }
-  },
-  handler (request, reply) {
-    reply.send(request.query.filter)
-  }
+  })
 })
 
-fastify.listen(3000, (err, addr) => {
+fastify.listen({ port: 3000 }, (err, addr) => {
   if (err) throw err
-  console.log(`listening on ${addr}`)
 })
