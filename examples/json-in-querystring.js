@@ -6,7 +6,7 @@ const Ajv = require('ajv')
 const ajv = new Ajv({
   removeAdditional: true,
   useDefaults: true,
-  coerceTypes: true,
+  coerceTypes: true
 })
 
 const fastify = require('fastify')({
@@ -22,11 +22,11 @@ const fastify = require('fastify')({
 })
 
 ajv.addKeyword({
-  keyword: 'x-consume', 
+  keyword: 'x-consume',
   code: (ctx) => Promise.resolve(true)
 })
 
-fastify.setValidatorCompiler(({ schema }) => ajv.compile(schema));
+fastify.setValidatorCompiler(({ schema }) => ajv.compile(schema))
 
 fastify.register(require('../index'), {
   openapi: {
