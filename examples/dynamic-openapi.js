@@ -26,91 +26,92 @@ fastify.register(require('../index'), {
   exposeRoute: true
 })
 
-fastify.put('/some-route/:id', {
-  schema: {
-    description: 'post some data',
-    tags: ['user', 'code'],
-    summary: 'qwerty',
-    security: [{ apiKey: [] }],
-    params: {
-      type: 'object',
-      properties: {
-        id: {
-          type: 'string',
-          description: 'user id'
-        }
-      }
-    },
-    body: {
-      type: 'object',
-      properties: {
-        hello: { type: 'string' },
-        obj: {
-          type: 'object',
-          properties: {
-            some: { type: 'string' }
-          }
-        }
-      }
-    },
-    response: {
-      201: {
-        description: 'Succesful response',
+fastify.register(async function (fastify) {
+  fastify.put('/some-route/:id', {
+    schema: {
+      description: 'post some data',
+      tags: ['user', 'code'],
+      summary: 'qwerty',
+      security: [{ apiKey: [] }],
+      params: {
         type: 'object',
         properties: {
-          hello: { type: 'string' }
+          id: {
+            type: 'string',
+            description: 'user id'
+          }
         }
       },
-      default: {
-        description: 'Default response',
+      body: {
         type: 'object',
         properties: {
-          foo: { type: 'string' }
+          hello: { type: 'string' },
+          obj: {
+            type: 'object',
+            properties: {
+              some: { type: 'string' }
+            }
+          }
         }
-      }
-    }
-  }
-}, (req, reply) => { reply.send({ hello: `Hello ${req.body.hello}` }) })
-
-fastify.post('/some-route/:id', {
-  schema: {
-    description: 'post some data',
-    summary: 'qwerty',
-    security: [{ apiKey: [] }],
-    params: {
-      type: 'object',
-      properties: {
-        id: {
-          type: 'string',
-          description: 'user id'
-        }
-      }
-    },
-    body: {
-      type: 'object',
-      properties: {
-        hello: { type: 'string' },
-        obj: {
+      },
+      response: {
+        201: {
+          description: 'Succesful response',
           type: 'object',
           properties: {
-            some: { type: 'string' }
+            hello: { type: 'string' }
+          }
+        },
+        default: {
+          description: 'Default response',
+          type: 'object',
+          properties: {
+            foo: { type: 'string' }
           }
         }
       }
-    },
-    response: {
-      201: {
-        description: 'Succesful response',
+    }
+  }, (req, reply) => { reply.send({ hello: `Hello ${req.body.hello}` }) })
+
+  fastify.post('/some-route/:id', {
+    schema: {
+      description: 'post some data',
+      summary: 'qwerty',
+      security: [{ apiKey: [] }],
+      params: {
         type: 'object',
         properties: {
-          hello: { type: 'string' }
+          id: {
+            type: 'string',
+            description: 'user id'
+          }
+        }
+      },
+      body: {
+        type: 'object',
+        properties: {
+          hello: { type: 'string' },
+          obj: {
+            type: 'object',
+            properties: {
+              some: { type: 'string' }
+            }
+          }
+        }
+      },
+      response: {
+        201: {
+          description: 'Succesful response',
+          type: 'object',
+          properties: {
+            hello: { type: 'string' }
+          }
         }
       }
     }
-  }
-}, (req, reply) => { reply.send({ hello: `Hello ${req.body.hello}` }) })
+  }, (req, reply) => { reply.send({ hello: `Hello ${req.body.hello}` }) })
+})
 
-fastify.listen(3000, err => {
+fastify.listen({ port: 3000 }, err => {
   if (err) throw err
-  console.log('listening')
 })

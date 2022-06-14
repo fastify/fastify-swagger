@@ -18,45 +18,46 @@ fastify.register(require('../index'), {
   routePrefix: '/swagger-docs'
 })
 
-fastify.put('/some-route/:id', {
-  schema: {
-    description: 'post some data',
-    tags: ['user', 'code'],
-    summary: 'qwerty',
-    params: {
-      type: 'object',
-      properties: {
-        id: {
-          type: 'string',
-          description: 'user id'
+fastify.register(async function (fastify) {
+  fastify.put('/some-route/:id', {
+    schema: {
+      description: 'post some data',
+      tags: ['user', 'code'],
+      summary: 'qwerty',
+      params: {
+        type: 'object',
+        properties: {
+          id: {
+            type: 'string',
+            description: 'user id'
+          }
         }
-      }
-    },
-    body: {
-      type: 'object',
-      properties: {
-        hello: { type: 'string' },
-        obj: {
+      },
+      body: {
+        type: 'object',
+        properties: {
+          hello: { type: 'string' },
+          obj: {
+            type: 'object',
+            properties: {
+              some: { type: 'string' }
+            }
+          }
+        }
+      },
+      response: {
+        201: {
+          description: 'Succesful response',
           type: 'object',
           properties: {
-            some: { type: 'string' }
+            hello: { type: 'string' }
           }
         }
       }
-    },
-    response: {
-      201: {
-        description: 'Succesful response',
-        type: 'object',
-        properties: {
-          hello: { type: 'string' }
-        }
-      }
     }
-  }
-}, (req, reply) => {})
+  }, (req, reply) => {})
+})
 
-fastify.listen(3000, err => {
+fastify.listen({ port: 3000 }, err => {
   if (err) throw err
-  console.log('listening')
 })
