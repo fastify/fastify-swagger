@@ -393,7 +393,64 @@ test('transforms examples in example if single object example', async (t) => {
   t.same(schema.properties.hello.example, { lorem: 'ipsum' })
 })
 
-test('copy example from component to media', async (t) => {
+test('move examples from "x-examples" to examples field', async (t) => {
+  t.plan(3)
+  const fastify = Fastify({
+    ajv: {
+      plugins: [
+        function (ajv) {
+          ajv.addKeyword({ keyword: 'x-examples' })
+        }
+      ]
+    }
+  })
+
+  await fastify.register(fastifySwagger, openapiOption)
+
+  const opts = {
+    schema: {
+      body: {
+        type: 'object',
+        required: ['hello'],
+        properties: {
+          hello: {
+            type: 'object',
+            properties: {
+              lorem: {
+                type: 'string'
+              }
+            }
+          }
+        },
+        'x-examples': {
+          'lorem ipsum': {
+            summary: 'Roman statesman',
+            value: { lorem: 'ipsum' }
+          }
+        }
+      }
+    }
+  }
+
+  fastify.post('/', opts, () => {})
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+  const content = openapiObject.paths['/'].post.requestBody.content['application/json']
+  const schema = content.schema
+
+  t.ok(schema)
+  t.notOk(schema['x-examples'])
+  t.same(content.examples, {
+    'lorem ipsum': {
+      summary: 'Roman statesman',
+      value: { lorem: 'ipsum' }
+    }
+  })
+})
+
+test('copy example of body from component to media', async (t) => {
   t.plan(4)
   const fastify = Fastify()
 
@@ -429,7 +486,92 @@ test('copy example from component to media', async (t) => {
   t.same(content.example, { hello: 'world' })
 })
 
-test('move examples from component to media', async (t) => {
+test('copy example of response from component to media', async (t) => {
+  t.plan(4)
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, openapiOption)
+
+  const response = {
+    type: 'object',
+    properties: {
+      hello: {
+        type: 'string'
+      }
+    },
+    examples: [{ hello: 'world' }]
+  }
+
+  const opts = {
+    schema: {
+      response: { 200: response }
+    }
+  }
+
+  fastify.post('/', opts, () => {})
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+  const content = openapiObject.paths['/'].post.responses['200'].content['application/json']
+  const schema = content.schema
+
+  t.ok(schema)
+  t.ok(schema.properties)
+  t.same(schema.example, { hello: 'world' })
+  t.same(content.example, { hello: 'world' })
+})
+
+test('copy example of parameters from component to media', async (t) => {
+  t.plan(7)
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, openapiOption)
+
+  const portSchema = {
+    type: 'number',
+    examples: [8080]
+  }
+
+  const opts = {
+    schema: {
+      headers: {
+        'X-Port': portSchema
+      },
+      querystring: {
+        port: portSchema
+      },
+      params: {
+        port: portSchema
+      }
+    }
+  }
+
+  fastify.post('/:port', opts, () => {})
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+  const parameters = openapiObject.paths['/{port}'].post.parameters
+
+  t.ok(parameters)
+
+  const paramsMap = new Map(parameters.map(param => [param.in, param]))
+
+  const headerParam = paramsMap.get('header')
+  t.ok(headerParam)
+  t.same(headerParam.example, 8080)
+
+  const queryParam = paramsMap.get('query')
+  t.ok(queryParam)
+  t.same(queryParam.example, 8080)
+
+  const pathParam = paramsMap.get('path')
+  t.ok(pathParam)
+  t.same(pathParam.example, 8080)
+})
+
+test('move examples of body from component to media', async (t) => {
   t.plan(4)
   const fastify = Fastify()
 
@@ -463,6 +605,96 @@ test('move examples from component to media', async (t) => {
   t.ok(schema.properties)
   t.notOk(schema.examples)
   t.same(content.examples, { example1: { value: { hello: 'world' } }, example2: { value: { hello: 'lorem' } } })
+})
+
+test('move examples of response from component to media', async (t) => {
+  t.plan(4)
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, openapiOption)
+
+  const response = {
+    type: 'object',
+    properties: {
+      hello: {
+        type: 'string'
+      }
+    },
+    examples: [{ hello: 'world' }, { hello: 'lorem' }]
+  }
+
+  const opts = {
+    schema: {
+      response: { 200: response }
+    }
+  }
+
+  fastify.post('/', opts, () => {})
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+  const content = openapiObject.paths['/'].post.responses['200'].content['application/json']
+  const schema = content.schema
+
+  t.ok(schema)
+  t.ok(schema.properties)
+  t.notOk(schema.examples)
+  t.same(content.examples, { example1: { value: { hello: 'world' } }, example2: { value: { hello: 'lorem' } } })
+})
+
+test('move examples of parameters from component to media', async (t) => {
+  t.plan(7)
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, openapiOption)
+
+  const portSchema = {
+    type: 'number',
+    examples: [8080, 80]
+  }
+
+  const opts = {
+    schema: {
+      headers: {
+        'X-Port': portSchema
+      },
+      querystring: {
+        port: portSchema
+      },
+      params: {
+        port: portSchema
+      }
+    }
+  }
+
+  fastify.post('/:port', opts, () => {})
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+  const parameters = openapiObject.paths['/{port}'].post.parameters
+
+  t.ok(parameters)
+
+  const paramsMap = new Map(parameters.map(param => [param.in, param]))
+
+  const expectedExamples = {
+    80: { value: 80 },
+    8080: { value: 8080 }
+  }
+
+  const headerParam = paramsMap.get('header')
+  t.ok(headerParam)
+  t.same(headerParam.examples, expectedExamples)
+
+  const queryParam = paramsMap.get('query')
+  t.ok(queryParam)
+  t.same(queryParam.examples, expectedExamples)
+
+  const pathParam = paramsMap.get('path')
+  t.ok(pathParam)
+  t.same(pathParam.examples, expectedExamples)
 })
 
 test('uses examples if has multiple string examples', async (t) => {

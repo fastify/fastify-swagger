@@ -726,6 +726,140 @@ You can integration this plugin with ```@fastify/helmet``` with some little work
 })
 ```
 
+<a name="schema.examplesField"></a>
+### Add examples to the schema
+
+Note: [OpenAPI](https://swagger.io/specification/#example-object) and [JSON Schema](https://json-schema.org/draft/2020-12/json-schema-validation.html#rfc.section.9.5) have different examples field formats. 
+
+Array with examples from JSON Schema converted to OpenAPI `example` or `examples` field automatically with generated names (example1, example2...):
+
+```js
+fastify.route({
+  method: 'POST',
+  url: '/',
+  schema: {
+    querystring: {
+      type: 'object',
+      required: ['filter'],
+      properties: {
+        filter: {
+          type: 'object',
+          required: ['foo'],
+          properties: {
+            foo: { type: 'string' },
+            bar: { type: 'string' }
+          },
+          examples: [
+            { foo: 'bar', bar: 'baz' },
+            { foo: 'foo', bar: 'bar' }
+          ]
+        }
+      },
+      examples: [
+        { filter: { foo: 'bar', bar: 'baz' } }
+      ]
+    }
+  },
+  handler (request, reply) {
+    reply.send(request.query.filter)
+  }
+})
+```
+
+Will generate this in the OpenAPI v3 schema's `path`:
+
+```json
+"/": {
+  "post": {
+    "requestBody": {
+      "content": {
+        "application/json": {
+          "schema": {
+            "type": "object",
+            "required": ["filter"],
+            "properties": {
+              "filter": {
+                "type": "object",
+                "required": ["foo"],
+                "properties": {
+                  "foo": { "type": "string" },
+                  "bar": { "type": "string" }
+                },
+                "example": { "foo": "bar", "bar": "baz" }
+              }
+            }
+          },
+          "examples": {
+            "example1": {
+              "value": { "filter": { "foo": "bar", "bar": "baz" } }
+            },
+            "example2": {
+              "value": { "filter": { "foo": "foo", "bar": "bar" } }
+            }
+          }
+        }
+      },
+      "required": true
+    },
+    "responses": { "200": { "description": "Default Response" } }
+  }
+}
+```
+
+If you want to set your own names or add descriptions to the examples of schemas, you can use `x-examples` field to set examples in [OpenAPI format](https://swagger.io/specification/#example-object):
+
+```js
+// Need to add a new allowed keyword to ajv in fastify instance
+const fastify = Fastify({
+  ajv: {
+    plugins: [
+      function (ajv) {
+        ajv.addKeyword({ keyword: 'x-examples' })
+      }
+    ]
+  }
+})
+
+fastify.route({
+  method: 'POST',
+  url: '/feed-animals',
+  schema: {
+    body: {
+      type: 'object',
+      required: ['animals'],
+      properties: {
+        animals: {
+          type: 'array',
+          items: {
+            type: 'string'
+          },
+          minItems: 1,
+        }
+      },
+      "x-examples": {
+        Cats: {
+          summary: "Feed cats",
+          description: 
+            "A longer **description** of the options with cats",
+          value: { 
+            animals: ["Tom", "Garfield", "Felix"] 
+          }
+        },
+        Dogs: {
+          summary: "Feed dogs",
+          value: { 
+            animals: ["Spike", "Odie", "Snoopy"] 
+          }
+        }
+      }
+    }
+  },
+  handler (request, reply) {
+    reply.send(request.body.animals)
+  }
+})
+```
+
 <a name="usage"></a>
 ## `$id` and `$ref` usage
 
