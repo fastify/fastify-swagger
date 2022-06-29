@@ -14,6 +14,7 @@ const uiConfig: FastifySwaggerUiConfigOptions = {
   defaultModelExpandDepth: 1,
   validatorUrl: null,
   layout: 'BaseLayout',
+  supportedSubmitMethods: ['get'],
 };
 const initOAuth: FastifySwaggerInitOAuthOptions = {
   scopes: ['openid', 'profile', 'email', 'offline_access'],
