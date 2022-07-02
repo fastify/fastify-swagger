@@ -6,7 +6,11 @@
 
 A Fastify plugin for serving a [Swagger UI](https://swagger.io/tools/swagger-ui/), using [Swagger (OpenAPI v2)](https://swagger.io/specification/v2/) or [OpenAPI v3](https://swagger.io/specification) schemas automatically generated from your route schemas, or from an existing Swagger/OpenAPI schema.
 
-Supports Fastify versions `>=3.0.0`. For `fastify@2`, please refer to [`branch@2.x`](https://github.com/fastify/fastify-swagger/tree/2.x) and for `fastify@1.9`, please refer to [`branch@1.x`](https://github.com/fastify/fastify-swagger/tree/1.x).
+Supports Fastify versions `4.x`.
+
+- Please refer to [6.x](https://github.com/fastify/fastify-swagger/tree/6.x) for Fastify `^3.x` compatibility.
+- Please refer to [3.x](https://github.com/fastify/fastify-swagger/tree/2.x) for Fastify `^2.x` compatibility.
+- Please refer to [1.x](https://github.com/fastify/fastify-swagger/tree/1.x) for Fastify `^1.x` compatibility.
 
 If you are looking for a plugin to generate routes from an existing OpenAPI schema, check out [fastify-openapi-glue](https://github.com/seriousme/fastify-openapi-glue).
 
