@@ -60,7 +60,7 @@
   },
   "dependencies": {
     "@fastify/static": "^6.0.0",
-    "fastify-plugin": "^3.0.1",
+    "fastify-plugin": "^4.0.0",
     "js-yaml": "^4.1.0",
     "json-schema-resolver": "^1.3.0",
     "openapi-types": "^11.0.0",
