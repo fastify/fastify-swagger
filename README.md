@@ -488,6 +488,15 @@ You can also apply different serialization `style` and `explode` as specified [h
 `@fastify/swagger` supports these options as shown in this example:
 
 ```js
+// Need to add a collectionFormat keyword to ajv in fastify instance
+const fastify = Fastify({
+  ajv: {
+    customOptions: {
+      keywords: ['collectionFormat']
+    }
+  }
+})
+
 fastify.route({
   method: 'GET',
   url: '/',

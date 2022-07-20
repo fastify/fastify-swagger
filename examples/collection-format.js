@@ -1,6 +1,13 @@
 'use strict'
 
-const fastify = require('fastify')()
+const fastify = require('fastify')({
+  // Need to add a collectionFormat keyword to ajv in fastify instance
+  ajv: {
+    customOptions: {
+      keywords: ['collectionFormat']
+    }
+  }
+})
 
 fastify.register(require('../index'), {
   exposeRoute: true
