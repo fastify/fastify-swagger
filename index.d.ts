@@ -90,6 +90,7 @@ export type FastifySwaggerUiConfigOptions = Partial<{
   tryItOutEnabled: boolean
   validatorUrl: string | null
   supportedSubmitMethods: Array<'get' | 'post' | 'put' | 'delete' | 'patch' | 'options'>
+  persistAuthorization: boolean
 }>
 
 export type FastifySwaggerInitOAuthOptions = Partial<{

@@ -15,6 +15,7 @@ const uiConfig: FastifySwaggerUiConfigOptions = {
   validatorUrl: null,
   layout: 'BaseLayout',
   supportedSubmitMethods: ['get'],
+  persistAuthorization: false,
 };
 const initOAuth: FastifySwaggerInitOAuthOptions = {
   scopes: ['openid', 'profile', 'email', 'offline_access'],
