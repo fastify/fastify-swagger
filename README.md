@@ -17,7 +17,7 @@ If you are looking for a plugin to generate routes from an existing OpenAPI sche
 <a name="install"></a>
 ## Install
 ```
-npm i @fastify/swagger --save
+npm i @fastify/swagger
 ```
 
 <a name="usage"></a>
