@@ -3,7 +3,7 @@
 const { test } = require('tap')
 const Fastify = require('fastify')
 const Swagger = require('@apidevtools/swagger-parser')
-const yaml = require('js-yaml')
+const yaml = require('yaml')
 const fastifySwagger = require('../../../index')
 const {
   openapiOption,
@@ -64,7 +64,7 @@ test('openapi should return a valid swagger yaml', async (t) => {
 
   const swaggerYaml = fastify.swagger({ yaml: true })
   t.equal(typeof swaggerYaml, 'string')
-  yaml.load(swaggerYaml)
+  yaml.parse(swaggerYaml)
   t.pass('valid swagger yaml')
 })
 

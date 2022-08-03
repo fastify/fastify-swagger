@@ -23,7 +23,7 @@ paths:
       tags:
         - Status
       responses:
-        '200':
+        "200":
           description: Server is alive
           content:
             application/json:
@@ -36,7 +36,7 @@ paths:
                     type: string
                 example:
                   health: true
-                  date: '2018-02-19T15:36:46.758Z'
+                  date: 2018-02-19T15:36:46.758Z
 
 `
 
