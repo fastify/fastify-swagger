@@ -2,7 +2,7 @@
 
 const { test } = require('tap')
 const Fastify = require('fastify')
-const yaml = require('js-yaml')
+const yaml = require('yaml')
 
 const fastifySwagger = require('../index')
 const { swaggerOption, schemaBody } = require('../examples/options')
@@ -49,7 +49,7 @@ test('hooks on static swagger', async t => {
   t.equal(res.statusCode, 200)
   t.equal(res.headers['content-type'], 'application/x-yaml')
   try {
-    yaml.load(res.payload)
+    yaml.parse(res.payload)
     t.pass('valid swagger yaml')
   } catch (err) {
     t.fail(err)
@@ -65,7 +65,7 @@ test('hooks on static swagger', async t => {
   t.equal(typeof res.payload, 'string')
   t.equal(res.headers['content-type'], 'application/json; charset=utf-8')
   try {
-    yaml.load(res.payload)
+    yaml.parse(res.payload)
     t.pass('valid swagger json')
   } catch (err) {
     t.fail(err)
