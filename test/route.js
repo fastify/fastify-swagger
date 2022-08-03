@@ -4,7 +4,7 @@ const t = require('tap')
 const test = t.test
 const Fastify = require('fastify')
 const Swagger = require('@apidevtools/swagger-parser')
-const yaml = require('js-yaml')
+const yaml = require('yaml')
 const fastifySwagger = require('../index')
 const {
   schemaQuerystring,
@@ -164,7 +164,7 @@ test('fastify.swagger should return a valid swagger yaml', async (t) => {
 
   t.equal(typeof res.payload, 'string')
   t.equal(res.headers['content-type'], 'application/x-yaml')
-  yaml.load(res.payload)
+  yaml.parse(res.payload)
   t.pass('valid swagger yaml')
 })
 
