@@ -46,7 +46,7 @@ fastify.route({
   }
 })
 
-fastify.listen(0, (err, addr) => {
+fastify.listen({ port: 3000 }, (err, addr) => {
   if (err) throw err
   console.log(`listening on ${addr}`)
 })
