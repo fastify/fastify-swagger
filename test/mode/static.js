@@ -5,7 +5,7 @@ const { test } = require('tap')
 const Fastify = require('fastify')
 const fastifySwagger = require('../../index')
 const fastifySwaggerDynamic = require('../../lib/mode/dynamic')
-const yaml = require('js-yaml')
+const yaml = require('yaml')
 const Swagger = require('@apidevtools/swagger-parser')
 
 const resolve = require('path').resolve
@@ -139,7 +139,7 @@ test('swagger route returns yaml', async (t) => {
 
   t.equal(typeof res.payload, 'string')
   t.equal(res.headers['content-type'], 'application/x-yaml')
-  yaml.load(res.payload)
+  yaml.parse(res.payload)
   t.pass('valid swagger yaml')
 })
 
@@ -164,7 +164,7 @@ test('swagger route returns json', async (t) => {
 
   t.equal(typeof res.payload, 'string')
   t.equal(res.headers['content-type'], 'application/json; charset=utf-8')
-  yaml.load(res.payload)
+  yaml.parse(res.payload)
   t.pass('valid swagger json')
 })
 
@@ -193,7 +193,7 @@ test('postProcessor works, swagger route returns updated yaml', async (t) => {
 
   t.equal(typeof res.payload, 'string')
   t.equal(res.headers['content-type'], 'application/x-yaml')
-  yaml.load(res.payload)
+  yaml.parse(res.payload)
   t.matchSnapshot(res.payload)
   t.pass('valid swagger yaml')
 })
@@ -375,7 +375,7 @@ test('/documentation/yaml returns cache.swaggerString on second request in stati
 
     t.equal(typeof res.payload, 'string')
     t.equal(res.headers['content-type'], 'application/x-yaml')
-    yaml.load(res.payload)
+    yaml.parse(res.payload)
     t.pass('valid swagger yaml')
   }
 
@@ -387,7 +387,7 @@ test('/documentation/yaml returns cache.swaggerString on second request in stati
 
     t.equal(typeof res.payload, 'string')
     t.equal(res.headers['content-type'], 'application/x-yaml')
-    yaml.load(res.payload)
+    yaml.parse(res.payload)
     t.pass('valid swagger yaml')
   }
 })
@@ -448,7 +448,7 @@ test('/documentation/yaml returns cache.swaggerString on second request in dynam
 
     t.equal(typeof res.payload, 'string')
     t.equal(res.headers['content-type'], 'application/x-yaml')
-    yaml.load(res.payload)
+    yaml.parse(res.payload)
     t.pass('valid swagger yaml')
   }
 
@@ -460,7 +460,7 @@ test('/documentation/yaml returns cache.swaggerString on second request in dynam
 
     t.equal(typeof res.payload, 'string')
     t.equal(res.headers['content-type'], 'application/x-yaml')
-    yaml.load(res.payload)
+    yaml.parse(res.payload)
     t.pass('valid swagger yaml')
   }
 })
