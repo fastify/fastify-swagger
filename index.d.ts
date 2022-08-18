@@ -1,6 +1,23 @@
 import {FastifyPluginCallback, FastifySchema, onRequestHookHandler, preHandlerHookHandler} from 'fastify';
 import { OpenAPI, OpenAPIV2, OpenAPIV3 } from 'openapi-types';
 
+/**
+ * Swagger-UI Vendor Extensions
+ * @see https://support.smartbear.com/swaggerhub/docs/apis/vendor-extensions.html#api-docs-x-tokenname
+ */
+declare module 'openapi-types' {
+  namespace OpenAPIV3 {
+    interface OAuth2SecurityScheme {
+      'x-tokenName'?: string;
+    }
+  }
+  namespace OpenAPIV2 {
+    interface SecuritySchemeOauth2Base {
+      'x-tokenName'?: string;
+    }
+  }
+}
+
 declare module 'fastify' {
   interface FastifyInstance {
     swagger: (
