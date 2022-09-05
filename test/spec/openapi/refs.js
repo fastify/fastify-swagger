@@ -238,3 +238,47 @@ test('support $ref schema in allOf in headers', async (t) => {
 
   t.equal(responseAfterSwagger.statusCode, 200)
 })
+
+test('uses examples if has property required in body', async (t) => {
+  t.plan(3)
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, openapiOption)
+
+  fastify.get('/', {
+    schema: {
+      query: {
+        type: 'object',
+        oneOf: [
+          {
+            properties: {
+              bar: { type: 'number' }
+            }
+          },
+          {
+            properties: {
+              foo: { type: 'string' }
+            }
+          }
+        ]
+      },
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            result: { type: 'string' }
+          }
+        }
+      }
+    }
+  }, (req, reply) => ({ result: 'OK' }))
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+  const schema = openapiObject.paths['/'].get
+
+  t.ok(schema)
+  t.ok(schema.parameters)
+  t.same(schema.parameters[0].in, 'query')
+})
