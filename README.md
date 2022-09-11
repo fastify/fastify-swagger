@@ -452,6 +452,9 @@ Note: You need to specify `type` property when you decorate the response headers
 
 <a name="route.response.empty_body"></a>
 ##### Different content types responses
+**Note:** not supported by Swagger (OpenAPI v2), [only OpenAPI v3](https://swagger.io/docs/specification/describing-responses/)
+<br>
+<br>
 Different content types responses are supported by `@fastify/swagger` and `@fastify`.
 Please use `contentTypes` for the response otherwise Fastify itself will fail to compile the schema:
 
