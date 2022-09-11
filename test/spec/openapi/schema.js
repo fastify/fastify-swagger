@@ -110,6 +110,61 @@ test('support 2xx response', async t => {
   t.same(definedPath.responses['3XX'].description, 'Default Response')
 })
 
+test('support multiple content types responses', async t => {
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, {
+    openapi: true,
+    routePrefix: '/docs',
+    exposeRoute: true
+  })
+
+  const opt = {
+    schema: {
+      response: {
+        200: {
+          description: 'Description and all status-code based properties are working',
+          contentTypes: [
+            {
+              content: 'application/json',
+              schema: { name: { type: 'string' }, image: { type: 'string' }, address: { type: 'string' } }
+            },
+            {
+              content: 'application/vnd.v1+json',
+              schema: { fullName: { type: 'string' }, phone: { type: 'string' } }
+            }
+          ]
+        }
+      }
+    }
+  }
+  fastify.get('/', opt, () => {})
+
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  const api = await Swagger.validate(swaggerObject)
+  const definedPath = api.paths['/'].get
+  t.same(definedPath.responses['200'].description, 'Description and all status-code based properties are working')
+  t.same(definedPath.responses['200'].content, {
+    'application/json': {
+      schema: {
+        type: 'object',
+        properties: {
+          name: { type: 'string' }, image: { type: 'string' }, address: { type: 'string' }
+        }
+      }
+    },
+    'application/vnd.v1+json': {
+      schema: {
+        type: 'object',
+        properties: {
+          fullName: { type: 'string' }, phone: { type: 'string' }
+        }
+      }
+    }
+  })
+})
+
 test('support status code 204', async t => {
   const opt = {
     schema: {

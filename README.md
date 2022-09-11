@@ -451,6 +451,29 @@ You can decorate your own response headers by following the below example:
 Note: You need to specify `type` property when you decorate the response headers, otherwise the schema will be modified by Fastify.
 
 <a name="route.response.empty_body"></a>
+##### Different content types responses
+Different content types responses are supported by `@fastify/swagger` and `@fastify`.
+Please use `contentTypes` for the response otherwise Fastify itself will fail to compile the schema:
+
+```js
+{
+  response: {
+    200: {
+      description: 'Description and all status-code based properties are working',
+      contentTypes: [
+        {
+          content: 'application/json',
+          schema: { name: { type: 'string' }, image: { type: 'string' }, address: { type: 'string' } }
+        },
+        {
+          content: 'application/vnd.v1+json',
+          schema: { fullName: { type: 'string' }, phone: { type: 'string' } }
+        }
+      ]
+    }
+  }
+}
+```
 ##### Empty Body Responses
 Empty body responses are supported by `@fastify/swagger`.
 Please specify `type: 'null'` for the response otherwise Fastify itself will fail to compile the schema:
