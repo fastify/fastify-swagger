@@ -133,6 +133,15 @@ test('support multiple content types responses', async t => {
               schema: { fullName: { type: 'string' }, phone: { type: 'string' } }
             }
           ]
+        },
+        '4xx': {
+          type: 'object',
+          properties: {
+            name: { type: 'string' }
+          }
+        },
+        300: {
+          age: { type: 'number' }
         }
       }
     }
@@ -159,6 +168,27 @@ test('support multiple content types responses', async t => {
         type: 'object',
         properties: {
           fullName: { type: 'string' }, phone: { type: 'string' }
+        }
+      }
+    }
+  })
+  t.same(definedPath.responses['4XX'].description, 'Default Response')
+  t.same(definedPath.responses['4XX'].content, {
+    'application/json': {
+      schema: {
+        type: 'object',
+        properties: {
+          name: { type: 'string' }
+        }
+      }
+    }
+  })
+  t.same(definedPath.responses[300].content, {
+    'application/json': {
+      schema: {
+        type: 'object',
+        properties: {
+          age: { type: 'number' }
         }
       }
     }
