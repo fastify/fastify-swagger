@@ -123,16 +123,21 @@ test('support multiple content types responses', async t => {
       response: {
         200: {
           description: 'Description and all status-code based properties are working',
-          contentTypes: [
-            {
-              content: 'application/json',
-              schema: { name: { type: 'string' }, image: { type: 'string' }, address: { type: 'string' } }
+          content: {
+            'application/json': {
+              schema: {
+                name: { type: 'string' },
+                image: { type: 'string' },
+                address: { type: 'string' }
+              }
             },
-            {
-              content: 'application/vnd.v1+json',
-              schema: { fullName: { type: 'string' }, phone: { type: 'string' } }
+            'application/vnd.v1+json': {
+              schema: {
+                fullName: { type: 'string' },
+                phone: { type: 'string' }
+              }
             }
-          ]
+          }
         },
         '4xx': {
           type: 'object',
