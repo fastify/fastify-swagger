@@ -231,6 +231,7 @@ An example of using `@fastify/swagger` with `static` mode enabled can be found [
  | uiConfig            | {}               | Configuration options for [Swagger UI](https://github.com/swagger-api/swagger-ui/blob/master/docs/usage/configuration.md). Must be literal values, see [#5710](https://github.com/swagger-api/swagger-ui/issues/5710).|
  | uiHooks            | {}               | Additional hooks for the documentation's routes. You can provide the `onRequest` and `preHandler` hooks with the same [route's options](https://www.fastify.io/docs/latest/Routes/#options) interface.|
  | refResolver        | {}               | Option to manage the `$ref`s of your application's schemas. Read the [`$ref` documentation](#register.options.refResolver) |
+ | logLevel           | info             | Allow to define route log level.                                                                                           |
 
 If you set `exposeRoute` to `true` the plugin will expose the documentation with the following APIs:
 
