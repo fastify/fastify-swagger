@@ -6,6 +6,8 @@ import fastifySwagger, {
   FastifySwaggerUiHooksOptions, JSONObject,
 } from "../.."
 import { minimalOpenApiV3Document } from './minimal-openapiV3-document';
+import { expectType } from "tsd";
+import { OpenAPI } from "openapi-types";
 
 const app = fastify();
 const uiConfig: FastifySwaggerUiConfigOptions = {
@@ -227,3 +229,8 @@ app.register(fastifySwagger, {
 .ready((err) => {
   app.swagger();
 })
+
+expectType<OpenAPI.Document>(app.swagger())
+expectType<OpenAPI.Document>(app.swagger({ yaml: false }))
+expectType<string>(app.swagger({ yaml: true }))
+expectType<OpenAPI.Document | string>(app.swagger({ yaml: Boolean(process.env.YAML) }))

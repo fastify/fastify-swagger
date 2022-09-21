@@ -20,11 +20,10 @@ declare module 'openapi-types' {
 
 declare module 'fastify' {
   interface FastifyInstance {
-    swagger: (
-      opts?: {
-        yaml?: boolean;
-      }
-    ) => OpenAPI.Document;
+    swagger:
+      ((opts?: { yaml?: false }) => OpenAPI.Document) &
+      ((opts: { yaml: true }) => string) &
+      ((opts: { yaml: boolean }) => OpenAPI.Document | string);
 
     swaggerCSP: {
       script: string[];
