@@ -5,7 +5,7 @@
   "main": "index.js",
   "types": "index.d.ts",
   "scripts": {
-    "coverage": "npm run unit -- --coverage-report=lcovonly",
+    "coverage": "npm run unit -- --coverage-report=html",
     "lint": "standard",
     "lint:fix": "npm run lint -- --fix",
     "test": "npm run coverage && npm run typescript",

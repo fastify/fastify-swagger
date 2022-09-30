@@ -28,7 +28,6 @@ Add it to your project with `register`, pass it some options, call the `swagger`
 const fastify = require('fastify')()
 
 await fastify.register(require('@fastify/swagger'), {
-  routePrefix: '/documentation',
   swagger: {
     info: {
       title: 'Test swagger',
@@ -66,18 +65,7 @@ await fastify.register(require('@fastify/swagger'), {
         in: 'header'
       }
     }
-  },
-  uiConfig: {
-    docExpansion: 'full',
-    deepLinking: false
-  },
-  uiHooks: {
-    onRequest: function (request, reply, next) { next() },
-    preHandler: function (request, reply, next) { next() }
-  },
-  staticCSP: true,
-  transformStaticCSP: (header) => header,
-  exposeRoute: true
+  }
 })
 
 fastify.put('/some-route/:id', {
@@ -217,30 +205,15 @@ An example of using `@fastify/swagger` with `static` mode enabled can be found [
 
  | Option             | Default          | Description                                                                                                               |
  | ------------------ | ---------------- | ------------------------------------------------------------------------------------------------------------------------- |
- | exposeRoute        | false            | Exposes documentation route.                                                                                              |
  | hiddenTag          | X-HIDDEN         | Tag to control hiding of routes.                                                                                          |
  | hideUntagged       | false            | If `true` remove routes without tags from resulting Swagger/OpenAPI schema file.                                          |
  | initOAuth          | {}               | Configuration options for [Swagger UI initOAuth](https://swagger.io/docs/open-source-tools/swagger-ui/usage/oauth2/).     |
  | openapi            | {}               | [OpenAPI configuration](https://swagger.io/specification/#oasObject).                                                     |
- | routePrefix         | '/documentation' | Overwrite the default Swagger UI route prefix.                                                                            |
- | staticCSP          | false            | Enable CSP header for static resources.                                                                                   |
  | stripBasePath      | true             | Strips base path from routes in docs.                                                                                     |
  | swagger            | {}               | [Swagger configuration](https://swagger.io/specification/v2/#swaggerObject).                                              |
  | transform          | null             | Transform method for the route's schema and url. [documentation](#register.options.transform).                                                                                              |
- | transformStaticCSP | undefined         | Synchronous function to transform CSP header for static resources if the header has been previously set.                  |
- | uiConfig            | {}               | Configuration options for [Swagger UI](https://github.com/swagger-api/swagger-ui/blob/master/docs/usage/configuration.md). Must be literal values, see [#5710](https://github.com/swagger-api/swagger-ui/issues/5710).|
- | uiHooks            | {}               | Additional hooks for the documentation's routes. You can provide the `onRequest` and `preHandler` hooks with the same [route's options](https://www.fastify.io/docs/latest/Routes/#options) interface.|
  | refResolver        | {}               | Option to manage the `$ref`s of your application's schemas. Read the [`$ref` documentation](#register.options.refResolver) |
  | logLevel           | info             | Allow to define route log level.                                                                                           |
-
-If you set `exposeRoute` to `true` the plugin will expose the documentation with the following APIs:
-
-| URL                     | Description                                |
-| ----------------------- | ------------------------------------------ |
-| `'/documentation/json'` | The JSON object representing the API       |
-| `'/documentation/yaml'` | The YAML object representing the API       |
-| `'/documentation/'`     | The swagger UI                             |
-| `'/documentation/*'`    | External files that you may use in `$ref`  |
 
 <a name="register.options.transform"></a>
 #### Transform
@@ -684,32 +657,6 @@ fastify.get('/user/:id/address', {
 There are two ways to hide a route from the Swagger UI:
 - Pass `{ hide: true }` to the schema object inside the route declaration.
 - Use the tag declared in `hiddenTag` options property inside the route declaration. Default is `X-HIDDEN`.
-
-<a name="route.uiHooks"></a>
-#### Protect your documentation routes
-
-You can protect your documentation by configuring an authentication hook.
-Here is an example using the [`@fastify/basic-auth`](https://github.com/fastify/fastify-basic-auth) plugin:
-
-```js
-await fastify.register(require('@fastify/basic-auth'), {
-  validate (username, password, req, reply, done) {
-    if (username === 'admin' && password === 'admin') {
-      done()
-    } else {
-      done(new Error('You can not access'))
-    }
-  },
-  authenticate: true
-})
-
-await fastify.register(fastifySwagger, {
-  exposeRoute: true,
-  uiHooks: {
-    onRequest: fastify.basicAuth
-  }
-})
-```
 
 <a name="function.options"></a>
 ### Swagger function options

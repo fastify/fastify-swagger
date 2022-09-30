@@ -17,10 +17,7 @@ test('support $ref schema', async t => {
     }
   })
 
-  await fastify.register(fastifySwagger, {
-    routePrefix: '/docs',
-    exposeRoute: true
-  })
+  await fastify.register(fastifySwagger)
 
   fastify.register((instance, opts, next) => {
     instance.addSchema({
@@ -59,9 +56,7 @@ test('support $ref schema', async t => {
     next()
   })
 
-  const res = await fastify.inject('/docs/json')
-
-  await Swagger.validate(res.json())
+  await Swagger.validate(fastify.swagger())
   t.pass('valid swagger object')
 })
 
@@ -102,10 +97,7 @@ test('support nested $ref schema : complex case', async (t) => {
 
 test('support nested $ref schema : complex case without modifying buildLocalReference', async (t) => {
   const fastify = Fastify()
-  await fastify.register(fastifySwagger, {
-    routePrefix: '/docs',
-    exposeRoute: true
-  })
+  await fastify.register(fastifySwagger)
   fastify.register(async (instance) => {
     instance.addSchema({ $id: 'schemaA', type: 'object', properties: { id: { type: 'integer' } } })
     instance.addSchema({ $id: 'schemaB', type: 'object', properties: { id: { type: 'string' } } })

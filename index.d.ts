@@ -59,30 +59,6 @@ export const fastifySwagger: FastifyPluginCallback<SwaggerOptions>;
 export type SwaggerOptions = (FastifyStaticSwaggerOptions | FastifyDynamicSwaggerOptions);
 export interface FastifySwaggerOptions {
   mode?: 'static' | 'dynamic';
-  /**
-   * Overwrite the swagger url end-point
-   * @default /documentation
-   */
-  routePrefix?: string;
-  /**
-   * To expose the documentation api
-   * @default false
-   */
-  exposeRoute?: boolean;
-  /**
-   * Swagger UI Config
-   */
-  uiConfig?: FastifySwaggerUiConfigOptions
-  initOAuth?: FastifySwaggerInitOAuthOptions
-  /**
-   * CSP Config
-   */
-  staticCSP?: boolean | string | Record<string, string | string[]>
-  transformStaticCSP?: (header: string) => string
-  /**
-   * route hooks
-   */
-  uiHooks?: FastifySwaggerUiHooksOptions
 }
 
 export type FastifySwaggerUiConfigOptions = Partial<{
