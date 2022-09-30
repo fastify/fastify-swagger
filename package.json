@@ -8,9 +8,7 @@
     "coverage": "npm run unit -- --coverage-report=lcovonly",
     "lint": "standard",
     "lint:fix": "npm run lint -- --fix",
-    "prepare": "node lib/util/prepare-swagger-ui",
-    "prepublishOnly": "npm run prepare",
-    "test": "npm run prepare && npm run coverage && npm run typescript",
+    "test": "npm run coverage && npm run typescript",
     "test:dev": "npm run lint && npm run unit && npm run typescript",
     "typescript": "tsd",
     "unit": "tap",
@@ -54,7 +52,6 @@
     "joi-to-json": "^2.2.4",
     "qs": "^6.10.3",
     "standard": "^17.0.0",
-    "swagger-ui-dist": "4.14.1",
     "tap": "^16.2.0",
     "tsd": "^0.24.1"
   },
