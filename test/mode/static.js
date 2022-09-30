@@ -6,6 +6,9 @@ const Fastify = require('fastify')
 const fastifySwagger = require('../../index')
 const fastifySwaggerDynamic = require('../../lib/mode/dynamic')
 const Swagger = require('@apidevtools/swagger-parser')
+const readFileSync = require('fs').readFileSync
+const resolve = require('path').resolve
+const yaml = require('yaml')
 
 test('specification validation check works', async (t) => {
   const specifications = [
@@ -92,6 +95,85 @@ test('non-string specification.baseDir throws an error ', async (t) => {
   }
 })
 
+test('valid specification.baseDir is handled properly /1', async (t) => {
+  const config = {
+    mode: 'static',
+    specification: {
+      path: './examples/example-static-specification.json',
+      baseDir: __dirname
+    }
+  }
+
+  t.plan(1)
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, config)
+  await fastify.ready()
+  t.same(
+    JSON.parse(readFileSync(resolve(__dirname, '..', '..', 'examples', 'example-static-specification.json'), 'utf8')),
+    fastify.swagger({ json: true })
+  )
+})
+
+test('valid specification.baseDir is handled properly /2', async (t) => {
+  const config = {
+    mode: 'static',
+    specification: {
+      path: './examples/example-static-specification.json',
+      baseDir: __dirname + '/'
+    }
+  }
+
+  t.plan(1)
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, config)
+  await fastify.ready()
+  t.same(
+    JSON.parse(readFileSync(resolve(__dirname, '..', '..', 'examples', 'example-static-specification.json'), 'utf8')),
+    fastify.swagger({ json: true })
+  )
+})
+
+test('valid yaml-specification is converted properly to json', async (t) => {
+  const config = {
+    mode: 'static',
+    specification: {
+      path: './examples/example-static-specification.yaml'
+    }
+  }
+
+  t.plan(1)
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, config)
+  await fastify.ready()
+  t.same(
+    JSON.parse(readFileSync(resolve(__dirname, '..', '..', 'examples', 'example-static-specification.json'), 'utf8')),
+    fastify.swagger()
+  )
+})
+
+test('valid specification yaml is properly handled as yaml', async (t) => {
+  const config = {
+    mode: 'static',
+    specification: {
+      path: './examples/example-static-specification.yaml',
+      baseDir: __dirname
+    }
+  }
+
+  t.plan(1)
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, config)
+  await fastify.ready()
+  t.equal(
+    readFileSync(resolve(__dirname, '..', '..', 'examples', 'example-static-specification.yaml'), 'utf8'),
+    fastify.swagger({ yaml: true })
+  )
+})
+
 test('non-object specification.document throws an error', async (t) => {
   const config = {
     mode: 'static',
@@ -103,11 +185,24 @@ test('non-object specification.document throws an error', async (t) => {
   t.plan(1)
   const fastify = new Fastify()
 
-  try {
-    await fastify.register(fastifySwagger, config)
-  } catch (err) {
-    t.equal(err.message, 'specification.document is not an object')
+  t.rejects(fastify.register(fastifySwagger, config), new Error('specification.document is not an object'))
+})
+
+test('object specification.document', async (t) => {
+  const config = {
+    mode: 'static',
+    specification: {
+      document: {
+        type: 'object'
+      }
+    }
   }
+
+  t.plan(1)
+  const fastify = new Fastify()
+  fastify.register(fastifySwagger, config)
+  await fastify.ready()
+  t.strictSame(fastify.swagger(), { type: 'object' })
 })
 
 test('inserts default opts in fastifySwagger', async (t) => {
@@ -293,4 +388,73 @@ test('should still return valid swagger object when missing package.json', async
 
   await Swagger.validate(swaggerObject)
   t.pass('Swagger object is still valid.')
+})
+
+
+test('.swagger() returns cache.swaggerObject on second request in static mode', async (t) => {
+  const config = {
+    mode: 'static',
+    specification: {
+      path: './examples/example-static-specification.json'
+    }
+  }
+
+  t.plan(3)
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, config)
+  await fastify.ready()
+
+    const swaggerJson1 = fastify.swagger()
+    t.equal(typeof swaggerJson1, 'object')
+
+    const swaggerJson2 = fastify.swagger()
+    t.equal(typeof swaggerJson2, 'object')
+    t.equal(swaggerJson1, swaggerJson2)
+})
+
+test('.swagger({ yaml: true }) returns cache.swaggerString on second request in static mode', async (t) => {
+  const config = {
+    mode: 'static',
+    specification: {
+      path: './examples/example-static-specification.yaml'
+    }
+  }
+
+  t.plan(3)
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, config)
+  await fastify.ready()
+
+  const swaggerYaml1 = fastify.swagger({ yaml: true })
+  t.equal(typeof swaggerYaml1, 'string')
+
+  const swaggerYaml2 = fastify.swagger({ yaml: true })
+  t.equal(typeof swaggerYaml2, 'string')
+  t.equal(swaggerYaml1, swaggerYaml2)
+})
+
+test('postProcessor works, swagger route returns updated yaml', async (t) => {
+  const config = {
+    mode: 'static',
+    specification: {
+      path: './examples/example-static-specification.yaml',
+      postProcessor: function (swaggerObject) {
+        swaggerObject.servers[0].url = 'http://localhost:4000/'
+        return swaggerObject
+      }
+    }
+  }
+
+  t.plan(3)
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, config)
+  await fastify.ready()
+
+  // check that yaml is there
+  const res = fastify.swagger({ yaml: true })
+
+  t.equal(typeof res, 'string')
+  yaml.parse(res)
+  t.matchSnapshot(res)
+  t.pass('valid swagger yaml')
 })
