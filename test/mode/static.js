@@ -31,7 +31,7 @@ test('specification validation check works', async (t) => {
       const fastify = Fastify()
       await fastify.register(fastifySwagger, {
         mode: 'static',
-        specification,
+        specification
       })
     } catch (err) {
       t.not(err, undefined)

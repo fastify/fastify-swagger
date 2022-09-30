@@ -5,15 +5,13 @@
   "main": "index.js",
   "types": "index.d.ts",
   "scripts": {
-    "coverage": "npm run unit -- --coverage-report=html",
     "lint": "standard",
-    "lint:fix": "npm run lint -- --fix",
-    "test": "npm run coverage && npm run typescript",
-    "test:dev": "npm run lint && npm run unit && npm run typescript",
-    "typescript": "tsd",
-    "unit": "tap",
-    "unit:report": "npm run unit -- --coverage-report=html",
-    "unit:verbose": "npm run unit -- -Rspec"
+    "lint:fix": "standard --fix",
+    "test": "npm run test:unit && npm run test:typescript",
+    "test:typescript": "tsd",
+    "test:unit": "tap",
+    "test:unit:report": "npm run test:unit -- --coverage-report=html",
+    "test:unit:verbose": "npm run test:unit -- -Rspec"
   },
   "repository": {
     "type": "git",
