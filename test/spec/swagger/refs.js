@@ -57,6 +57,8 @@ test('support $ref schema', async t => {
     next()
   })
 
+  await fastify.ready()
+
   await Swagger.validate(fastify.swagger())
   t.pass('valid swagger object')
 })

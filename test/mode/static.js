@@ -120,7 +120,7 @@ test('valid specification.baseDir is handled properly /2', async (t) => {
     mode: 'static',
     specification: {
       path: './examples/example-static-specification.json',
-      baseDir: __dirname + '/'
+      baseDir: __dirname + '/' // eslint-disable-line n/no-path-concat
     }
   }
 
@@ -390,7 +390,6 @@ test('should still return valid swagger object when missing package.json', async
   t.pass('Swagger object is still valid.')
 })
 
-
 test('.swagger() returns cache.swaggerObject on second request in static mode', async (t) => {
   const config = {
     mode: 'static',
@@ -404,12 +403,12 @@ test('.swagger() returns cache.swaggerObject on second request in static mode', 
   await fastify.register(fastifySwagger, config)
   await fastify.ready()
 
-    const swaggerJson1 = fastify.swagger()
-    t.equal(typeof swaggerJson1, 'object')
+  const swaggerJson1 = fastify.swagger()
+  t.equal(typeof swaggerJson1, 'object')
 
-    const swaggerJson2 = fastify.swagger()
-    t.equal(typeof swaggerJson2, 'object')
-    t.equal(swaggerJson1, swaggerJson2)
+  const swaggerJson2 = fastify.swagger()
+  t.equal(typeof swaggerJson2, 'object')
+  t.equal(swaggerJson1, swaggerJson2)
 })
 
 test('.swagger({ yaml: true }) returns cache.swaggerString on second request in static mode', async (t) => {
