@@ -48,7 +48,11 @@ test('swagger should return a valid swagger yaml', async (t) => {
   await fastify.register(fastifySwagger, swaggerOption)
 
   fastify.get('/', () => {})
-  fastify.post('/', () => {})
+  fastify.route({
+    method: ['POST'],
+    url: '/',
+    handler: () => {}
+  })
   fastify.get('/example', schemaQuerystring, () => {})
   fastify.post('/example', schemaBody, () => {})
   fastify.get('/parameters/:id', schemaParams, () => {})

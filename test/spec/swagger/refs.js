@@ -4,6 +4,7 @@ const { test } = require('tap')
 const Fastify = require('fastify')
 const Swagger = require('@apidevtools/swagger-parser')
 const fastifySwagger = require('../../../index')
+const { FST_ERR_SCH_ALREADY_PRESENT } = require('fastify/lib/errors')
 
 test('support $ref schema', async t => {
   t.plan(1)
@@ -121,4 +122,15 @@ test('support nested $ref schema : complex case without modifying buildLocalRefe
   t.equal(definitions['def-3'].properties.c.$ref, '#/definitions/def-2')
 
   await Swagger.validate(swaggerObject)
+})
+
+test('trying to overwriting a schema results in a FST_ERR_SCH_ALREADY_PRESENT', async (t) => {
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger)
+  fastify.register(async (instance) => {
+    instance.addSchema({ $id: 'schemaA', type: 'object', properties: { id: { type: 'integer' } } })
+    t.throws(() => instance.addSchema({ $id: 'schemaA', type: 'object', properties: { id: { type: 'integer' } } }), new FST_ERR_SCH_ALREADY_PRESENT('schemaA'))
+  })
+
+  await fastify.ready()
 })
