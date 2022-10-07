@@ -178,7 +178,7 @@ test('support multiple content types responses', async t => {
     }
   })
   t.same(definedPath.responses['4XX'].description, 'Default Response')
-  t.same(definedPath.responses['4XX'].content, {
+  t.strictSame(definedPath.responses['4XX'].content, {
     'application/json': {
       schema: {
         type: 'object',
