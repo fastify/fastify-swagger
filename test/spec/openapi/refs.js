@@ -290,6 +290,9 @@ test('support schema with definitions keyword and $ref inside', async (t) => {
   fastify.register(async (instance) => {
     instance.addSchema({
       $id: 'NestedSchema',
+      properties: {
+        id: { type: 'string' },
+      },
       definitions: {
         SchemaA: {
           type: 'object',
@@ -312,9 +315,11 @@ test('support schema with definitions keyword and $ref inside', async (t) => {
 
   const openapiObject = fastify.swagger()
   t.equal(typeof openapiObject, 'object')
+
+  // definitions are getting merged to properties
   t.match(Object.keys(openapiObject.components.schemas), ['NestedSchema'])
   t.match(Object.keys(openapiObject.components.schemas.NestedSchema), ['properties'])
-  t.match(Object.keys(openapiObject.components.schemas.NestedSchema.properties), ['SchemaA', 'SchemaB'])
+  t.match(Object.keys(openapiObject.components.schemas.NestedSchema.properties), ['id', 'SchemaA', 'SchemaB'])
 
   //  ref must be prefixed by '#/components/schemas/'
   t.equal(openapiObject.components.schemas.NestedSchema.properties.SchemaB.properties.example.$ref, '#/components/schemas/NestedSchema/properties/SchemaA')
