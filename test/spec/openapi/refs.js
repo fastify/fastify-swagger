@@ -282,3 +282,44 @@ test('uses examples if has property required in body', async (t) => {
   t.ok(schema.parameters)
   t.same(schema.parameters[0].in, 'query')
 })
+
+test('support schema $ref inside the json-schema definitions', async (t) => {
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, openapiOption)
+  fastify.register(async (instance) => {
+    instance.addSchema({
+      $id: 'NestedSchema',
+      properties: {
+        id: { type: 'string' }
+      },
+      definitions: {
+        SchemaA: {
+          $id: 'SchemaA',
+          type: 'object',
+          properties: {
+            id: { type: 'string' }
+          }
+        },
+        SchemaB: {
+          $id: 'SchemaB',
+          type: 'object',
+          properties: {
+            example: { $ref: 'NestedSchema#/definitions/SchemaA' }
+          }
+        }
+      }
+    })
+    instance.post('/url1', { schema: { body: { $ref: 'NestedSchema#/definitions/SchemaB' }, response: { 200: { $ref: 'NestedSchema#/definitions/SchemaA' } } } }, () => {})
+  })
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+  t.equal(typeof openapiObject, 'object')
+
+  //  ref must be prefixed by '#/components/schemas/'
+  t.equal(openapiObject.components.schemas.NestedSchema.properties.SchemaB.properties.example.$ref, '#/components/schemas/NestedSchema/properties/SchemaA')
+
+  await Swagger.validate(openapiObject)
+})
