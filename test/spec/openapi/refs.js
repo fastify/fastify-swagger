@@ -283,7 +283,7 @@ test('uses examples if has property required in body', async (t) => {
   t.same(schema.parameters[0].in, 'query')
 })
 
-test('support schema with definitions keyword and $ref inside', async (t) => {
+test('support schema $ref inside the json-schema definitions', async (t) => {
   const fastify = Fastify()
 
   await fastify.register(fastifySwagger, openapiOption)
@@ -291,16 +291,18 @@ test('support schema with definitions keyword and $ref inside', async (t) => {
     instance.addSchema({
       $id: 'NestedSchema',
       properties: {
-        id: { type: 'string' },
+        id: { type: 'string' }
       },
       definitions: {
         SchemaA: {
+          $id: 'SchemaA',
           type: 'object',
           properties: {
             id: { type: 'string' }
           }
         },
         SchemaB: {
+          $id: 'SchemaB',
           type: 'object',
           properties: {
             example: { $ref: 'NestedSchema#/definitions/SchemaA' }
@@ -315,11 +317,6 @@ test('support schema with definitions keyword and $ref inside', async (t) => {
 
   const openapiObject = fastify.swagger()
   t.equal(typeof openapiObject, 'object')
-
-  // definitions are getting merged to properties
-  t.match(Object.keys(openapiObject.components.schemas), ['NestedSchema'])
-  t.match(Object.keys(openapiObject.components.schemas.NestedSchema), ['properties'])
-  t.match(Object.keys(openapiObject.components.schemas.NestedSchema.properties), ['id', 'SchemaA', 'SchemaB'])
 
   //  ref must be prefixed by '#/components/schemas/'
   t.equal(openapiObject.components.schemas.NestedSchema.properties.SchemaB.properties.example.$ref, '#/components/schemas/NestedSchema/properties/SchemaA')
