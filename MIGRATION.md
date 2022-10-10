@@ -31,8 +31,10 @@ value as the `specification.baseDir` option of `@fastify/swagger`.
 
 before:
 ```js
-const fastify = require('fastify')()
-const fastifySwagger = require('@fastify/swagger')
+import Fastify from 'fastify'
+import fastifySwagger from '@fastify/swagger'
+
+const fastify = new Fastify()
 
 await fastify.register(fastifySwagger, {
   mode: 'static',
@@ -61,9 +63,11 @@ await fastify.register(fastifySwagger, {
 
 after:
 ```js
-const fastify = require('fastify')()
-const fastifySwagger = require('@fastify/swagger')
-const fastifySwaggerUi = require('@fastify/swagger-ui')
+import Fastify from 'fastify'
+import fastifySwagger from '@fastify/swagger'
+import fastifySwaggerUi from '@fastify/swagger-ui'
+
+const fastify = new Fastify()
 
 await fastify.register(fastifySwagger, {
   mode: 'static',
@@ -97,8 +101,10 @@ await fastify.register(fastifySwaggerUi, {
 
 before:
 ```js
-const fastify = require('fastify')()
-const fastifySwagger = require('@fastify/swagger')
+import Fastify from 'fastify'
+import fastifySwagger from '@fastify/swagger'
+
+const fastify = new Fastify()
 
 await fastify.register(fastifySwagger, {
   mode: 'dynamic',
@@ -132,9 +138,11 @@ await fastify.register(fastifySwagger, {
 
 after:
 ```js
-const fastify = require('fastify')()
-const fastifySwagger = require('@fastify/swagger')
-const fastifySwaggerUi = require('@fastify/swagger-ui')
+import Fastify from 'fastify'
+import fastifySwagger from '@fastify/swagger'
+import fastifySwaggerUi from '@fastify/swagger-ui'
+
+const fastify = new Fastify()
 
 await fastify.register(fastifySwagger, {
   mode: 'dynamic',
