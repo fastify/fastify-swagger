@@ -27,7 +27,7 @@ The `baseDir` option is new and is only needed if external spec files should be
 exposed. `baseDir` option of `@fastify/swagger-ui` should be set to the same
 value as the `specification.baseDir` option of `@fastify/swagger`.
 
-### Example:
+### Example (static-mode):
 
 before:
 ```js
@@ -78,6 +78,81 @@ await fastify.register(fastifySwagger, {
 
 await fastify.register(fastifySwaggerUi, {
   baseDir: '/path/to/external/spec/files/location',
+  routePrefix: '/documentation',
+  initOAuth: { },
+  uiConfig: {
+    docExpansion: 'full',
+    deepLinking: false
+  },
+  uiHooks: {
+    onRequest: function (request, reply, next) { next() },
+    preHandler: function (request, reply, next) { next() }
+  },
+  staticCSP: true,
+  transformStaticCSP: (header) => header
+})
+```
+
+### Example (dynamic-mode):
+
+before:
+```js
+const fastify = require('fastify')()
+const fastifySwagger = require('@fastify/swagger')
+
+await fastify.register(fastifySwagger, {
+  mode: 'dynamic',
+  openapi: {
+    info: {
+      title: String,
+      description: String,
+      version: String,
+    },
+    externalDocs: Object,
+    servers: [ Object ],
+    components: Object,
+    security: [ Object ],
+    tags: [ Object ]
+  },
+  exposeRoute: true,
+  routePrefix: '/documentation',
+  initOAuth: { },
+  uiConfig: {
+    docExpansion: 'full',
+    deepLinking: false
+  },
+  uiHooks: {
+    onRequest: function (request, reply, next) { next() },
+    preHandler: function (request, reply, next) { next() }
+  },
+  staticCSP: true,
+  transformStaticCSP: (header) => header
+})
+```
+
+after:
+```js
+const fastify = require('fastify')()
+const fastifySwagger = require('@fastify/swagger')
+const fastifySwaggerUi = require('@fastify/swagger-ui')
+
+await fastify.register(fastifySwagger, {
+  mode: 'dynamic',
+  openapi: {
+    info: {
+      title: String,
+      description: String,
+      version: String,
+    },
+    externalDocs: Object,
+    servers: [ Object ],
+    components: Object,
+    security: [ Object ],
+    tags: [ Object ]
+  }
+})
+
+await fastify.register(fastifySwaggerUi, {
   routePrefix: '/documentation',
   initOAuth: { },
   uiConfig: {
