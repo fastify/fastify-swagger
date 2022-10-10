@@ -15,7 +15,7 @@ Following are the `@fastify/swagger-ui` options:
 
 | Option             | Default          | Description                                                                                                               |
 | ------------------ | ---------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| baseDir            | undefined        | Specify the directory where all spec files that are included in the main one using $ref will be located. By default, this is the directory where the main spec file is located. Provided value should be an absolute path without trailing slash.     |
+| baseDir            | undefined        | Only relevant if `@fastify/swagger` used in static-mode and additional schema-files contain referenced schemas. Specify the directory where all spec files that are included in the main one using $ref will be located. By default, this is the directory where the main spec file is located. Provided value should be an absolute path without trailing slash.     |
 | initOAuth          | {}               | Configuration options for [Swagger UI initOAuth](https://swagger.io/docs/open-source-tools/swagger-ui/usage/oauth2/).     |
 | routePrefix        | '/documentation' | Overwrite the default Swagger UI route prefix.                                                                            |
 | staticCSP          | false            | Enable CSP header for static resources.                                                                                   |
