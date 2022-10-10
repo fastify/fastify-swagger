@@ -5,17 +5,13 @@
   "main": "index.js",
   "types": "index.d.ts",
   "scripts": {
-    "coverage": "npm run unit -- --coverage-report=lcovonly",
     "lint": "standard",
-    "lint:fix": "npm run lint -- --fix",
-    "prepare": "node lib/util/prepare-swagger-ui",
-    "prepublishOnly": "npm run prepare",
-    "test": "npm run prepare && npm run coverage && npm run typescript",
-    "test:dev": "npm run lint && npm run unit && npm run typescript",
-    "typescript": "tsd",
-    "unit": "tap",
-    "unit:report": "npm run unit -- --coverage-report=html",
-    "unit:verbose": "npm run unit -- -Rspec"
+    "lint:fix": "standard --fix",
+    "test": "npm run test:unit && npm run test:typescript",
+    "test:typescript": "tsd",
+    "test:unit": "tap",
+    "test:unit:report": "npm run test:unit -- --coverage-report=html",
+    "test:unit:verbose": "npm run test:unit -- -Rspec"
   },
   "repository": {
     "type": "git",
@@ -43,23 +39,18 @@
   "homepage": "https://github.com/fastify/fastify-swagger#readme",
   "devDependencies": {
     "@apidevtools/swagger-parser": "^10.1.0",
-    "@fastify/basic-auth": "^4.0.0",
-    "@fastify/helmet": "^10.0.0",
     "@fastify/pre-commit": "^2.0.2",
     "@types/node": "^18.0.0",
     "fastify": "^4.0.0",
-    "fluent-json-schema": "^4.0.0",
-    "fs-extra": "^10.1.0",
+    "fluent-json-schema": "^3.1.0",
     "joi": "^17.6.0",
     "joi-to-json": "^2.2.4",
     "qs": "^6.10.3",
     "standard": "^17.0.0",
-    "swagger-ui-dist": "4.14.2",
     "tap": "^16.2.0",
     "tsd": "^0.24.1"
   },
   "dependencies": {
-    "@fastify/static": "^6.0.0",
     "fastify-plugin": "^4.0.0",
     "json-schema-resolver": "^2.0.0",
     "openapi-types": "^12.0.0",

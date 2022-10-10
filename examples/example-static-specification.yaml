@@ -1,10 +1,10 @@
 openapi: 3.0.0
 info:
-  description: "Test swagger specification"
-  version: "1.0.0"
-  title: "Test swagger specification"
+  description: Test swagger specification
+  version: 1.0.0
+  title: Test swagger specification
   contact:
-    email: "super.developer@gmail.com"
+    email: super.developer@gmail.com
 servers:
   - url: http://localhost:3000/
     description: Localhost (uses test data)
@@ -15,17 +15,17 @@ paths:
       tags:
         - Status
       responses:
-        200:
-          description: 'Server is alive'
+        "200":
+          description: Server is alive
           content:
             application/json:
               schema:
                 type: object
                 properties:
                   health:
-                     type: boolean
+                    type: boolean
                   date:
-                     type: string
+                    type: string
                 example:
-                 health: true 
-                 date: "2018-02-19T15:36:46.758Z"
+                  health: true
+                  date: 2018-02-19T15:36:46.758Z
