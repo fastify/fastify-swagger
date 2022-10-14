@@ -6,6 +6,8 @@ import fastifySwagger, {
   FastifySwaggerUiHooksOptions, JSONObject,
 } from "../.."
 import { minimalOpenApiV3Document } from './minimal-openapiV3-document';
+import { expectType } from "tsd";
+import { OpenAPI } from "openapi-types";
 
 const app = fastify();
 const uiConfig: FastifySwaggerUiConfigOptions = {
@@ -35,25 +37,19 @@ app.register(fastifySwagger, {
   mode: 'static',
   specification: {
     document: minimalOpenApiV3Document
-  },
-  routePrefix: '/documentation',
-  exposeRoute: true,
+  }
 });
 
 const fastifySwaggerOptions: SwaggerOptions = {
   mode: 'static',
   specification: {
     document: minimalOpenApiV3Document
-  },
-  routePrefix: '/documentation',
-  exposeRoute: true,
+  }
 }
 app.register(fastifySwagger, fastifySwaggerOptions);
 
 const fastifyDynamicSwaggerOptions: SwaggerOptions = {
   mode: 'dynamic',
-  routePrefix: '/documentation',
-  exposeRoute: true,
   hiddenTag: 'X-HIDDEN',
   hideUntagged: true,
   stripBasePath: true,
@@ -117,8 +113,6 @@ app.get('/public/route', {
 
 app
   .register(fastifySwagger, {
-    routePrefix: '/documentation',
-    exposeRoute: true,
     swagger: {
       info: {
         title: 'Test swagger',
@@ -173,57 +167,19 @@ app
           },
         },
       },
-    },
-    initOAuth
+    }
   })
   .ready((err) => {
     app.swagger();
   });
 
 app.register(fastifySwagger, {
-  uiConfig
 })
 .ready((err) => {
   app.swagger();
 })
 
-app.register(fastifySwagger, {
-  staticCSP: true,
-})
-.ready((err) => {
-  app.swagger();
-})
-
-app.register(fastifySwagger, {
-  staticCSP: "default-src: 'self'",
-})
-.ready((err) => {
-  app.swagger();
-})
-
-app.register(fastifySwagger, {
-  staticCSP: {
-    'default-src': "'self'",
-    'script-src': ["'self'"]
-  },
-})
-.ready((err) => {
-  app.swagger();
-})
-
-app.register(fastifySwagger, {
-  staticCSP: true,
-  transformStaticCSP(header) {
-    return header
-  }
-})
-.ready((err) => {
-  app.swagger();
-})
-
-app.register(fastifySwagger, {
-  uiHooks,
-})
-.ready((err) => {
-  app.swagger();
-})
+expectType<OpenAPI.Document>(app.swagger())
+expectType<OpenAPI.Document>(app.swagger({ yaml: false }))
+expectType<string>(app.swagger({ yaml: true }))
+expectType<OpenAPI.Document | string>(app.swagger({ yaml: Boolean(process.env.YAML) }))

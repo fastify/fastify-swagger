@@ -16,9 +16,7 @@ app.register(fastifySwagger, {
   mode: 'static',
   specification: {
     document: minimalOpenApiV3Document
-  },
-  routePrefix: '/documentation',
-  exposeRoute: true,
+  }
 });
 
 app.put('/some-route/:id', {
@@ -40,8 +38,6 @@ app.get('/public/route', {
 
 app
   .register(fastifySwagger, {
-    routePrefix: '/documentation',
-    exposeRoute: true,
     swagger: {
       info: {
         title: 'Test swagger',

@@ -94,9 +94,7 @@ test('support 2xx response', async t => {
 
   const fastify = Fastify()
   await fastify.register(fastifySwagger, {
-    openapi: true,
-    routePrefix: '/docs',
-    exposeRoute: true
+    openapi: true
   })
   fastify.get('/', opt, () => {})
 
@@ -214,9 +212,7 @@ test('support status code 204', async t => {
 
   const fastify = Fastify()
   await fastify.register(fastifySwagger, {
-    openapi: true,
-    routePrefix: '/docs',
-    exposeRoute: true
+    openapi: true
   })
   fastify.get('/', opt, () => {})
 
@@ -248,9 +244,7 @@ test('support empty response body for different status than 204', async t => {
 
   const fastify = Fastify()
   await fastify.register(fastifySwagger, {
-    openapi: true,
-    routePrefix: '/docs',
-    exposeRoute: true
+    openapi: true
   })
   fastify.get('/', opt, () => {})
 
@@ -295,9 +289,7 @@ test('support response headers', async t => {
 
   const fastify = Fastify()
   await fastify.register(fastifySwagger, {
-    openapi: true,
-    routePrefix: '/docs',
-    exposeRoute: true
+    openapi: true
   })
   fastify.get('/', opt, () => {})
 
@@ -404,9 +396,7 @@ test('support default=null', async t => {
 
   const fastify = Fastify()
   await fastify.register(fastifySwagger, {
-    openapi: true,
-    routePrefix: '/docs',
-    exposeRoute: true
+    openapi: true
   })
   fastify.get('/', opt, () => {})
 
@@ -428,7 +418,7 @@ test('support global schema reference', async t => {
     required: ['hello']
   }
   const fastify = Fastify()
-  await fastify.register(fastifySwagger, { openapi: true, routePrefix: '/docs', exposeRoute: true })
+  await fastify.register(fastifySwagger, { openapi: true })
   fastify.addSchema({ ...schema, $id: 'requiredUniqueSchema' })
   fastify.get('/', { schema: { query: { $ref: 'requiredUniqueSchema' } } }, () => {})
   await fastify.ready()
@@ -448,7 +438,7 @@ test('support global schema reference with title', async t => {
     required: ['hello']
   }
   const fastify = Fastify()
-  await fastify.register(fastifySwagger, { openapi: true, routePrefix: '/docs', exposeRoute: true })
+  await fastify.register(fastifySwagger, { openapi: true })
   fastify.addSchema({ ...schema, $id: 'requiredUniqueSchema' })
   fastify.get('/', { schema: { query: { $ref: 'requiredUniqueSchema' } } }, () => {})
   await fastify.ready()
@@ -486,9 +476,7 @@ test('support "default" parameter', async t => {
 
   const fastify = Fastify()
   await fastify.register(fastifySwagger, {
-    openapi: true,
-    routePrefix: '/docs',
-    exposeRoute: true
+    openapi: true
   })
   fastify.get('/', opt, () => {})
 
@@ -528,9 +516,7 @@ test('fluent-json-schema', async t => {
 
   const fastify = Fastify()
   await fastify.register(fastifySwagger, {
-    openapi: true,
-    routePrefix: '/docs',
-    exposeRoute: true
+    openapi: true
   })
   fastify.get('/', opt, () => {})
 
@@ -568,9 +554,7 @@ test('support "patternProperties" parameter', async t => {
 
   const fastify = Fastify()
   await fastify.register(fastifySwagger, {
-    openapi: true,
-    routePrefix: '/docs',
-    exposeRoute: true
+    openapi: true
   })
   fastify.get('/', opt, () => {})
 
@@ -628,9 +612,7 @@ test('properly support "patternProperties" parameter', async t => {
 
   const fastify = Fastify()
   await fastify.register(fastifySwagger, {
-    openapi: true,
-    routePrefix: '/docs',
-    exposeRoute: true
+    openapi: true
   })
   fastify.get('/', opt, () => { })
 
@@ -684,9 +666,7 @@ test('support "const" keyword', async t => {
 
   const fastify = Fastify()
   await fastify.register(fastifySwagger, {
-    openapi: true,
-    routePrefix: '/docs',
-    exposeRoute: true
+    openapi: true
   })
   fastify.post('/', opt, () => {})
   await fastify.ready()
@@ -736,9 +716,7 @@ test('support object properties named "const"', async t => {
 
   const fastify = Fastify()
   await fastify.register(fastifySwagger, {
-    openapi: true,
-    routePrefix: '/docs',
-    exposeRoute: true
+    openapi: true
   })
   fastify.post('/', opt, () => { })
   await fastify.ready()
@@ -797,9 +775,7 @@ test('support object properties with special names', async t => {
 
   const fastify = Fastify()
   await fastify.register(fastifySwagger, {
-    openapi: true,
-    routePrefix: '/docs',
-    exposeRoute: true
+    openapi: true
   })
   fastify.post('/', opt, () => { })
   await fastify.ready()
@@ -863,9 +839,7 @@ test('support query serialization params', async t => {
     }
   })
   await fastify.register(fastifySwagger, {
-    openapi: true,
-    routePrefix: '/docs',
-    exposeRoute: true
+    openapi: true
   })
   fastify.get('/', opt, () => {})
   await fastify.ready()

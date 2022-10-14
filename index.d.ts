@@ -20,11 +20,10 @@ declare module 'openapi-types' {
 
 declare module 'fastify' {
   interface FastifyInstance {
-    swagger: (
-      opts?: {
-        yaml?: boolean;
-      }
-    ) => OpenAPI.Document;
+    swagger:
+      ((opts?: { yaml?: false }) => OpenAPI.Document) &
+      ((opts: { yaml: true }) => string) &
+      ((opts: { yaml: boolean }) => OpenAPI.Document | string);
 
     swaggerCSP: {
       script: string[];
@@ -60,30 +59,6 @@ export const fastifySwagger: FastifyPluginCallback<SwaggerOptions>;
 export type SwaggerOptions = (FastifyStaticSwaggerOptions | FastifyDynamicSwaggerOptions);
 export interface FastifySwaggerOptions {
   mode?: 'static' | 'dynamic';
-  /**
-   * Overwrite the swagger url end-point
-   * @default /documentation
-   */
-  routePrefix?: string;
-  /**
-   * To expose the documentation api
-   * @default false
-   */
-  exposeRoute?: boolean;
-  /**
-   * Swagger UI Config
-   */
-  uiConfig?: FastifySwaggerUiConfigOptions
-  initOAuth?: FastifySwaggerInitOAuthOptions
-  /**
-   * CSP Config
-   */
-  staticCSP?: boolean | string | Record<string, string | string[]>
-  transformStaticCSP?: (header: string) => string
-  /**
-   * route hooks
-   */
-  uiHooks?: FastifySwaggerUiHooksOptions
 }
 
 export type FastifySwaggerUiConfigOptions = Partial<{
