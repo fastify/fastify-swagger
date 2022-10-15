@@ -157,7 +157,7 @@ test('support multiple content types as response', async t => {
   const api = await Swagger.validate(swaggerObject)
   const definedPath = api.paths['/'].get
   t.same(definedPath.responses['200'].description, 'Description and all status-code based properties are working')
-  t.same(definedPath.responses['200'].content, {
+  t.strictSame(definedPath.responses['200'].content, {
     'application/json': {
       schema: {
         type: 'object',
@@ -186,7 +186,7 @@ test('support multiple content types as response', async t => {
       }
     }
   })
-  t.same(definedPath.responses[300].content, {
+  t.strictSame(definedPath.responses[300].content, {
     'application/json': {
       schema: {
         type: 'object',
