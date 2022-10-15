@@ -108,7 +108,7 @@ test('support 2xx response', async t => {
   t.same(definedPath.responses['3XX'].description, 'Default Response')
 })
 
-test('support multiple content types responses', async t => {
+test('support multiple content types as response', async t => {
   const fastify = Fastify()
   await fastify.register(fastifySwagger, {
     openapi: true,
