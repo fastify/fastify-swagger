@@ -108,6 +108,96 @@ test('support 2xx response', async t => {
   t.same(definedPath.responses['3XX'].description, 'Default Response')
 })
 
+test('support multiple content types as response', async t => {
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, {
+    openapi: true,
+    routePrefix: '/docs',
+    exposeRoute: true
+  })
+
+  const opt = {
+    schema: {
+      response: {
+        200: {
+          description: 'Description and all status-code based properties are working',
+          content: {
+            'application/json': {
+              schema: {
+                name: { type: 'string' },
+                image: { type: 'string' },
+                address: { type: 'string' }
+              }
+            },
+            'application/vnd.v1+json': {
+              schema: {
+                fullName: { type: 'string' },
+                phone: { type: 'string' }
+              }
+            }
+          }
+        },
+        '4xx': {
+          type: 'object',
+          properties: {
+            name: { type: 'string' }
+          }
+        },
+        300: {
+          age: { type: 'number' }
+        }
+      }
+    }
+  }
+  fastify.get('/', opt, () => {})
+
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  const api = await Swagger.validate(swaggerObject)
+  const definedPath = api.paths['/'].get
+  t.same(definedPath.responses['200'].description, 'Description and all status-code based properties are working')
+  t.strictSame(definedPath.responses['200'].content, {
+    'application/json': {
+      schema: {
+        type: 'object',
+        properties: {
+          name: { type: 'string' }, image: { type: 'string' }, address: { type: 'string' }
+        }
+      }
+    },
+    'application/vnd.v1+json': {
+      schema: {
+        type: 'object',
+        properties: {
+          fullName: { type: 'string' }, phone: { type: 'string' }
+        }
+      }
+    }
+  })
+  t.same(definedPath.responses['4XX'].description, 'Default Response')
+  t.strictSame(definedPath.responses['4XX'].content, {
+    'application/json': {
+      schema: {
+        type: 'object',
+        properties: {
+          name: { type: 'string' }
+        }
+      }
+    }
+  })
+  t.strictSame(definedPath.responses[300].content, {
+    'application/json': {
+      schema: {
+        type: 'object',
+        properties: {
+          age: { type: 'number' }
+        }
+      }
+    }
+  })
+})
+
 test('support status code 204', async t => {
   const opt = {
     schema: {
