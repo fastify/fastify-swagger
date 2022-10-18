@@ -430,6 +430,35 @@ You can decorate your own response headers by following the below example:
 Note: You need to specify `type` property when you decorate the response headers, otherwise the schema will be modified by Fastify.
 
 <a name="route.response.empty_body"></a>
+##### Different content types responses
+**Note:** not supported by Swagger (OpenAPI v2), [only OpenAPI v3](https://swagger.io/docs/specification/describing-responses/)
+Different content types responses are supported by `@fastify/swagger` and `@fastify`.
+Please use `content` for the response otherwise Fastify itself will fail to compile the schema:
+
+```js
+{
+  response: {
+    200: {
+      description: 'Description and all status-code based properties are working',
+      content: {
+        'application/json': {
+          schema: { 
+            name: { type: 'string' }, 
+            image: { type: 'string' }, 
+            address: { type: 'string' } 
+          }
+        }, 
+        'application/vnd.v1+json': {
+          schema: { 
+            fullName: { type: 'string' }, 
+            phone: { type: 'string' } 
+          }
+        }
+      }
+    }
+  }
+}
+```
 ##### Empty Body Responses
 Empty body responses are supported by `@fastify/swagger`.
 Please specify `type: 'null'` for the response otherwise Fastify itself will fail to compile the schema:
