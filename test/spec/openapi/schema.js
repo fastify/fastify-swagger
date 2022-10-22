@@ -10,15 +10,6 @@ const {
   schemaAllOf
 } = require('../../../examples/options')
 
-const openapiOptionWithResolver = {
-  openapi: {},
-  refResolver: {
-    buildLocalReference: (json, baseUri, fragment, i) => {
-      return json.$id || `def-${i}`
-    }
-  }
-}
-
 test('support - oneOf, anyOf, allOf', async (t) => {
   t.plan(2)
   const fastify = Fastify()
@@ -793,101 +784,4 @@ test('support query serialization params', async t => {
   const api = await Swagger.validate(swaggerObject)
   t.equal(api.paths['/'].get.parameters[0].style, 'deepObject')
   t.equal(api.paths['/'].get.parameters[0].explode, false)
-})
-
-test('support json-schema definitions keyword in schema(merge)', async t => {
-  const fastify = Fastify()
-  await fastify.register(fastifySwagger, openapiOptionWithResolver)
-
-  const schema = {
-    $id: 'NestedSchema',
-    properties: {
-      id: { type: 'string' }
-    },
-    definitions: {
-      SchemaA: {
-        type: 'object',
-        properties: {
-          id: { type: 'string' }
-        }
-      },
-      SchemaB: {
-        type: 'object',
-        properties: {
-          id: { type: 'string' }
-        }
-      }
-    }
-  }
-
-  fastify.register(async (instance) => {
-    instance.addSchema(schema)
-  })
-
-  await fastify.ready()
-
-  const openapiObject = fastify.swagger()
-  t.equal(typeof openapiObject, 'object')
-
-  // definitions are getting merged to properties
-  t.match(Object.keys(openapiObject.components.schemas), ['NestedSchema'])
-  t.match(Object.keys(openapiObject.components.schemas.NestedSchema), ['properties'])
-  t.match(Object.keys(openapiObject.components.schemas.NestedSchema.properties), ['SchemaA', 'SchemaB', 'id'])
-
-  await Swagger.validate(openapiObject)
-})
-
-test('prefer properties when merging json-schema definitions with properties', async t => {
-  const fastify = Fastify()
-  await fastify.register(fastifySwagger, openapiOptionWithResolver)
-
-  const schema = {
-    $id: 'NestedSchema',
-    properties: {
-      SchemaA: {
-        $id: 'SchemaA',
-        type: 'object',
-        properties: {
-          id: { type: 'string' },
-          name: { type: 'string' },
-          description: { type: 'string' }
-        }
-      }
-    },
-    definitions: {
-      SchemaA: {
-        $id: 'SchemaA',
-        type: 'object',
-        properties: {
-          id: { type: 'string' }
-        }
-      },
-      SchemaB: {
-        $id: 'SchemaB',
-        type: 'object',
-        properties: {
-          id: { type: 'string' }
-        }
-      }
-    }
-  }
-
-  fastify.register(async (instance) => {
-    instance.addSchema(schema)
-  })
-
-  await fastify.ready()
-
-  const openapiObject = fastify.swagger()
-  t.equal(typeof openapiObject, 'object')
-
-  t.same(openapiObject.components.schemas.NestedSchema.properties.SchemaA, {
-    type: 'object',
-    properties: {
-      id: { type: 'string' },
-      name: { type: 'string' },
-      description: { type: 'string' }
-    }
-  })
-  await Swagger.validate(openapiObject)
 })
