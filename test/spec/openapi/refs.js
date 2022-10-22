@@ -283,21 +283,26 @@ test('uses examples if has property required in body', async (t) => {
   t.same(schema.parameters[0].in, 'query')
 })
 
-test('support absolute $ref inside the json-schema definitions', async (t) => {
+test('support schema $ref inside the json-schema definitions', async (t) => {
   const fastify = Fastify()
 
   await fastify.register(fastifySwagger, openapiOption)
   fastify.register(async (instance) => {
     instance.addSchema({
       $id: 'NestedSchema',
+      properties: {
+        id: { type: 'string' }
+      },
       definitions: {
         SchemaA: {
+          $id: 'SchemaA',
           type: 'object',
           properties: {
             id: { type: 'string' }
           }
         },
         SchemaB: {
+          $id: 'SchemaB',
           type: 'object',
           properties: {
             example: { $ref: 'NestedSchema#/definitions/SchemaA' }
@@ -305,7 +310,7 @@ test('support absolute $ref inside the json-schema definitions', async (t) => {
         }
       }
     })
-    instance.post('/url1/:test', { schema: { body: { $ref: 'NestedSchema#/definitions/SchemaB' }, params: { $ref: 'NestedSchema#/definitions/SchemaA' }, response: { 200: { $ref: 'NestedSchema#/definitions/SchemaA' } } } }, () => {})
+    instance.post('/url1', { schema: { body: { $ref: 'NestedSchema#/definitions/SchemaB' }, response: { 200: { $ref: 'NestedSchema#/definitions/SchemaA' } } } }, () => {})
   })
 
   await fastify.ready()
