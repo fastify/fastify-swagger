@@ -9,9 +9,7 @@ const fastifySwaggerOptions: SwaggerOptions = {
   mode: "static",
   specification: {
     document: minimalOpenApiV3Document,
-  },
-  routePrefix: "/documentation",
-  exposeRoute: true,
+  }
 };
 
 app.register(swaggerDefault, fastifySwaggerOptions);
