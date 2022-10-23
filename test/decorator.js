@@ -13,13 +13,3 @@ test('fastify.swagger should exist', async (t) => {
   await fastify.ready()
   t.ok(fastify.swagger)
 })
-
-test('fastify.swaggerCSP should exist', async (t) => {
-  t.plan(1)
-  const fastify = Fastify()
-
-  await fastify.register(fastifySwagger)
-
-  await fastify.ready()
-  t.ok(fastify.swaggerCSP)
-})

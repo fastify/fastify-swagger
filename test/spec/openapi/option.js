@@ -291,6 +291,77 @@ test('basePath maintained when stripBasePath is set to false', async (t) => {
   t.ok(openapiObject.paths['/foo/endpoint'])
 })
 
+test('relative basePath support', async (t) => {
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, {
+    openapi: Object.assign({}, openapiOption.openapi, {
+      servers: [
+        {
+          url: '/foo'
+        }
+      ]
+    })
+  })
+
+  fastify.get('/foo/endpoint', {}, () => {})
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+  t.notOk(openapiObject.paths['/foo/endpoint'])
+  t.ok(openapiObject.paths['/endpoint'])
+})
+
+test('basePath containing variables support', async (t) => {
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, {
+    openapi: Object.assign({}, openapiOption.openapi, {
+      servers: [
+        {
+          url: 'http://localhost:{port}/{basePath}',
+          variables: {
+            port: {
+              default: 8080
+            },
+            basePath: {
+              default: 'foo'
+            }
+          }
+        }
+      ]
+    })
+  })
+
+  fastify.get('/foo/endpoint', {}, () => {})
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+  t.notOk(openapiObject.paths['/foo/endpoint'])
+  t.ok(openapiObject.paths['/endpoint'])
+})
+
+test('throw when a basePath with variables but no corresponding default values is provided', async (t) => {
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, {
+    openapi: Object.assign({}, openapiOption.openapi, {
+      servers: [
+        {
+          url: 'http://localhost/{basePath}/foo',
+          variables: {
+            basePath: {}
+          }
+        }
+      ]
+    })
+  })
+
+  fastify.get('/foo/endpoint', {}, () => {})
+
+  await fastify.ready()
+  t.throws(fastify.swagger)
+})
+
 test('cache - json', async (t) => {
   t.plan(2)
   const fastify = Fastify()

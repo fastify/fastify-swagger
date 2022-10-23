@@ -4,6 +4,7 @@ const { test } = require('tap')
 const Fastify = require('fastify')
 const Swagger = require('@apidevtools/swagger-parser')
 const fastifySwagger = require('../../../index')
+const { FST_ERR_SCH_ALREADY_PRESENT } = require('fastify/lib/errors')
 
 test('support $ref schema', async t => {
   t.plan(1)
@@ -17,10 +18,7 @@ test('support $ref schema', async t => {
     }
   })
 
-  await fastify.register(fastifySwagger, {
-    routePrefix: '/docs',
-    exposeRoute: true
-  })
+  await fastify.register(fastifySwagger)
 
   fastify.register((instance, opts, next) => {
     instance.addSchema({
@@ -59,9 +57,9 @@ test('support $ref schema', async t => {
     next()
   })
 
-  const res = await fastify.inject('/docs/json')
+  await fastify.ready()
 
-  await Swagger.validate(res.json())
+  await Swagger.validate(fastify.swagger())
   t.pass('valid swagger object')
 })
 
@@ -102,10 +100,7 @@ test('support nested $ref schema : complex case', async (t) => {
 
 test('support nested $ref schema : complex case without modifying buildLocalReference', async (t) => {
   const fastify = Fastify()
-  await fastify.register(fastifySwagger, {
-    routePrefix: '/docs',
-    exposeRoute: true
-  })
+  await fastify.register(fastifySwagger)
   fastify.register(async (instance) => {
     instance.addSchema({ $id: 'schemaA', type: 'object', properties: { id: { type: 'integer' } } })
     instance.addSchema({ $id: 'schemaB', type: 'object', properties: { id: { type: 'string' } } })
@@ -129,4 +124,15 @@ test('support nested $ref schema : complex case without modifying buildLocalRefe
   t.equal(definitions['def-3'].properties.c.$ref, '#/definitions/def-2')
 
   await Swagger.validate(swaggerObject)
+})
+
+test('trying to overwriting a schema results in a FST_ERR_SCH_ALREADY_PRESENT', async (t) => {
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger)
+  fastify.register(async (instance) => {
+    instance.addSchema({ $id: 'schemaA', type: 'object', properties: { id: { type: 'integer' } } })
+    t.throws(() => instance.addSchema({ $id: 'schemaA', type: 'object', properties: { id: { type: 'integer' } } }), new FST_ERR_SCH_ALREADY_PRESENT('schemaA'))
+  })
+
+  await fastify.ready()
 })
