@@ -295,7 +295,7 @@ test('support absolute refs in schema', async (t) => {
           example: {
             type: 'string'
           }
-        },
+        }
       }
     )
     instance.addSchema(
@@ -317,7 +317,7 @@ test('support absolute refs in schema', async (t) => {
               }
             }
           }
-        },
+        }
       }
     )
     instance.post('/third/:sample', {
@@ -340,7 +340,6 @@ test('support absolute refs in schema', async (t) => {
 
   // if validation is passed = success
   await Swagger.validate(openapiObject)
-
 })
 
 test('support relative refs in schema', async (t) => {
@@ -355,7 +354,7 @@ test('support relative refs in schema', async (t) => {
           type: 'object',
           properties: {
             a: { type: 'string' },
-            b: {type: 'object', properties: { d: { type: 'string' } } },
+            b: { type: 'object', properties: { d: { type: 'string' } } }
           }
         },
         someValue: { type: 'string' },
@@ -385,7 +384,6 @@ test('support relative refs in schema', async (t) => {
 
   // if validation is passed = success
   await Swagger.validate(openapiObject)
-
 })
 
 test('support definitions keyword in schema', async (t) => {
@@ -401,7 +399,7 @@ test('support definitions keyword in schema', async (t) => {
           type: 'object',
           properties: {
             a: { type: 'string' },
-            b: {type: 'object', properties: { d: { type: 'string' } } },
+            b: { type: 'object', properties: { d: { type: 'string' } } }
           }
         },
         someValue: { type: 'string' },
@@ -431,9 +429,8 @@ test('support definitions keyword in schema', async (t) => {
 
   // definitions are transformed to properties
   // previous properties obj take precedence over definitions obj
-  t.equal(openapiObject.paths["/first/{sample}"].post.requestBody.content["application/json"].schema.$ref, "#/components/schemas/def-0/properties/relativeExample")
-  t.equal(openapiObject.paths["/first/{sample}"].post.responses['200'].content["application/json"].schema.$ref, "#/components/schemas/def-0/properties/relativeExample")
-
+  t.equal(openapiObject.paths['/first/{sample}'].post.requestBody.content['application/json'].schema.$ref, '#/components/schemas/def-0/properties/relativeExample')
+  t.equal(openapiObject.paths['/first/{sample}'].post.responses['200'].content['application/json'].schema.$ref, '#/components/schemas/def-0/properties/relativeExample')
 
   await Swagger.validate(openapiObject)
 })

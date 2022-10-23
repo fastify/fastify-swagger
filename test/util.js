@@ -169,7 +169,7 @@ test('definitions to properties keyword in schema', async (t) => {
               }
             }
           }
-        },
+        }
       },
       ObjectB: {
         type: 'object',
@@ -184,7 +184,6 @@ test('definitions to properties keyword in schema', async (t) => {
 
   const res = patchDefinitionsKeywordInSchema(input)
   t.match(expected, res)
-
 })
 
 test('properties precedence on definitions->properties merge)', async (t) => {
@@ -231,5 +230,4 @@ test('properties precedence on definitions->properties merge)', async (t) => {
 
   const res = patchDefinitionsKeywordInSchema(input)
   t.match(expected, res)
-
 })
