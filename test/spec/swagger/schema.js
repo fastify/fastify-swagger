@@ -481,3 +481,73 @@ test('support "const" keyword', async t => {
     }
   })
 })
+
+test('support hide schema', async t => {
+  t.plan(2)
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, { swagger: { info: { title: 'asdf', version: '1.1.1' } }, hideSchemas: ['schema-02'] })
+
+  fastify.addSchema({
+    $id: 'schema-01',
+    type: 'object',
+    properties: {
+      id: { type: 'number', description: 'data id' }
+    },
+    required: ['id']
+  })
+
+  fastify.addSchema({
+    $id: 'schema-02',
+    type: 'object',
+    properties: {
+      id: { type: 'number', description: 'data id' }
+    },
+    required: ['id']
+  })
+
+  fastify.addSchema({
+    $id: 'schema-03',
+    type: 'object',
+    properties: {
+      id: { type: 'number', description: 'data id' }
+    },
+    required: ['id']
+  })
+
+  fastify.get('/', {
+    schema: {
+      querystring: { $ref: 'schema-02' },
+      response: {
+        200: {
+          type: 'object'
+        }
+      }
+    }
+  }, () => {})
+
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  await Swagger.validate(swaggerObject)
+
+  const definitions = swaggerObject.definitions
+  t.ok(definitions)
+  t.same(definitions, {
+    'def-0': {
+      type: 'object',
+      properties: {
+        id: { type: 'number', description: 'data id' }
+      },
+      required: ['id'],
+      title: 'schema-01'
+    },
+    'def-2': {
+      type: 'object',
+      properties: {
+        id: { type: 'number', description: 'data id' }
+      },
+      required: ['id'],
+      title: 'schema-03'
+    }
+  })
+})

@@ -849,3 +849,73 @@ test('support query serialization params', async t => {
   t.equal(api.paths['/'].get.parameters[0].style, 'deepObject')
   t.equal(api.paths['/'].get.parameters[0].explode, false)
 })
+
+test('support hide schema', async t => {
+  t.plan(2)
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, { ...openapiOption, hideSchemas: ['schema-02'] })
+
+  fastify.addSchema({
+    $id: 'schema-01',
+    type: 'object',
+    properties: {
+      id: { type: 'number', description: 'data id' }
+    },
+    required: ['id']
+  })
+
+  fastify.addSchema({
+    $id: 'schema-02',
+    type: 'object',
+    properties: {
+      id: { type: 'number', description: 'data id' }
+    },
+    required: ['id']
+  })
+
+  fastify.addSchema({
+    $id: 'schema-03',
+    type: 'object',
+    properties: {
+      id: { type: 'number', description: 'data id' }
+    },
+    required: ['id']
+  })
+
+  fastify.get('/', {
+    schema: {
+      querystring: { $ref: 'schema-02' },
+      response: {
+        200: {
+          type: 'object'
+        }
+      }
+    }
+  }, () => {})
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+  await Swagger.validate(openapiObject)
+
+  const definitions = openapiObject.components.schemas
+  t.ok(definitions)
+  t.same(definitions, {
+    'def-0': {
+      type: 'object',
+      properties: {
+        id: { type: 'number', description: 'data id' }
+      },
+      required: ['id'],
+      title: 'schema-01'
+    },
+    'def-2': {
+      type: 'object',
+      properties: {
+        id: { type: 'number', description: 'data id' }
+      },
+      required: ['id'],
+      title: 'schema-03'
+    }
+  })
+})

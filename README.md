@@ -219,6 +219,7 @@ An example of using `@fastify/swagger` with `static` mode enabled can be found [
  | swagger            | {}               | [Swagger configuration](https://swagger.io/specification/v2/#swaggerObject).                                              |
  | transform          | null             | Transform method for the route's schema and url. [documentation](#register.options.transform).                                                                                              |
  | refResolver        | {}               | Option to manage the `$ref`s of your application's schemas. Read the [`$ref` documentation](#register.options.refResolver) |
+ | hideSchemas        | []               | Option to control hiding of schemas in swagger document definitions                                                        |
 
 <a name="register.options.transform"></a>
 #### Transform
