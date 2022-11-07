@@ -44,7 +44,7 @@
     "fastify": "^4.0.0",
     "fluent-json-schema": "^4.0.0",
     "joi": "^17.6.0",
-    "joi-to-json": "^2.2.4",
+    "joi-to-json": "^3.1.1",
     "qs": "^6.10.3",
     "standard": "^17.0.0",
     "tap": "^16.2.0",
