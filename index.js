@@ -27,3 +27,5 @@ module.exports = fp(fastifySwagger, {
   fastify: '4.x',
   name: '@fastify/swagger'
 })
+module.exports.fastifySwagger = fastifySwagger
+module.exports.default = fastifySwagger
