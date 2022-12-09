@@ -675,7 +675,7 @@ test('move examples of body from component to media', async (t) => {
   t.ok(schema)
   t.ok(schema.properties)
   t.notOk(schema.examples)
-  t.same(content.examples, { example1: { value: { hello: 'world' } }, example2: { value: { hello: 'lorem' } } })
+  t.same(content.examples, [{ hello: 'world' }, { hello: 'lorem' }])
 })
 
 test('move examples of response from component to media', async (t) => {
@@ -798,14 +798,7 @@ test('uses examples if has multiple string examples', async (t) => {
 
   t.ok(schema)
   t.ok(schema.properties.hello.examples)
-  t.same(schema.properties.hello.examples, {
-    hello: {
-      value: 'hello'
-    },
-    world: {
-      value: 'world'
-    }
-  })
+  t.same(schema.properties.hello.examples, ['hello', 'world'])
 })
 
 test('uses examples if has multiple numbers examples', async (t) => {
@@ -838,14 +831,7 @@ test('uses examples if has multiple numbers examples', async (t) => {
 
   t.ok(schema)
   t.ok(schema.properties.hello.examples)
-  t.same(schema.properties.hello.examples, {
-    1: {
-      value: 1
-    },
-    2: {
-      value: 2
-    }
-  })
+  t.same(schema.properties.hello.examples, [1, 2])
 })
 
 test('uses examples if has multiple object examples', async (t) => {
@@ -883,18 +869,7 @@ test('uses examples if has multiple object examples', async (t) => {
 
   t.ok(schema)
   t.ok(schema.properties.hello.examples)
-  t.same(schema.properties.hello.examples, {
-    example1: {
-      value: {
-        lorem: 'ipsum'
-      }
-    },
-    example2: {
-      value: {
-        hello: 'world'
-      }
-    }
-  })
+  t.same(schema.properties.hello.examples, [{ lorem: 'ipsum' }, { hello: 'world' }])
 })
 
 test('uses examples if has multiple array examples', async (t) => {
@@ -930,22 +905,10 @@ test('uses examples if has multiple array examples', async (t) => {
 
   t.ok(schema)
   t.ok(schema.properties.hello.examples)
-  t.same(schema.properties.hello.examples, {
-    example1: {
-      value: [
-        'a',
-        'b',
-        'c'
-      ]
-    },
-    example2: {
-      value: [
-        'd',
-        'f',
-        'g'
-      ]
-    }
-  })
+  t.same(schema.properties.hello.examples, [
+    ['a', 'b', 'c'],
+    ['d', 'f', 'g']
+  ])
 })
 
 test('uses examples if has property required in body', async (t) => {
