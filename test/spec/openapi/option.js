@@ -394,7 +394,7 @@ test('cache - yaml', async (t) => {
 })
 
 test('transforms examples in example if single string example', async (t) => {
-  t.plan(3)
+  t.plan(2)
   const fastify = Fastify()
 
   await fastify.register(fastifySwagger, openapiOption)
@@ -426,7 +426,7 @@ test('transforms examples in example if single string example', async (t) => {
 })
 
 test('transforms examples in example if single object example', async (t) => {
-  t.plan(3)
+  t.plan(2)
   const fastify = Fastify()
 
   await fastify.register(fastifySwagger, openapiOption)
