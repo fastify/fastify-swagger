@@ -551,12 +551,12 @@ test('copy example of body from component to media', async (t) => {
 
   t.ok(schema)
   t.ok(schema.properties)
-  t.same(schema.example, { hello: 'world' })
+  t.notOk(schema.example)
   t.same(content.example, { hello: 'world' })
 })
 
 test('copy example of response from component to media', async (t) => {
-  t.plan(4)
+  t.plan(3)
   const fastify = Fastify()
 
   await fastify.register(fastifySwagger, openapiOption)
@@ -587,7 +587,6 @@ test('copy example of response from component to media', async (t) => {
 
   t.ok(schema)
   t.ok(schema.properties)
-  t.same(schema.example, { hello: 'world' })
   t.same(content.example, { hello: 'world' })
 })
 
