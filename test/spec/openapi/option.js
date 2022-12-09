@@ -422,8 +422,7 @@ test('transforms examples in example if single string example', async (t) => {
   const schema = openapiObject.paths['/'].post.requestBody.content['application/json'].schema
 
   t.ok(schema)
-  t.notOk(schema.properties.hello.examples)
-  t.equal(schema.properties.hello.example, 'world')
+  t.same(schema.properties.hello.examples, ['world'])
 })
 
 test('transforms examples in example if single object example', async (t) => {
@@ -460,8 +459,7 @@ test('transforms examples in example if single object example', async (t) => {
   const schema = openapiObject.paths['/'].post.requestBody.content['application/json'].schema
 
   t.ok(schema)
-  t.notOk(schema.properties.hello.examples)
-  t.same(schema.properties.hello.example, { lorem: 'ipsum' })
+  t.same(schema.properties.hello.examples, [{ lorem: 'ipsum' }])
 })
 
 test('move examples from "x-examples" to examples field', async (t) => {
@@ -675,7 +673,7 @@ test('move examples of body from component to media', async (t) => {
   t.ok(schema)
   t.ok(schema.properties)
   t.notOk(schema.examples)
-  t.same(content.examples, [{ hello: 'world' }, { hello: 'lorem' }])
+  t.same(content.examples, { example1: { value: { hello: 'world' } }, example2: { value: { hello: 'lorem' } } })
 })
 
 test('move examples of response from component to media', async (t) => {
@@ -869,7 +867,10 @@ test('uses examples if has multiple object examples', async (t) => {
 
   t.ok(schema)
   t.ok(schema.properties.hello.examples)
-  t.same(schema.properties.hello.examples, [{ lorem: 'ipsum' }, { hello: 'world' }])
+  t.same(schema.properties.hello.examples, [
+    { lorem: 'ipsum' },
+    { hello: 'world' }
+  ])
 })
 
 test('uses examples if has multiple array examples', async (t) => {
