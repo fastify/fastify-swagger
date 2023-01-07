@@ -140,6 +140,9 @@ package-lock.json
 pnpm-lock.yaml
 yarn.lock
 
+# Clinic
+.clinic
+
 # editor files
 .vscode
 .idea
