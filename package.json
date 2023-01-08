@@ -39,6 +39,7 @@
   "homepage": "https://github.com/fastify/fastify-swagger#readme",
   "devDependencies": {
     "@apidevtools/swagger-parser": "^10.1.0",
+    "@fastify/cookie": "^8.3.0",
     "@fastify/pre-commit": "^2.0.2",
     "@types/node": "^18.0.0",
     "fastify": "^4.0.0",
