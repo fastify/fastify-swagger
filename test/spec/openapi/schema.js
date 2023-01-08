@@ -70,7 +70,6 @@ test('support - oneOf, anyOf, allOf in headers', async (t) => {
       required: false,
       in: 'header',
       name: 'foo',
-      description: undefined,
       schema: {
         type: 'string'
       }
