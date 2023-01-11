@@ -338,10 +338,10 @@ test('renders $ref schema with additional keywords', async (t) => {
   })
 
   await fastify.ready()
-
   const openapiObject = fastify.swagger()
-
   await Swagger.validate(openapiObject)
+
+  t.match(openapiObject.paths['/url1'].get.parameters[0].schema, cookie)
 
   let res = await fastify.inject({ method: 'GET', url: 'url1', cookies: { a: 'hi', b: 'asd' } })
 
@@ -350,6 +350,5 @@ test('renders $ref schema with additional keywords', async (t) => {
   res = await fastify.inject({ method: 'GET', url: 'url1', cookies: { a: 'hi' } })
 
   t.match(res.statusCode, 400)
-
   t.match(openapiObject.paths['/url1'].get.parameters[0].schema, cookie)
 })

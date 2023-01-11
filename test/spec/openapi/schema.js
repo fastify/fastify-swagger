@@ -818,6 +818,7 @@ test('support query serialization params', async t => {
         style: 'deepObject',
         explode: false,
         type: 'object',
+        allowReserved: true,
         properties: {
           obj: {
             type: 'string'
@@ -833,6 +834,7 @@ test('support query serialization params', async t => {
         function (ajv) {
           ajv.addKeyword({ keyword: 'style' })
           ajv.addKeyword({ keyword: 'explode' })
+          ajv.addKeyword({ keyword: 'allowReserved' })
         }
       ]
     }
@@ -847,4 +849,5 @@ test('support query serialization params', async t => {
   const api = await Swagger.validate(swaggerObject)
   t.equal(api.paths['/'].get.parameters[0].style, 'deepObject')
   t.equal(api.paths['/'].get.parameters[0].explode, false)
+  t.equal(api.paths['/'].get.parameters[0].allowReserved, true)
 })
