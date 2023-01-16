@@ -282,3 +282,73 @@ test('uses examples if has property required in body', async (t) => {
   t.ok(schema.parameters)
   t.same(schema.parameters[0].in, 'query')
 })
+
+test('renders $ref schema with enum in headers', async (t) => {
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, { openapi: {} })
+  fastify.register(async (instance) => {
+    instance.addSchema({ $id: 'headerA', type: 'object', properties: { 'x-enum-header': { type: 'string', enum: ['OK', 'NOT_OK'] } } })
+    instance.get('/url1', { schema: { headers: { $ref: 'headerA#' }, response: { 200: { type: 'object' } } } }, async () => ({ result: 'OK' }))
+  })
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+
+  await Swagger.validate(openapiObject)
+
+  // the OpenAPI spec should show the enum
+  t.match(openapiObject.paths['/url1'].get.parameters[0].schema, { type: 'string', enum: ['OK', 'NOT_OK'] })
+})
+
+test('renders $ref schema with additional keywords', async (t) => {
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, { openapi: {} })
+  await fastify.register(require('@fastify/cookie'))
+
+  const cookie = {
+    type: 'object',
+    properties: {
+      a: { type: 'string' },
+      b: { type: 'string' },
+      c: { type: 'string' }
+    },
+    minProperties: 2
+  }
+
+  fastify.register(async (instance) => {
+    instance.addSchema({
+      $id: 'headerA',
+      type: 'object',
+      properties: {
+        cookie
+      }
+    })
+
+    instance.get('/url1', {
+      preValidation: async (request) => {
+        request.headers.cookie = request.cookies
+      },
+      schema: {
+        headers: {
+          $ref: 'headerA#'
+        }
+      }
+    }, async (req) => (req.headers))
+  })
+
+  await fastify.ready()
+  const openapiObject = fastify.swagger()
+  await Swagger.validate(openapiObject)
+
+  t.match(openapiObject.paths['/url1'].get.parameters[0].schema, cookie)
+
+  let res = await fastify.inject({ method: 'GET', url: 'url1', cookies: { a: 'hi', b: 'asd' } })
+
+  t.match(res.statusCode, 200)
+
+  res = await fastify.inject({ method: 'GET', url: 'url1', cookies: { a: 'hi' } })
+
+  t.match(res.statusCode, 400)
+  t.match(openapiObject.paths['/url1'].get.parameters[0].schema, cookie)
+})

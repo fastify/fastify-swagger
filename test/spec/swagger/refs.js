@@ -136,3 +136,20 @@ test('trying to overwriting a schema results in a FST_ERR_SCH_ALREADY_PRESENT', 
 
   await fastify.ready()
 })
+
+test('renders $ref schema with enum in headers', async (t) => {
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger)
+  fastify.register(async (instance) => {
+    instance.addSchema({ $id: 'headerA', type: 'object', properties: { 'x-enum-header': { type: 'string', enum: ['OK', 'NOT_OK'] } } })
+    instance.get('/url1', { schema: { headers: { $ref: 'headerA#' }, response: { 200: { type: 'object' } } } }, async () => ({ result: 'OK' }))
+  })
+
+  await fastify.ready()
+
+  const swagger = fastify.swagger()
+
+  await Swagger.validate(swagger)
+
+  t.match(swagger.paths['/url1'].get.parameters[0], { type: 'string', enum: ['OK', 'NOT_OK'] })
+})
