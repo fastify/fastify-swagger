@@ -1,5 +1,5 @@
 import { FastifyPluginCallback, FastifySchema, onRequestHookHandler, preHandlerHookHandler } from 'fastify';
-import { OpenAPI, OpenAPIV2, OpenAPIV3 } from 'openapi-types';
+import { OpenAPI, OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from 'openapi-types';
 
 /**
  * Swagger-UI Vendor Extensions
@@ -113,7 +113,7 @@ declare namespace fastifySwagger {
   export interface FastifyDynamicSwaggerOptions extends FastifySwaggerOptions {
     mode?: 'dynamic';
     swagger?: Partial<OpenAPIV2.Document>;
-    openapi?: Partial<OpenAPIV3.Document>
+    openapi?: Partial<OpenAPIV3_1.Document>
     hiddenTag?: string;
     hideUntagged?: boolean;
     /**

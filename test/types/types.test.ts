@@ -174,10 +174,29 @@ app
   });
 
 app.register(fastifySwagger, {
+  openapi: {
+    components: {
+      schemas: {
+        Model: {
+          type: "object",
+          properties: {
+            name: { type: "null" },
+          },
+          required: ['name']
+        }
+      }
+    }
+  },
 })
-.ready((err) => {
-  app.swagger();
+  .ready((err) => {
+    app.swagger();
+  })
+
+app.register(fastifySwagger, {
 })
+  .ready((err) => {
+    app.swagger();
+  })
 
 expectType<OpenAPI.Document>(app.swagger())
 expectType<OpenAPI.Document>(app.swagger({ yaml: false }))
