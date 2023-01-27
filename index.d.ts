@@ -1,5 +1,5 @@
 import { FastifyPluginCallback, FastifySchema, onRequestHookHandler, preHandlerHookHandler } from 'fastify';
-import { OpenAPI, OpenAPIV2, OpenAPIV3_1 } from 'openapi-types';
+import { OpenAPI, OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from 'openapi-types';
 
 /**
  * Swagger-UI Vendor Extensions
@@ -39,7 +39,7 @@ declare module 'fastify' {
     summary?: string;
     consumes?: string[];
     produces?: string[];
-    externalDocs?: OpenAPIV2.ExternalDocumentationObject | OpenAPIV3_1.ExternalDocumentationObject;
+    externalDocs?: OpenAPIV2.ExternalDocumentationObject | OpenAPIV3.ExternalDocumentationObject;
     security?: Array<{ [securityLabel: string]: string[] }>;
     /**
      * OpenAPI operation unique identifier
@@ -49,7 +49,7 @@ declare module 'fastify' {
 
   interface RouteShorthandOptions {
     links?: {
-      [statusCode: string]: OpenAPIV3_1.ResponseObject['links'];
+      [statusCode: string]: OpenAPIV3.ResponseObject['links'];
     }
   }
 }
@@ -159,7 +159,7 @@ declare namespace fastifySwagger {
   }
 
   export interface StaticDocumentSpec {
-    document: OpenAPIV2.Document | OpenAPIV3_1.Document;
+    document: OpenAPIV2.Document | OpenAPIV3.Document;
   }
 
   export interface FastifyStaticSwaggerOptions extends FastifySwaggerOptions {

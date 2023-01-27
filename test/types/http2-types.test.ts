@@ -1,6 +1,6 @@
 import fastify from 'fastify';
 import fastifySwagger, {JSONObject} from '../..';
-import { minimalOpenApiV3_1Document } from './minimal-openapiV3_1-document';
+import { minimalOpenApiV3Document } from './minimal-openapiV3-document';
 
 const app = fastify({
   http2: true
@@ -15,7 +15,7 @@ app.register(fastifySwagger, { transform: ({schema, url}) => ({
 app.register(fastifySwagger, {
   mode: 'static',
   specification: {
-    document: minimalOpenApiV3_1Document
+    document: minimalOpenApiV3Document
   }
 });
 
