@@ -113,7 +113,7 @@ declare namespace fastifySwagger {
   export interface FastifyDynamicSwaggerOptions extends FastifySwaggerOptions {
     mode?: 'dynamic';
     swagger?: Partial<OpenAPIV2.Document>;
-    openapi?: Partial<OpenAPIV3_1.Document>
+    openapi?: Partial<OpenAPIV3.Document | OpenAPIV3_1.Document>
     hiddenTag?: string;
     hideUntagged?: boolean;
     /**
