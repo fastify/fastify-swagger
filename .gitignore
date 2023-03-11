@@ -136,9 +136,13 @@ dist
 .DS_Store
 
 # lock files
+bun.lockb
 package-lock.json
 pnpm-lock.yaml
 yarn.lock
+
+# Clinic
+.clinic
 
 # editor files
 .vscode

@@ -1,6 +1,6 @@
 {
   "name": "@fastify/swagger",
-  "version": "8.0.0",
+  "version": "8.3.1",
   "description": "Serve Swagger/OpenAPI documentation for Fastify, supporting dynamic generation",
   "main": "index.js",
   "types": "index.d.ts",
@@ -39,16 +39,17 @@
   "homepage": "https://github.com/fastify/fastify-swagger#readme",
   "devDependencies": {
     "@apidevtools/swagger-parser": "^10.1.0",
+    "@fastify/cookie": "^8.3.0",
     "@fastify/pre-commit": "^2.0.2",
     "@types/node": "^18.0.0",
     "fastify": "^4.0.0",
     "fluent-json-schema": "^4.0.0",
     "joi": "^17.6.0",
-    "joi-to-json": "^2.2.4",
+    "joi-to-json": "^3.1.1",
     "qs": "^6.10.3",
     "standard": "^17.0.0",
     "tap": "^16.2.0",
-    "tsd": "^0.24.1"
+    "tsd": "^0.26.0"
   },
   "dependencies": {
     "fastify-plugin": "^4.0.0",
