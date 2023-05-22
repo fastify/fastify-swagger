@@ -482,15 +482,52 @@ test('support "const" keyword', async t => {
   })
 })
 
-test('support "exposeHeadRoute" option', async (t) => {
-  const fastify = Fastify({ exposeHeadRoutes: false })
+test('no head routes by default', async (t) => {
+  const fastify = Fastify({ exposeHeadRoutes: true })
   await fastify.register(fastifySwagger, {
     routePrefix: '/docs',
     exposeRoute: true
   })
 
   fastify.get('/with-head', {
-    exposeHeadRoute: true,
+    schema: {
+      operationId: 'with-head',
+      response: {
+        200: {
+          description: 'Expected Response',
+          type: 'object',
+          properties: {
+            foo: { type: 'string' }
+          }
+        }
+      }
+    }
+  }, () => {})
+
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  const api = await Swagger.validate(swaggerObject)
+
+  t.same(
+    api.paths['/with-head'].get.responses['200'].description,
+    'Expected Response'
+  )
+  t.same(
+    api.paths['/with-head'].head,
+    undefined
+  )
+})
+
+test('support "exposeHeadRoutes" option', async (t) => {
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, {
+    routePrefix: '/docs',
+    exposeHeadRoutes: true,
+    exposeRoute: true
+  })
+
+  fastify.get('/with-head', {
     schema: {
       operationId: 'with-head',
       response: {
@@ -520,8 +557,8 @@ test('support "exposeHeadRoute" option', async (t) => {
   )
 })
 
-test('support "exposeHeadRoutes" option', async (t) => {
-  const fastify = Fastify({ exposeHeadRoutes: true })
+test('support "exposeHeadRoutes" option inside the schema', async (t) => {
+  const fastify = Fastify()
   await fastify.register(fastifySwagger, {
     routePrefix: '/docs',
     exposeRoute: true
@@ -530,6 +567,7 @@ test('support "exposeHeadRoutes" option', async (t) => {
   fastify.get('/with-head', {
     schema: {
       operationId: 'with-head',
+      exposeHeadRoute: true,
       response: {
         200: {
           description: 'Expected Response',
