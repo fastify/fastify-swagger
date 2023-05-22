@@ -219,7 +219,7 @@ An example of using `@fastify/swagger` with `static` mode enabled can be found [
  | swagger            | {}               | [Swagger configuration](https://swagger.io/specification/v2/#swaggerObject).                                               |
  | transform          | null             | Transform method for the route's schema and url. [documentation](#register.options.transform).                             |                                                                 |
  | refResolver        | {}               | Option to manage the `$ref`s of your application's schemas. Read the [`$ref` documentation](#register.options.refResolver) |
- | exposeHeadRoutes   | false            | Include HEAD routes into the definitions                                                                                   |
+ | exposeHeadRoutes   | false            | Include HEAD routes in the definitions                                                                                   |
 
 <a name="register.options.transform"></a>
 #### Transform
