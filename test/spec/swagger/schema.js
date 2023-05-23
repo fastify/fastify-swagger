@@ -482,6 +482,42 @@ test('support "const" keyword', async t => {
   })
 })
 
+test('support "description" keyword', async t => {
+  const opt = {
+    schema: {
+      body: {
+        type: 'object',
+        description: 'Body description',
+        properties: {
+          foo: {
+            type: 'number'
+          }
+        }
+      }
+    }
+  }
+
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger)
+  fastify.post('/', opt, () => { })
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  const api = await Swagger.validate(swaggerObject)
+
+  const definedPath = api.paths['/'].post
+  t.same(definedPath.parameters[0].description, 'Body description')
+  t.same(definedPath.parameters[0].schema, {
+    type: 'object',
+    description: 'Body description',
+    properties: {
+      foo: {
+        type: 'number'
+      }
+    }
+  })
+})
+
 test('no head routes by default', async (t) => {
   const fastify = Fastify({ exposeHeadRoutes: true })
   await fastify.register(fastifySwagger, {

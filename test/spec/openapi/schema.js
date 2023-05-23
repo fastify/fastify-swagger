@@ -811,6 +811,50 @@ test('support object properties with special names', async t => {
   })
 })
 
+test('support "description" keyword', async t => {
+  const opt = {
+    schema: {
+      body: {
+        type: 'object',
+        description: 'Body description',
+        properties: {
+          foo: {
+            type: 'number'
+          }
+        }
+      }
+    }
+  }
+
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, {
+    openapi: true
+  })
+  fastify.post('/', opt, () => { })
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  const api = await Swagger.validate(swaggerObject)
+
+  const definedPath = api.paths['/'].post
+  t.same(definedPath.requestBody, {
+    description: 'Body description',
+    content: {
+      'application/json': {
+        schema: {
+          description: 'Body description',
+          type: 'object',
+          properties: {
+            foo: {
+              type: 'number'
+            }
+          }
+        }
+      }
+    }
+  })
+})
+
 test('support query serialization params', async t => {
   const opt = {
     schema: {
