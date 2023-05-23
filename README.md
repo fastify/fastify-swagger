@@ -301,13 +301,12 @@ To deep down the `buildLocalReference` arguments, you may read the [documentatio
 ### Route options
 
 It is possible to instruct `@fastify/swagger` to include specific `HEAD` routes in the definitions
-by adding `exposeHeadRoute` to the route schema definition, like so:
+by adding `exposeHeadRoute` in the route config, like so:
 
 ```js
   fastify.get('/with-head', {
     schema: {
       operationId: 'with-head',
-      exposeHeadRoute: true,
       response: {
         200: {
           description: 'Expected Response',
@@ -316,6 +315,11 @@ by adding `exposeHeadRoute` to the route schema definition, like so:
             foo: { type: 'string' }
           }
         }
+      }
+    },
+    config: {
+      swagger: {
+        exposeHeadRoute: true,
       }
     }
   }, () => {})

@@ -557,7 +557,7 @@ test('support "exposeHeadRoutes" option', async (t) => {
   )
 })
 
-test('support "exposeHeadRoutes" option inside the schema', async (t) => {
+test('support "exposeHeadRoutes" option at route level', async (t) => {
   const fastify = Fastify()
   await fastify.register(fastifySwagger, {
     routePrefix: '/docs',
@@ -567,7 +567,6 @@ test('support "exposeHeadRoutes" option inside the schema', async (t) => {
   fastify.get('/with-head', {
     schema: {
       operationId: 'with-head',
-      exposeHeadRoute: true,
       response: {
         200: {
           description: 'Expected Response',
@@ -576,6 +575,11 @@ test('support "exposeHeadRoutes" option inside the schema', async (t) => {
             foo: { type: 'string' }
           }
         }
+      }
+    },
+    config: {
+      swagger: {
+        exposeHeadRoute: true
       }
     }
   }, () => {})
