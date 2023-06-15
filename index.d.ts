@@ -124,7 +124,7 @@ declare namespace fastifySwagger {
     /**
      * custom function to transform the route's schema and url
      */
-    transform?: <S extends FastifySchema = FastifySchema>({ schema, url }: { schema: S, url: string }) => { schema: JSONObject, url: string };
+    transform?: <S extends FastifySchema = FastifySchema>({ schema, url }: { schema: S, url: string }) => { schema: FastifySchema, url: string };
 
     refResolver?: {
       /** Clone the input schema without changing it. Default to `false`. */

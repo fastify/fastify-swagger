@@ -3,7 +3,7 @@ import fastifySwagger, {
   SwaggerOptions,
   FastifySwaggerInitOAuthOptions,
   FastifySwaggerUiConfigOptions,
-  FastifySwaggerUiHooksOptions, JSONObject,
+  FastifySwaggerUiHooksOptions,
 } from "../.."
 import { minimalOpenApiV3Document } from './minimal-openapiV3-document';
 import { expectType } from "tsd";
@@ -30,7 +30,7 @@ const uiHooks: FastifySwaggerUiHooksOptions = {
 app.register(fastifySwagger);
 app.register(fastifySwagger, {});
 app.register(fastifySwagger, { transform: ({schema, url}) => ({
-    schema: schema as unknown as JSONObject,
+    schema: schema,
     url: url,
 })});
 app.register(fastifySwagger, {

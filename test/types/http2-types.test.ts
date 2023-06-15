@@ -1,5 +1,5 @@
 import fastify from 'fastify';
-import fastifySwagger, {JSONObject} from '../..';
+import fastifySwagger from '../..';
 import { minimalOpenApiV3Document } from './minimal-openapiV3-document';
 
 const app = fastify({
@@ -9,7 +9,7 @@ const app = fastify({
 app.register(fastifySwagger);
 app.register(fastifySwagger, {});
 app.register(fastifySwagger, { transform: ({schema, url}) => ({
-        schema: schema as unknown as JSONObject,
+        schema: schema,
         url: url,
 })});
 app.register(fastifySwagger, {
