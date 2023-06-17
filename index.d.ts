@@ -34,13 +34,13 @@ declare module 'fastify' {
   interface FastifySchema {
     hide?: boolean;
     deprecated?: boolean;
-    tags?: string[];
+    tags?: readonly string[];
     description?: string;
     summary?: string;
-    consumes?: string[];
-    produces?: string[];
+    consumes?: readonly string[];
+    produces?: readonly string[];
     externalDocs?: OpenAPIV2.ExternalDocumentationObject | OpenAPIV3.ExternalDocumentationObject;
-    security?: Array<{ [securityLabel: string]: string[] }>;
+    security?: ReadonlyArray<{ [securityLabel: string]: readonly string[] }>;
     /**
      * OpenAPI operation unique identifier
      */
