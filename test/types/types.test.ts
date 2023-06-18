@@ -111,6 +111,19 @@ app.get('/public/route', {
     }
   }, (req, reply) => {});
 
+app.get('/public/readonly-schema-route', {
+    schema: {
+      description: 'returns 200 OK',
+      tags: ['foo'],
+      summary: 'qwerty',
+      security: [],
+      response: { 200: {} }
+    },
+    links: {
+      200: {'some-route': { operationId: 'opeId'}}
+    }
+  } as const, (req, reply) => {});
+
 app
   .register(fastifySwagger, {
     swagger: {
