@@ -419,4 +419,76 @@ test('cache - yaml', async (t) => {
   t.pass('valid swagger yaml')
 })
 
+test('version support - hide non matching versions', async (t) => {
+  t.plan(4)
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, {
+    ...swaggerOption,
+    apiVersion: '2.0.0'
+  })
+
+  fastify.get('/1-0-0', { constraints: { version: '1.0.0' } }, () => { })
+  fastify.get('/2-0-0', { constraints: { version: '2.0.0' } }, () => { })
+  fastify.get('/2-0-1', { constraints: { version: '2.0.1' } }, () => { })
+  fastify.get('/2-1-0', { constraints: { version: '2.1.0' } }, () => { })
+
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+
+  t.notOk(swaggerObject.paths['/1-0-0'])
+  t.ok(swaggerObject.paths['/2-0-0'])
+  t.notOk(swaggerObject.paths['/2-0-1'])
+  t.notOk(swaggerObject.paths['/2-1-0'])
+})
+
+test('version support - match any minor or patch version', async (t) => {
+  t.plan(4)
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, {
+    ...swaggerOption,
+    apiVersion: '^2.0.0'
+  })
+
+  fastify.get('/1-0-0', { constraints: { version: '1.0.0' } }, () => { })
+  fastify.get('/2-0-0', { constraints: { version: '2.0.0' } }, () => { })
+  fastify.get('/2-0-1', { constraints: { version: '2.0.1' } }, () => { })
+  fastify.get('/2-1-0', { constraints: { version: '2.1.0' } }, () => { })
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+
+  t.notOk(openapiObject.paths['/1-0-0'])
+  t.ok(openapiObject.paths['/2-0-0'])
+  t.ok(openapiObject.paths['/2-0-1'])
+  t.ok(openapiObject.paths['/2-1-0'])
+})
+
+test('version support - include matching patch versions', async (t) => {
+  t.plan(4)
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, {
+    ...swaggerOption,
+    apiVersion: '~2.0.0'
+  })
+
+  fastify.get('/1-0-0', { schema: { name: 'test' }, constraints: { version: '1.0.0' } }, () => { })
+  fastify.get('/2-0-0', { schema: { name: 'test' }, constraints: { version: '2.0.0' } }, () => { })
+  fastify.get('/2-0-1', { schema: { name: 'test' }, constraints: { version: '2.0.1' } }, () => { })
+  fastify.get('/2-1-0', { schema: { name: 'test' }, constraints: { version: '2.1.0' } }, () => { })
+
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+
+  t.notOk(swaggerObject.paths['/1-0-0'])
+  t.ok(swaggerObject.paths['/2-0-0'])
+  t.ok(swaggerObject.paths['/2-0-1'])
+  t.notOk(swaggerObject.paths['/2-1-0'])
+})
+
 module.exports = { swaggerOption }

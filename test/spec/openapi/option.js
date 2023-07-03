@@ -947,4 +947,76 @@ test('uses examples if has property required in body', async (t) => {
   t.same(requestBody.required, true)
 })
 
+test('version support - hide non matching versions', async (t) => {
+  t.plan(4)
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, {
+    ...openapiOption,
+    apiVersion: '2.0.0'
+  })
+
+  fastify.get('/1-0-0', { constraints: { version: '1.0.0' } }, () => { })
+  fastify.get('/2-0-0', { constraints: { version: '2.0.0' } }, () => { })
+  fastify.get('/2-0-1', { constraints: { version: '2.0.1' } }, () => { })
+  fastify.get('/2-1-0', { constraints: { version: '2.1.0' } }, () => { })
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+
+  t.notOk(openapiObject.paths['/1-0-0'])
+  t.ok(openapiObject.paths['/2-0-0'])
+  t.notOk(openapiObject.paths['/2-0-1'])
+  t.notOk(openapiObject.paths['/2-1-0'])
+})
+
+test('version support - match any minor or patch version', async (t) => {
+  t.plan(4)
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, {
+    ...openapiOption,
+    apiVersion: '^2.0.0'
+  })
+
+  fastify.get('/1-0-0', { constraints: { version: '1.0.0' } }, () => { })
+  fastify.get('/2-0-0', { constraints: { version: '2.0.0' } }, () => { })
+  fastify.get('/2-0-1', { constraints: { version: '2.0.1' } }, () => { })
+  fastify.get('/2-1-0', { constraints: { version: '2.1.0' } }, () => { })
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+
+  t.notOk(openapiObject.paths['/1-0-0'])
+  t.ok(openapiObject.paths['/2-0-0'])
+  t.ok(openapiObject.paths['/2-0-1'])
+  t.ok(openapiObject.paths['/2-1-0'])
+})
+
+test('version support - include matching patch versions', async (t) => {
+  t.plan(4)
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, {
+    ...openapiOption,
+    apiVersion: '~2.0.0'
+  })
+
+  fastify.get('/1-0-0', { constraints: { version: '1.0.0' } }, () => { })
+  fastify.get('/2-0-0', { constraints: { version: '2.0.0' } }, () => { })
+  fastify.get('/2-0-1', { constraints: { version: '2.0.1' } }, () => { })
+  fastify.get('/2-1-0', { constraints: { version: '2.1.0' } }, () => { })
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+
+  t.notOk(openapiObject.paths['/1-0-0'])
+  t.ok(openapiObject.paths['/2-0-0'])
+  t.ok(openapiObject.paths['/2-0-1'])
+  t.notOk(openapiObject.paths['/2-1-0'])
+})
+
 module.exports = { openapiOption }

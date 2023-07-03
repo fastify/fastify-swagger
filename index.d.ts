@@ -116,6 +116,15 @@ declare namespace fastifySwagger {
     openapi?: Partial<OpenAPIV3.Document | OpenAPIV3_1.Document>
     hiddenTag?: string;
     hideUntagged?: boolean;
+
+    /**
+     * Remove routes that do not satisfy the provided api version range
+     * 
+     * @example
+     * { apiVersion: '^2.0.0' }
+     */
+    apiVersion?: string;
+  
     /**
      * Strips matching base path from routes in documentation
      * @default true

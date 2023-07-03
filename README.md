@@ -209,17 +209,18 @@ An example of using `@fastify/swagger` with `static` mode enabled can be found [
 
 #### Options
 
- | Option             | Default          | Description                                                                                                                |
- | ------------------ | ---------------- | -------------------------------------------------------------------------------------------------------------------------- |
- | hiddenTag          | X-HIDDEN         | Tag to control hiding of routes.                                                                                           |
- | hideUntagged       | false            | If `true` remove routes without tags from resulting Swagger/OpenAPI schema file.                                           |
- | initOAuth          | {}               | Configuration options for [Swagger UI initOAuth](https://swagger.io/docs/open-source-tools/swagger-ui/usage/oauth2/).      |
- | openapi            | {}               | [OpenAPI configuration](https://swagger.io/specification/#oasObject).                                                      |
- | stripBasePath      | true             | Strips base path from routes in docs.                                                                                      |
- | swagger            | {}               | [Swagger configuration](https://swagger.io/specification/v2/#swaggerObject).                                               |
- | transform          | null             | Transform method for the route's schema and url. [documentation](#register.options.transform).                             |                                                                 |
- | refResolver        | {}               | Option to manage the `$ref`s of your application's schemas. Read the [`$ref` documentation](#register.options.refResolver) |
- | exposeHeadRoutes   | false            | Include HEAD routes in the definitions                                                                                   |
+ | Option             | Default          | Description                                                                                                                                                                   |
+ | ------------------ | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+ | hiddenTag          | X-HIDDEN         | Tag to control hiding of routes.                                                                                                                                              |
+ | hideUntagged       | false            | If `true` remove routes without tags from resulting Swagger/OpenAPI schema file.                                                                                              |
+ | initOAuth          | {}               | Configuration options for [Swagger UI initOAuth](https://swagger.io/docs/open-source-tools/swagger-ui/usage/oauth2/).                                                         |
+ | openapi            | {}               | [OpenAPI configuration](https://swagger.io/specification/#oasObject).                                                                                                         |
+ | stripBasePath      | true             | Strips base path from routes in docs.                                                                                                                                         |
+ | swagger            | {}               | [Swagger configuration](https://swagger.io/specification/v2/#swaggerObject).                                                                                                  |
+ | transform          | null             | Transform method for the route's schema and url. [documentation](#register.options.transform).                                                                                |
+ | refResolver        | {}               | Option to manage the `$ref`s of your application's schemas. Read the [`$ref` documentation](#register.options.refResolver)                                                    |
+ | exposeHeadRoutes   | false            | Include HEAD routes in the definitions                                                                                                                                        |
+ | apiVersion         | undefined        | If provided, removes routes with a [version constraint](https://fastify.dev/docs/latest/Reference/Routes/#version-constraints) that do not match the provided a version range |
 
 <a name="register.options.transform"></a>
 #### Transform
