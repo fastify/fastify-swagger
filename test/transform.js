@@ -56,3 +56,86 @@ test('transform should work with a Function', async (t) => {
   await fastify.ready()
   t.doesNotThrow(fastify.swagger)
 })
+
+test('transform can access route', async (t) => {
+  t.plan(5)
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, {
+    openapi: { info: { version: '1.0.0' } },
+    transform: ({ route }) => {
+      t.ok(route)
+      t.equal(route.method, 'GET')
+      t.equal(route.url, '/example')
+      t.equal(route.constraints.version, '1.0.0')
+      return { schema: route.schema, url: route.url }
+    }
+  })
+  fastify.get('/example', { constraints: { version: '1.0.0' } }, () => {})
+
+  await fastify.ready()
+  t.doesNotThrow(fastify.swagger)
+})
+
+test('transform can access openapi object', async (t) => {
+  t.plan(4)
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, {
+    openapi: { info: { version: '1.0.0' } },
+    transform: ({ route, openapiObject }) => {
+      t.ok(openapiObject)
+      t.equal(openapiObject.openapi, '3.0.3')
+      t.equal(openapiObject.info.version, '1.0.0')
+      return {
+        schema: route.schema,
+        url: route.url
+      }
+    }
+  })
+  fastify.get('/example', () => {})
+
+  await fastify.ready()
+  t.doesNotThrow(fastify.swagger)
+})
+
+test('transform can access swagger object', async (t) => {
+  t.plan(4)
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, {
+    swagger: { info: { version: '1.0.0' } },
+    transform: ({ route, swaggerObject }) => {
+      t.ok(swaggerObject)
+      t.equal(swaggerObject.swagger, '2.0')
+      t.equal(swaggerObject.info.version, '1.0.0')
+      return {
+        schema: route.schema,
+        url: route.url
+      }
+    }
+  })
+  fastify.get('/example', () => {})
+
+  await fastify.ready()
+  t.doesNotThrow(fastify.swagger)
+})
+
+test('transform can hide routes based on openapi version', async (t) => {
+  t.plan(1)
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, {
+    openapi: { info: { version: '2.0.0' } },
+    transform: ({ schema, route, openapiObject }) => {
+      const transformedSchema = Object.assign({}, schema)
+      if (route?.constraints?.version !== openapiObject.info.version) transformedSchema.hide = true
+      return { schema: transformedSchema, url: route.url }
+    }
+  })
+  fastify.get('/example', { constraints: { version: '1.0.0' } }, () => {})
+
+  await fastify.ready()
+  const openapiObject = fastify.swagger()
+  t.notOk(openapiObject.paths['/example'])
+})
