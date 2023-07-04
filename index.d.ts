@@ -1,4 +1,4 @@
-import { FastifyPluginCallback, FastifySchema, onRequestHookHandler, preHandlerHookHandler } from 'fastify';
+import { FastifyPluginCallback, FastifySchema, FastifyRequest, onRequestHookHandler, preHandlerHookHandler } from 'fastify';
 import { OpenAPI, OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from 'openapi-types';
 
 /**
@@ -124,7 +124,13 @@ declare namespace fastifySwagger {
     /**
      * custom function to transform the route's schema and url
      */
-    transform?: <S extends FastifySchema = FastifySchema>({ schema, url }: { schema: S, url: string }) => { schema: FastifySchema, url: string };
+    transform?: <S extends FastifySchema = FastifySchema>({ schema, url, route, swaggerObject, openapiObject }: {
+      schema: S,
+      url: string,
+      route: FastifyRequest,
+      swaggerObject: Partial<OpenAPIV2.Document>
+      openapiObject: Partial<OpenAPIV3.Document | OpenAPIV3_1.Document>
+    }) => { schema: FastifySchema, url: string };
 
     refResolver?: {
       /** Clone the input schema without changing it. Default to `false`. */
