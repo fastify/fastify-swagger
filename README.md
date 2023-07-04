@@ -218,6 +218,7 @@ An example of using `@fastify/swagger` with `static` mode enabled can be found [
  | stripBasePath      | true             | Strips base path from routes in docs.                                                                                      |
  | swagger            | {}               | [Swagger configuration](https://swagger.io/specification/v2/#swaggerObject).                                               |
  | transform          | null             | Transform method for the route's schema and url. [documentation](#register.options.transform).                             |                                                                 |
+| transformObject     | null             | Transform method for the swagger or openapi object before it is rendered. [documentation](#register.options.transformObject).                             |                                                                 |
  | refResolver        | {}               | Option to manage the `$ref`s of your application's schemas. Read the [`$ref` documentation](#register.options.refResolver) |
  | exposeHeadRoutes   | false            | Include HEAD routes in the definitions                                                                                   |
 
@@ -273,6 +274,20 @@ await fastify.register(require('@fastify/swagger'), {
     if (route?.constraints?.version !== swaggerObject.swagger) transformedSchema.hide = true
 
     return { schema: transformedSchema, url: transformedUrl }
+  }
+})
+```
+
+#### Transform Object
+
+By passing a synchronous `transformObject` function you can modify the resulting `swaggerObject` or `openapiObject` before it is rendered.
+
+```js
+await fastify.register(require('@fastify/swagger'), {
+  swagger: { ... },
+  transformObject ({ swaggerObject }) => {
+    swaggerObject.info.title = 'Transformed';
+    return swaggerObject;
   }
 })
 ```
