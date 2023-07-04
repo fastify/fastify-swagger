@@ -226,11 +226,14 @@ An example of using `@fastify/swagger` with `static` mode enabled can be found [
 
 By passing a synchronous `transform` function you can modify the route's url and schema.
 
+You may also access the `openapiObject` and `swaggerObject`
+
 Some possible uses of this are:
 
 - add the `hide` flag on schema according to your own logic based on url & schema
 - altering the route url into something that's more suitable for the api spec
 - using different schemas such as [Joi](https://github.com/hapijs/joi) and transforming them to standard JSON schemas expected by this plugin
+- hiding routes based on version constraints
 
 This option is available in `dynamic` mode only.
 
@@ -241,7 +244,7 @@ const convert = require('joi-to-json')
 
 await fastify.register(require('@fastify/swagger'), {
   swagger: { ... },
-  transform: ({ schema, url }) => {
+  transform: ({ schema, url, route, swaggerObject }) => {
     const {
       params,
       body,
@@ -265,6 +268,9 @@ await fastify.register(require('@fastify/swagger'), {
 
     // can transform the url
     if (url.startsWith('/latest_version/endpoint')) transformedUrl = url.replace('latest_version', 'v3')
+
+    // can add the hide tag for routes that do not match the swaggerObject version
+    if (route?.constraints?.version !== swaggerObject.swagger) transformedSchema.hide = true
 
     return { schema: transformedSchema, url: transformedUrl }
   }
