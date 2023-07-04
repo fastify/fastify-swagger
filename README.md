@@ -277,7 +277,7 @@ await fastify.register(require('@fastify/swagger'), {
   }
 })
 ```
-
+<a name="register.options.transformObject"></a>
 #### Transform Object
 
 By passing a synchronous `transformObject` function you can modify the resulting `swaggerObject` or `openapiObject` before it is rendered.
