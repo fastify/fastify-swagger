@@ -120,3 +120,22 @@ test('transform can access swagger object', async (t) => {
   await fastify.ready()
   t.doesNotThrow(fastify.swagger)
 })
+
+test('transform can hide routes based on openapi version', async (t) => {
+  t.plan(1)
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, {
+    openapi: { info: { version: '2.0.0' } },
+    transform: ({ schema, route, openapiObject }) => {
+      const transformedSchema = Object.assign({}, schema)
+      if (route?.constraints?.version !== openapiObject.info.version) transformedSchema.hide = true
+      return { schema: transformedSchema, url: route.url }
+    }
+  })
+  fastify.get('/example', { constraints: { version: '1.0.0' } }, () => {})
+
+  await fastify.ready()
+  const openapiObject = fastify.swagger()
+  t.notOk(openapiObject.paths['/example'])
+})
