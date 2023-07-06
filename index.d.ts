@@ -132,6 +132,14 @@ declare namespace fastifySwagger {
       openapiObject: Partial<OpenAPIV3.Document | OpenAPIV3_1.Document>
     }) => { schema: FastifySchema, url: string };
 
+    /**
+     * custom function to transform the openapi or swagger object before it is rendered
+     */
+    transformObject?: ({ swaggerObject, openapiObject }: {
+      swaggerObject: Partial<OpenAPIV2.Document>;
+      openapiObject: Partial<OpenAPIV3.Document | OpenAPIV3_1.Document>;
+    }) => Partial<OpenAPIV2.Document> | Partial<OpenAPIV3.Document | OpenAPIV3_1.Document>;
+
     refResolver?: {
       /** Clone the input schema without changing it. Default to `false`. */
       clone?: boolean;

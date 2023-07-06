@@ -139,3 +139,37 @@ test('transform can hide routes based on openapi version', async (t) => {
   const openapiObject = fastify.swagger()
   t.notOk(openapiObject.paths['/example'])
 })
+
+test('transformObject can modify the openapi object', async (t) => {
+  t.plan(1)
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, {
+    openapi: { info: { version: '2.0.0' } },
+    transformObject: ({ openapiObject }) => {
+      openapiObject.info.title = 'Transformed'
+      return openapiObject
+    }
+  })
+
+  await fastify.ready()
+  const openapiObject = fastify.swagger()
+  t.equal(openapiObject.info.title, 'Transformed')
+})
+
+test('transformObject can modify the swagger object', async (t) => {
+  t.plan(1)
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, {
+    swagger: { info: { version: '2.0.0' } },
+    transformObject: ({ swaggerObject }) => {
+      swaggerObject.info.title = 'Transformed'
+      return swaggerObject
+    }
+  })
+
+  await fastify.ready()
+  const swaggerObject = fastify.swagger()
+  t.equal(swaggerObject.info.title, 'Transformed')
+})
