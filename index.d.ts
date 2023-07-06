@@ -1,4 +1,4 @@
-import { FastifyPluginCallback, FastifySchema, RouteShorthandOptions, onRequestHookHandler, preHandlerHookHandler } from 'fastify';
+import { FastifyPluginCallback, FastifySchema, RouteOptions, onRequestHookHandler, preHandlerHookHandler } from 'fastify';
 import { OpenAPI, OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from 'openapi-types';
 
 /**
@@ -127,7 +127,7 @@ declare namespace fastifySwagger {
     transform?: <S extends FastifySchema = FastifySchema>({ schema, url, route, swaggerObject, openapiObject }: {
       schema: S,
       url: string,
-      route: RouteShorthandOptions,
+      route: RouteOptions,
       swaggerObject: Partial<OpenAPIV2.Document>
       openapiObject: Partial<OpenAPIV3.Document | OpenAPIV3_1.Document>
     }) => { schema: FastifySchema, url: string };
