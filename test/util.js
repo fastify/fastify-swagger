@@ -1,7 +1,7 @@
 'use strict'
 
 const { test } = require('tap')
-const { formatParamUrl } = require('../lib/util/common')
+const { formatParamUrl, localSchemaRefToAbs, patchDefinitionsKeywordInSchema } = require('../lib/util/common')
 
 const cases = [
   ['/example/:userId', '/example/{userId}'],
@@ -24,4 +24,210 @@ test('formatParamUrl', async (t) => {
   for (const kase of cases) {
     t.equal(formatParamUrl(kase[0]), kase[1])
   }
+})
+
+test('local schema references to absolute schema references', async (t) => {
+  const input = {
+    $id: 'root',
+    properties: {
+      ObjectA: {
+        $id: 'ObjectA',
+        type: 'object',
+        properties: {
+          cat: {
+            $ref: 'Cat#'
+          },
+          foo: {
+            type: 'string'
+          },
+          bar: {
+            $ref: '#/properties/foo'
+          },
+          barbar: {
+            $id: 'Barbar',
+            type: 'object',
+            properties: {
+              a: {
+                type: 'string'
+              },
+              b: {
+                $ref: '#/properties/a'
+              }
+            }
+          },
+          foofoo: {
+            $ref: '#'
+          }
+        }
+      }
+    }
+  }
+
+  const expected = {
+    $id: 'root',
+    properties: {
+      ObjectA: {
+        $id: 'ObjectA',
+        type: 'object',
+        properties: {
+          cat: {
+            $ref: 'Cat#'
+          },
+          foo: {
+            type: 'string'
+          },
+          bar: {
+            $ref: 'root#/properties/ObjectA/properties/foo'
+          },
+          barbar: {
+            $id: 'Barbar',
+            type: 'object',
+            properties: {
+              a: {
+                type: 'string'
+              },
+              b: {
+                $ref: 'root#/properties/ObjectA/properties/barbar/properties/a'
+              }
+            }
+          },
+          foofoo: {
+            $ref: 'root#/properties/ObjectA'
+          }
+        }
+      }
+    }
+  }
+
+  const res = localSchemaRefToAbs(input)
+  t.match(expected, res)
+})
+
+test('definitions to properties keyword in schema', async (t) => {
+  const input = {
+    $id: 'root',
+    definitions: {
+      ObjectA: {
+        type: 'object',
+        properties: {
+          cat: {
+            $ref: 'root#/definitions/ObjectB'
+          },
+          box: {
+            type: 'object',
+            properties: {
+              foo: {
+                $ref: 'root#/definitions/ObjectA/definitions/ObjectC'
+              }
+            }
+          }
+        },
+        definitions: {
+          ObjectC: {
+            type: 'object',
+            properties: {
+              foo: {
+                type: 'string'
+              }
+            }
+          }
+        }
+      },
+      ObjectB: {
+        type: 'object',
+        properties: {
+          sample: {
+            type: 'string'
+          }
+        }
+      }
+    }
+  }
+
+  const expected = {
+    $id: 'root',
+    properties: {
+      ObjectA: {
+        type: 'object',
+        properties: {
+          cat: {
+            $ref: 'root#/properties/ObjectB'
+          },
+          box: {
+            type: 'object',
+            properties: {
+              foo: {
+                $ref: 'root#/properties/ObjectA/properties/ObjectC'
+              }
+            }
+          },
+          ObjectC: {
+            type: 'object',
+            properties: {
+              foo: {
+                type: 'string'
+              }
+            }
+          }
+        }
+      },
+      ObjectB: {
+        type: 'object',
+        properties: {
+          sample: {
+            type: 'string'
+          }
+        }
+      }
+    }
+  }
+
+  const res = patchDefinitionsKeywordInSchema(input)
+  t.match(expected, res)
+})
+
+test('properties precedence on definitions->properties merge)', async (t) => {
+  const input = {
+    $id: 'root',
+    definitions: {
+      ObjectA: {
+        type: 'object',
+        properties: {
+          foo: {
+            type: 'string'
+          },
+          bar: {
+            type: 'string'
+          }
+        }
+      }
+    },
+    properties: {
+      ObjectA: {
+        type: 'object',
+        properties: {
+          foobar: {
+            type: 'string'
+          }
+        }
+      }
+    }
+  }
+
+  const expected = {
+    $id: 'root',
+    properties: {
+      ObjectA: {
+        type: 'object',
+        properties: {
+          foobar: {
+            type: 'string'
+          }
+        }
+      }
+    }
+  }
+
+  const res = patchDefinitionsKeywordInSchema(input)
+  t.match(expected, res)
 })

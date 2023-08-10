@@ -352,3 +352,155 @@ test('renders $ref schema with additional keywords', async (t) => {
   t.match(res.statusCode, 400)
   t.match(openapiObject.paths['/url1'].get.parameters[0].schema, cookie)
 })
+
+test('support absolute refs in schema', async (t) => {
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, { openapi: {} })
+  fastify.register(async (instance) => {
+    instance.addSchema(
+      {
+        $id: 'ObjectA',
+        type: 'object',
+        properties: {
+          example: {
+            type: 'string'
+          }
+        }
+      }
+    )
+    instance.addSchema(
+      {
+        $id: 'ObjectC',
+        type: 'object',
+        properties: {
+          referencedObjA: {
+            $ref: 'ObjectA#'
+          },
+          referencedObjC: {
+            $ref: 'ObjectC#/properties/ObjectD'
+          },
+          ObjectD: {
+            type: 'object',
+            properties: {
+              d: {
+                type: 'string'
+              }
+            }
+          }
+        }
+      }
+    )
+    instance.post('/third/:sample', {
+      schema: {
+        body: {
+          $ref: 'ObjectC#'
+        },
+        params: {
+          $ref: 'ObjectC#'
+        },
+        response: { 200: { $ref: 'ObjectC#' } }
+      }
+    }, async () => ({ result: true }))
+  })
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+  t.equal(typeof openapiObject, 'object')
+
+  // if validation is passed = success
+  await Swagger.validate(openapiObject)
+})
+
+test('support relative refs in schema', async (t) => {
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, { openapi: {} })
+  fastify.register(async (instance) => {
+    instance.addSchema({
+      $id: 'ObjectA',
+      type: 'object',
+      properties: {
+        sample: {
+          type: 'object',
+          properties: {
+            a: { type: 'string' },
+            b: { type: 'object', properties: { d: { type: 'string' } } }
+          }
+        },
+        someValue: { type: 'string' },
+        relativeExample: {
+          $ref: '#/properties/sample'
+        }
+      }
+    })
+
+    instance.post('/first/:sample', {
+      schema: {
+        body: {
+          $ref: 'ObjectA#/properties/relativeExample'
+        },
+        params: {
+          $ref: 'ObjectA#/properties/relativeExample'
+        },
+        response: { 200: { $ref: 'ObjectA#/properties/relativeExample' } }
+      }
+    }, async () => ({ result: true }))
+  })
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+  t.equal(typeof openapiObject, 'object')
+
+  // if validation is passed = success
+  await Swagger.validate(openapiObject)
+})
+
+test('support definitions keyword in schema', async (t) => {
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, { openapi: {} })
+
+  fastify.register(async (instance) => {
+    instance.addSchema({
+      $id: 'ObjectA',
+      type: 'object',
+      definitions: {
+        sample: {
+          type: 'object',
+          properties: {
+            a: { type: 'string' },
+            b: { type: 'object', properties: { d: { type: 'string' } } }
+          }
+        },
+        someValue: { type: 'string' },
+        relativeExample: {
+          $ref: '#/definitions/sample'
+        }
+      }
+    })
+
+    instance.post('/first/:sample', {
+      schema: {
+        body: {
+          $ref: 'ObjectA#/definitions/relativeExample'
+        },
+        params: {
+          $ref: 'ObjectA#/definitions/relativeExample'
+        },
+        response: { 200: { $ref: 'ObjectA#/definitions/relativeExample' } }
+      }
+    }, async () => ({ result: true }))
+  })
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+  t.equal(typeof openapiObject, 'object')
+
+  // definitions are transformed to properties
+  // previous properties obj take precedence over definitions obj
+  t.equal(openapiObject.paths['/first/{sample}'].post.requestBody.content['application/json'].schema.$ref, '#/components/schemas/def-0/properties/relativeExample')
+  t.equal(openapiObject.paths['/first/{sample}'].post.responses['200'].content['application/json'].schema.$ref, '#/components/schemas/def-0/properties/relativeExample')
+
+  await Swagger.validate(openapiObject)
+})
