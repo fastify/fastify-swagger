@@ -1,6 +1,7 @@
 'use strict'
 
 const fp = require('fastify-plugin')
+const { formatParamUrl } = require('./lib/util/format-param-url')
 
 function fastifySwagger (fastify, opts, next) {
   // by default the mode is dynamic, as plugin initially was developed
@@ -29,3 +30,5 @@ module.exports = fp(fastifySwagger, {
 })
 module.exports.fastifySwagger = fastifySwagger
 module.exports.default = fastifySwagger
+
+module.exports.formatParamUrl = formatParamUrl

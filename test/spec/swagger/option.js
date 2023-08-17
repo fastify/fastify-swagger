@@ -5,7 +5,7 @@ const Fastify = require('fastify')
 const Swagger = require('@apidevtools/swagger-parser')
 const yaml = require('yaml')
 const fastifySwagger = require('../../../index')
-const { readPackageJson } = require('../../../lib/util/common')
+const { readPackageJson } = require('../../../lib/util/read-package-json')
 const { swaggerOption } = require('../../../examples/options')
 
 test('swagger should have default version', async (t) => {
