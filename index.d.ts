@@ -186,6 +186,8 @@ declare namespace fastifySwagger {
     preHandler?: preHandlerHookHandler,
   }>
 
+  export function formatParamUrl (paramUrl: string): string
+
   export const fastifySwagger: FastifySwagger
   export { fastifySwagger as default }
 }

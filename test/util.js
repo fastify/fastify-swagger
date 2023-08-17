@@ -1,7 +1,7 @@
 'use strict'
 
 const { test } = require('tap')
-const { formatParamUrl } = require('../lib/util/common')
+const { formatParamUrl } = require('../lib/util/format-param-url')
 
 const cases = [
   ['/example/:userId', '/example/{userId}'],

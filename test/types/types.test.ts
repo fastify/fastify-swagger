@@ -1,5 +1,6 @@
 import fastify from 'fastify';
 import fastifySwagger, {
+  formatParamUrl,
   SwaggerOptions,
   FastifySwaggerInitOAuthOptions,
   FastifySwaggerUiConfigOptions,
@@ -215,3 +216,5 @@ expectType<OpenAPI.Document>(app.swagger())
 expectType<OpenAPI.Document>(app.swagger({ yaml: false }))
 expectType<string>(app.swagger({ yaml: true }))
 expectType<OpenAPI.Document | string>(app.swagger({ yaml: Boolean(process.env.YAML) }))
+
+expectType<(arg: string)=>string>(formatParamUrl)
