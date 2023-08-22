@@ -23,7 +23,7 @@ npm i @fastify/swagger
 ### Compatibility
 
 | Plugin version | Fastify version |
-| -------------- |---------------- |
+| -------------- | --------------- |
 | `^7.0.0`       | `^4.0.0`        |
 | `^6.0.0`       | `^3.0.0`        |
 | `^3.0.0`       | `^2.0.0`        |
@@ -219,18 +219,18 @@ An example of using `@fastify/swagger` with `static` mode enabled can be found [
 
 #### Options
 
- | Option             | Default          | Description                                                                                                                |
- | ------------------ | ---------------- | -------------------------------------------------------------------------------------------------------------------------- |
- | hiddenTag          | X-HIDDEN         | Tag to control hiding of routes.                                                                                           |
- | hideUntagged       | false            | If `true` remove routes without tags from resulting Swagger/OpenAPI schema file.                                           |
- | initOAuth          | {}               | Configuration options for [Swagger UI initOAuth](https://swagger.io/docs/open-source-tools/swagger-ui/usage/oauth2/).      |
- | openapi            | {}               | [OpenAPI configuration](https://swagger.io/specification/#oasObject).                                                      |
- | stripBasePath      | true             | Strips base path from routes in docs.                                                                                      |
- | swagger            | {}               | [Swagger configuration](https://swagger.io/specification/v2/#swaggerObject).                                               |
- | transform          | null             | Transform method for the route's schema and url. [documentation](#register.options.transform).                             |                                                                 |
-| transformObject     | null             | Transform method for the swagger or openapi object before it is rendered. [documentation](#register.options.transformObject).                             |                                                                 |
- | refResolver        | {}               | Option to manage the `$ref`s of your application's schemas. Read the [`$ref` documentation](#register.options.refResolver) |
- | exposeHeadRoutes   | false            | Include HEAD routes in the definitions                                                                                   |
+ | Option           | Default  | Description                                                                                                                   |
+ | ---------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------- |
+ | hiddenTag        | X-HIDDEN | Tag to control hiding of routes.                                                                                              |
+ | hideUntagged     | false    | If `true` remove routes without tags from resulting Swagger/OpenAPI schema file.                                              |
+ | initOAuth        | {}       | Configuration options for [Swagger UI initOAuth](https://swagger.io/docs/open-source-tools/swagger-ui/usage/oauth2/).         |
+ | openapi          | {}       | [OpenAPI configuration](https://swagger.io/specification/#oasObject).                                                         |
+ | stripBasePath    | true     | Strips base path from routes in docs.                                                                                         |
+ | swagger          | {}       | [Swagger configuration](https://swagger.io/specification/v2/#swaggerObject).                                                  |
+ | transform        | null     | Transform method for the route's schema and url. [documentation](#register.options.transform).                                |  |
+ | transformObject  | null     | Transform method for the swagger or openapi object before it is rendered. [documentation](#register.options.transformObject). |  |
+ | refResolver      | {}       | Option to manage the `$ref`s of your application's schemas. Read the [`$ref` documentation](#register.options.refResolver)    |
+ | exposeHeadRoutes | false    | Include HEAD routes in the definitions                                                                                        |
 
 <a name="register.options.transform"></a>
 #### Transform
@@ -287,6 +287,29 @@ await fastify.register(require('@fastify/swagger'), {
   }
 })
 ```
+
+You can also attach the transform function on a specific endpoint:
+
+```js
+fastify.get("/", {
+  schema: { ... },
+  config: {
+    swaggerTransform: ({ schema, url, route, swaggerObject }) => { ... }
+  }
+})
+```
+
+If both a global and a local transform function is available for an endpoint, the endpoint-specific transform function will be used.
+
+The local transform function can be useful if you:
+
+- want to add additional information to a specific endpoint
+- have an endpoint which requires different transformation from other endpoints
+- want to entirely ignore the global transform function for one endpoint
+
+The endpoint-specific transform can be used to "disable" the global transform function by passing in `null`.
+
+
 <a name="register.options.transformObject"></a>
 #### Transform Object
 
