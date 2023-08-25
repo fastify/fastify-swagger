@@ -58,6 +58,9 @@ declare module "fastify" {
     links?: {
       [statusCode: string]: OpenAPIV3.ResponseObject["links"];
     };
+  }
+
+  interface FastifyContextConfig {
     swaggerTransform?: SwaggerTransform | null;
   }
 }
