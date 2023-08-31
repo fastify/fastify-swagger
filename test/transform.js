@@ -325,7 +325,7 @@ test('endpoint transform takes precedence over global openapi transform', async 
   t.doesNotThrow(fastify.swagger)
 })
 
-test('endpoint transform with value "null" disables the global swagger transform', async (t) => {
+test('endpoint transform with value "false" disables the global swagger transform', async (t) => {
   const fastify = Fastify()
 
   await fastify.register(fastifySwagger, {
@@ -344,7 +344,7 @@ test('endpoint transform with value "null" disables the global swagger transform
       }
     },
     config: {
-      swaggerTransform: null
+      swaggerTransform: false
     }
   }, () => {})
 
@@ -352,7 +352,7 @@ test('endpoint transform with value "null" disables the global swagger transform
   t.doesNotThrow(fastify.swagger)
 })
 
-test('endpoint transform with value "null" disables the global openapi transform', async (t) => {
+test('endpoint transform with value "false" disables the global openapi transform', async (t) => {
   const fastify = Fastify()
 
   await fastify.register(fastifySwagger, {
@@ -371,7 +371,7 @@ test('endpoint transform with value "null" disables the global openapi transform
       }
     },
     config: {
-      swaggerTransform: null
+      swaggerTransform: false
     }
   }, () => {})
 

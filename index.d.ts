@@ -54,7 +54,7 @@ declare module 'fastify' {
   }
   
   interface FastifyContextConfig {
-    swaggerTransform?: SwaggerTransform | null;
+    swaggerTransform?: SwaggerTransform | false;
   }
 }
 

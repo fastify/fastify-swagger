@@ -307,7 +307,7 @@ The local transform function can be useful if you:
 - have an endpoint which requires different transformation from other endpoints
 - want to entirely ignore the global transform function for one endpoint
 
-The endpoint-specific transform can be used to "disable" the global transform function by passing in `null`.
+The endpoint-specific transform can be used to "disable" the global transform function by passing in `false` instead of a function.
 
 
 <a name="register.options.transformObject"></a>

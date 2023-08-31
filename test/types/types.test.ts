@@ -238,10 +238,10 @@ app.get(
 );
 
 app.get(
-  "/endpoint-transform-null",
+  "/endpoint-transform-false",
   {
     config: {
-      swaggerTransform: null,
+      swaggerTransform: false,
     },
   },
   () => {}
