@@ -1,4 +1,4 @@
-import fastify from 'fastify';
+import fastify, { FastifySchema, RouteOptions } from 'fastify';
 import fastifySwagger, {
   formatParamUrl,
   SwaggerOptions,
@@ -8,7 +8,7 @@ import fastifySwagger, {
 } from "../.."
 import { minimalOpenApiV3Document } from './minimal-openapiV3-document';
 import { expectType } from "tsd";
-import { OpenAPI } from "openapi-types";
+import { OpenAPI, OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from "openapi-types";
 
 const app = fastify();
 const uiConfig: FastifySwaggerUiConfigOptions = {
@@ -211,6 +211,41 @@ app.register(fastifySwagger, {
   .ready((err) => {
     app.swagger();
   })
+
+app.get(
+  "/endpoint-transform-function",
+  {
+    config: {
+      swaggerTransform: ({
+        schema,
+        url,
+        route,
+        swaggerObject,
+        openapiObject,
+      }) => {
+        schema satisfies FastifySchema;
+        url satisfies string;
+        route satisfies RouteOptions;
+        swaggerObject satisfies Partial<OpenAPIV2.Document>;
+        openapiObject satisfies Partial<
+          OpenAPIV3.Document | OpenAPIV3_1.Document
+        >;
+        return { schema, url };
+      },
+    },
+  },
+  () => {}
+);
+
+app.get(
+  "/endpoint-transform-false",
+  {
+    config: {
+      swaggerTransform: false,
+    },
+  },
+  () => {}
+);
 
 expectType<OpenAPI.Document>(app.swagger())
 expectType<OpenAPI.Document>(app.swagger({ yaml: false }))

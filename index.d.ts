@@ -52,7 +52,25 @@ declare module 'fastify' {
       [statusCode: string]: OpenAPIV3.ResponseObject['links'];
     }
   }
+  
+  interface FastifyContextConfig {
+    swaggerTransform?: SwaggerTransform | false;
+  }
 }
+
+type SwaggerTransform = <S extends FastifySchema = FastifySchema>({
+  schema,
+  url,
+  route,
+  swaggerObject,
+  openapiObject,
+}: {
+  schema: S;
+  url: string;
+  route: RouteOptions;
+  swaggerObject: Partial<OpenAPIV2.Document>;
+  openapiObject: Partial<OpenAPIV3.Document | OpenAPIV3_1.Document>;
+}) => { schema: FastifySchema; url: string }
 
 type FastifySwagger = FastifyPluginCallback<fastifySwagger.SwaggerOptions>
 
@@ -124,13 +142,7 @@ declare namespace fastifySwagger {
     /**
      * custom function to transform the route's schema and url
      */
-    transform?: <S extends FastifySchema = FastifySchema>({ schema, url, route, swaggerObject, openapiObject }: {
-      schema: S,
-      url: string,
-      route: RouteOptions,
-      swaggerObject: Partial<OpenAPIV2.Document>
-      openapiObject: Partial<OpenAPIV3.Document | OpenAPIV3_1.Document>
-    }) => { schema: FastifySchema, url: string };
+    transform?: SwaggerTransform;
 
     /**
      * custom function to transform the openapi or swagger object before it is rendered
