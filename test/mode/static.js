@@ -1,13 +1,13 @@
 'use strict'
 
-const path = require('path')
+const path = require('node:path')
 const { test } = require('tap')
 const Fastify = require('fastify')
 const fastifySwagger = require('../../index')
 const fastifySwaggerDynamic = require('../../lib/mode/dynamic')
 const Swagger = require('@apidevtools/swagger-parser')
-const readFileSync = require('fs').readFileSync
-const resolve = require('path').resolve
+const readFileSync = require('node:fs').readFileSync
+const resolve = require('node:path').resolve
 const yaml = require('yaml')
 
 test('specification validation check works', async (t) => {
