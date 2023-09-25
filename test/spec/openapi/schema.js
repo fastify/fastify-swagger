@@ -655,7 +655,11 @@ test('support "const" keyword', async t => {
           obj: {
             type: 'object',
             properties: {
-              constantProp: { const: 'my-const' }
+              constantProp: { const: 'my-const' },
+              constantPropZero: { const: 0 },
+              constantPropNull: { const: null },
+              constantPropFalse: { const: false },
+              constantPropEmptyString: { const: '' }
             }
           }
         }
@@ -685,6 +689,18 @@ test('support "const" keyword', async t => {
               properties: {
                 constantProp: {
                   enum: ['my-const']
+                },
+                constantPropZero: {
+                  enum: [0]
+                },
+                constantPropNull: {
+                  enum: [null]
+                },
+                constantPropFalse: {
+                  enum: [false]
+                },
+                constantPropEmptyString: {
+                  enum: ['']
                 }
               }
             }
