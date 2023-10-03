@@ -6,7 +6,7 @@ const Swagger = require('@apidevtools/swagger-parser')
 const yaml = require('yaml')
 const fastifySwagger = require('../../../index')
 const { readPackageJson } = require('../../../lib/util/read-package-json')
-const { openapiOption } = require('../../../examples/options')
+const { openapiOption, openapiWebHookOption } = require('../../../examples/options')
 
 test('openapi should have default version', async (t) => {
   t.plan(1)
@@ -936,7 +936,6 @@ test('uses examples if has property required in body', async (t) => {
   fastify.post('/', opts, () => {})
 
   await fastify.ready()
-
   const openapiObject = fastify.swagger()
   const schema = openapiObject.paths['/'].post.requestBody.content['application/json'].schema
   const requestBody = openapiObject.paths['/'].post.requestBody
@@ -945,6 +944,75 @@ test('uses examples if has property required in body', async (t) => {
   t.ok(schema.properties)
   t.same(body.required, ['hello'])
   t.same(requestBody.required, true)
+})
+
+test('openapi webhooks properties', async (t) => {
+  t.plan(1)
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, openapiWebHookOption)
+
+  const opts = {
+    schema: {
+      body: {
+        type: 'object',
+        properties: {
+          hello: { type: 'string' },
+          obj: {
+            type: 'object',
+            properties: {
+              some: { type: 'string' }
+            }
+          }
+        }
+      }
+    },
+    webhooks: {
+      newPet: {
+        post: {
+          requestBody: {
+            description: 'Information about a new pet in the system',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/Pet'
+                }
+              }
+            }
+          },
+          responses: {
+            200: {
+              description:
+                'Return a 200 status to indicate that the data was received successfully'
+            }
+          }
+        }
+      }
+    }
+  }
+
+  fastify.post('/', opts, () => {})
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+  t.equal(openapiObject.webhooks, openapiWebHookOption.openapi.webhooks)
+})
+
+test('webhooks options for openapi 3.1.0 must valid format', async (t) => {
+  t.plan(2)
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, openapiWebHookOption)
+
+  await fastify.ready()
+
+  fastify.swagger()
+  const openapiObject = fastify.swagger()
+  t.equal(typeof openapiObject, 'object')
+
+  await Swagger.validate(openapiObject)
+  t.pass('valid swagger object')
 })
 
 module.exports = { openapiOption }
