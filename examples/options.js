@@ -63,6 +63,80 @@ const openapiOption = {
   }
 }
 
+const openapiWebHookOption = {
+  openapi: {
+    openapi: '3.1.0',
+    info: {
+      title: 'Test swagger',
+      description: 'testing the fastify swagger api',
+      version: '0.1.0'
+    },
+    servers: [
+      {
+        url: 'http://localhost'
+      }
+    ],
+    tags: [{ name: 'tag' }],
+    components: {
+      securitySchemes: {
+        apiKey: {
+          type: 'apiKey',
+          name: 'apiKey',
+          in: 'header'
+        }
+      },
+      schemas: {
+        Pet: {
+          require: ['id', 'name'],
+          properties: {
+            id: {
+              type: 'integer',
+              format: 'int64'
+            },
+            name: {
+              type: 'string'
+            },
+            tag: {
+              type: 'string'
+            }
+          }
+        }
+      }
+    },
+    security: [
+      {
+        apiKey: []
+      }
+    ],
+    externalDocs: {
+      description: 'Find more info here',
+      url: 'https://swagger.io'
+    },
+    webhooks: {
+      newPet: {
+        post: {
+          requestBody: {
+            description: 'Information about a new pet in the system',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/Pet'
+                }
+              }
+            }
+          },
+          responses: {
+            200: {
+              description:
+                'Return a 200 status to indicate that the data was received successfully'
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
 const openapiRelativeOptions = {
   openapi: {
     info: {
@@ -287,6 +361,7 @@ const schemaOperationId = {
 module.exports = {
   openapiOption,
   openapiRelativeOptions,
+  openapiWebHookOption,
   swaggerOption,
   schemaQuerystring,
   schemaBody,
