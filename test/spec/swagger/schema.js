@@ -650,3 +650,111 @@ test('support "exposeHeadRoutes" option at route level', async (t) => {
     'Expected Response'
   )
 })
+
+test('add default properties for url params when missing schema', async t => {
+  const opt = {}
+
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger)
+  fastify.get('/:userId', opt, () => { })
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  const api = await Swagger.validate(swaggerObject)
+
+  const definedPath = api.paths['/{userId}'].get
+
+  t.same(definedPath.parameters[0], {
+    type: 'string',
+    required: true,
+    in: 'path',
+    name: 'userId'
+  })
+})
+
+test('add default properties for url params when missing schema.params', async t => {
+  const opt = {
+    schema: {
+      body: {
+        type: 'object',
+        properties: {
+          bio: {
+            type: 'string'
+          }
+        }
+      }
+    }
+  }
+
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger)
+  fastify.post('/:userId', opt, () => { })
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  const api = await Swagger.validate(swaggerObject)
+
+  const definedPath = api.paths['/{userId}'].post
+
+  t.same(definedPath.parameters[0].schema, {
+    type: 'object',
+    properties: {
+      bio: {
+        type: 'string'
+      }
+    }
+  })
+  t.same(definedPath.parameters[1], {
+    in: 'path',
+    name: 'userId',
+    type: 'string',
+    required: true
+  })
+})
+
+test('avoid overwriting params when schema.params is provided', async t => {
+  const opt = {
+    schema: {
+      params: {
+        type: 'object',
+        properties: {
+          id: {
+            type: 'string'
+          }
+        }
+      },
+      body: {
+        type: 'object',
+        properties: {
+          bio: {
+            type: 'string'
+          }
+        }
+      }
+    }
+  }
+
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger)
+  fastify.post('/:userId', opt, () => { })
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+
+  const definedPath = swaggerObject.paths['/{userId}'].post
+
+  t.same(definedPath.parameters[0].schema, {
+    type: 'object',
+    properties: {
+      bio: {
+        type: 'string'
+      }
+    }
+  })
+  t.same(definedPath.parameters[1], {
+    in: 'path',
+    name: 'id',
+    type: 'string',
+    required: true
+  })
+})

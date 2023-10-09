@@ -911,3 +911,117 @@ test('support query serialization params', async t => {
   t.equal(api.paths['/'].get.parameters[0].explode, false)
   t.equal(api.paths['/'].get.parameters[0].allowReserved, true)
 })
+
+test('add default properties for url params when missing schema', async t => {
+  const opt = {}
+
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, {
+    openapi: true
+  })
+  fastify.get('/:userId', opt, () => { })
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  const api = await Swagger.validate(swaggerObject)
+
+  const definedPath = api.paths['/{userId}'].get
+
+  t.same(definedPath.parameters[0], {
+    in: 'path',
+    name: 'userId',
+    required: true,
+    schema: {
+      type: 'string'
+    }
+  })
+})
+
+test('add default properties for url params when missing schema.params', async t => {
+  const opt = {
+    schema: {
+      body: {
+        type: 'object',
+        properties: {
+          bio: {
+            type: 'string'
+          }
+        }
+      }
+    }
+  }
+
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, {
+    openapi: true
+  })
+  fastify.post('/:userId', opt, () => { })
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  const api = await Swagger.validate(swaggerObject)
+
+  const definedPath = api.paths['/{userId}'].post
+
+  t.same(definedPath.parameters[0], {
+    in: 'path',
+    name: 'userId',
+    required: true,
+    schema: {
+      type: 'string'
+    }
+  })
+  t.same(definedPath.requestBody.content['application/json'].schema.properties, {
+    bio: {
+      type: 'string'
+    }
+  })
+})
+
+test('avoid overwriting params when schema.params is provided', async t => {
+  const opt = {
+    schema: {
+      params: {
+        type: 'object',
+        properties: {
+          id: {
+            type: 'string'
+          }
+        }
+      },
+      body: {
+        type: 'object',
+        properties: {
+          bio: {
+            type: 'string'
+          }
+        }
+      }
+    }
+  }
+
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, {
+    openapi: true
+  })
+  fastify.post('/:userId', opt, () => { })
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+
+  const definedPath = swaggerObject.paths['/{userId}'].post
+
+  t.same(definedPath.parameters[0], {
+    in: 'path',
+    name: 'id',
+    required: true,
+    schema: {
+      type: 'string'
+    }
+  })
+  t.same(definedPath.requestBody.content['application/json'].schema.properties, {
+    bio: {
+      type: 'string'
+    }
+  })
+})

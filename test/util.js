@@ -2,6 +2,8 @@
 
 const { test } = require('tap')
 const { formatParamUrl } = require('../lib/util/format-param-url')
+const { hasParams, matchParams } = require('../lib/util/match-params')
+const { generateParamsSchema, paramType, paramName } = require('../lib/util/generate-params-schema')
 
 const cases = [
   ['/example/:userId', '/example/{userId}'],
@@ -24,4 +26,144 @@ test('formatParamUrl', async (t) => {
   for (const kase of cases) {
     t.equal(formatParamUrl(kase[0]), kase[1])
   }
+})
+
+test('hasParams function', (t) => {
+  t.test('should return false for empty url', (t) => {
+    const url = ''
+    const result = hasParams(url)
+    t.equal(result, false)
+    t.end()
+  })
+
+  t.test('should return true for url with parameters', (t) => {
+    const url = '/example/{userId}'
+    const result = hasParams(url)
+    t.equal(result, true)
+    t.end()
+  })
+
+  t.test('should return true for url with multiple parameters', (t) => {
+    const url = '/example/{userId}/{secretToken}'
+    const result = hasParams(url)
+    t.equal(result, true)
+    t.end()
+  })
+
+  t.test('should return false for url without parameters', (t) => {
+    const url = '/example/path'
+    const result = hasParams(url)
+    t.equal(result, false)
+    t.end()
+  })
+
+  t.end()
+})
+
+test('matchParams function', (t) => {
+  t.test('should return an empty array for empty url', (t) => {
+    const url = ''
+    const result = matchParams(url)
+    t.same(result, [])
+    t.end()
+  })
+
+  t.test('should return an array of matched parameters', (t) => {
+    const url = '/example/{userId}/{secretToken}'
+    const result = matchParams(url)
+    t.same(result, ['{userId}', '{secretToken}'])
+    t.end()
+  })
+
+  t.test('should return an empty array for url without parameters', (t) => {
+    const url = '/example/path'
+    const result = matchParams(url)
+    t.same(result, [])
+    t.end()
+  })
+
+  t.end()
+})
+
+const urlsToShemas = [
+  [
+    '/example/{userId}', {
+      params: {
+        type: 'object',
+        properties: {
+          userId: {
+            type: 'string'
+          }
+        }
+      }
+    }
+  ],
+  [
+    '/example/{userId}/{secretToken}', {
+      params: {
+        type: 'object',
+        properties: {
+          userId: {
+            type: 'string'
+          },
+          secretToken: {
+            type: 'string'
+          }
+        }
+      }
+    }
+  ],
+  [
+    '/example/near/{lat}-{lng}', {
+      params: {
+        type: 'object',
+        properties: {
+          lat: {
+            type: 'string'
+          },
+          lng: {
+            type: 'string'
+          }
+        }
+      }
+    }
+  ]
+]
+
+test('generateParamsSchema function', (t) => {
+  t.plan(urlsToShemas.length)
+  for (const [url, expectedSchema] of urlsToShemas) {
+    const result = generateParamsSchema(url)
+
+    t.same(result, expectedSchema)
+  }
+})
+
+test('paramType function', (t) => {
+  t.test('should return "string" for non-empty param', (t) => {
+    const param = '{userId}'
+    const result = paramType(param)
+    t.equal(result, 'string')
+    t.end()
+  })
+
+  t.end()
+})
+
+test('paramName function', (t) => {
+  t.test('should return the captured value from the param', (t) => {
+    const param = '{userId}'
+    const result = paramName(param)
+    t.equal(result, 'userId')
+    t.end()
+  })
+
+  t.test('should return the same value if there are no captures', (t) => {
+    const param = 'userId'
+    const result = paramName(param)
+    t.equal(result, 'userId')
+    t.end()
+  })
+
+  t.end()
 })
