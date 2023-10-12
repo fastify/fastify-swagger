@@ -927,7 +927,7 @@ test('add default properties for url params when missing schema', async t => {
 
   const definedPath = api.paths['/{userId}'].get
 
-  t.same(definedPath.parameters[0], {
+  t.strictSame(definedPath.parameters[0], {
     in: 'path',
     name: 'userId',
     required: true,
@@ -963,7 +963,7 @@ test('add default properties for url params when missing schema.params', async t
 
   const definedPath = api.paths['/{userId}'].post
 
-  t.same(definedPath.parameters[0], {
+  t.strictSame(definedPath.parameters[0], {
     in: 'path',
     name: 'userId',
     required: true,
@@ -971,7 +971,7 @@ test('add default properties for url params when missing schema.params', async t
       type: 'string'
     }
   })
-  t.same(definedPath.requestBody.content['application/json'].schema.properties, {
+  t.strictSame(definedPath.requestBody.content['application/json'].schema.properties, {
     bio: {
       type: 'string'
     }
@@ -1011,7 +1011,7 @@ test('avoid overwriting params when schema.params is provided', async t => {
 
   const definedPath = swaggerObject.paths['/{userId}'].post
 
-  t.same(definedPath.parameters[0], {
+  t.strictSame(definedPath.parameters[0], {
     in: 'path',
     name: 'id',
     required: true,
@@ -1019,7 +1019,7 @@ test('avoid overwriting params when schema.params is provided', async t => {
       type: 'string'
     }
   })
-  t.same(definedPath.requestBody.content['application/json'].schema.properties, {
+  t.strictSame(definedPath.requestBody.content['application/json'].schema.properties, {
     bio: {
       type: 'string'
     }
