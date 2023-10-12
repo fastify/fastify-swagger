@@ -3,7 +3,7 @@
 const { test } = require('tap')
 const { formatParamUrl } = require('../lib/util/format-param-url')
 const { hasParams, matchParams } = require('../lib/util/match-params')
-const { generateParamsSchema, paramType, paramName } = require('../lib/util/generate-params-schema')
+const { generateParamsSchema, paramName } = require('../lib/util/generate-params-schema')
 
 const cases = [
   ['/example/:userId', '/example/{userId}'],
@@ -137,17 +137,6 @@ test('generateParamsSchema function', (t) => {
 
     t.same(result, expectedSchema)
   }
-})
-
-test('paramType function', (t) => {
-  t.test('should return "string" for non-empty param', (t) => {
-    const param = '{userId}'
-    const result = paramType(param)
-    t.equal(result, 'string')
-    t.end()
-  })
-
-  t.end()
 })
 
 test('paramName function', (t) => {
