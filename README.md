@@ -698,6 +698,145 @@ Will generate this in the OpenAPI v3 schema's `paths`:
 }
 ```
 
+##### Route parameters
+
+Route parameters in Fastify are called params, these are values included in the URL of the requests, for example:
+
+```js
+fastify.route({
+  method: 'GET',
+  url: '/:id',
+  schema: {
+    params: {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'string',
+          description: 'user id'
+        }
+      }
+    }
+  },
+  handler (request, reply) {
+    reply.send(request.params.id)
+  }
+})
+```
+
+Will generate this in the Swagger (OpenAPI v2) schema's `paths`:
+
+```json
+{
+  "/{id}": {
+    "get": {
+      "parameters": [
+        {
+          "type": "string",
+          "description": "user id",
+          "required": true,
+          "in": "path",
+          "name": "id"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Default Response"
+        }
+      }
+    }
+  }
+}
+```
+
+Will generate this in the OpenAPI v3 schema's `paths`:
+
+```json
+{
+  "/{id}": {
+    "get": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "description": "user id"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Default Response"
+        }
+      }
+    }
+  }
+}
+```
+
+Whether `params` is not present in the schema, or a schema is not provided, parameters are automatically generated, for example:
+
+```js
+fastify.route({
+  method: 'POST',
+  url: '/:id',
+  handler (request, reply) {
+    reply.send(request.params.id)
+  }
+})
+```
+
+Will generate this in the Swagger (OpenAPI v2) schema's `paths`:
+
+```json
+{
+  "/{id}": {
+    "get": {
+      "parameters": [
+        {
+          "type": "string",
+          "required": true,
+          "in": "path",
+          "name": "id"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Default Response"
+        }
+      }
+    }
+  }
+}
+```
+
+Will generate this in the OpenAPI v3 schema's `paths`:
+
+```json
+{
+  "/{id}": {
+    "get": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "in": "path",
+          "name": "id",
+          "required": true
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Default Response"
+        }
+      }
+    }
+  }
+}
+```
+
 <a name="route.links"></a>
 #### Links
 
