@@ -862,3 +862,33 @@ test('path params on relative url', async (t) => {
     }
   ])
 })
+
+test('verify generated path param definition with route prefixing', async (t) => {
+  const opts = {
+    schema: {}
+  }
+
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, openapiRelativeOptions)
+  await fastify.register(function (app, _, done) {
+    app.get('/:userId', opts, () => {})
+
+    done()
+  }, { prefix: '/v1' })
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  const api = await Swagger.validate(swaggerObject)
+
+  const definedPath = api.paths['/v1/{userId}'].get
+
+  t.same(definedPath.parameters, [{
+    schema: {
+      type: 'string'
+    },
+    in: 'path',
+    name: 'userId',
+    required: true
+  }])
+})

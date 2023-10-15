@@ -555,3 +555,31 @@ test('security querystrings ignored when declared in security and securityScheme
   t.notOk(api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'apiKey')))
   t.ok(api.paths['/address2/{id}'].get.parameters.find(({ name }) => (name === 'authKey')))
 })
+
+test('verify generated path param definition with route prefixing', async (t) => {
+  const opts = {
+    schema: {}
+  }
+
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, swaggerOption)
+  await fastify.register(function (app, _, done) {
+    app.get('/:userId', opts, () => {})
+
+    done()
+  }, { prefix: '/v1' })
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  const api = await Swagger.validate(swaggerObject)
+
+  const definedPath = api.paths['/v1/{userId}'].get
+
+  t.same(definedPath.parameters, [{
+    in: 'path',
+    name: 'userId',
+    type: 'string',
+    required: true
+  }])
+})

@@ -561,7 +561,7 @@ Please specify `type: 'null'` for the response otherwise Fastify itself will fai
 <a name="route.openapi"></a>
 #### OpenAPI Parameter Options
 
-**Note:** OpenAPI's terminology differs from Fastify's. OpenAPI uses "parameter" to refer to parts of a request that in [Fastify's validation documentation](https://www.fastify.io/docs/latest/Validation-and-Serialization/#validation) are called "querystring", "params", and "headers".
+**Note:** OpenAPI's terminology differs from Fastify's. OpenAPI uses "parameter" to refer to parts of a request that in [Fastify's validation documentation](https://fastify.dev/docs/latest/Reference/Validation-and-Serialization/) are called "querystring", "params", and "headers".
 
 OpenAPI provides some options beyond those provided by the [JSON schema specification](https://json-schema.org/specification.html) for specifying the shape of parameters. A prime example of this is the `collectionFormat` option for specifying how to encode parameters that should be handled as arrays of values.
 
@@ -693,6 +693,145 @@ Will generate this in the OpenAPI v3 schema's `paths`:
           }
         }
       ]
+    }
+  }
+}
+```
+
+##### Route parameters
+
+Route parameters in Fastify are called params, these are values included in the URL of the requests, for example:
+
+```js
+fastify.route({
+  method: 'GET',
+  url: '/:id',
+  schema: {
+    params: {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'string',
+          description: 'user id'
+        }
+      }
+    }
+  },
+  handler (request, reply) {
+    reply.send(request.params.id)
+  }
+})
+```
+
+Will generate this in the Swagger (OpenAPI v2) schema's `paths`:
+
+```json
+{
+  "/{id}": {
+    "get": {
+      "parameters": [
+        {
+          "type": "string",
+          "description": "user id",
+          "required": true,
+          "in": "path",
+          "name": "id"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Default Response"
+        }
+      }
+    }
+  }
+}
+```
+
+Will generate this in the OpenAPI v3 schema's `paths`:
+
+```json
+{
+  "/{id}": {
+    "get": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "description": "user id"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Default Response"
+        }
+      }
+    }
+  }
+}
+```
+
+Whether `params` is not present in the schema, or a schema is not provided, parameters are automatically generated, for example:
+
+```js
+fastify.route({
+  method: 'POST',
+  url: '/:id',
+  handler (request, reply) {
+    reply.send(request.params.id)
+  }
+})
+```
+
+Will generate this in the Swagger (OpenAPI v2) schema's `paths`:
+
+```json
+{
+  "/{id}": {
+    "get": {
+      "parameters": [
+        {
+          "type": "string",
+          "required": true,
+          "in": "path",
+          "name": "id"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Default Response"
+        }
+      }
+    }
+  }
+}
+```
+
+Will generate this in the OpenAPI v3 schema's `paths`:
+
+```json
+{
+  "/{id}": {
+    "get": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "in": "path",
+          "name": "id",
+          "required": true
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Default Response"
+        }
+      }
     }
   }
 }
