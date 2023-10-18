@@ -1,3 +1,5 @@
+'use strict'
+
 const swaggerOption = {
   swagger: {
     info: {
