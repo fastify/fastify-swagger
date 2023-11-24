@@ -99,6 +99,54 @@ test('swagger definitions', async (t) => {
   delete swaggerOption.swagger.definitions // remove what we just added
 })
 
+test('swagger paths', async (t) => {
+  t.plan(1)
+  const fastify = Fastify()
+
+  swaggerOption.swagger.paths = {
+    '/status': {
+      get: {
+        description: 'Status route, so we can check if server is alive',
+        tags: [
+          'Status'
+        ],
+        responses: {
+          200: {
+            description: 'Server is alive',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    health: {
+                      type: 'boolean'
+                    },
+                    date: {
+                      type: 'string'
+                    }
+                  },
+                  example: {
+                    health: true,
+                    date: '2018-02-19T15:36:46.758Z'
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  await fastify.register(fastifySwagger, swaggerOption)
+
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  t.same(swaggerObject.paths, swaggerOption.swagger.paths)
+  delete swaggerOption.swagger.paths // remove what we just added
+})
+
 test('swagger tags', async (t) => {
   t.plan(1)
   const fastify = Fastify()
