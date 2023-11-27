@@ -111,6 +111,56 @@ test('openapi components', async (t) => {
   delete openapiOption.openapi.components.schemas // remove what we just added
 })
 
+test('openapi paths', async (t) => {
+  t.plan(1)
+  const fastify = Fastify()
+
+  openapiOption.openapi.paths = {
+    '/status': {
+      get: {
+        description: 'Status route, so we can check if server is alive',
+        tags: [
+          'Status'
+        ],
+        responses: {
+          200: {
+            description: 'Server is alive',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    health: {
+                      type: 'boolean'
+                    },
+                    date: {
+                      type: 'string'
+                    }
+                  },
+                  example: {
+                    health: true,
+                    date: '2018-02-19T15:36:46.758Z'
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  await fastify.register(fastifySwagger, openapiOption)
+
+  fastify.get('/status', () => {})
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+  t.same(openapiObject.paths, openapiOption.openapi.paths)
+  delete openapiOption.openapi.paths // remove what we just added
+})
+
 test('hide support when property set in transform() - property', async (t) => {
   t.plan(1)
   const fastify = Fastify()
