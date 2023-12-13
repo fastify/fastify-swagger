@@ -613,7 +613,7 @@ test('request body examples', async t => {
     t.notOk(content.examples)
   })
 
-  t.test('uses .examples field if has multiple top-level string examples', async t => {
+  t.test('uses .examples field if has multiple top-level numeric examples', async t => {
     t.plan(4)
     const fastify = Fastify()
     await fastify.register(fastifySwagger, openapiOption)
@@ -752,7 +752,7 @@ test('request body examples', async t => {
     t.notOk(content.example)
   })
 
-  t.test('uses .example field if has single nested scalar (string) example', async t => {
+  t.test('uses .example field if has single nested string example', async t => {
     t.plan(9)
     const fastify = Fastify()
     await fastify.register(fastifySwagger, openapiOption)
@@ -791,7 +791,7 @@ test('request body examples', async t => {
     t.strictSame(schema.properties.deep.properties.field.example, 'universe')
   })
 
-  t.test('uses .example field if has multiple nested scalar (numeric) examples', async t => {
+  t.test('uses .example field if has multiple nested numeric examples', async t => {
     t.plan(9)
     const fastify = Fastify()
     await fastify.register(fastifySwagger, openapiOption)
@@ -1019,7 +1019,7 @@ test('response examples', async t => {
     t.notOk(content.examples)
   })
 
-  t.test('uses .examples field if has multiple top-level string examples', async t => {
+  t.test('uses .examples field if has multiple top-level numeric examples', async t => {
     t.plan(4)
     const fastify = Fastify()
     await fastify.register(fastifySwagger, openapiOption)
@@ -1158,7 +1158,7 @@ test('response examples', async t => {
     t.notOk(content.example)
   })
 
-  t.test('uses .example field if has single nested scalar (string) example', async t => {
+  t.test('uses .example field if has single nested string example', async t => {
     t.plan(9)
     const fastify = Fastify()
     await fastify.register(fastifySwagger, openapiOption)
@@ -1197,7 +1197,7 @@ test('response examples', async t => {
     t.strictSame(schema.properties.deep.properties.field.example, 'universe')
   })
 
-  t.test('uses .example field if has multiple nested scalar (numeric) examples', async t => {
+  t.test('uses .example field if has multiple nested numeric examples', async t => {
     t.plan(9)
     const fastify = Fastify()
     await fastify.register(fastifySwagger, openapiOption)
@@ -1205,14 +1205,14 @@ test('response examples', async t => {
       type: 'object',
       properties: {
         flat: {
-          type: 'string',
+          type: 'number',
           examples: [0, 1]
         },
         deep: {
           type: 'object',
           properties: {
             field: {
-              type: 'string',
+              type: 'number',
               examples: [1, 0]
             }
           }
