@@ -1000,7 +1000,7 @@ Will generate this in the OpenAPI v3 schema's `path`:
                   "foo": { "type": "string" },
                   "bar": { "type": "string" }
                 },
-                "examples": [{ "foo": "bar", "bar": "baz" }]
+                "example": { "foo": "bar", "bar": "baz" }
               }
             }
           },
