@@ -500,6 +500,867 @@ test('move examples from "x-examples" to examples field', async (t) => {
   })
 })
 
+test('parameter & header examples', async t => {
+  t.test('uses .example if has single example', async t => {
+    t.plan(2)
+    const fastify = Fastify()
+    await fastify.register(fastifySwagger, openapiOption)
+    const [params, querystring, headers] = Array(3).fill({
+      type: 'object',
+      properties: {
+        hello: {
+          type: 'string',
+          examples: ['world']
+        }
+      }
+    })
+    fastify.post('/', { schema: { params, querystring, headers } }, () => {})
+    await fastify.ready()
+    const openapiObject = fastify.swagger()
+    const { parameters } = openapiObject.paths['/'].post
+
+    t.ok(parameters.every(({ example }) => example === 'world'))
+    t.ok(parameters.every(param => !Object.prototype.hasOwnProperty.call(param, 'examples')))
+  })
+
+  t.test('uses .examples if has multiple examples', async t => {
+    t.plan(2)
+    const fastify = Fastify()
+    await fastify.register(fastifySwagger, openapiOption)
+    const [params, querystring, headers] = Array(3).fill({
+      type: 'object',
+      properties: {
+        hello: {
+          type: 'string',
+          examples: ['world', 'universe']
+        }
+      }
+    })
+    fastify.post('/', { schema: { params, querystring, headers } }, () => {})
+    await fastify.ready()
+    const openapiObject = fastify.swagger()
+    const { parameters } = openapiObject.paths['/'].post
+    const examples = parameters.map(({ examples }) => examples)
+    t.strictSame(examples, Array(3).fill({
+      world: { value: 'world' },
+      universe: { value: 'universe' }
+    }))
+    t.ok(parameters.every(param => !Object.prototype.hasOwnProperty.call(param, 'example')))
+  })
+})
+
+test('request body examples', async t => {
+  t.test('uses .example field if has single top-level string example', async t => {
+    t.plan(4)
+    const fastify = Fastify()
+    await fastify.register(fastifySwagger, openapiOption)
+    const body = {
+      type: 'string',
+      examples: ['hello']
+    }
+    fastify.post('/', { schema: { body } }, () => {})
+    await fastify.ready()
+    const openapiObject = fastify.swagger()
+    const content = openapiObject.paths['/'].post.requestBody.content['application/json']
+    const schema = content.schema
+
+    t.notOk(schema.example)
+    t.notOk(schema.examples)
+    t.strictSame(content.example, 'hello')
+    t.notOk(content.examples)
+  })
+
+  t.test('uses .examples field if has multiple top-level string examples', async t => {
+    t.plan(4)
+    const fastify = Fastify()
+    await fastify.register(fastifySwagger, openapiOption)
+    const body = {
+      type: 'string',
+      examples: ['hello', 'world']
+    }
+    fastify.post('/', { schema: { body } }, () => {})
+    await fastify.ready()
+    const openapiObject = fastify.swagger()
+    const content = openapiObject.paths['/'].post.requestBody.content['application/json']
+    const schema = content.schema
+
+    t.notOk(schema.example)
+    t.notOk(schema.examples)
+    t.notOk(content.example)
+    t.strictSame(content.examples, {
+      hello: { value: 'hello' },
+      world: { value: 'world' }
+    })
+  })
+
+  t.test('uses .example field if has single top-level numeric example', async t => {
+    t.plan(4)
+    const fastify = Fastify()
+    await fastify.register(fastifySwagger, openapiOption)
+    const body = {
+      type: 'number',
+      examples: [0]
+    }
+    fastify.post('/', { schema: { body } }, () => {})
+    await fastify.ready()
+    const openapiObject = fastify.swagger()
+    const content = openapiObject.paths['/'].post.requestBody.content['application/json']
+    const schema = content.schema
+
+    t.notOk(schema.example)
+    t.notOk(schema.examples)
+    t.strictSame(content.example, 0)
+    t.notOk(content.examples)
+  })
+
+  t.test('uses .examples field if has multiple top-level string examples', async t => {
+    t.plan(4)
+    const fastify = Fastify()
+    await fastify.register(fastifySwagger, openapiOption)
+    const body = {
+      type: 'number',
+      examples: [0, 1]
+    }
+    fastify.post('/', { schema: { body } }, () => {})
+    await fastify.ready()
+    const openapiObject = fastify.swagger()
+    const content = openapiObject.paths['/'].post.requestBody.content['application/json']
+    const schema = content.schema
+
+    t.notOk(schema.example)
+    t.notOk(schema.examples)
+    t.notOk(content.example)
+    t.strictSame(content.examples, {
+      0: { value: 0 },
+      1: { value: 1 }
+    })
+  })
+
+  t.test('uses .example field if has single top-level object example', async t => {
+    t.plan(5)
+    const fastify = Fastify()
+    await fastify.register(fastifySwagger, openapiOption)
+    const body = {
+      type: 'object',
+      properties: {
+        hello: {
+          type: 'string'
+        }
+      },
+      examples: [{ hello: 'world' }]
+    }
+    fastify.post('/', { schema: { body } }, () => {})
+    await fastify.ready()
+    const openapiObject = fastify.swagger()
+    const content = openapiObject.paths['/'].post.requestBody.content['application/json']
+    const schema = content.schema
+
+    t.ok(schema.properties)
+    t.notOk(schema.example)
+    t.notOk(schema.examples)
+    t.strictSame(content.example, { hello: 'world' })
+    t.notOk(content.examples)
+  })
+
+  t.test('uses .examples field if has multiple top-level object examples', async t => {
+    t.plan(5)
+    const fastify = Fastify()
+    await fastify.register(fastifySwagger, openapiOption)
+    const body = {
+      type: 'object',
+      properties: {
+        hello: {
+          type: 'string'
+        }
+      },
+      examples: [{ hello: 'world' }, { hello: 'universe' }]
+    }
+    fastify.post('/', { schema: { body } }, () => {})
+    await fastify.ready()
+    const openapiObject = fastify.swagger()
+    const content = openapiObject.paths['/'].post.requestBody.content['application/json']
+    const schema = content.schema
+
+    t.ok(schema.properties)
+    t.notOk(schema.example)
+    t.notOk(schema.examples)
+    t.strictSame(content.examples, {
+      example1: { value: { hello: 'world' } },
+      example2: { value: { hello: 'universe' } }
+    })
+    t.notOk(content.example)
+  })
+
+  t.test('uses .example field if has single top-level array example', async t => {
+    t.plan(5)
+    const fastify = Fastify()
+    await fastify.register(fastifySwagger, openapiOption)
+    const body = {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          hello: {
+            type: 'string'
+          }
+        }
+      },
+      examples: [[{ hello: 'world' }]]
+    }
+    fastify.post('/', { schema: { body } }, () => {})
+    await fastify.ready()
+    const openapiObject = fastify.swagger()
+    const content = openapiObject.paths['/'].post.requestBody.content['application/json']
+    const schema = content.schema
+
+    t.ok(schema.items)
+    t.notOk(schema.example)
+    t.notOk(schema.examples)
+    t.strictSame(content.example, [{ hello: 'world' }])
+    t.notOk(content.examples)
+  })
+
+  t.test('uses .examples field if has multiple top-level array examples', async t => {
+    t.plan(5)
+    const fastify = Fastify()
+    await fastify.register(fastifySwagger, openapiOption)
+    const body = {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          hello: {
+            type: 'string'
+          }
+        }
+      },
+      examples: [[{ hello: 'world' }], [{ hello: 'universe' }]]
+    }
+    fastify.post('/', { schema: { body } }, () => {})
+    await fastify.ready()
+    const openapiObject = fastify.swagger()
+    const content = openapiObject.paths['/'].post.requestBody.content['application/json']
+    const schema = content.schema
+
+    t.ok(schema.items)
+    t.notOk(schema.example)
+    t.notOk(schema.examples)
+    t.strictSame(content.examples, {
+      example1: { value: [{ hello: 'world' }] },
+      example2: { value: [{ hello: 'universe' }] }
+    })
+    t.notOk(content.example)
+  })
+
+  t.test('uses .example field if has single nested scalar (string) example', async t => {
+    t.plan(9)
+    const fastify = Fastify()
+    await fastify.register(fastifySwagger, openapiOption)
+    const body = {
+      type: 'object',
+      properties: {
+        flat: {
+          type: 'string',
+          examples: ['world']
+        },
+        deep: {
+          type: 'object',
+          properties: {
+            field: {
+              type: 'string',
+              examples: ['universe']
+            }
+          }
+        }
+      }
+    }
+    fastify.post('/', { schema: { body } }, () => {})
+    await fastify.ready()
+    const openapiObject = fastify.swagger()
+    const content = openapiObject.paths['/'].post.requestBody.content['application/json']
+    const schema = content.schema
+
+    t.ok(schema.properties)
+    t.notOk(schema.example)
+    t.notOk(schema.examples)
+    t.notOk(content.example)
+    t.notOk(content.examples)
+    t.notOk(schema.properties.flat.examples)
+    t.notOk(schema.properties.deep.properties.field.examples)
+    t.strictSame(schema.properties.flat.example, 'world')
+    t.strictSame(schema.properties.deep.properties.field.example, 'universe')
+  })
+
+  t.test('uses .example field if has multiple nested scalar (numeric) examples', async t => {
+    t.plan(9)
+    const fastify = Fastify()
+    await fastify.register(fastifySwagger, openapiOption)
+    const body = {
+      type: 'object',
+      properties: {
+        flat: {
+          type: 'number',
+          examples: [0, 1]
+        },
+        deep: {
+          type: 'object',
+          properties: {
+            field: {
+              type: 'number',
+              examples: [1, 0]
+            }
+          }
+        }
+      }
+    }
+    fastify.post('/', { schema: { body } }, () => {})
+    await fastify.ready()
+    const openapiObject = fastify.swagger()
+    const content = openapiObject.paths['/'].post.requestBody.content['application/json']
+    const schema = content.schema
+
+    t.ok(schema.properties)
+    t.notOk(schema.example)
+    t.notOk(schema.examples)
+    t.notOk(content.example)
+    t.notOk(content.examples)
+    t.notOk(schema.properties.flat.examples)
+    t.notOk(schema.properties.deep.properties.field.examples)
+    t.strictSame(schema.properties.flat.example, 0)
+    t.strictSame(schema.properties.deep.properties.field.example, 1)
+  })
+
+  t.test('uses .example if has single nested array example', async t => {
+    t.plan(7)
+    const fastify = Fastify()
+    await fastify.register(fastifySwagger, openapiOption)
+    const body = {
+      type: 'array',
+      items: {
+        type: 'array',
+        items: {
+          type: 'string'
+        },
+        examples: [['world', 'universe']]
+      }
+    }
+    fastify.post('/', { schema: { body } }, () => {})
+    await fastify.ready()
+    const openapiObject = fastify.swagger()
+    const content = openapiObject.paths['/'].post.requestBody.content['application/json']
+    const schema = content.schema
+
+    t.ok(schema.items)
+    t.notOk(schema.example)
+    t.notOk(schema.examples)
+    t.notOk(content.example)
+    t.notOk(content.examples)
+    t.notOk(schema.items.examples)
+    t.strictSame(schema.items.example, ['world', 'universe'])
+  })
+
+  t.test('uses .example if has multiple nested array examples', async t => {
+    t.plan(7)
+    const fastify = Fastify()
+    await fastify.register(fastifySwagger, openapiOption)
+    const body = {
+      type: 'array',
+      items: {
+        type: 'array',
+        items: {
+          type: 'string'
+        },
+        examples: [['world', 'universe'], ['world', 'universe']]
+      }
+    }
+    fastify.post('/', { schema: { body } }, () => {})
+    await fastify.ready()
+    const openapiObject = fastify.swagger()
+    const content = openapiObject.paths['/'].post.requestBody.content['application/json']
+    const schema = content.schema
+
+    t.ok(schema.items)
+    t.notOk(schema.example)
+    t.notOk(schema.examples)
+    t.notOk(content.example)
+    t.notOk(content.examples)
+    t.notOk(schema.items.examples)
+    t.strictSame(schema.items.example, ['world', 'universe'])
+  })
+
+  t.test('uses .example if has single nested object example', async t => {
+    t.plan(7)
+    const fastify = Fastify()
+    await fastify.register(fastifySwagger, openapiOption)
+    const body = {
+      type: 'object',
+      properties: {
+        deep: {
+          type: 'object',
+          properties: {
+            hello: {
+              type: 'string'
+            }
+          },
+          examples: [{ hello: 'world' }]
+        }
+      }
+    }
+    fastify.post('/', { schema: { body } }, () => {})
+    await fastify.ready()
+    const openapiObject = fastify.swagger()
+    const content = openapiObject.paths['/'].post.requestBody.content['application/json']
+    const schema = content.schema
+
+    t.ok(schema.properties)
+    t.notOk(schema.example)
+    t.notOk(schema.examples)
+    t.notOk(content.example)
+    t.notOk(content.examples)
+    t.notOk(schema.properties.deep.examples)
+    t.strictSame(schema.properties.deep.example, { hello: 'world' })
+  })
+
+  t.test('uses .example if has multiple nested object examples', async t => {
+    t.plan(7)
+    const fastify = Fastify()
+    await fastify.register(fastifySwagger, openapiOption)
+    const body = {
+      type: 'object',
+      properties: {
+        deep: {
+          type: 'object',
+          properties: {
+            hello: {
+              type: 'string'
+            }
+          },
+          examples: [{ hello: 'world' }, { hello: 'universe' }]
+        }
+      }
+    }
+    fastify.post('/', { schema: { body } }, () => {})
+    await fastify.ready()
+    const openapiObject = fastify.swagger()
+    const content = openapiObject.paths['/'].post.requestBody.content['application/json']
+    const schema = content.schema
+
+    t.ok(schema.properties)
+    t.notOk(schema.example)
+    t.notOk(schema.examples)
+    t.notOk(content.example)
+    t.notOk(content.examples)
+    t.notOk(schema.properties.deep.examples)
+    t.strictSame(schema.properties.deep.example, { hello: 'world' })
+  })
+})
+
+test('response examples', async t => {
+  t.test('uses .example field if has single top-level string example', async t => {
+    t.plan(4)
+    const fastify = Fastify()
+    await fastify.register(fastifySwagger, openapiOption)
+    const response = {
+      type: 'string',
+      examples: ['hello']
+    }
+    fastify.post('/', { schema: { response: { 200: response } } }, () => {})
+    await fastify.ready()
+    const openapiObject = fastify.swagger()
+    const content = openapiObject.paths['/'].post.responses['200'].content['application/json']
+    const schema = content.schema
+
+    t.notOk(schema.example)
+    t.notOk(schema.examples)
+    t.strictSame(content.example, 'hello')
+    t.notOk(content.examples)
+  })
+
+  t.test('uses .examples field if has multiple top-level string examples', async t => {
+    t.plan(4)
+    const fastify = Fastify()
+    await fastify.register(fastifySwagger, openapiOption)
+    const response = {
+      type: 'string',
+      examples: ['hello', 'world']
+    }
+    fastify.post('/', { schema: { response: { 200: response } } }, () => {})
+    await fastify.ready()
+    const openapiObject = fastify.swagger()
+    const content = openapiObject.paths['/'].post.responses['200'].content['application/json']
+    const schema = content.schema
+
+    t.notOk(schema.example)
+    t.notOk(schema.examples)
+    t.notOk(content.example)
+    t.strictSame(content.examples, {
+      hello: { value: 'hello' },
+      world: { value: 'world' }
+    })
+  })
+
+  t.test('uses .example field if has single top-level numeric example', async t => {
+    t.plan(4)
+    const fastify = Fastify()
+    await fastify.register(fastifySwagger, openapiOption)
+    const response = {
+      type: 'number',
+      examples: [0]
+    }
+    fastify.post('/', { schema: { response: { 200: response } } }, () => {})
+    await fastify.ready()
+    const openapiObject = fastify.swagger()
+    const content = openapiObject.paths['/'].post.responses['200'].content['application/json']
+    const schema = content.schema
+
+    t.notOk(schema.example)
+    t.notOk(schema.examples)
+    t.strictSame(content.example, 0)
+    t.notOk(content.examples)
+  })
+
+  t.test('uses .examples field if has multiple top-level string examples', async t => {
+    t.plan(4)
+    const fastify = Fastify()
+    await fastify.register(fastifySwagger, openapiOption)
+    const response = {
+      type: 'number',
+      examples: [0, 1]
+    }
+    fastify.post('/', { schema: { response: { 200: response } } }, () => {})
+    await fastify.ready()
+    const openapiObject = fastify.swagger()
+    const content = openapiObject.paths['/'].post.responses['200'].content['application/json']
+    const schema = content.schema
+
+    t.notOk(schema.example)
+    t.notOk(schema.examples)
+    t.notOk(content.example)
+    t.strictSame(content.examples, {
+      0: { value: 0 },
+      1: { value: 1 }
+    })
+  })
+
+  t.test('uses .example field if has single top-level object example', async t => {
+    t.plan(5)
+    const fastify = Fastify()
+    await fastify.register(fastifySwagger, openapiOption)
+    const response = {
+      type: 'object',
+      properties: {
+        hello: {
+          type: 'string'
+        }
+      },
+      examples: [{ hello: 'world' }]
+    }
+    fastify.post('/', { schema: { response: { 200: response } } }, () => {})
+    await fastify.ready()
+    const openapiObject = fastify.swagger()
+    const content = openapiObject.paths['/'].post.responses['200'].content['application/json']
+    const schema = content.schema
+
+    t.ok(schema.properties)
+    t.notOk(schema.example)
+    t.notOk(schema.examples)
+    t.strictSame(content.example, { hello: 'world' })
+    t.notOk(content.examples)
+  })
+
+  t.test('uses .examples field if has multiple top-level object examples', async t => {
+    t.plan(5)
+    const fastify = Fastify()
+    await fastify.register(fastifySwagger, openapiOption)
+    const response = {
+      type: 'object',
+      properties: {
+        hello: {
+          type: 'string'
+        }
+      },
+      examples: [{ hello: 'world' }, { hello: 'universe' }]
+    }
+    fastify.post('/', { schema: { response: { 200: response } } }, () => {})
+    await fastify.ready()
+    const openapiObject = fastify.swagger()
+    const content = openapiObject.paths['/'].post.responses['200'].content['application/json']
+    const schema = content.schema
+
+    t.ok(schema.properties)
+    t.notOk(schema.example)
+    t.notOk(schema.examples)
+    t.strictSame(content.examples, {
+      example1: { value: { hello: 'world' } },
+      example2: { value: { hello: 'universe' } }
+    })
+    t.notOk(content.example)
+  })
+
+  t.test('uses .example field if has single top-level array example', async t => {
+    t.plan(5)
+    const fastify = Fastify()
+    await fastify.register(fastifySwagger, openapiOption)
+    const response = {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          hello: {
+            type: 'string'
+          }
+        }
+      },
+      examples: [[{ hello: 'world' }]]
+    }
+    fastify.post('/', { schema: { response: { 200: response } } }, () => {})
+    await fastify.ready()
+    const openapiObject = fastify.swagger()
+    const content = openapiObject.paths['/'].post.responses['200'].content['application/json']
+    const schema = content.schema
+
+    t.ok(schema.items)
+    t.notOk(schema.example)
+    t.notOk(schema.examples)
+    t.strictSame(content.example, [{ hello: 'world' }])
+    t.notOk(content.examples)
+  })
+
+  t.test('uses .examples field if has multiple top-level array examples', async t => {
+    t.plan(5)
+    const fastify = Fastify()
+    await fastify.register(fastifySwagger, openapiOption)
+    const response = {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          hello: {
+            type: 'string'
+          }
+        }
+      },
+      examples: [[{ hello: 'world' }], [{ hello: 'universe' }]]
+    }
+    fastify.post('/', { schema: { response: { 200: response } } }, () => {})
+    await fastify.ready()
+    const openapiObject = fastify.swagger()
+    const content = openapiObject.paths['/'].post.responses['200'].content['application/json']
+    const schema = content.schema
+
+    t.ok(schema.items)
+    t.notOk(schema.example)
+    t.notOk(schema.examples)
+    t.strictSame(content.examples, {
+      example1: { value: [{ hello: 'world' }] },
+      example2: { value: [{ hello: 'universe' }] }
+    })
+    t.notOk(content.example)
+  })
+
+  t.test('uses .example field if has single nested scalar (string) example', async t => {
+    t.plan(9)
+    const fastify = Fastify()
+    await fastify.register(fastifySwagger, openapiOption)
+    const response = {
+      type: 'object',
+      properties: {
+        flat: {
+          type: 'string',
+          examples: ['world']
+        },
+        deep: {
+          type: 'object',
+          properties: {
+            field: {
+              type: 'string',
+              examples: ['universe']
+            }
+          }
+        }
+      }
+    }
+    fastify.post('/', { schema: { response: { 200: response } } }, () => {})
+    await fastify.ready()
+    const openapiObject = fastify.swagger()
+    const content = openapiObject.paths['/'].post.responses['200'].content['application/json']
+    const schema = content.schema
+
+    t.ok(schema.properties)
+    t.notOk(schema.example)
+    t.notOk(schema.examples)
+    t.notOk(content.example)
+    t.notOk(content.examples)
+    t.notOk(schema.properties.flat.examples)
+    t.notOk(schema.properties.deep.properties.field.examples)
+    t.strictSame(schema.properties.flat.example, 'world')
+    t.strictSame(schema.properties.deep.properties.field.example, 'universe')
+  })
+
+  t.test('uses .example field if has multiple nested scalar (numeric) examples', async t => {
+    t.plan(9)
+    const fastify = Fastify()
+    await fastify.register(fastifySwagger, openapiOption)
+    const response = {
+      type: 'object',
+      properties: {
+        flat: {
+          type: 'string',
+          examples: [0, 1]
+        },
+        deep: {
+          type: 'object',
+          properties: {
+            field: {
+              type: 'string',
+              examples: [1, 0]
+            }
+          }
+        }
+      }
+    }
+    fastify.post('/', { schema: { response: { 200: response } } }, () => {})
+    await fastify.ready()
+    const openapiObject = fastify.swagger()
+    const content = openapiObject.paths['/'].post.responses['200'].content['application/json']
+    const schema = content.schema
+
+    t.ok(schema.properties)
+    t.notOk(schema.example)
+    t.notOk(schema.examples)
+    t.notOk(content.example)
+    t.notOk(content.examples)
+    t.notOk(schema.properties.flat.examples)
+    t.notOk(schema.properties.deep.properties.field.examples)
+    t.strictSame(schema.properties.flat.example, 0)
+    t.strictSame(schema.properties.deep.properties.field.example, 1)
+  })
+
+  t.test('uses .example if has single nested array example', async t => {
+    t.plan(7)
+    const fastify = Fastify()
+    await fastify.register(fastifySwagger, openapiOption)
+    const response = {
+      type: 'array',
+      items: {
+        type: 'array',
+        items: {
+          type: 'string'
+        },
+        examples: [['world', 'universe']]
+      }
+    }
+    fastify.post('/', { schema: { response: { 200: response } } }, () => {})
+    await fastify.ready()
+    const openapiObject = fastify.swagger()
+    const content = openapiObject.paths['/'].post.responses['200'].content['application/json']
+    const schema = content.schema
+
+    t.ok(schema.items)
+    t.notOk(schema.example)
+    t.notOk(schema.examples)
+    t.notOk(content.example)
+    t.notOk(content.examples)
+    t.notOk(schema.items.examples)
+    t.strictSame(schema.items.example, ['world', 'universe'])
+  })
+
+  t.test('uses .example if has multiple nested array examples', async t => {
+    t.plan(7)
+    const fastify = Fastify()
+    await fastify.register(fastifySwagger, openapiOption)
+    const response = {
+      type: 'array',
+      items: {
+        type: 'array',
+        items: {
+          type: 'string'
+        },
+        examples: [['world', 'universe'], ['world', 'universe']]
+      }
+    }
+    fastify.post('/', { schema: { response: { 200: response } } }, () => {})
+    await fastify.ready()
+    const openapiObject = fastify.swagger()
+    const content = openapiObject.paths['/'].post.responses['200'].content['application/json']
+    const schema = content.schema
+
+    t.ok(schema.items)
+    t.notOk(schema.example)
+    t.notOk(schema.examples)
+    t.notOk(content.example)
+    t.notOk(content.examples)
+    t.notOk(schema.items.examples)
+    t.strictSame(schema.items.example, ['world', 'universe'])
+  })
+
+  t.test('uses .example if has single nested object example', async t => {
+    t.plan(7)
+    const fastify = Fastify()
+    await fastify.register(fastifySwagger, openapiOption)
+    const response = {
+      type: 'object',
+      properties: {
+        deep: {
+          type: 'object',
+          properties: {
+            hello: {
+              type: 'string'
+            }
+          },
+          examples: [{ hello: 'world' }]
+        }
+      }
+    }
+    fastify.post('/', { schema: { response: { 200: response } } }, () => {})
+    await fastify.ready()
+    const openapiObject = fastify.swagger()
+    const content = openapiObject.paths['/'].post.responses['200'].content['application/json']
+    const schema = content.schema
+
+    t.ok(schema.properties)
+    t.notOk(schema.example)
+    t.notOk(schema.examples)
+    t.notOk(content.example)
+    t.notOk(content.examples)
+    t.notOk(schema.properties.deep.examples)
+    t.strictSame(schema.properties.deep.example, { hello: 'world' })
+  })
+
+  t.test('uses .example if has multiple nested object examples', async t => {
+    t.plan(7)
+    const fastify = Fastify()
+    await fastify.register(fastifySwagger, openapiOption)
+    const response = {
+      type: 'object',
+      properties: {
+        deep: {
+          type: 'object',
+          properties: {
+            hello: {
+              type: 'string'
+            }
+          },
+          examples: [{ hello: 'world' }, { hello: 'universe' }]
+        }
+      }
+    }
+    fastify.post('/', { schema: { response: { 200: response } } }, () => {})
+    await fastify.ready()
+    const openapiObject = fastify.swagger()
+    const content = openapiObject.paths['/'].post.responses['200'].content['application/json']
+    const schema = content.schema
+
+    t.ok(schema.properties)
+    t.notOk(schema.example)
+    t.notOk(schema.examples)
+    t.notOk(content.example)
+    t.notOk(content.examples)
+    t.notOk(schema.properties.deep.examples)
+    t.strictSame(schema.properties.deep.example, { hello: 'world' })
+  })
+})
+
 test('copy example of body from component to media', async (t) => {
   t.plan(4)
   const fastify = Fastify()
@@ -746,7 +1607,7 @@ test('move examples of parameters from component to media', async (t) => {
   t.same(pathParam.examples, expectedExamples)
 })
 
-test('uses examples if has property required in body', async (t) => {
+test('marks request body as required', async (t) => {
   t.plan(4)
   const fastify = Fastify()
 
