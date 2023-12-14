@@ -865,7 +865,7 @@ test('request body examples', async t => {
     await fastify.register(fastifySwagger, openapiOption)
     const body = {
       type: 'array',
-      items: {
+      contains: {
         type: 'array',
         items: {
           type: 'string'
@@ -879,13 +879,13 @@ test('request body examples', async t => {
     const content = openapiObject.paths['/'].post.requestBody.content['application/json']
     const schema = content.schema
 
-    t.ok(schema.items)
+    t.ok(schema.contains)
     t.notOk(schema.example)
     t.notOk(schema.examples)
     t.notOk(content.example)
     t.notOk(content.examples)
-    t.notOk(schema.items.examples)
-    t.strictSame(schema.items.example, ['world', 'universe'])
+    t.notOk(schema.contains.examples)
+    t.strictSame(schema.contains.example, ['world', 'universe'])
   })
 
   t.test('uses .example if has single nested object example', async t => {
@@ -1271,7 +1271,7 @@ test('response examples', async t => {
     await fastify.register(fastifySwagger, openapiOption)
     const response = {
       type: 'array',
-      items: {
+      contains: {
         type: 'array',
         items: {
           type: 'string'
@@ -1285,13 +1285,13 @@ test('response examples', async t => {
     const content = openapiObject.paths['/'].post.responses['200'].content['application/json']
     const schema = content.schema
 
-    t.ok(schema.items)
+    t.ok(schema.contains)
     t.notOk(schema.example)
     t.notOk(schema.examples)
     t.notOk(content.example)
     t.notOk(content.examples)
-    t.notOk(schema.items.examples)
-    t.strictSame(schema.items.example, ['world', 'universe'])
+    t.notOk(schema.contains.examples)
+    t.strictSame(schema.contains.example, ['world', 'universe'])
   })
 
   t.test('uses .example if has single nested object example', async t => {
