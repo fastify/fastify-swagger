@@ -52,11 +52,16 @@ const openapiOption = {
           type: 'apiKey',
           name: 'apiKey',
           in: 'header'
+        },
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer'
         }
       }
     },
     security: [{
-      apiKey: []
+      apiKey: [],
+      bearerAuth: []
     }],
     externalDocs: {
       description: 'Find more info here',

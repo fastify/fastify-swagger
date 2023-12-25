@@ -647,6 +647,10 @@ test('security headers ignored when declared in security and securityScheme', as
             type: 'string',
             description: 'api token'
           },
+          bearerAuth: {
+            type: 'string',
+            description: 'authorization bearer'
+          },
           id: {
             type: 'string',
             description: 'common field'
