@@ -10,7 +10,7 @@ const cases = [
   ['/example/:userId/:secretToken', '/example/{userId}/{secretToken}'],
   ['/example/near/:lat-:lng/radius/:r', '/example/near/{lat}-{lng}/radius/{r}'],
   ['/example/near/:lat_1-:lng_1/radius/:r_1', '/example/near/{lat_1}-{lng_1}/radius/{r_1}'],
-  ['/example/*', '/example/{wildcard}'],
+  ['/example/*', '/example/{*}'],
   ['/example/:file(^\\d+).png', '/example/{file}.png'],
   ['/example/at/:hour(^\\d{2})h:minute(^\\d{2})m', '/example/at/{hour}h{minute}m'],
   ['/example/at/(^\\d{2})h(^\\d{2})m', '/example/at/{regexp1}h{regexp2}m'],
