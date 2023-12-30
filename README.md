@@ -920,7 +920,7 @@ If `{ yaml: true }` is passed to `fastify.swagger()` it will return a YAML strin
 
 <a name="integration"></a>
 ### Integration
-You can integration this plugin with ```@fastify/helmet``` with some little work.
+You can integrate this plugin with ```@fastify/helmet``` with some little work.
 
 ```@fastify/helmet``` options example:
 ```javascript
