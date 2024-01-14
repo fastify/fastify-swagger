@@ -21,7 +21,7 @@ Following are the `@fastify/swagger-ui` options:
 | staticCSP          | false            | Enable CSP header for static resources.                                                                                   |
 | transformStaticCSP | undefined        | Synchronous function to transform CSP header for static resources if the header has been previously set.                  |
 | uiConfig           | {}               | Configuration options for [Swagger UI](https://github.com/swagger-api/swagger-ui/blob/master/docs/usage/configuration.md). Must be literal values, see [#5710](https://github.com/swagger-api/swagger-ui/issues/5710).|
-| uiHooks            | {}               | Additional hooks for the documentation's routes. You can provide the `onRequest` and `preHandler` hooks with the same [route's options](https://www.fastify.io/docs/latest/Routes/#options) interface.|
+| uiHooks            | {}               | Additional hooks for the documentation's routes. You can provide the `onRequest` and `preHandler` hooks with the same [route's options](https://fastify.dev/docs/latest/Routes/#options) interface.|
 
 The `baseDir` option is new and is only needed if external spec files should be
 exposed. `baseDir` option of `@fastify/swagger-ui` should be set to the same
