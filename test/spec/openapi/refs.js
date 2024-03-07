@@ -19,7 +19,7 @@ test('support $ref schema', async (t) => {
 
   await fastify.register(fastifySwagger, openapiOption)
   fastify.register(async (instance) => {
-    instance.addSchema({ $id: 'Order', type: 'object', properties: { id: { type: 'integer' } } })
+    instance.addSchema({ $id: 'Order', type: 'object', properties: { id: { type: 'integer', examples: [25] } } })
     instance.post('/', { schema: { body: { $ref: 'Order#' }, response: { 200: { $ref: 'Order#' } } } }, () => {})
   })
 
@@ -28,6 +28,7 @@ test('support $ref schema', async (t) => {
   const openapiObject = fastify.swagger()
   t.equal(typeof openapiObject, 'object')
   t.match(Object.keys(openapiObject.components.schemas), ['Order'])
+  t.equal(openapiObject.components.schemas.Order.properties.id.example, 25)
 
   await Swagger.validate(openapiObject)
 })
@@ -67,7 +68,7 @@ test('support nested $ref schema : simple test', async (t) => {
   const fastify = Fastify()
   await fastify.register(fastifySwagger, openapiOption)
   fastify.register(async (instance) => {
-    instance.addSchema({ $id: 'OrderItem', type: 'object', properties: { id: { type: 'integer' } } })
+    instance.addSchema({ $id: 'OrderItem', type: 'object', properties: { id: { type: 'integer' } }, examples: [{ id: 1 }] })
     instance.addSchema({ $id: 'ProductItem', type: 'object', properties: { id: { type: 'integer' } } })
     instance.addSchema({ $id: 'Order', type: 'object', properties: { products: { type: 'array', items: { $ref: 'OrderItem' } } } })
     instance.post('/', { schema: { body: { $ref: 'Order' }, response: { 200: { $ref: 'Order' } } } }, () => {})
@@ -84,6 +85,7 @@ test('support nested $ref schema : simple test', async (t) => {
 
   //  ref must be prefixed by '#/components/schemas/'
   t.equal(schemas.Order.properties.products.items.$ref, '#/components/schemas/OrderItem')
+  t.match(schemas.OrderItem.example, { id: 1 })
 
   await Swagger.validate(openapiObject)
 })
@@ -93,7 +95,7 @@ test('support nested $ref schema : complex case', async (t) => {
   await fastify.register(fastifySwagger, openapiOption)
   fastify.register(async (instance) => {
     instance.addSchema({ $id: 'schemaA', type: 'object', properties: { id: { type: 'integer' } } })
-    instance.addSchema({ $id: 'schemaB', type: 'object', properties: { id: { type: 'string' } } })
+    instance.addSchema({ $id: 'schemaB', type: 'object', properties: { id: { type: 'string', examples: ['ABC'] } } })
     instance.addSchema({ $id: 'schemaC', type: 'object', properties: { a: { type: 'array', items: { $ref: 'schemaA' } } } })
     instance.addSchema({ $id: 'schemaD', type: 'object', properties: { b: { $ref: 'schemaB' }, c: { $ref: 'schemaC' } } })
     instance.post('/url1', { schema: { body: { $ref: 'schemaD' }, response: { 200: { $ref: 'schemaB' } } } }, () => {})
@@ -112,6 +114,7 @@ test('support nested $ref schema : complex case', async (t) => {
   t.equal(schemas.schemaC.properties.a.items.$ref, '#/components/schemas/schemaA')
   t.equal(schemas.schemaD.properties.b.$ref, '#/components/schemas/schemaB')
   t.equal(schemas.schemaD.properties.c.$ref, '#/components/schemas/schemaC')
+  t.equal(schemas.schemaB.properties.id.example, 'ABC')
 
   await Swagger.validate(openapiObject)
 })
