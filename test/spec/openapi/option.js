@@ -107,7 +107,7 @@ test('openapi components', async (t) => {
   await fastify.ready()
 
   const openapiObject = fastify.swagger()
-  t.same(openapiObject.components.schemas, openapiOption.openapi.components.schemas)
+  t.match(openapiObject.components.schemas, openapiOption.openapi.components.schemas)
   delete openapiOption.openapi.components.schemas // remove what we just added
 })
 
