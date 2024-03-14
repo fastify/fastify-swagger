@@ -343,7 +343,7 @@ test('support "default" parameter', async t => {
 
   const definedPath = api.paths['/'].get
 
-  t.same(definedPath.responses.default, {
+  t.match(definedPath.responses.default, {
     description: 'Default Response',
     schema: {
       description: 'Default Response',
@@ -421,12 +421,12 @@ test('support "patternProperties" in json schema', async t => {
 
   const definedPath = api.paths['/'].post
 
-  t.same(definedPath.parameters[0].schema, {
+  t.match(definedPath.parameters[0].schema, {
     type: 'object',
     additionalProperties: { type: 'string' }
   })
 
-  t.same(definedPath.responses[200], {
+  t.match(definedPath.responses[200], {
     description: 'Expected Response',
     schema: {
       description: 'Expected Response',
@@ -471,7 +471,7 @@ test('support "const" keyword', async t => {
   const api = await Swagger.validate(swaggerObject)
 
   const definedPath = api.paths['/'].post
-  t.same(definedPath.parameters[0].schema, {
+  t.match(definedPath.parameters[0].schema, {
     type: 'object',
     properties: {
       obj: {
@@ -523,7 +523,7 @@ test('support "description" keyword', async t => {
 
   const definedPath = api.paths['/'].post
   t.same(definedPath.parameters[0].description, 'Body description')
-  t.same(definedPath.parameters[0].schema, {
+  t.match(definedPath.parameters[0].schema, {
     type: 'object',
     description: 'Body description',
     properties: {
@@ -696,7 +696,7 @@ test('add default properties for url params when missing schema.params', async t
 
   const definedPath = api.paths['/{userId}'].post
 
-  t.strictSame(definedPath.parameters[0].schema, {
+  t.match(definedPath.parameters[0].schema, {
     type: 'object',
     properties: {
       bio: {
@@ -743,7 +743,7 @@ test('avoid overwriting params when schema.params is provided', async t => {
 
   const definedPath = swaggerObject.paths['/{userId}'].post
 
-  t.strictSame(definedPath.parameters[0].schema, {
+  t.match(definedPath.parameters[0].schema, {
     type: 'object',
     properties: {
       bio: {

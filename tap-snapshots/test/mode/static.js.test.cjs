@@ -63,13 +63,3 @@ Error: /hello/lionel.richie does not exist
 exports[`test/mode/static.js TAP specification validation check works > must match snapshot 6`] = `
 Error: specification.postProcessor should be a function
 `
-
-exports[`test/mode/static.js TAP swagger route returns explicitly passed doc > must match snapshot 1`] = `
-{
-  "info": {
-    "title": "Test swagger",
-    "description": "testing the fastify swagger api",
-    "version": "0.1.0"
-  }
-}
-`
