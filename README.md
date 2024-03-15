@@ -138,6 +138,23 @@ fastify.put('/some-route/:id', {
 await fastify.ready()
 fastify.swagger()
 ```
+
+<a name="usage.fastify.autoload"></a>
+### With `@fastify/autoload`
+
+You need to register `@fastify/swagger` before registering `@fastify/autoload`.
+
+```js
+const fastify = require('fastify')()
+const fastify = fastify()
+await fastify.register(require('@fastify/swagger'))
+fastify.register(require("@fastify/autoload"), {
+  dir: path.join(__dirname, 'routes')
+})
+await fastify.ready()
+fastify.swagger()
+```
+
 <a name="api"></a>
 ## API
 
