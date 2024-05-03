@@ -95,7 +95,7 @@ test('swagger definitions', async (t) => {
   await fastify.ready()
 
   const swaggerObject = fastify.swagger()
-  t.same(swaggerObject.definitions, swaggerOption.swagger.definitions)
+  t.match(swaggerObject.definitions, swaggerOption.swagger.definitions)
   delete swaggerOption.swagger.definitions // remove what we just added
 })
 

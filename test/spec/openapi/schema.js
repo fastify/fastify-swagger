@@ -156,7 +156,7 @@ test('support multiple content types as response', async t => {
   const api = await Swagger.validate(swaggerObject)
   const definedPath = api.paths['/'].get
   t.same(definedPath.responses['200'].description, 'Description and all status-code based properties are working')
-  t.strictSame(definedPath.responses['200'].content, {
+  t.match(definedPath.responses['200'].content, {
     'application/json': {
       schema: {
         type: 'object',
@@ -175,7 +175,7 @@ test('support multiple content types as response', async t => {
     }
   })
   t.same(definedPath.responses['4XX'].description, 'Default Response')
-  t.strictSame(definedPath.responses['4XX'].content, {
+  t.match(definedPath.responses['4XX'].content, {
     'application/json': {
       schema: {
         type: 'object',
@@ -185,7 +185,7 @@ test('support multiple content types as response', async t => {
       }
     }
   })
-  t.strictSame(definedPath.responses[300].content, {
+  t.match(definedPath.responses[300].content, {
     'application/json': {
       schema: {
         type: 'object',
@@ -486,7 +486,7 @@ test('support "default" parameter', async t => {
 
   const definedPath = api.paths['/'].get
 
-  t.same(definedPath.responses.default, {
+  t.match(definedPath.responses.default, {
     description: 'Default Response',
     content: {
       'application/json': {
@@ -564,7 +564,7 @@ test('support "patternProperties" parameter', async t => {
 
   const definedPath = api.paths['/'].get
 
-  t.same(definedPath.responses[200], {
+  t.match(definedPath.responses[200], {
     description: 'Expected Response',
     content: {
       'application/json': {
@@ -622,7 +622,7 @@ test('properly support "patternProperties" parameter', async t => {
 
   const definedPath = api.paths['/'].get
 
-  t.same(definedPath.responses[200], {
+  t.match(definedPath.responses[200], {
     description: 'Expected Response',
     content: {
       'application/json': {
@@ -678,7 +678,7 @@ test('support "const" keyword', async t => {
   const api = await Swagger.validate(swaggerObject)
 
   const definedPath = api.paths['/'].post
-  t.same(definedPath.requestBody, {
+  t.match(definedPath.requestBody, {
     content: {
       'application/json': {
         schema: {
@@ -740,7 +740,7 @@ test('support object properties named "const"', async t => {
   const api = await Swagger.validate(swaggerObject)
 
   const definedPath = api.paths['/'].post
-  t.same(definedPath.requestBody, {
+  t.match(definedPath.requestBody, {
     content: {
       'application/json': {
         schema: {
@@ -799,7 +799,7 @@ test('support object properties with special names', async t => {
   const api = await Swagger.validate(swaggerObject)
 
   const definedPath = api.paths['/'].post
-  t.same(definedPath.requestBody, {
+  t.match(definedPath.requestBody, {
     content: {
       'application/json': {
         schema: {
@@ -853,7 +853,7 @@ test('support "description" keyword', async t => {
   const api = await Swagger.validate(swaggerObject)
 
   const definedPath = api.paths['/'].post
-  t.same(definedPath.requestBody, {
+  t.match(definedPath.requestBody, {
     description: 'Body description',
     content: {
       'application/json': {

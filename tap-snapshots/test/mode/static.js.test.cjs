@@ -5,7 +5,7 @@
  * Make sure to inspect the output below.  Do not ignore changes!
  */
 'use strict'
-exports[`test/mode/static.js TAP postProcessor works, swagger route returns updated yaml > must match snapshot 1`] = `
+exports[`test/mode/static.js > TAP > postProcessor works, swagger route returns updated yaml > must match snapshot 1`] = `
 openapi: 3.0.0
 info:
   description: Test swagger specification
@@ -40,36 +40,26 @@ paths:
 
 `
 
-exports[`test/mode/static.js TAP specification validation check works > must match snapshot 1`] = `
+exports[`test/mode/static.js > TAP > specification validation check works > must match snapshot 1`] = `
 Error: specification is missing in the module options
 `
 
-exports[`test/mode/static.js TAP specification validation check works > must match snapshot 2`] = `
+exports[`test/mode/static.js > TAP > specification validation check works > must match snapshot 2`] = `
 Error: specification is not an object
 `
 
-exports[`test/mode/static.js TAP specification validation check works > must match snapshot 3`] = `
+exports[`test/mode/static.js > TAP > specification validation check works > must match snapshot 3`] = `
 Error: both specification.path and specification.document are missing, should be path to the file or swagger document spec
 `
 
-exports[`test/mode/static.js TAP specification validation check works > must match snapshot 4`] = `
+exports[`test/mode/static.js > TAP > specification validation check works > must match snapshot 4`] = `
 Error: specification.path is not a string
 `
 
-exports[`test/mode/static.js TAP specification validation check works > must match snapshot 5`] = `
+exports[`test/mode/static.js > TAP > specification validation check works > must match snapshot 5`] = `
 Error: /hello/lionel.richie does not exist
 `
 
-exports[`test/mode/static.js TAP specification validation check works > must match snapshot 6`] = `
+exports[`test/mode/static.js > TAP > specification validation check works > must match snapshot 6`] = `
 Error: specification.postProcessor should be a function
-`
-
-exports[`test/mode/static.js TAP swagger route returns explicitly passed doc > must match snapshot 1`] = `
-{
-  "info": {
-    "title": "Test swagger",
-    "description": "testing the fastify swagger api",
-    "version": "0.1.0"
-  }
-}
 `
