@@ -133,7 +133,7 @@ fastify.swagger()
 <a name="usage.fastify.autoload"></a>
 ### With `@fastify/autoload`
 
-You need to register `@fastify/swagger` before registering `@fastify/autoload`.
+You need to register `@fastify/swagger` before registering routes.
 
 ```js
 const fastify = require('fastify')()
