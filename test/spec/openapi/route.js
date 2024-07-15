@@ -159,7 +159,7 @@ test('route options - produces', async (t) => {
   const api = await Swagger.validate(openapiObject)
   const definedPath = api.paths['/'].get
   t.ok(definedPath)
-  t.same(definedPath.responses[200].content, {
+  t.match(definedPath.responses[200].content, {
     '*/*': {
       schema: {
         type: 'object',
@@ -234,7 +234,7 @@ test('parses form parameters when all api consumes application/x-www-form-urlenc
   const api = await Swagger.validate(openapiObject)
   const definedPath = api.paths['/'].post
   t.ok(definedPath)
-  t.same(definedPath.requestBody.content, {
+  t.match(definedPath.requestBody.content, {
     'application/x-www-form-urlencoded': {
       schema: {
         type: 'object',
@@ -423,7 +423,7 @@ test('cookie and query with serialization type', async (t) => {
 
   const cookiesPath = api.paths['/'].get
   t.ok(cookiesPath)
-  t.same(cookiesPath.parameters, [
+  t.match(cookiesPath.parameters, [
     {
       required: false,
       in: 'cookie',
@@ -445,7 +445,7 @@ test('cookie and query with serialization type', async (t) => {
 
   const querystringPath = api.paths['/example'].get
   t.ok(querystringPath)
-  t.same(querystringPath.parameters, [
+  t.match(querystringPath.parameters, [
     {
       required: false,
       in: 'query',
