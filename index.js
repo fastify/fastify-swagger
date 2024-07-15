@@ -25,7 +25,7 @@ function fastifySwagger (fastify, opts, next) {
 }
 
 module.exports = fp(fastifySwagger, {
-  fastify: '4.x',
+  fastify: '5.x',
   name: '@fastify/swagger'
 })
 module.exports.fastifySwagger = fastifySwagger
