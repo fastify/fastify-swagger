@@ -44,7 +44,7 @@
     "@fastify/pre-commit": "^2.0.2",
     "@types/node": "^20.1.0",
     "fastify": "^4.0.0",
-    "fluent-json-schema": "^4.0.0",
+    "fluent-json-schema": "^5.0.0",
     "joi": "^17.6.0",
     "joi-to-json": "^4.0.0",
     "qs": "^6.10.3",
