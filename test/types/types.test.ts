@@ -220,16 +220,12 @@ app.get(
         schema,
         url,
         route,
-        swaggerObject,
-        openapiObject,
+        ...documentObject
       }) => {
         schema satisfies FastifySchema;
         url satisfies string;
         route satisfies RouteOptions;
-        swaggerObject satisfies Partial<OpenAPIV2.Document>;
-        openapiObject satisfies Partial<
-          OpenAPIV3.Document | OpenAPIV3_1.Document
-        >;
+        documentObject satisfies { swaggerObject: Partial<OpenAPIV2.Document> } | { openapiObject: Partial<OpenAPIV3.Document | OpenAPIV3_1.Document> };
         return { schema, url };
       },
     },
