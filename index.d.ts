@@ -58,19 +58,24 @@ declare module 'fastify' {
   }
 }
 
+type SwaggerDocumentObject = {
+  swaggerObject: Partial<OpenAPIV2.Document>;
+} | {
+  openapiObject: Partial<OpenAPIV3.Document | OpenAPIV3_1.Document>;
+}
+
 type SwaggerTransform = <S extends FastifySchema = FastifySchema>({
   schema,
   url,
   route,
-  swaggerObject,
-  openapiObject,
+  ...documentObject
 }: {
   schema: S;
   url: string;
   route: RouteOptions;
-  swaggerObject: Partial<OpenAPIV2.Document>;
-  openapiObject: Partial<OpenAPIV3.Document | OpenAPIV3_1.Document>;
-}) => { schema: FastifySchema; url: string }
+} & SwaggerDocumentObject) => { schema: FastifySchema; url: string }
+
+type SwaggerTransformObject = (documentObject: SwaggerDocumentObject) => Partial<OpenAPIV2.Document> | Partial<OpenAPIV3.Document | OpenAPIV3_1.Document>;
 
 type FastifySwagger = FastifyPluginCallback<fastifySwagger.SwaggerOptions>
 
@@ -147,10 +152,7 @@ declare namespace fastifySwagger {
     /**
      * custom function to transform the openapi or swagger object before it is rendered
      */
-    transformObject?: ({ swaggerObject, openapiObject }: {
-      swaggerObject: Partial<OpenAPIV2.Document>;
-      openapiObject: Partial<OpenAPIV3.Document | OpenAPIV3_1.Document>;
-    }) => Partial<OpenAPIV2.Document> | Partial<OpenAPIV3.Document | OpenAPIV3_1.Document>;
+    transformObject?: SwaggerTransformObject;
 
     refResolver?: {
       /** Clone the input schema without changing it. Default to `false`. */
