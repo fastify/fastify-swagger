@@ -136,14 +136,19 @@ fastify.swagger()
 You need to register `@fastify/swagger` before registering routes.
 
 ```js
-const fastify = require('fastify')()
-const fastify = fastify()
-await fastify.register(require('@fastify/swagger'))
-fastify.register(require("@fastify/autoload"), {
-  dir: path.join(__dirname, 'routes')
-})
-await fastify.ready()
-fastify.swagger()
+
+const app = async () => {
+  // ...
+
+  fastify.register(require('@fastify/swagger'))
+
+  // load your routes
+  fastify.register(require("@fastify/autoload"), {
+    dir: path.join(__dirname, 'routes')
+  })
+
+  // ...
+}
 ```
 
 <a name="api"></a>
