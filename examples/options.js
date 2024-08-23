@@ -281,6 +281,15 @@ const schemaSecurity = {
   }
 }
 
+const schemaSecurityMultipleAlterntives = {
+  schema: {
+    security: [
+      { apiKey: [] },
+      { bearerAuth: [] }
+    ]
+  }
+}
+
 const schemaConsumes = {
   schema: {
     consumes: ['application/x-www-form-urlencoded'],
@@ -376,6 +385,7 @@ module.exports = {
   schemaHeaders,
   schemaHeadersParams,
   schemaSecurity,
+  schemaSecurityMultipleAlterntives,
   schemaConsumes,
   schemaProduces,
   schemaCookies,
