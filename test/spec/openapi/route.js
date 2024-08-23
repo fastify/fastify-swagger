@@ -817,7 +817,7 @@ test('security headers ignored when declared in multiple required security objec
           }
         }
       },
-      security: [{ apiKey: [] }, { securityKey: [] }]
+      security: [{ apiKey: [], securityKey: [] }]
     }
   })
 
