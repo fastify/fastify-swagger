@@ -18,7 +18,7 @@ const {
   schemaProduces,
   schemaQuerystring,
   schemaSecurity,
-  schemaSecurityMultipleAlterntives,
+  schemaOpenapiSecurityMultipleAlterntives,
   schemaOperationId
 } = require('../../../examples/options')
 
@@ -36,7 +36,7 @@ test('openapi should return a valid swagger object', async (t) => {
   fastify.get('/headers', schemaHeaders, () => {})
   fastify.get('/headers/:id', schemaHeadersParams, () => {})
   fastify.get('/security', schemaSecurity, () => {})
-  fastify.get('/securityMultipleAlternatives', schemaSecurityMultipleAlterntives, () => {})
+  fastify.get('/securityMultipleAlternatives', schemaOpenapiSecurityMultipleAlterntives, () => {})
 
   await fastify.ready()
 
@@ -61,7 +61,7 @@ test('openapi should return a valid swagger yaml', async (t) => {
   fastify.get('/headers', schemaHeaders, () => {})
   fastify.get('/headers/:id', schemaHeadersParams, () => {})
   fastify.get('/security', schemaSecurity, () => {})
-  fastify.get('/securityMultipleAlternatives', schemaSecurityMultipleAlterntives, () => {})
+  fastify.get('/securityMultipleAlternatives', schemaOpenapiSecurityMultipleAlterntives, () => {})
 
   await fastify.ready()
 
@@ -729,7 +729,7 @@ test('security headers ignored when declared in multiple alternative security ob
           },
           securityKey: {
             type: 'string',
-            description: 'authorization bearer'
+            description: 'security api token'
           },
           id: {
             type: 'string',
@@ -751,7 +751,7 @@ test('security headers ignored when declared in multiple alternative security ob
           },
           securityKey: {
             type: 'string',
-            description: 'authorization bearer'
+            description: 'security api token'
           },
           id: {
             type: 'string',
@@ -832,7 +832,7 @@ test('security headers ignored when declared in multiple required security objec
           },
           securityKey: {
             type: 'string',
-            description: 'authorization bearer'
+            description: 'security api token'
           },
           id: {
             type: 'string',
@@ -854,7 +854,7 @@ test('security headers ignored when declared in multiple required security objec
           },
           securityKey: {
             type: 'string',
-            description: 'authorization bearer'
+            description: 'security api token'
           },
           id: {
             type: 'string',
@@ -1005,7 +1005,7 @@ test('security querystrings ignored when declared in multiple alternative securi
           },
           securityKey: {
             type: 'string',
-            description: 'authorization bearer'
+            description: 'security api token'
           },
           id: {
             type: 'string',
@@ -1027,7 +1027,7 @@ test('security querystrings ignored when declared in multiple alternative securi
           },
           securityKey: {
             type: 'string',
-            description: 'authorization bearer'
+            description: 'security api token'
           },
           id: {
             type: 'string',
@@ -1108,7 +1108,7 @@ test('security querystrings ignored when declared in multiple required security 
           },
           securityKey: {
             type: 'string',
-            description: 'authorization bearer'
+            description: 'security api token'
           },
           id: {
             type: 'string',
@@ -1130,7 +1130,7 @@ test('security querystrings ignored when declared in multiple required security 
           },
           securityKey: {
             type: 'string',
-            description: 'authorization bearer'
+            description: 'security api token'
           },
           id: {
             type: 'string',
@@ -1281,7 +1281,7 @@ test('security cookies ignored when declared in multiple alternative security ob
           },
           securityKey: {
             type: 'string',
-            description: 'authorization bearer'
+            description: 'security api token'
           },
           id: {
             type: 'string',
@@ -1303,7 +1303,7 @@ test('security cookies ignored when declared in multiple alternative security ob
           },
           securityKey: {
             type: 'string',
-            description: 'authorization bearer'
+            description: 'security api token'
           },
           id: {
             type: 'string',
@@ -1384,7 +1384,7 @@ test('security cookies ignored when declared in multiple required security objec
           },
           securityKey: {
             type: 'string',
-            description: 'authorization bearer'
+            description: 'security api token'
           },
           id: {
             type: 'string',
@@ -1406,7 +1406,7 @@ test('security cookies ignored when declared in multiple required security objec
           },
           securityKey: {
             type: 'string',
-            description: 'authorization bearer'
+            description: 'security api token'
           },
           id: {
             type: 'string',

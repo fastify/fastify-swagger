@@ -23,6 +23,9 @@ const swaggerOption = {
         type: 'apiKey',
         name: 'apiKey',
         in: 'header'
+      },
+      basicAuth: {
+        type: 'basic'
       }
     },
     security: [{
@@ -281,11 +284,20 @@ const schemaSecurity = {
   }
 }
 
-const schemaSecurityMultipleAlterntives = {
+const schemaOpenapiSecurityMultipleAlterntives = {
   schema: {
     security: [
       { apiKey: [] },
       { bearerAuth: [] }
+    ]
+  }
+}
+
+const schemaSwaggerSecurityMultipleAlterntives = {
+  schema: {
+    security: [
+      { apiKey: [] },
+      { basicAuth: [] }
     ]
   }
 }
@@ -385,7 +397,8 @@ module.exports = {
   schemaHeaders,
   schemaHeadersParams,
   schemaSecurity,
-  schemaSecurityMultipleAlterntives,
+  schemaOpenapiSecurityMultipleAlterntives,
+  schemaSwaggerSecurityMultipleAlterntives,
   schemaConsumes,
   schemaProduces,
   schemaCookies,

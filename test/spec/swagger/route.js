@@ -14,7 +14,8 @@ const {
   schemaHeadersParams,
   schemaParams,
   schemaQuerystring,
-  schemaSecurity
+  schemaSecurity,
+  schemaSwaggerSecurityMultipleAlterntives
 } = require('../../../examples/options')
 
 test('swagger should return valid swagger object', async (t) => {
@@ -31,6 +32,7 @@ test('swagger should return valid swagger object', async (t) => {
   fastify.get('/headers', schemaHeaders, () => {})
   fastify.get('/headers/:id', schemaHeadersParams, () => {})
   fastify.get('/security', schemaSecurity, () => {})
+  fastify.get('/securityMultipleAlternatives', schemaSwaggerSecurityMultipleAlterntives, () => {})
 
   await fastify.ready()
 
@@ -59,6 +61,7 @@ test('swagger should return a valid swagger yaml', async (t) => {
   fastify.get('/headers', schemaHeaders, () => {})
   fastify.get('/headers/:id', schemaHeadersParams, () => {})
   fastify.get('/security', schemaSecurity, () => {})
+  fastify.get('/securityMultipleAlternatives', schemaSwaggerSecurityMultipleAlterntives, () => {})
 
   await fastify.ready()
 
@@ -476,6 +479,248 @@ test('security headers ignored when declared in security and securityScheme', as
   t.ok(api.paths['/address2/{id}'].get.parameters.find(({ name }) => (name === 'authKey')))
 })
 
+test('security headers ignored when declared in multiple alternative security objects', async (t) => {
+  t.plan(10)
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, {
+    swagger: {
+      securityDefinitions: {
+        apiKey: {
+          type: 'apiKey',
+          name: 'apiKey',
+          in: 'header'
+        },
+        securityKey: {
+          type: 'apiKey',
+          name: 'securityKey',
+          in: 'header'
+        }
+      },
+      security: [
+        { apiKey: [] }, { securityKey: [] }
+      ]
+    }
+  })
+
+  fastify.get('/address1/:id', {
+    schema: {
+      params: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' }
+        }
+      },
+      headers: {
+        type: 'object',
+        properties: {
+          apiKey: {
+            type: 'string',
+            description: 'api token'
+          },
+          securityKey: {
+            type: 'string',
+            description: 'security api token'
+          },
+          somethingElse: {
+            type: 'string',
+            description: 'common field'
+          }
+        }
+      }
+    }
+  }, () => {})
+
+  fastify.get('/address2/:id', {
+    schema: {
+      params: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' }
+        }
+      },
+      headers: {
+        type: 'object',
+        properties: {
+          authKey: {
+            type: 'string',
+            description: 'auth token'
+          },
+          securityKey: {
+            type: 'string',
+            description: 'security api token'
+          },
+          somethingElse: {
+            type: 'string',
+            description: 'common field'
+          }
+        }
+      }
+    }
+  }, () => {})
+
+  fastify.get('/address3/:id', {
+    schema: {
+      params: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' }
+        }
+      },
+      headers: {
+        type: 'object',
+        properties: {
+          authKey: {
+            type: 'string',
+            description: 'auth token'
+          },
+          somethingElse: {
+            type: 'string',
+            description: 'common field'
+          }
+        }
+      }
+    }
+  }, () => {})
+
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  t.equal(typeof swaggerObject, 'object')
+
+  const api = await Swagger.validate(swaggerObject)
+  t.pass('valid swagger object')
+  t.ok(api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'id')))
+  t.notOk(api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'apiKey')))
+  t.notOk(api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'securityKey')))
+  t.ok(api.paths['/address2/{id}'].get.parameters.find(({ name }) => (name === 'id')))
+  t.ok(api.paths['/address2/{id}'].get.parameters.find(({ name }) => (name === 'authKey')))
+  t.notOk(api.paths['/address2/{id}'].get.parameters.find(({ name }) => (name === 'securityKey')))
+  t.ok(api.paths['/address3/{id}'].get.parameters.find(({ name }) => (name === 'id')))
+  t.ok(api.paths['/address3/{id}'].get.parameters.find(({ name }) => (name === 'authKey')))
+})
+
+test('security headers ignored when declared in multiple required security objects', async (t) => {
+  t.plan(10)
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, {
+    swagger: {
+      securityDefinitions: {
+        apiKey: {
+          type: 'apiKey',
+          name: 'apiKey',
+          in: 'header'
+        },
+        securityKey: {
+          type: 'apiKey',
+          name: 'securityKey',
+          in: 'header'
+        }
+      },
+      security: [
+        { apiKey: [], securityKey: [] }
+      ]
+    }
+  })
+
+  fastify.get('/address1/:id', {
+    schema: {
+      params: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' }
+        }
+      },
+      headers: {
+        type: 'object',
+        properties: {
+          apiKey: {
+            type: 'string',
+            description: 'api token'
+          },
+          securityKey: {
+            type: 'string',
+            description: 'security api token'
+          },
+          somethingElse: {
+            type: 'string',
+            description: 'common field'
+          }
+        }
+      }
+    }
+  }, () => {})
+
+  fastify.get('/address2/:id', {
+    schema: {
+      params: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' }
+        }
+      },
+      headers: {
+        type: 'object',
+        properties: {
+          authKey: {
+            type: 'string',
+            description: 'auth token'
+          },
+          securityKey: {
+            type: 'string',
+            description: 'security api token'
+          },
+          somethingElse: {
+            type: 'string',
+            description: 'common field'
+          }
+        }
+      }
+    }
+  }, () => {})
+
+  fastify.get('/address3/:id', {
+    schema: {
+      params: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' }
+        }
+      },
+      headers: {
+        type: 'object',
+        properties: {
+          authKey: {
+            type: 'string',
+            description: 'auth token'
+          },
+          somethingElse: {
+            type: 'string',
+            description: 'common field'
+          }
+        }
+      }
+    }
+  }, () => {})
+
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  t.equal(typeof swaggerObject, 'object')
+
+  const api = await Swagger.validate(swaggerObject)
+  t.pass('valid swagger object')
+  t.ok(api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'id')))
+  t.notOk(api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'apiKey')))
+  t.notOk(api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'securityKey')))
+  t.ok(api.paths['/address2/{id}'].get.parameters.find(({ name }) => (name === 'id')))
+  t.ok(api.paths['/address2/{id}'].get.parameters.find(({ name }) => (name === 'authKey')))
+  t.notOk(api.paths['/address2/{id}'].get.parameters.find(({ name }) => (name === 'securityKey')))
+  t.ok(api.paths['/address3/{id}'].get.parameters.find(({ name }) => (name === 'id')))
+  t.ok(api.paths['/address3/{id}'].get.parameters.find(({ name }) => (name === 'authKey')))
+})
+
 test('security querystrings ignored when declared in security and securityScheme', async (t) => {
   t.plan(6)
   const fastify = Fastify()
@@ -554,6 +799,127 @@ test('security querystrings ignored when declared in security and securityScheme
   t.ok(api.paths['/address2/{id}'].get.parameters.find(({ name }) => (name === 'somethingElse')))
   t.notOk(api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'apiKey')))
   t.ok(api.paths['/address2/{id}'].get.parameters.find(({ name }) => (name === 'authKey')))
+})
+
+test('security querystrings ignored when declared in multiple alternative security objects', async (t) => {
+  t.plan(10)
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, {
+    swagger: {
+      securityDefinitions: {
+        apiKey: {
+          type: 'apiKey',
+          name: 'apiKey',
+          in: 'query'
+        },
+        securityKey: {
+          type: 'apiKey',
+          name: 'securityKey',
+          in: 'query'
+        }
+      },
+      security: [
+        { apiKey: [] }, { securityKey: [] }
+      ]
+    }
+  })
+
+  fastify.get('/address1/:id', {
+    schema: {
+      params: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' }
+        }
+      },
+      querystring: {
+        type: 'object',
+        properties: {
+          apiKey: {
+            type: 'string',
+            description: 'api token'
+          },
+          securityKey: {
+            type: 'string',
+            description: 'security api token'
+          },
+          somethingElse: {
+            type: 'string',
+            description: 'common field'
+          }
+        }
+      }
+    }
+  }, () => {})
+
+  fastify.get('/address2/:id', {
+    schema: {
+      params: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' }
+        }
+      },
+      querystring: {
+        type: 'object',
+        properties: {
+          authKey: {
+            type: 'string',
+            description: 'auth token'
+          },
+          securityKey: {
+            type: 'string',
+            description: 'security api token'
+          },
+          somethingElse: {
+            type: 'string',
+            description: 'common field'
+          }
+        }
+      }
+    }
+  }, () => {})
+
+  fastify.get('/address3/:id', {
+    schema: {
+      params: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' }
+        }
+      },
+      querystring: {
+        type: 'object',
+        properties: {
+          authKey: {
+            type: 'string',
+            description: 'auth token'
+          },
+          somethingElse: {
+            type: 'string',
+            description: 'common field'
+          }
+        }
+      }
+    }
+  }, () => {})
+
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  t.equal(typeof swaggerObject, 'object')
+
+  const api = await Swagger.validate(swaggerObject)
+  t.pass('valid swagger object')
+  t.ok(api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'id')))
+  t.notOk(api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'apiKey')))
+  t.notOk(api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'securityKey')))
+  t.ok(api.paths['/address2/{id}'].get.parameters.find(({ name }) => (name === 'id')))
+  t.ok(api.paths['/address2/{id}'].get.parameters.find(({ name }) => (name === 'authKey')))
+  t.notOk(api.paths['/address2/{id}'].get.parameters.find(({ name }) => (name === 'securityKey')))
+  t.ok(api.paths['/address3/{id}'].get.parameters.find(({ name }) => (name === 'id')))
+  t.ok(api.paths['/address3/{id}'].get.parameters.find(({ name }) => (name === 'authKey')))
 })
 
 test('verify generated path param definition with route prefixing', async (t) => {
