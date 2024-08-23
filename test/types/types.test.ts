@@ -125,6 +125,53 @@ app.get('/public/readonly-schema-route', {
     }
   } as const, (req, reply) => {});
 
+app.register(fastifySwagger, {
+  openapi: {
+    info: {
+      title: "Test openapi",
+      description: "testing multiple security schemes",
+      version: "1.0.0"
+    },
+    components: {
+      securitySchemes: {
+        aapiKey: {
+          type: "apiKey",
+          name: "apiKey",
+          in: "header",
+        },
+        abearerToken: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+        },
+      },
+    },
+    security: [],
+  },
+  mode: 'dynamic',
+});
+
+app.get('/multiple/security/and', {
+  schema: {
+      security: [{ apiKey: [], bearerToken: [] }],
+      response: { 200: {} },
+  },
+}, () => {});
+
+app.get('/multiple/security/or', {
+  schema: {
+      security: [{ apiKey: [] }, { bearerToken: [] }],
+      response: { 200: {} },
+  },
+}, () => {});
+
+app.get('/multiple/security/or/alternative', {
+  schema: {
+      security: [{ apiKey: [], bearerToken: undefined }, { bearerToken: [], apiKey: undefined }],
+      response: { 200: {} },
+  },
+}, () => {});
+
 app
   .register(fastifySwagger, {
     swagger: {

@@ -40,7 +40,7 @@ declare module 'fastify' {
     consumes?: readonly string[];
     produces?: readonly string[];
     externalDocs?: OpenAPIV2.ExternalDocumentationObject | OpenAPIV3.ExternalDocumentationObject;
-    security?: ReadonlyArray<{ [securityLabel: string]: readonly string[] }>;
+    security?: ReadonlyArray<{ [securityLabel: string]: (readonly string[] | undefined) }>;
     /**
      * OpenAPI operation unique identifier
      */
@@ -52,7 +52,7 @@ declare module 'fastify' {
       [statusCode: string]: OpenAPIV3.ResponseObject['links'];
     }
   }
-  
+
   interface FastifyContextConfig {
     swaggerTransform?: SwaggerTransform | false;
   }
