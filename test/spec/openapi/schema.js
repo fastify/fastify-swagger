@@ -123,15 +123,21 @@ test('support multiple content types as response', async t => {
           content: {
             'application/json': {
               schema: {
-                name: { type: 'string' },
-                image: { type: 'string' },
-                address: { type: 'string' }
+                type: 'object',
+                properties: {
+                  name: { type: 'string' },
+                  image: { type: 'string' },
+                  address: { type: 'string' }
+                }
               }
             },
             'application/vnd.v1+json': {
               schema: {
-                fullName: { type: 'string' },
-                phone: { type: 'string' }
+                type: 'object',
+                properties: {
+                  fullName: { type: 'string' },
+                  phone: { type: 'string' }
+                }
               }
             }
           }
@@ -143,7 +149,10 @@ test('support multiple content types as response', async t => {
           }
         },
         300: {
-          age: { type: 'number' }
+          type: 'object',
+          properties: {
+            age: { type: 'number' }
+          }
         }
       }
     }
