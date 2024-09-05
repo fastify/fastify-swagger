@@ -190,8 +190,11 @@ const schemaQuerystring = {
       }
     },
     querystring: {
-      hello: { type: 'string' },
-      world: { type: 'string' }
+      type: 'object',
+      properties: {
+        hello: { type: 'string' },
+        world: { type: 'string' }
+      }
     }
   }
 }

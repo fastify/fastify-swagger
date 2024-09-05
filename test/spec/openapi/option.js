@@ -1446,13 +1446,22 @@ test('copy example of parameters from component to media', async (t) => {
   const opts = {
     schema: {
       headers: {
-        'X-Port': portSchema
+        type: 'object',
+        properties: {
+          'X-Port': portSchema
+        }
       },
       querystring: {
-        port: portSchema
+        type: 'object',
+        properties: {
+          port: portSchema
+        }
       },
       params: {
-        port: portSchema
+        type: 'object',
+        properties: {
+          port: portSchema
+        }
       }
     }
   }
@@ -1567,13 +1576,22 @@ test('move examples of parameters from component to media', async (t) => {
   const opts = {
     schema: {
       headers: {
-        'X-Port': portSchema
+        type: 'object',
+        properties: {
+          'X-Port': portSchema
+        }
       },
       querystring: {
-        port: portSchema
+        type: 'object',
+        properties: {
+          port: portSchema
+        }
       },
       params: {
-        port: portSchema
+        type: 'object',
+        properties: {
+          port: portSchema
+        }
       }
     }
   }
