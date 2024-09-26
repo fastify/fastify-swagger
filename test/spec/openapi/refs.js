@@ -196,6 +196,28 @@ test('support nested $ref schema : complex case without modifying buildLocalRefe
   await Swagger.validate(openapiObject)
 })
 
+test('support nested $ref with patternProperties', async (t) => {
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, { openapi: {} })
+  fastify.register(async (instance) => {
+    instance.addSchema({ $id: 'schemaA', type: 'object', properties: { id: { type: 'integer' } } })
+    instance.addSchema({ $id: 'schemaB', type: 'object', patternProperties: { '^[A-z]{1,10}$': { $ref: 'schemaA#' } } })
+  })
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+  t.equal(typeof openapiObject, 'object')
+
+  const schemas = openapiObject.components.schemas
+  t.match(Object.keys(schemas), ['def-0', 'def-1'])
+
+  // ref must be prefixed by '#/components/schemas/'
+  t.equal(schemas['def-1'].additionalProperties.$ref, '#/components/schemas/def-0')
+
+  await Swagger.validate(openapiObject)
+})
+
 test('support $ref schema in allOf in querystring', async (t) => {
   const fastify = Fastify()
   await fastify.register(fastifySwagger, { openapi: {} })
