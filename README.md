@@ -468,6 +468,9 @@ fastify.get('/responseDescription', {
   }
 }, () => {})
 ```
+
+Additionally, if you provide a `$ref` in your response schema but no description, the reference's description will be used as a fallback.
+
 <a name="route.response.2xx"></a>
 ##### Status code 2xx
 Fastify supports both the `2xx` and `3xx` status codes, however Swagger (OpenAPI v2) itself does not.
