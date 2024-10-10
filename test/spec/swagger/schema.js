@@ -69,6 +69,36 @@ test('support response description', async t => {
   t.same(definedPath.responses['200'].description, 'Response OK!')
 })
 
+test('support response description fallback to its $ref', async t => {
+  const opts = {
+    schema: {
+      response: {
+        200: {
+          $ref: 'my-ref#'
+        }
+      }
+    }
+  }
+
+  const fastify = Fastify()
+  fastify.addSchema({
+    $id: 'my-ref',
+    description: 'Response OK!',
+    type: 'string'
+  })
+
+  await fastify.register(fastifySwagger)
+  fastify.get('/', opts, () => {})
+
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  const api = await Swagger.validate(swaggerObject)
+
+  const definedPath = api.paths['/'].get
+  t.same(definedPath.responses['200'].description, 'Response OK!')
+})
+
 test('response default description', async t => {
   const opts9 = {
     schema: {
