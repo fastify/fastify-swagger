@@ -387,6 +387,41 @@ test('response: description and x-response-description', async () => {
     t.equal(schemaObject.description, description)
     t.equal(schemaObject.responseDescription, undefined)
   })
+
+  test('retrieve the response description from its given $ref schema', async t => {
+    // Given a /description endpoint that also has a |description| field in its response referenced schema
+    const fastify = Fastify()
+    fastify.addSchema({
+      $id: 'my-ref',
+      description,
+      type: 'string'
+    })
+
+    await fastify.register(fastifySwagger, openapiOption)
+    fastify.get('/description', {
+      schema: {
+        response: {
+          200: {
+            $ref: 'my-ref#'
+          }
+        }
+      }
+    }, () => {})
+    await fastify.ready()
+
+    // When the Swagger schema is generated
+    const swaggerObject = fastify.swagger()
+    const api = await Swagger.validate(swaggerObject)
+
+    const responseObject = api.paths['/description'].get.responses['200']
+    t.ok(responseObject)
+    t.equal(responseObject.description, description)
+
+    const schemaObject = responseObject.content['application/json'].schema
+    t.ok(schemaObject)
+    t.equal(schemaObject.description, description)
+    t.equal(schemaObject.responseDescription, undefined)
+  })
 })
 
 test('support default=null', async t => {
