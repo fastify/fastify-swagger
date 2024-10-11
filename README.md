@@ -469,7 +469,7 @@ fastify.get('/responseDescription', {
 }, () => {})
 ```
 
-Additionally, if you provide a `$ref` in your response schema but no description, the reference's description will be used as a fallback. Note that at the moment, `$ref` will only be resolved by matching with `$id` and not through complex paths. Currently being addressed in [this Pull Request](https://github.com/fastify/fastify-swagger/pull/676).
+Additionally, if you provide a `$ref` in your response schema but no description, the reference's description will be used as a fallback. Note that at the moment, `$ref` will only be resolved by matching with `$id` and not through complex paths.
 
 <a name="route.response.2xx"></a>
 ##### Status code 2xx
