@@ -112,6 +112,59 @@ fastify.register(async function (fastify) {
   }, (req, reply) => { reply.send({ hello: `Hello ${req.body.hello}` }) })
 })
 
+fastify.post('/subscribe', {
+  schema: {
+    description: 'subscribe for webhooks',
+    summary: 'webhook example',
+    security: [],
+    response: {
+      201: {
+        description: 'Succesful response'
+      }
+    },
+    body: {
+      type: 'object',
+      properties: {
+        callbackUrl: {
+          type: 'string',
+          examples: ['https://example.com']
+        }
+      }
+    },
+    callbacks: {
+      myEvent: {
+        '{$request.body#/callbackUrl}': {
+          post: {
+            requestBody: {
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      message: {
+                        type: 'string',
+                        example: 'Some event happened'
+                      }
+                    },
+                    required: [
+                      'message'
+                    ]
+                  }
+                }
+              }
+            },
+            responses: {
+              200: {
+                description: 'Success'
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+})
+
 fastify.listen({ port: 3000 }, err => {
   if (err) throw err
 })

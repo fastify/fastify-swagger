@@ -377,3 +377,56 @@ test('renders $ref schema with additional keywords', async (t) => {
   t.match(res.statusCode, 400)
   t.match(openapiObject.paths['/url1'].get.parameters[0].schema, cookie)
 })
+
+test('support $ref in callbacks', async (t) => {
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, openapiOption)
+  fastify.register(async (instance) => {
+    instance.addSchema({ $id: 'Subscription', type: 'object', properties: { callbackUrl: { type: 'string', examples: ['https://example.com'] } } })
+    instance.addSchema({ $id: 'Event', type: 'object', properties: { message: { type: 'string', examples: ['Some event happened'] } } })
+    instance.post('/subscribe', {
+      schema: {
+        body: {
+          $ref: 'Subscription#'
+        },
+        response: {
+          200: {
+            $ref: 'Subscription#'
+          }
+        },
+        callbacks: {
+          myEvent: {
+            '{$request.body#/callbackUrl}': {
+              post: {
+                requestBody: {
+                  content: {
+                    'application/json': {
+                      schema: { $ref: 'Event#' }
+                    }
+                  }
+                },
+                responses: {
+                  200: {
+                    description: 'Success'
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }, () => {})
+  })
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+
+  t.equal(typeof openapiObject, 'object')
+  t.match(Object.keys(openapiObject.components.schemas), ['Subscription', 'Event'])
+  t.equal(openapiObject.components.schemas.Subscription.properties.callbackUrl.example, 'https://example.com')
+  t.equal(openapiObject.components.schemas.Event.properties.message.example, 'Some event happened')
+
+  await Swagger.validate(openapiObject)
+})
