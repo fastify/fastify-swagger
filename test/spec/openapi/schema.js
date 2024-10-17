@@ -1136,3 +1136,430 @@ test('support multiple content types as request', async t => {
     }
   })
 })
+
+test('support callbacks', async () => {
+  test('includes callbacks in openapiObject', async t => {
+    const fastify = Fastify()
+
+    await fastify.register(fastifySwagger, openapiOption)
+    fastify.register(async (instance) => {
+      instance.post(
+        '/subscribe',
+        {
+          schema: {
+            body: {
+              $id: 'Subscription',
+              type: 'object',
+              properties: {
+                callbackUrl: {
+                  type: 'string',
+                  examples: ['https://example.com']
+                }
+              }
+            },
+            response: {
+              200: {
+                $id: 'Subscription',
+                type: 'object',
+                properties: {
+                  callbackUrl: {
+                    type: 'string',
+                    examples: ['https://example.com']
+                  }
+                }
+              }
+            },
+            callbacks: {
+              myEvent: {
+                '{$request.body#/callbackUrl}': {
+                  post: {
+                    requestBody: {
+                      content: {
+                        'application/json': {
+                          schema: {
+                            type: 'object',
+                            properties: {
+                              message: {
+                                type: 'string',
+                                example: 'Some event happened'
+                              }
+                            },
+                            required: ['message']
+                          }
+                        }
+                      }
+                    },
+                    responses: {
+                      200: {
+                        description: 'Success'
+                      }
+                    }
+                  }
+                }
+              },
+              myOtherEvent: {
+                '{$request.body#/callbackUrl}': {
+                  post: {
+                    responses: {
+                      200: {
+                        description: 'Success'
+                      },
+                      500: {
+                        description: 'Error'
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        () => {}
+      )
+    })
+
+    await fastify.ready()
+
+    const openapiObject = fastify.swagger()
+
+    t.equal(typeof openapiObject, 'object')
+    t.equal(typeof openapiObject.paths['/subscribe'].post.callbacks, 'object')
+
+    const definedPath = openapiObject.paths['/subscribe'].post.callbacks
+
+    t.strictSame(
+      definedPath.myEvent['{$request.body#/callbackUrl}'].post.requestBody
+        .content['application/json'].schema.properties,
+      {
+        message: {
+          type: 'string',
+          example: 'Some event happened'
+        }
+      }
+    )
+
+    t.same(
+      definedPath.myOtherEvent['{$request.body#/callbackUrl}'].post.requestBody,
+      null
+    )
+
+    await Swagger.validate(openapiObject)
+  })
+
+  test('sets callback response default if not included', async t => {
+    const fastify = Fastify()
+
+    await fastify.register(fastifySwagger, openapiOption)
+    fastify.register(async (instance) => {
+      instance.post(
+        '/subscribe',
+        {
+          schema: {
+            body: {
+              $id: 'Subscription',
+              type: 'object',
+              properties: {
+                callbackUrl: {
+                  type: 'string',
+                  examples: ['https://example.com']
+                }
+              }
+            },
+            response: {
+              200: {
+                $id: 'Subscription',
+                type: 'object',
+                properties: {
+                  callbackUrl: {
+                    type: 'string',
+                    examples: ['https://example.com']
+                  }
+                }
+              }
+            },
+            callbacks: {
+              myEvent: {
+                '{$request.body#/callbackUrl}': {
+                  post: {
+                    requestBody: {
+                      content: {
+                        'application/json': {
+                          schema: {
+                            type: 'object',
+                            properties: {
+                              message: {
+                                type: 'string',
+                                example: 'Some event happened'
+                              }
+                            },
+                            required: ['message']
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        () => {}
+      )
+    })
+
+    await fastify.ready()
+
+    const openapiObject = fastify.swagger()
+
+    t.equal(typeof openapiObject, 'object')
+    t.equal(typeof openapiObject.paths['/subscribe'].post.callbacks, 'object')
+
+    const definedPath = openapiObject.paths['/subscribe'].post
+
+    t.equal(
+      definedPath.callbacks.myEvent['{$request.body#/callbackUrl}'].post
+        .responses['2XX'].description,
+      'Default Response'
+    )
+
+    await Swagger.validate(openapiObject)
+  })
+
+  test('skips callbacks if badly formatted', async t => {
+    const fastify = Fastify()
+
+    await fastify.register(fastifySwagger, openapiOption)
+    fastify.register(async (instance) => {
+      instance.post(
+        '/subscribe',
+        {
+          schema: {
+            body: {
+              $id: 'Subscription',
+              type: 'object',
+              properties: {
+                callbackUrl: {
+                  type: 'string',
+                  examples: ['https://example.com']
+                }
+              }
+            },
+            response: {
+              200: {
+                $id: 'Subscription',
+                type: 'object',
+                properties: {
+                  callbackUrl: {
+                    type: 'string',
+                    examples: ['https://example.com']
+                  }
+                }
+              }
+            },
+            callbacks: {
+              myEvent: null
+            }
+          }
+        },
+        () => {}
+      )
+    })
+
+    await fastify.ready()
+
+    const openapiObject = fastify.swagger()
+
+    t.equal(typeof openapiObject, 'object')
+    t.strictSame(openapiObject.paths['/subscribe'].post.callbacks, {})
+
+    await Swagger.validate(openapiObject)
+  })
+
+  test('skips callback if event is badly formatted', async t => {
+    const fastify = Fastify()
+
+    await fastify.register(fastifySwagger, openapiOption)
+    fastify.register(async (instance) => {
+      instance.post(
+        '/subscribe',
+        {
+          schema: {
+            body: {
+              $id: 'Subscription',
+              type: 'object',
+              properties: {
+                callbackUrl: {
+                  type: 'string',
+                  examples: ['https://example.com']
+                }
+              }
+            },
+            response: {
+              200: {
+                $id: 'Subscription',
+                type: 'object',
+                properties: {
+                  callbackUrl: {
+                    type: 'string',
+                    examples: ['https://example.com']
+                  }
+                }
+              }
+            },
+            callbacks: {
+              myEvent: {
+                '{$request.body#/callbackUrl}': {
+                  post: {
+                    requestBody: {
+                      content: {
+                        'application/json': {
+                          schema: {
+                            type: 'object',
+                            properties: {
+                              message: {
+                                type: 'string',
+                                example: 'Some event happened'
+                              }
+                            },
+                            required: ['message']
+                          }
+                        }
+                      }
+                    },
+                    responses: {
+                      200: {
+                        description: 'Success'
+                      }
+                    }
+                  }
+                }
+              },
+              myOtherEvent: {
+                '{$request.body#/callbackUrl}': {}
+              }
+            }
+          }
+        },
+        () => {}
+      )
+    })
+
+    await fastify.ready()
+
+    const openapiObject = fastify.swagger()
+
+    t.equal(typeof openapiObject, 'object')
+    t.equal(typeof openapiObject.paths['/subscribe'].post.callbacks, 'object')
+    t.match(Object.keys(openapiObject.paths['/subscribe'].post.callbacks), [
+      'myEvent'
+    ])
+
+    const definedPath = openapiObject.paths['/subscribe'].post.callbacks
+
+    t.strictSame(
+      definedPath.myEvent['{$request.body#/callbackUrl}'].post.requestBody
+        .content['application/json'].schema.properties,
+      {
+        message: {
+          type: 'string',
+          example: 'Some event happened'
+        }
+      }
+    )
+
+    await Swagger.validate(openapiObject)
+  })
+
+  test('skips callback if method is badly formatted', async t => {
+    const fastify = Fastify()
+
+    await fastify.register(fastifySwagger, openapiOption)
+    fastify.register(async (instance) => {
+      instance.post(
+        '/subscribe',
+        {
+          schema: {
+            body: {
+              $id: 'Subscription',
+              type: 'object',
+              properties: {
+                callbackUrl: {
+                  type: 'string',
+                  examples: ['https://example.com']
+                }
+              }
+            },
+            response: {
+              200: {
+                $id: 'Subscription',
+                type: 'object',
+                properties: {
+                  callbackUrl: {
+                    type: 'string',
+                    examples: ['https://example.com']
+                  }
+                }
+              }
+            },
+            callbacks: {
+              myEvent: {
+                '{$request.body#/callbackUrl}': {
+                  post: {
+                    requestBody: {
+                      content: {
+                        'application/json': {
+                          schema: {
+                            type: 'object',
+                            properties: {
+                              message: {
+                                type: 'string',
+                                example: 'Some event happened'
+                              }
+                            },
+                            required: ['message']
+                          }
+                        }
+                      }
+                    },
+                    responses: {
+                      200: {
+                        description: 'Success'
+                      }
+                    }
+                  }
+                }
+              },
+              myOtherEvent: {}
+            }
+          }
+        },
+        () => {}
+      )
+    })
+
+    await fastify.ready()
+
+    const openapiObject = fastify.swagger()
+
+    t.equal(typeof openapiObject, 'object')
+    t.equal(typeof openapiObject.paths['/subscribe'].post.callbacks, 'object')
+    t.match(Object.keys(openapiObject.paths['/subscribe'].post.callbacks), [
+      'myEvent'
+    ])
+
+    const definedPath = openapiObject.paths['/subscribe'].post.callbacks
+
+    t.strictSame(
+      definedPath.myEvent['{$request.body#/callbackUrl}'].post.requestBody
+        .content['application/json'].schema.properties,
+      {
+        message: {
+          type: 'string',
+          example: 'Some event happened'
+        }
+      }
+    )
+
+    await Swagger.validate(openapiObject)
+  })
+})
