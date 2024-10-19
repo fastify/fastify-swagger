@@ -520,7 +520,7 @@ test('parameter & header examples', async t => {
     const { parameters } = openapiObject.paths['/'].post
 
     t.ok(parameters.every(({ example }) => example === 'world'))
-    t.ok(parameters.every(param => !Object.prototype.hasOwnProperty.call(param, 'examples')))
+    t.ok(parameters.every(param => !Object.hasOwn(param, 'examples')))
   })
 
   t.test('uses .examples if has multiple examples', async t => {
@@ -545,7 +545,7 @@ test('parameter & header examples', async t => {
       world: { value: 'world' },
       universe: { value: 'universe' }
     }))
-    t.ok(parameters.every(param => !Object.prototype.hasOwnProperty.call(param, 'example')))
+    t.ok(parameters.every(param => !Object.hasOwn(param, 'example')))
   })
 })
 
