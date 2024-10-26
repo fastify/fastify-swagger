@@ -1022,6 +1022,63 @@ test('add default properties for url params when missing schema.params', async t
   })
 })
 
+test('support custom transforms which returns $ref in the response', async t => {
+  const customObject = {}
+  const opt = {
+    schema: {
+      response: {
+        200: customObject
+      }
+    }
+  }
+
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, {
+    openapi: true,
+    transform: ({ schema, ...rest }) => {
+      schema.response['200'] = {
+        $ref: '#/components/schemas/CustomObject'
+      }
+      return {
+        schema,
+        ...rest
+      }
+    },
+    transformObject: ({ openapiObject }) => {
+      openapiObject.components.schemas.CustomObject = {
+        type: 'object',
+        properties: {
+          hello: {
+            type: 'string'
+          }
+        }
+      }
+      return openapiObject
+    }
+  })
+  fastify.post('/', opt, () => { })
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+
+  const swaggerPath = swaggerObject.paths['/'].post
+  t.has(swaggerPath.responses['200'].content['application/json'].schema, {
+    $ref: '#/components/schemas/CustomObject'
+  })
+
+  // validate seems to mutate the swaggerPath object
+  const api = await Swagger.validate(swaggerObject)
+  const definedPath = api.paths['/'].post
+  t.same(definedPath.responses['200'].content['application/json'].schema, {
+    type: 'object',
+    properties: {
+      hello: {
+        type: 'string'
+      }
+    }
+  })
+})
+
 test('avoid overwriting params when schema.params is provided', async t => {
   const opt = {
     schema: {
