@@ -26,12 +26,12 @@ npm i @fastify/swagger
 
 | Plugin version | Fastify version |
 | -------------- | --------------- |
-| `^9.0.0`       | `^5.0.0`        |
-| `^8.0.0`       | `^4.0.0`        |
-| `^7.0.0`       | `^4.0.0`        |
-| `^6.0.0`       | `^3.0.0`        |
-| `^3.0.0`       | `^2.0.0`        |
-| `^1.0.0`       | `^1.0.0`        |
+| `^9.x`         | `^5.x`          |
+| `^8.x`         | `^4.x`          |
+| `^7.x`         | `^4.x`          |
+| `^6.x`         | `^3.x`          |
+| `^3.x`         | `^2.x`          |
+| `^1.x`         | `^1.x`          |
 
 
 Please note that if a Fastify version is out of support, then so are the corresponding version(s) of this plugin
