@@ -536,16 +536,16 @@ Please use `content` for the response otherwise Fastify itself will fail to comp
       description: 'Description and all status-code based properties are working',
       content: {
         'application/json': {
-          schema: { 
-            name: { type: 'string' }, 
-            image: { type: 'string' }, 
-            address: { type: 'string' } 
+          schema: {
+            name: { type: 'string' },
+            image: { type: 'string' },
+            address: { type: 'string' }
           }
-        }, 
+        },
         'application/vnd.v1+json': {
-          schema: { 
-            fullName: { type: 'string' }, 
-            phone: { type: 'string' } 
+          schema: {
+            fullName: { type: 'string' },
+            phone: { type: 'string' }
           }
         }
       }
@@ -957,7 +957,7 @@ You can integrate this plugin with ```@fastify/helmet``` with some little work.
 <a name="schema.examplesField"></a>
 ### Add examples to the schema
 
-Note: [OpenAPI](https://swagger.io/specification/#example-object) and [JSON Schema](https://json-schema.org/draft/2020-12/json-schema-validation.html#rfc.section.9.5) have different examples field formats. 
+Note: [OpenAPI](https://swagger.io/specification/#example-object) and [JSON Schema](https://json-schema.org/draft/2020-12/json-schema-validation.html#rfc.section.9.5) have different examples field formats.
 
 Array with examples from JSON Schema converted to OpenAPI `example` or `examples` field automatically with generated names (example1, example2...):
 
@@ -1067,16 +1067,16 @@ fastify.route({
       "x-examples": {
         Cats: {
           summary: "Feed cats",
-          description: 
+          description:
             "A longer **description** of the options with cats",
-          value: { 
-            animals: ["Tom", "Garfield", "Felix"] 
+          value: {
+            animals: ["Tom", "Garfield", "Felix"]
           }
         },
         Dogs: {
           summary: "Feed dogs",
-          value: { 
-            animals: ["Spike", "Odie", "Snoopy"] 
+          value: {
+            animals: ["Spike", "Odie", "Snoopy"]
           }
         }
       }
