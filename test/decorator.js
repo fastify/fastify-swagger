@@ -33,3 +33,15 @@ test('fastify.swagger should throw if called before ready (openapi)', async (t) 
 
   t.throws(fastify.swagger.bind(fastify))
 })
+
+test('decorator can be overridden', async (t) => {
+  t.plan(1)
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, { decorator: 'customSwaggerDecorator' })
+
+  await fastify.ready()
+
+  await fastify.ready()
+  t.ok(fastify.customSwaggerDecorator())
+})

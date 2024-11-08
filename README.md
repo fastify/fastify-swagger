@@ -230,18 +230,19 @@ An example of using `@fastify/swagger` with `static` mode enabled can be found [
 
 #### Options
 
- | Option           | Default  | Description                                                                                                                   |
- | ---------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------- |
- | hiddenTag        | X-HIDDEN | Tag to control hiding of routes.                                                                                              |
- | hideUntagged     | false    | If `true` remove routes without tags from resulting Swagger/OpenAPI schema file.                                              |
- | initOAuth        | {}       | Configuration options for [Swagger UI initOAuth](https://swagger.io/docs/open-source-tools/swagger-ui/usage/oauth2/).         |
- | openapi          | {}       | [OpenAPI configuration](https://swagger.io/specification/#oasObject).                                                         |
- | stripBasePath    | true     | Strips base path from routes in docs.                                                                                         |
- | swagger          | {}       | [Swagger configuration](https://swagger.io/specification/v2/#swaggerObject).                                                  |
- | transform        | null     | Transform method for the route's schema and url. [documentation](#register.options.transform).                                |  |
- | transformObject  | null     | Transform method for the swagger or openapi object before it is rendered. [documentation](#register.options.transformObject). |  |
- | refResolver      | {}       | Option to manage the `$ref`s of your application's schemas. Read the [`$ref` documentation](#register.options.refResolver)    |
- | exposeHeadRoutes | false    | Include HEAD routes in the definitions                                                                                        |
+ | Option           | Default   | Description                                                                                                                   |
+ | ---------------- | --------  | ----------------------------------------------------------------------------------------------------------------------------- |
+ | hiddenTag        | X-HIDDEN  | Tag to control hiding of routes.                                                                                              |
+ | hideUntagged     | false     | If `true` remove routes without tags from resulting Swagger/OpenAPI schema file.                                              |
+ | initOAuth        | {}        | Configuration options for [Swagger UI initOAuth](https://swagger.io/docs/open-source-tools/swagger-ui/usage/oauth2/).         |
+ | openapi          | {}        | [OpenAPI configuration](https://swagger.io/specification/#oasObject).                                                         |
+ | stripBasePath    | true      | Strips base path from routes in docs.                                                                                         |
+ | swagger          | {}        | [Swagger configuration](https://swagger.io/specification/v2/#swaggerObject).                                                  |
+ | transform        | null      | Transform method for the route's schema and url. [documentation](#register.options.transform).                                |
+ | transformObject  | null      | Transform method for the swagger or openapi object before it is rendered. [documentation](#register.options.transformObject). |
+ | refResolver      | {}        | Option to manage the `$ref`s of your application's schemas. Read the [`$ref` documentation](#register.options.refResolver)    |
+ | exposeHeadRoutes | false     | Include HEAD routes in the definitions                                                                                        |
+ | decorator        | 'swagger' | Overrides the Fastify decorator. [documentation](#register.options.decorator).                                                |
 
 <a name="register.options.transform"></a>
 #### Transform
@@ -361,6 +362,61 @@ await fastify.register(require('@fastify/swagger'), {
 ```
 
 To deep down the `buildLocalReference` arguments, you may read the [documentation](https://github.com/Eomm/json-schema-resolver#usage-resolve-one-schema-against-external-schemas).
+
+<a name="register.options.decorator"></a>
+#### Decorator
+
+By passing a string to the `decorator` option, you can override the default decorator function (`fastify.swagger()`) with a custom one. This allows you to create multiple documents by registering fastify-swagger multiple times with different `transform` functions:
+
+```js
+// Create an internal swagger doc
+await fastify.register(require('@fastify/swagger'), {
+  swagger: { ... },
+  transform: ({ schema, url, route, swaggerObject }) => {
+    const {
+      params,
+      body,
+      querystring,
+      headers,
+      response,
+      ...transformedSchema
+    } = schema
+    let transformedUrl = url
+
+    if (url.startsWith('/internal')) transformedSchema.hide = true
+
+    return { schema: transformedSchema, url: transformedUrl }
+  },
+  decorator: 'internalSwagger'
+})
+
+// Create an external swagger doc
+await fastify.register(require('@fastify/swagger'), {
+  swagger: { ... },
+  transform: ({ schema, url, route, swaggerObject }) => {
+    const {
+      params,
+      body,
+      querystring,
+      headers,
+      response,
+      ...transformedSchema
+    } = schema
+    let transformedUrl = url
+
+    if (url.startsWith('/external')) transformedSchema.hide = true
+
+    return { schema: transformedSchema, url: transformedUrl }
+  },
+  decorator: 'externalSwagger'
+})
+```
+
+You can then call those decorators individually to retrieve them:
+```
+fastify.internalSwagger()
+fastify.externalSwagger()
+```
 
 <a name="route.options"></a>
 ### Route options
