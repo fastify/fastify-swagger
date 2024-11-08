@@ -1382,7 +1382,7 @@ test('support callbacks', async () => {
     await Swagger.validate(openapiObject)
   })
 
-  test('skips callbacks if badly formatted', async t => {
+  test('skips callbacks if event is badly formatted', async t => {
     const fastify = Fastify()
 
     await fastify.register(fastifySwagger, openapiOption)
@@ -1432,7 +1432,7 @@ test('support callbacks', async () => {
     await Swagger.validate(openapiObject)
   })
 
-  test('skips callback if event is badly formatted', async t => {
+  test('skips callback if callbackUrl is badly formatted', async t => {
     const fastify = Fastify()
 
     await fastify.register(fastifySwagger, openapiOption)
@@ -1492,7 +1492,7 @@ test('support callbacks', async () => {
                 }
               },
               myOtherEvent: {
-                '{$request.body#/callbackUrl}': {}
+                '{$request.body#/callbackUrl}': null
               }
             }
           }
@@ -1586,7 +1586,11 @@ test('support callbacks', async () => {
                   }
                 }
               },
-              myOtherEvent: {}
+              myOtherEvent: {
+                '{$request.body#/callbackUrl}': {
+                  post: null
+                }
+              }
             }
           }
         },
@@ -1615,6 +1619,188 @@ test('support callbacks', async () => {
           example: 'Some event happened'
         }
       }
+    )
+
+    await Swagger.validate(openapiObject)
+  })
+
+  test('supports multiple callbackUrls and httpMethods in openapiObject', async t => {
+    const fastify = Fastify()
+
+    await fastify.register(fastifySwagger, openapiOption)
+    fastify.register(async (instance) => {
+      instance.post(
+        '/subscribe',
+        {
+          schema: {
+            body: {
+              $id: 'Subscription',
+              type: 'object',
+              properties: {
+                callbackUrl: {
+                  type: 'string',
+                  examples: ['https://example.com']
+                }
+              }
+            },
+            response: {
+              200: {
+                $id: 'Subscription',
+                type: 'object',
+                properties: {
+                  callbackUrl: {
+                    type: 'string',
+                    examples: ['https://example.com']
+                  }
+                }
+              }
+            },
+            callbacks: {
+              myEvent: {
+                '{$request.body#/callbackUrl}': {
+                  post: {
+                    requestBody: {
+                      content: {
+                        'application/json': {
+                          schema: {
+                            type: 'object',
+                            properties: {
+                              message: {
+                                type: 'string',
+                                example: 'Some event happened'
+                              }
+                            },
+                            required: ['message']
+                          }
+                        }
+                      }
+                    },
+                    responses: {
+                      200: {
+                        description: 'Success'
+                      }
+                    }
+                  }
+                },
+                '{$request.body#/anotherUrl}': {
+                  post: {
+                    requestBody: {
+                      content: {
+                        'application/json': {
+                          schema: {
+                            type: 'object',
+                            properties: {
+                              message: {
+                                type: 'string',
+                                example: 'Another event happened'
+                              }
+                            },
+                            required: ['message']
+                          }
+                        }
+                      }
+                    },
+                    responses: {
+                      200: {
+                        description: 'Success'
+                      }
+                    }
+                  },
+                  put: {
+                    requestBody: {
+                      content: {
+                        'application/json': {
+                          schema: {
+                            type: 'object',
+                            properties: {
+                              message: {
+                                type: 'string',
+                                example: 'PUT event happened'
+                              }
+                            },
+                            required: ['message']
+                          }
+                        }
+                      }
+                    },
+                    responses: {
+                      200: {
+                        description: 'Success'
+                      }
+                    }
+                  }
+                }
+              },
+              myOtherEvent: {
+                '{$request.body#/callbackUrl}': {
+                  post: {
+                    responses: {
+                      200: {
+                        description: 'Success'
+                      },
+                      500: {
+                        description: 'Error'
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        () => {}
+      )
+    })
+
+    await fastify.ready()
+
+    const openapiObject = fastify.swagger()
+
+    t.equal(typeof openapiObject, 'object')
+    t.equal(typeof openapiObject.paths['/subscribe'].post.callbacks, 'object')
+
+    const definedPath = openapiObject.paths['/subscribe'].post.callbacks
+
+    // First Event->First URL->First Method
+    t.strictSame(
+      definedPath.myEvent['{$request.body#/callbackUrl}'].post.requestBody
+        .content['application/json'].schema.properties,
+      {
+        message: {
+          type: 'string',
+          example: 'Some event happened'
+        }
+      }
+    )
+
+    // First Event->Second URL->First Method
+    t.strictSame(
+      definedPath.myEvent['{$request.body#/anotherUrl}'].post.requestBody
+        .content['application/json'].schema.properties,
+      {
+        message: {
+          type: 'string',
+          example: 'Another event happened'
+        }
+      }
+    )
+
+    // First Event->Second URL->Second Method
+    t.strictSame(
+      definedPath.myEvent['{$request.body#/anotherUrl}'].put.requestBody
+        .content['application/json'].schema.properties,
+      {
+        message: {
+          type: 'string',
+          example: 'PUT event happened'
+        }
+      }
+    )
+
+    // Second Event
+    t.same(
+      definedPath.myOtherEvent['{$request.body#/callbackUrl}'].post.requestBody,
+      null
     )
 
     await Swagger.validate(openapiObject)
