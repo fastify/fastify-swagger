@@ -381,9 +381,10 @@ await fastify.register(require('@fastify/swagger'), {
       response,
       ...transformedSchema
     } = schema
-    let transformedUrl = url
+    let transformedUrl = URL
 
-    if (url.startsWith('/internal')) transformedSchema.hide = true
+    // Hide external URLs
+    if (url.startsWith('/external')) transformedSchema.hide = true
 
     return { schema: transformedSchema, url: transformedUrl }
   },
@@ -402,9 +403,10 @@ await fastify.register(require('@fastify/swagger'), {
       response,
       ...transformedSchema
     } = schema
-    let transformedUrl = url
+    let transformedUrl = URL
 
-    if (url.startsWith('/external')) transformedSchema.hide = true
+    // Hide internal URLs
+    if (url.startsWith('/internal')) transformedSchema.hide = true
 
     return { schema: transformedSchema, url: transformedUrl }
   },
