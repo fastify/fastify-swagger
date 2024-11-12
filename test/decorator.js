@@ -41,7 +41,5 @@ test('decorator can be overridden', async (t) => {
   await fastify.register(fastifySwagger, { decorator: 'customSwaggerDecorator' })
 
   await fastify.ready()
-
-  await fastify.ready()
   t.ok(fastify.customSwaggerDecorator())
 })
