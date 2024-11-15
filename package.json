@@ -1,6 +1,6 @@
 {
   "name": "@fastify/swagger",
-  "version": "9.2.0",
+  "version": "9.3.0",
   "description": "Serve Swagger/OpenAPI documentation for Fastify, supporting dynamic generation",
   "main": "index.js",
   "type": "commonjs",
