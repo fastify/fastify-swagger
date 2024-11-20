@@ -1,7 +1,7 @@
 # @fastify/swagger
 
 [![NPM version](https://img.shields.io/npm/v/@fastify/swagger.svg?style=flat)](https://www.npmjs.com/package/@fastify/swagger)
-![CI(https://github.com/fastify/fastify-swagger/workflows/CI/badge.svg)
+![CI](https://github.com/fastify/fastify-swagger/workflows/CI/badge.svg)
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](https://standardjs.com/)
 
 A Fastify plugin for serving [Swagger (OpenAPI v2)](https://swagger.io/specification/v2/) or [OpenAPI v3](https://swagger.io/specification) schemas, which are automatically generated from your route schemas, or from an existing Swagger/OpenAPI schema.
