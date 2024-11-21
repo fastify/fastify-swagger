@@ -366,7 +366,7 @@ To deep down the `buildLocalReference` arguments, you may read the [documentatio
 <a name="register.options.decorator"></a>
 #### Decorator
 
-By passing a string to the `decorator` option, you can override the default decorator function (`fastify.swagger()`) with a custom one. This allows you to create multiple documents by registering fastify-swagger multiple times with different `transform` functions:
+By passing a string to the `decorator` option, you can override the default decorator function (`fastify.swagger()`) with a custom one. This allows you to create multiple documents by registering `@fastify/swagger` multiple times with different `transform` functions:
 
 ```js
 // Create an internal Swagger doc
