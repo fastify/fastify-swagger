@@ -391,7 +391,7 @@ await fastify.register(require('@fastify/swagger'), {
   decorator: 'internalSwagger'
 })
 
-// Create an external swagger doc
+// Create an external Swagger doc
 await fastify.register(require('@fastify/swagger'), {
   swagger: { ... },
   transform: ({ schema, url, route, swaggerObject }) => {
