@@ -2,31 +2,19 @@ import fastify, { FastifySchema, RouteOptions } from 'fastify'
 import fastifySwagger, {
   formatParamUrl,
   SwaggerOptions,
-  FastifySwaggerInitOAuthOptions,
-  FastifySwaggerUiConfigOptions,
-  FastifySwaggerUiHooksOptions,
 } from '../..'
 import { minimalOpenApiV3Document } from './minimal-openapiV3-document'
 import { expectType } from 'tsd'
-import { OpenAPI, OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
+
+import {
+  OpenAPI,
+  OpenAPIV2,
+  OpenAPIV3,
+  // eslint-disable-next-line camelcase
+  OpenAPIV3_1
+} from 'openapi-types'
 
 const app = fastify()
-const uiConfig: FastifySwaggerUiConfigOptions = {
-  deepLinking: true,
-  defaultModelsExpandDepth: -1,
-  defaultModelExpandDepth: 1,
-  validatorUrl: null,
-  layout: 'BaseLayout',
-  supportedSubmitMethods: ['get'],
-  persistAuthorization: false,
-}
-const initOAuth: FastifySwaggerInitOAuthOptions = {
-  scopes: ['openid', 'profile', 'email', 'offline_access'],
-}
-const uiHooks: FastifySwaggerUiHooksOptions = {
-  onRequest: (request, reply, done) => { done() },
-  preHandler: (request, reply, done) => { done() },
-}
 
 app.register(fastifySwagger)
 app.register(fastifySwagger, {})
@@ -157,7 +145,7 @@ app
       }
     }
   })
-  .ready(err => {
+  .ready(() => {
     app.swagger()
   })
 
@@ -186,7 +174,7 @@ app
       },
     }
   })
-  .ready((err) => {
+  .ready(() => {
     app.swagger()
   })
 
@@ -205,13 +193,13 @@ app.register(fastifySwagger, {
     }
   },
 })
-  .ready((err) => {
+  .ready(() => {
     app.swagger()
   })
 
 app.register(fastifySwagger, {
 })
-  .ready((err) => {
+  .ready(() => {
     app.swagger()
   })
 
@@ -228,6 +216,7 @@ app.get(
         schema satisfies FastifySchema
         url satisfies string
         route satisfies RouteOptions
+        // eslint-disable-next-line camelcase
         documentObject satisfies { swaggerObject: Partial<OpenAPIV2.Document> } | { openapiObject: Partial<OpenAPIV3.Document | OpenAPIV3_1.Document> }
         return { schema, url }
       },

@@ -1,6 +1,7 @@
 import { OpenAPIV2, OpenAPIV3 } from 'openapi-types'
+import { expectAssignable } from 'tsd'
 
-const xTokenNameOpenAPIv3: OpenAPIV3.Document = {
+expectAssignable<OpenAPIV3.Document>({
   openapi: '3.0.0',
   info: {
     version: '1.0.0',
@@ -21,9 +22,9 @@ const xTokenNameOpenAPIv3: OpenAPIV3.Document = {
     }
   },
   paths: {}
-}
+})
 
-const xTokenNameOpenAPIv2: OpenAPIV2.Document = {
+expectAssignable<OpenAPIV2.Document>({
   swagger: '2.0.0',
   info: {
     title: 'Test OpenApiv2 specification',
@@ -61,9 +62,9 @@ const xTokenNameOpenAPIv2: OpenAPIV2.Document = {
     },
   },
   paths: {}
-}
+})
 
-const xExampleOpenAPIv2: OpenAPIV2.Document = {
+expectAssignable<OpenAPIV2.Document>({
   swagger: '2.0.0',
   info: {
     title: 'Test OpenApiv2 specification',
@@ -109,4 +110,4 @@ const xExampleOpenAPIv2: OpenAPIV2.Document = {
       }
     }
   }
-}
+})

@@ -17,6 +17,6 @@ app.register(fastifySwagger, fastifySwaggerOptions)
 app.register(fastifySwaggerStar.default, fastifySwaggerOptions)
 app.register(fastifySwaggerStar.fastifySwagger, fastifySwaggerOptions)
 
-app.ready((err) => {
+app.ready(() => {
   app.swagger()
 })

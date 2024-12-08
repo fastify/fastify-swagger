@@ -67,6 +67,6 @@ app
       }
     }
   })
-  .ready(err => {
+  .ready(() => {
     app.swagger()
   })
