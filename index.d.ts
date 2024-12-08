@@ -1,5 +1,5 @@
-import { FastifyPluginCallback, FastifySchema, RouteOptions, onRequestHookHandler, preHandlerHookHandler } from 'fastify';
-import { OpenAPI, OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from 'openapi-types';
+import { FastifyPluginCallback, FastifySchema, RouteOptions, onRequestHookHandler, preHandlerHookHandler } from 'fastify'
+import { OpenAPI, OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
 
 /**
  * Swagger-UI Vendor Extensions
@@ -75,12 +75,12 @@ type SwaggerTransform = <S extends FastifySchema = FastifySchema>({
   route: RouteOptions;
 } & SwaggerDocumentObject) => { schema: FastifySchema; url: string }
 
-type SwaggerTransformObject = (documentObject: SwaggerDocumentObject) => Partial<OpenAPIV2.Document> | Partial<OpenAPIV3.Document | OpenAPIV3_1.Document>;
+type SwaggerTransformObject = (documentObject: SwaggerDocumentObject) => Partial<OpenAPIV2.Document> | Partial<OpenAPIV3.Document | OpenAPIV3_1.Document>
 
 type FastifySwagger = FastifyPluginCallback<fastifySwagger.SwaggerOptions>
 
 declare namespace fastifySwagger {
-  export type SwaggerOptions = (FastifyStaticSwaggerOptions | FastifyDynamicSwaggerOptions);
+  export type SwaggerOptions = (FastifyStaticSwaggerOptions | FastifyDynamicSwaggerOptions)
   export interface FastifySwaggerOptions {
     mode?: 'static' | 'dynamic';
   }
@@ -127,7 +127,7 @@ declare namespace fastifySwagger {
     | number
     | boolean
     | JSONObject
-    | Array<JSONValue>;
+    | Array<JSONValue>
 
   export interface JSONObject {
     [key: string]: JSONValue;
@@ -206,6 +206,6 @@ declare namespace fastifySwagger {
   export { fastifySwagger as default }
 }
 
-declare function fastifySwagger(...params: Parameters<FastifySwagger>): ReturnType<FastifySwagger>
+declare function fastifySwagger (...params: Parameters<FastifySwagger>): ReturnType<FastifySwagger>
 
-export = fastifySwagger;
+export = fastifySwagger

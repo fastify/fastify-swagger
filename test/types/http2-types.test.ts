@@ -1,32 +1,34 @@
-import fastify from 'fastify';
-import fastifySwagger from '../..';
-import { minimalOpenApiV3Document } from './minimal-openapiV3-document';
+import fastify from 'fastify'
+import fastifySwagger from '../..'
+import { minimalOpenApiV3Document } from './minimal-openapiV3-document'
 
 const app = fastify({
   http2: true
-});
+})
 
-app.register(fastifySwagger);
-app.register(fastifySwagger, {});
-app.register(fastifySwagger, { transform: ({schema, url}) => ({
-        schema: schema,
-        url: url,
-})});
+app.register(fastifySwagger)
+app.register(fastifySwagger, {})
+app.register(fastifySwagger, {
+  transform: ({ schema, url }) => ({
+    schema,
+    url,
+  })
+})
 app.register(fastifySwagger, {
   mode: 'static',
   specification: {
     document: minimalOpenApiV3Document
   }
-});
+})
 
 app.put('/some-route/:id', {
   schema: {
     description: 'put me some data',
     tags: ['user', 'code'],
     summary: 'qwerty',
-    security: [{ apiKey: []}]
+    security: [{ apiKey: [] }]
   }
-}, (req, reply) => {});
+}, (req, reply) => {})
 
 app.get('/public/route', {
   schema: {
@@ -34,7 +36,7 @@ app.get('/public/route', {
     summary: 'qwerty',
     security: []
   }
-}, (req, reply) => {});
+}, (req, reply) => {})
 
 app
   .register(fastifySwagger, {
@@ -66,5 +68,5 @@ app
     }
   })
   .ready(err => {
-    app.swagger();
-  });
+    app.swagger()
+  })

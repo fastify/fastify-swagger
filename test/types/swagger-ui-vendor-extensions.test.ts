@@ -3,8 +3,8 @@ import { OpenAPIV2, OpenAPIV3 } from 'openapi-types'
 const xTokenNameOpenAPIv3: OpenAPIV3.Document = {
   openapi: '3.0.0',
   info: {
-    'version': '1.0.0',
-    'title': 'Test OpenApiv3 specification',
+    version: '1.0.0',
+    title: 'Test OpenApiv3 specification',
   },
   components: {
     securitySchemes: {
@@ -13,7 +13,7 @@ const xTokenNameOpenAPIv3: OpenAPIV3.Document = {
         'x-tokenName': 'id_token',
         flows: {
           implicit: {
-            authorizationUrl: `http.../login/oauth/authorize`,
+            authorizationUrl: 'http.../login/oauth/authorize',
             scopes: {},
           },
         },
@@ -31,32 +31,32 @@ const xTokenNameOpenAPIv2: OpenAPIV2.Document = {
   },
   securityDefinitions: {
     OAuth2AccessCodeFlow: {
-      type: "oauth2",
-      flow: "accessCode",
-      authorizationUrl: "https://example.com/oauth/authorize",
-      tokenUrl: "https://example.com/oauth/token",
-      "x-tokenName": 'id_token',
+      type: 'oauth2',
+      flow: 'accessCode',
+      authorizationUrl: 'https://example.com/oauth/authorize',
+      tokenUrl: 'https://example.com/oauth/token',
+      'x-tokenName': 'id_token',
       scopes: { }
     },
     OAuth2ApplicationFlow: {
-      type: "oauth2",
-      flow: "application",
-      tokenUrl: "https://example.com/oauth/token",
-      "x-tokenName": 'id_token',
+      type: 'oauth2',
+      flow: 'application',
+      tokenUrl: 'https://example.com/oauth/token',
+      'x-tokenName': 'id_token',
       scopes: { }
     },
     OAuth2ImplicitFlow: {
-      type: "oauth2",
-      flow: "implicit",
-      authorizationUrl: "https://example.com/oauth/authorize",
-      "x-tokenName": 'id_token',
+      type: 'oauth2',
+      flow: 'implicit',
+      authorizationUrl: 'https://example.com/oauth/authorize',
+      'x-tokenName': 'id_token',
       scopes: { }
     },
     OAuth2PasswordFlow: {
-      type: "oauth2",
-      flow: "password",
-      tokenUrl: "https://example.com/oauth/token",
-      "x-tokenName": 'id_token',
+      type: 'oauth2',
+      flow: 'password',
+      tokenUrl: 'https://example.com/oauth/token',
+      'x-tokenName': 'id_token',
       scopes: { }
     },
   },
@@ -70,38 +70,38 @@ const xExampleOpenAPIv2: OpenAPIV2.Document = {
     version: '2.0.0'
   },
   paths: {
-    "/users/{userId}": {
-      'get': {
-        summary: "Gets a user by ID.",
+    '/users/{userId}': {
+      get: {
+        summary: 'Gets a user by ID.',
         responses: {
         },
         parameters: [
           {
-            in: "path",
-            name: "userId",
-            type: "integer",
+            in: 'path',
+            name: 'userId',
+            type: 'integer',
             required: true,
-            description: "Numeric ID of the user to get.",
+            description: 'Numeric ID of the user to get.',
             'x-example': 'BADC0FFEE'
           },
           {
-            in: "query",
-            name: "offset",
-            type: "integer",
-            description: "The number of items to skip before starting to collect the result set.",
+            in: 'query',
+            name: 'offset',
+            type: 'integer',
+            description: 'The number of items to skip before starting to collect the result set.',
             'x-example': 1337
           },
           {
-            in: "header",
-            name: "X-Request-ID",
-            type: "string",
+            in: 'header',
+            name: 'X-Request-ID',
+            type: 'string',
             required: true,
             'x-example': 'wget'
           },
           {
-            in: "formData",
-            name: "name",
-            type: "string",
+            in: 'formData',
+            name: 'name',
+            type: 'string',
             description: "A person's name.",
             'x-example': 'John Doe'
           }
