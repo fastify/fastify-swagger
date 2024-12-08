@@ -1,5 +1,11 @@
-import { FastifyPluginCallback, FastifySchema, RouteOptions, onRequestHookHandler, preHandlerHookHandler } from 'fastify';
-import { OpenAPI, OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from 'openapi-types';
+import { FastifyPluginCallback, FastifySchema, RouteOptions } from 'fastify'
+import {
+  OpenAPI,
+  OpenAPIV2,
+  OpenAPIV3,
+  // eslint-disable-next-line camelcase
+  OpenAPIV3_1
+} from 'openapi-types'
 
 /**
  * Swagger-UI Vendor Extensions
@@ -61,6 +67,7 @@ declare module 'fastify' {
 type SwaggerDocumentObject = {
   swaggerObject: Partial<OpenAPIV2.Document>;
 } | {
+  // eslint-disable-next-line camelcase
   openapiObject: Partial<OpenAPIV3.Document | OpenAPIV3_1.Document>;
 }
 
@@ -75,51 +82,16 @@ type SwaggerTransform = <S extends FastifySchema = FastifySchema>({
   route: RouteOptions;
 } & SwaggerDocumentObject) => { schema: FastifySchema; url: string }
 
-type SwaggerTransformObject = (documentObject: SwaggerDocumentObject) => Partial<OpenAPIV2.Document> | Partial<OpenAPIV3.Document | OpenAPIV3_1.Document>;
+// eslint-disable-next-line camelcase
+type SwaggerTransformObject = (documentObject: SwaggerDocumentObject) => Partial<OpenAPIV2.Document> | Partial<OpenAPIV3.Document | OpenAPIV3_1.Document>
 
 type FastifySwagger = FastifyPluginCallback<fastifySwagger.SwaggerOptions>
 
 declare namespace fastifySwagger {
-  export type SwaggerOptions = (FastifyStaticSwaggerOptions | FastifyDynamicSwaggerOptions);
+  export type SwaggerOptions = (FastifyStaticSwaggerOptions | FastifyDynamicSwaggerOptions)
   export interface FastifySwaggerOptions {
     mode?: 'static' | 'dynamic';
   }
-
-  export type FastifySwaggerUiConfigOptions = Partial<{
-    deepLinking: boolean
-    displayOperationId: boolean
-    defaultModelsExpandDepth: number
-    defaultModelExpandDepth: number
-    defaultModelRendering: string
-    displayRequestDuration: boolean
-    docExpansion: string
-    filter: boolean | string
-    layout: string
-    maxDisplayedTags: number
-    showExtensions: boolean
-    showCommonExtensions: boolean
-    useUnsafeMarkdown: boolean
-    syntaxHighlight: {
-      activate?: boolean
-      theme?: string
-    } | false
-    tryItOutEnabled: boolean
-    validatorUrl: string | null
-    supportedSubmitMethods: Array<'get' | 'post' | 'put' | 'delete' | 'patch' | 'options'>
-    persistAuthorization: boolean
-  }>
-
-  export type FastifySwaggerInitOAuthOptions = Partial<{
-    clientId: string,
-    clientSecret: string,
-    realm: string,
-    appName: string,
-    scopeSeparator: string,
-    scopes: string | string[],
-    additionalQueryStringParams: { [key: string]: any },
-    useBasicAuthenticationWithAccessCodeGrant: boolean,
-    usePkceWithAuthorizationCodeGrant: boolean
-  }>
 
   type JSONValue =
     | string
@@ -127,7 +99,7 @@ declare namespace fastifySwagger {
     | number
     | boolean
     | JSONObject
-    | Array<JSONValue>;
+    | Array<JSONValue>
 
   export interface JSONObject {
     [key: string]: JSONValue;
@@ -136,6 +108,7 @@ declare namespace fastifySwagger {
   export interface FastifyDynamicSwaggerOptions extends FastifySwaggerOptions {
     mode?: 'dynamic';
     swagger?: Partial<OpenAPIV2.Document>;
+    // eslint-disable-next-line camelcase
     openapi?: Partial<OpenAPIV3.Document | OpenAPIV3_1.Document>
     hiddenTag?: string;
     hideUntagged?: boolean;
@@ -195,17 +168,12 @@ declare namespace fastifySwagger {
     specification: StaticPathSpec | StaticDocumentSpec;
   }
 
-  export type FastifySwaggerUiHooksOptions = Partial<{
-    onRequest?: onRequestHookHandler,
-    preHandler?: preHandlerHookHandler,
-  }>
-
   export function formatParamUrl (paramUrl: string): string
 
   export const fastifySwagger: FastifySwagger
   export { fastifySwagger as default }
 }
 
-declare function fastifySwagger(...params: Parameters<FastifySwagger>): ReturnType<FastifySwagger>
+declare function fastifySwagger (...params: Parameters<FastifySwagger>): ReturnType<FastifySwagger>
 
-export = fastifySwagger;
+export = fastifySwagger
