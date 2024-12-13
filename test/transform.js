@@ -280,7 +280,7 @@ test('endpoint transform takes precedence over global swagger transform', async 
   await fastify.register(fastifySwagger, {
     swagger: { info: { version: '1.0.0' } },
     transform: ({ schema, url }) => {
-      t.assert.ok(false, 'the global transform function should be ignored')
+      t.assert.fail('the global transform function should be ignored')
       return validTransform({ schema, url })
     }
 
@@ -306,7 +306,7 @@ test('endpoint transform takes precedence over global openapi transform', async 
   await fastify.register(fastifySwagger, {
     openapi: { info: { version: '2.0.0' } },
     transform: ({ schema, url }) => {
-      t.assert.ok(false, 'the global transform function should be ignored')
+      t.assert.fail('the global transform function should be ignored')
       return validTransform({ schema, url })
     }
 

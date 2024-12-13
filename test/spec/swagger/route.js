@@ -331,7 +331,7 @@ test('swagger json output should not omit consume in querystring schema', async 
 
   try {
     fastify.swagger()
-    t.assert.ok(false, 'error was not thrown')
+    t.assert.fail('error was not thrown')
   } catch (err) {
     if (err.message.startsWith('Complex serialization is not supported by Swagger')) {
       t.assert.ok(true, 'error was thrown')
