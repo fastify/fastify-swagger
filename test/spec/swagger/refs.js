@@ -1,6 +1,6 @@
 'use strict'
 
-const { test } = require('tap')
+const { test } = require('node:test')
 const Fastify = require('fastify')
 const Swagger = require('@apidevtools/swagger-parser')
 const fastifySwagger = require('../../../index')
@@ -60,7 +60,7 @@ test('support $ref schema', async t => {
   await fastify.ready()
 
   await Swagger.validate(fastify.swagger())
-  t.pass('valid swagger object')
+  t.assert.ok(true, 'valid swagger object')
 })
 
 test('support nested $ref schema : complex case', async (t) => {
@@ -86,14 +86,14 @@ test('support nested $ref schema : complex case', async (t) => {
   await fastify.ready()
 
   const swaggerObject = fastify.swagger()
-  t.equal(typeof swaggerObject, 'object')
+  t.assert.equal(typeof swaggerObject, 'object')
   const definitions = swaggerObject.definitions
-  t.match(Object.keys(definitions), ['schemaA', 'schemaB', 'schemaC', 'schemaD'])
+  t.assert.deepEqual(Object.keys(definitions), ['schemaA', 'schemaB', 'schemaC', 'schemaD'])
 
   // ref must be prefixed by '#/definitions/'
-  t.equal(definitions.schemaC.properties.a.items.$ref, '#/definitions/schemaA')
-  t.equal(definitions.schemaD.properties.b.$ref, '#/definitions/schemaB')
-  t.equal(definitions.schemaD.properties.c.$ref, '#/definitions/schemaC')
+  t.assert.equal(definitions.schemaC.properties.a.items.$ref, '#/definitions/schemaA')
+  t.assert.equal(definitions.schemaD.properties.b.$ref, '#/definitions/schemaB')
+  t.assert.equal(definitions.schemaD.properties.c.$ref, '#/definitions/schemaC')
 
   await Swagger.validate(swaggerObject)
 })
@@ -113,15 +113,15 @@ test('support nested $ref schema : complex case without modifying buildLocalRefe
   await fastify.ready()
 
   const swaggerObject = fastify.swagger()
-  t.equal(typeof swaggerObject, 'object')
+  t.assert.equal(typeof swaggerObject, 'object')
 
   const definitions = swaggerObject.definitions
-  t.match(Object.keys(definitions), ['def-0', 'def-1', 'def-2', 'def-3'])
+  t.assert.deepEqual(Object.keys(definitions), ['def-0', 'def-1', 'def-2', 'def-3'])
 
   // ref must be prefixed by '#/definitions/'
-  t.equal(definitions['def-2'].properties.a.items.$ref, '#/definitions/def-0')
-  t.equal(definitions['def-3'].properties.b.$ref, '#/definitions/def-1')
-  t.equal(definitions['def-3'].properties.c.$ref, '#/definitions/def-2')
+  t.assert.equal(definitions['def-2'].properties.a.items.$ref, '#/definitions/def-0')
+  t.assert.equal(definitions['def-3'].properties.b.$ref, '#/definitions/def-1')
+  t.assert.equal(definitions['def-3'].properties.c.$ref, '#/definitions/def-2')
 
   await Swagger.validate(swaggerObject)
 })
@@ -131,7 +131,7 @@ test('trying to overwriting a schema results in a FST_ERR_SCH_ALREADY_PRESENT', 
   await fastify.register(fastifySwagger)
   fastify.register(async (instance) => {
     instance.addSchema({ $id: 'schemaA', type: 'object', properties: { id: { type: 'integer' } } })
-    t.throws(() => instance.addSchema({ $id: 'schemaA', type: 'object', properties: { id: { type: 'integer' } } }), new FST_ERR_SCH_ALREADY_PRESENT('schemaA'))
+    t.assert.throws(() => instance.addSchema({ $id: 'schemaA', type: 'object', properties: { id: { type: 'integer' } } }), new FST_ERR_SCH_ALREADY_PRESENT('schemaA'))
   })
 
   await fastify.ready()
@@ -151,5 +151,14 @@ test('renders $ref schema with enum in headers', async (t) => {
 
   await Swagger.validate(swagger)
 
-  t.match(swagger.paths['/url1'].get.parameters[0], { type: 'string', enum: ['OK', 'NOT_OK'] })
+  t.assert.deepEqual(
+    swagger.paths['/url1'].get.parameters[0],
+    {
+      type: 'string',
+      enum: ['OK', 'NOT_OK'],
+      in: 'header',
+      name: 'x-enum-header',
+      required: false
+    }
+  )
 })

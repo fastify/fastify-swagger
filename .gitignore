@@ -148,8 +148,5 @@ yarn.lock
 .vscode
 .idea
 
-#tap files
-.tap/
-
 # static files
 static

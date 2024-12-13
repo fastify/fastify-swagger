@@ -1,6 +1,6 @@
 'use strict'
 
-const { test } = require('tap')
+const { test } = require('node:test')
 const Fastify = require('fastify')
 const fastifySwagger = require('..')
 const Joi = require('joi')
@@ -43,7 +43,7 @@ test('transform should fail with a value other than Function', async (t) => {
   fastify.get('/example', opts, () => {})
 
   await fastify.ready()
-  t.throws(fastify.swagger)
+  t.assert.throws(fastify.swagger)
 })
 
 test('transform should work with a Function', async (t) => {
@@ -56,7 +56,7 @@ test('transform should work with a Function', async (t) => {
   fastify.get('/example', opts, () => {})
 
   await fastify.ready()
-  t.doesNotThrow(fastify.swagger)
+  t.assert.doesNotThrow(fastify.swagger)
 })
 
 test('transform can access route', async (t) => {
@@ -66,17 +66,17 @@ test('transform can access route', async (t) => {
   await fastify.register(fastifySwagger, {
     openapi: { info: { version: '1.0.0' } },
     transform: ({ route }) => {
-      t.ok(route)
-      t.equal(route.method, 'GET')
-      t.equal(route.url, '/example')
-      t.equal(route.constraints.version, '1.0.0')
+      t.assert.ok(route)
+      t.assert.equal(route.method, 'GET')
+      t.assert.equal(route.url, '/example')
+      t.assert.equal(route.constraints.version, '1.0.0')
       return { schema: route.schema, url: route.url }
     }
   })
   fastify.get('/example', { constraints: { version: '1.0.0' } }, () => {})
 
   await fastify.ready()
-  t.doesNotThrow(fastify.swagger)
+  t.assert.doesNotThrow(fastify.swagger)
 })
 
 test('transform can access openapi object', async (t) => {
@@ -86,9 +86,9 @@ test('transform can access openapi object', async (t) => {
   await fastify.register(fastifySwagger, {
     openapi: { info: { version: '1.0.0' } },
     transform: ({ route, openapiObject }) => {
-      t.ok(openapiObject)
-      t.equal(openapiObject.openapi, '3.0.3')
-      t.equal(openapiObject.info.version, '1.0.0')
+      t.assert.ok(openapiObject)
+      t.assert.equal(openapiObject.openapi, '3.0.3')
+      t.assert.equal(openapiObject.info.version, '1.0.0')
       return {
         schema: route.schema,
         url: route.url
@@ -98,7 +98,7 @@ test('transform can access openapi object', async (t) => {
   fastify.get('/example', () => {})
 
   await fastify.ready()
-  t.doesNotThrow(fastify.swagger)
+  t.assert.doesNotThrow(fastify.swagger)
 })
 
 test('transform can access swagger object', async (t) => {
@@ -108,9 +108,9 @@ test('transform can access swagger object', async (t) => {
   await fastify.register(fastifySwagger, {
     swagger: { info: { version: '1.0.0' } },
     transform: ({ route, swaggerObject }) => {
-      t.ok(swaggerObject)
-      t.equal(swaggerObject.swagger, '2.0')
-      t.equal(swaggerObject.info.version, '1.0.0')
+      t.assert.ok(swaggerObject)
+      t.assert.equal(swaggerObject.swagger, '2.0')
+      t.assert.equal(swaggerObject.info.version, '1.0.0')
       return {
         schema: route.schema,
         url: route.url
@@ -120,7 +120,7 @@ test('transform can access swagger object', async (t) => {
   fastify.get('/example', () => {})
 
   await fastify.ready()
-  t.doesNotThrow(fastify.swagger)
+  t.assert.doesNotThrow(fastify.swagger)
 })
 
 test('transform can hide routes based on openapi version', async (t) => {
@@ -139,7 +139,7 @@ test('transform can hide routes based on openapi version', async (t) => {
 
   await fastify.ready()
   const openapiObject = fastify.swagger()
-  t.notOk(openapiObject.paths['/example'])
+  t.assert.equal(!!openapiObject.paths['/example'], false)
 })
 
 test('endpoint transform should fail with a value other than Function', async (t) => {
@@ -157,7 +157,7 @@ test('endpoint transform should fail with a value other than Function', async (t
   }, () => {})
 
   await fastify.ready()
-  t.throws(fastify.swagger)
+  t.assert.throws(fastify.swagger)
 })
 
 test('endpoint transform should work with a Function', async (t) => {
@@ -173,7 +173,7 @@ test('endpoint transform should work with a Function', async (t) => {
   }, () => {})
 
   await fastify.ready()
-  t.doesNotThrow(fastify.swagger)
+  t.assert.doesNotThrow(fastify.swagger)
 })
 
 test('endpoint transform can access route', async (t) => {
@@ -187,17 +187,17 @@ test('endpoint transform can access route', async (t) => {
     constraints: { version: '1.0.0' },
     config: {
       swaggerTransform: ({ route }) => {
-        t.ok(route)
-        t.equal(route.method, 'GET')
-        t.equal(route.url, '/example')
-        t.equal(route.constraints.version, '1.0.0')
+        t.assert.ok(route)
+        t.assert.equal(route.method, 'GET')
+        t.assert.equal(route.url, '/example')
+        t.assert.equal(route.constraints.version, '1.0.0')
         return { schema: route.schema, url: route.url }
       }
     }
   }, () => {})
 
   await fastify.ready()
-  t.doesNotThrow(fastify.swagger)
+  t.assert.doesNotThrow(fastify.swagger)
 })
 
 test('endpoint transform can access openapi object', async (t) => {
@@ -210,9 +210,9 @@ test('endpoint transform can access openapi object', async (t) => {
   fastify.get('/example', {
     config: {
       swaggerTransform: ({ route, openapiObject }) => {
-        t.ok(openapiObject)
-        t.equal(openapiObject.openapi, '3.0.3')
-        t.equal(openapiObject.info.version, '1.0.0')
+        t.assert.ok(openapiObject)
+        t.assert.equal(openapiObject.openapi, '3.0.3')
+        t.assert.equal(openapiObject.info.version, '1.0.0')
         return {
           schema: route.schema,
           url: route.url
@@ -222,7 +222,7 @@ test('endpoint transform can access openapi object', async (t) => {
   }, () => {})
 
   await fastify.ready()
-  t.doesNotThrow(fastify.swagger)
+  t.assert.doesNotThrow(fastify.swagger)
 })
 
 test('endpoint transform can access swagger object', async (t) => {
@@ -235,9 +235,9 @@ test('endpoint transform can access swagger object', async (t) => {
   fastify.get('/example', {
     config: {
       swaggerTransform: ({ route, swaggerObject }) => {
-        t.ok(swaggerObject)
-        t.equal(swaggerObject.swagger, '2.0')
-        t.equal(swaggerObject.info.version, '1.0.0')
+        t.assert.ok(swaggerObject)
+        t.assert.equal(swaggerObject.swagger, '2.0')
+        t.assert.equal(swaggerObject.info.version, '1.0.0')
         return {
           schema: route.schema,
           url: route.url
@@ -247,7 +247,7 @@ test('endpoint transform can access swagger object', async (t) => {
   }, () => {})
 
   await fastify.ready()
-  t.doesNotThrow(fastify.swagger)
+  t.assert.doesNotThrow(fastify.swagger)
 })
 
 test('endpoint transform can hide routes based on openapi version', async (t) => {
@@ -270,7 +270,7 @@ test('endpoint transform can hide routes based on openapi version', async (t) =>
 
   await fastify.ready()
   const openapiObject = fastify.swagger()
-  t.notOk(openapiObject.paths['/example'])
+  t.assert.equal(!!openapiObject.paths['/example'], false)
 })
 
 test('endpoint transform takes precedence over global swagger transform', async (t) => {
@@ -289,14 +289,14 @@ test('endpoint transform takes precedence over global swagger transform', async 
     config: {
       swaggerTransform: ({ schema, route }) => {
         const transformedSchema = Object.assign({}, schema)
-        t.ok(transformedSchema)
+        t.assert.ok(transformedSchema)
         return { schema: transformedSchema, url: route.url }
       }
     }
   }, () => {})
 
   await fastify.ready()
-  t.doesNotThrow(fastify.swagger)
+  t.assert.doesNotThrow(fastify.swagger)
 })
 
 test('endpoint transform takes precedence over global openapi transform', async (t) => {
@@ -315,14 +315,14 @@ test('endpoint transform takes precedence over global openapi transform', async 
     config: {
       swaggerTransform: ({ schema, route }) => {
         const transformedSchema = Object.assign({}, schema)
-        t.ok(transformedSchema)
+        t.assert.ok(transformedSchema)
         return { schema: transformedSchema, url: route.url }
       }
     }
   }, () => {})
 
   await fastify.ready()
-  t.doesNotThrow(fastify.swagger)
+  t.assert.doesNotThrow(fastify.swagger)
 })
 
 test('endpoint transform with value "false" disables the global swagger transform', async (t) => {
@@ -349,7 +349,7 @@ test('endpoint transform with value "false" disables the global swagger transfor
   }, () => {})
 
   await fastify.ready()
-  t.doesNotThrow(fastify.swagger)
+  t.assert.doesNotThrow(fastify.swagger)
 })
 
 test('endpoint transform with value "false" disables the global openapi transform', async (t) => {
@@ -376,7 +376,7 @@ test('endpoint transform with value "false" disables the global openapi transfor
   }, () => {})
 
   await fastify.ready()
-  t.doesNotThrow(fastify.swagger)
+  t.assert.doesNotThrow(fastify.swagger)
 })
 
 test('transformObject can modify the openapi object', async (t) => {
@@ -393,7 +393,7 @@ test('transformObject can modify the openapi object', async (t) => {
 
   await fastify.ready()
   const openapiObject = fastify.swagger()
-  t.equal(openapiObject.info.title, 'Transformed')
+  t.assert.equal(openapiObject.info.title, 'Transformed')
 })
 
 test('transformObject can modify the swagger object', async (t) => {
@@ -410,5 +410,5 @@ test('transformObject can modify the swagger object', async (t) => {
 
   await fastify.ready()
   const swaggerObject = fastify.swagger()
-  t.equal(swaggerObject.info.title, 'Transformed')
+  t.assert.equal(swaggerObject.info.title, 'Transformed')
 })
