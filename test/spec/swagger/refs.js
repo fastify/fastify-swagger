@@ -86,14 +86,14 @@ test('support nested $ref schema : complex case', async (t) => {
   await fastify.ready()
 
   const swaggerObject = fastify.swagger()
-  t.assert.equal(typeof swaggerObject, 'object')
+  t.assert.strictEqual(typeof swaggerObject, 'object')
   const definitions = swaggerObject.definitions
-  t.assert.deepEqual(Object.keys(definitions), ['schemaA', 'schemaB', 'schemaC', 'schemaD'])
+  t.assert.deepStrictEqual(Object.keys(definitions), ['schemaA', 'schemaB', 'schemaC', 'schemaD'])
 
   // ref must be prefixed by '#/definitions/'
-  t.assert.equal(definitions.schemaC.properties.a.items.$ref, '#/definitions/schemaA')
-  t.assert.equal(definitions.schemaD.properties.b.$ref, '#/definitions/schemaB')
-  t.assert.equal(definitions.schemaD.properties.c.$ref, '#/definitions/schemaC')
+  t.assert.strictEqual(definitions.schemaC.properties.a.items.$ref, '#/definitions/schemaA')
+  t.assert.strictEqual(definitions.schemaD.properties.b.$ref, '#/definitions/schemaB')
+  t.assert.strictEqual(definitions.schemaD.properties.c.$ref, '#/definitions/schemaC')
 
   await Swagger.validate(swaggerObject)
 })
@@ -113,15 +113,15 @@ test('support nested $ref schema : complex case without modifying buildLocalRefe
   await fastify.ready()
 
   const swaggerObject = fastify.swagger()
-  t.assert.equal(typeof swaggerObject, 'object')
+  t.assert.strictEqual(typeof swaggerObject, 'object')
 
   const definitions = swaggerObject.definitions
-  t.assert.deepEqual(Object.keys(definitions), ['def-0', 'def-1', 'def-2', 'def-3'])
+  t.assert.deepStrictEqual(Object.keys(definitions), ['def-0', 'def-1', 'def-2', 'def-3'])
 
   // ref must be prefixed by '#/definitions/'
-  t.assert.equal(definitions['def-2'].properties.a.items.$ref, '#/definitions/def-0')
-  t.assert.equal(definitions['def-3'].properties.b.$ref, '#/definitions/def-1')
-  t.assert.equal(definitions['def-3'].properties.c.$ref, '#/definitions/def-2')
+  t.assert.strictEqual(definitions['def-2'].properties.a.items.$ref, '#/definitions/def-0')
+  t.assert.strictEqual(definitions['def-3'].properties.b.$ref, '#/definitions/def-1')
+  t.assert.strictEqual(definitions['def-3'].properties.c.$ref, '#/definitions/def-2')
 
   await Swagger.validate(swaggerObject)
 })
@@ -151,7 +151,7 @@ test('renders $ref schema with enum in headers', async (t) => {
 
   await Swagger.validate(swagger)
 
-  t.assert.deepEqual(
+  t.assert.deepStrictEqual(
     swagger.paths['/url1'].get.parameters[0],
     {
       type: 'string',

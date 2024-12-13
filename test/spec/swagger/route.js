@@ -35,7 +35,7 @@ test('swagger should return valid swagger object', async (t) => {
   await fastify.ready()
 
   const swaggerObject = fastify.swagger()
-  t.assert.equal(typeof swaggerObject, 'object')
+  t.assert.strictEqual(typeof swaggerObject, 'object')
 
   await Swagger.validate(swaggerObject)
   t.assert.ok(true, 'valid swagger object')
@@ -63,7 +63,7 @@ test('swagger should return a valid swagger yaml', async (t) => {
   await fastify.ready()
 
   const swaggerYaml = fastify.swagger({ yaml: true })
-  t.assert.equal(typeof swaggerYaml, 'string')
+  t.assert.strictEqual(typeof swaggerYaml, 'string')
   yaml.parse(swaggerYaml)
   t.assert.ok(true, 'valid swagger yaml')
 })
@@ -133,13 +133,13 @@ test('route options - meta', async (t) => {
   const api = await Swagger.validate(swaggerObject)
   const definedPath = api.paths['/'].get
   t.assert.ok(definedPath)
-  t.assert.equal(opts.schema.operationId, definedPath.operationId)
-  t.assert.equal(opts.schema.summary, definedPath.summary)
-  t.assert.deepEqual(opts.schema.tags, definedPath.tags)
-  t.assert.equal(opts.schema.description, definedPath.description)
-  t.assert.deepEqual(opts.schema.produces, definedPath.produces)
-  t.assert.deepEqual(opts.schema.consumes, definedPath.consumes)
-  t.assert.equal(opts.schema.externalDocs, definedPath.externalDocs)
+  t.assert.strictEqual(opts.schema.operationId, definedPath.operationId)
+  t.assert.strictEqual(opts.schema.summary, definedPath.summary)
+  t.assert.deepStrictEqual(opts.schema.tags, definedPath.tags)
+  t.assert.strictEqual(opts.schema.description, definedPath.description)
+  t.assert.deepStrictEqual(opts.schema.produces, definedPath.produces)
+  t.assert.deepStrictEqual(opts.schema.consumes, definedPath.consumes)
+  t.assert.strictEqual(opts.schema.externalDocs, definedPath.externalDocs)
 })
 
 test('route options - consumes', async (t) => {
@@ -155,7 +155,7 @@ test('route options - consumes', async (t) => {
   const api = await Swagger.validate(swaggerObject)
   const definedPath = api.paths['/'].post
   t.assert.ok(definedPath)
-  t.assert.deepEqual(definedPath.parameters, [{
+  t.assert.deepStrictEqual(definedPath.parameters, [{
     in: 'formData',
     name: 'hello',
     description: 'hello',
@@ -176,11 +176,11 @@ test('route options - extension', async (t) => {
 
   const api = await Swagger.validate(swaggerObject)
   t.assert.ok(api['x-ternal'])
-  t.assert.deepEqual(api['x-ternal'], true)
+  t.assert.deepStrictEqual(api['x-ternal'], true)
 
   const definedPath = api.paths['/'].get
   t.assert.ok(definedPath)
-  t.assert.deepEqual(definedPath['x-tension'], true)
+  t.assert.deepStrictEqual(definedPath['x-tension'], true)
 })
 
 test('route options - querystring', async (t) => {
@@ -210,7 +210,7 @@ test('route options - querystring', async (t) => {
   const api = await Swagger.validate(swaggerObject)
   const definedPath = api.paths['/'].get
   t.assert.ok(definedPath)
-  t.assert.deepEqual(definedPath.parameters, [
+  t.assert.deepStrictEqual(definedPath.parameters, [
     {
       in: 'query',
       name: 'hello',
@@ -251,7 +251,7 @@ test('swagger json output should not omit enum part in params config', async (t)
   const api = await Swagger.validate(swaggerObject)
   const definedPath = api.paths['/test/{enumKey}'].get
   t.assert.ok(definedPath)
-  t.assert.deepEqual(definedPath.parameters, [{
+  t.assert.deepStrictEqual(definedPath.parameters, [{
     in: 'path',
     name: 'enumKey',
     type: 'string',
@@ -284,7 +284,7 @@ test('custom verbs should not be interpreted as path params', async (t) => {
   const api = await Swagger.validate(swaggerObject)
   const definedPath = api.paths['/resource/{id}/sub-resource:watch'].get
   t.assert.ok(definedPath)
-  t.assert.deepEqual(definedPath.parameters, [{
+  t.assert.deepStrictEqual(definedPath.parameters, [{
     in: 'path',
     name: 'id',
     type: 'string',
@@ -331,7 +331,7 @@ test('swagger json output should not omit consume in querystring schema', async 
 
   try {
     fastify.swagger()
-    t.fail('error was not thrown')
+    t.assert.ok(false, 'error was not thrown')
   } catch (err) {
     if (err.message.startsWith('Complex serialization is not supported by Swagger')) {
       t.assert.ok(true, 'error was thrown')
@@ -466,13 +466,13 @@ test('security headers ignored when declared in security and securityScheme', as
   await fastify.ready()
 
   const swaggerObject = fastify.swagger()
-  t.assert.equal(typeof swaggerObject, 'object')
+  t.assert.strictEqual(typeof swaggerObject, 'object')
 
   const api = await Swagger.validate(swaggerObject)
   t.assert.ok(true, 'valid swagger object')
   t.assert.ok(api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'id')))
   t.assert.ok(api.paths['/address2/{id}'].get.parameters.find(({ name }) => (name === 'id')))
-  t.assert.equal(!!api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'apiKey')), false)
+  t.assert.strictEqual(!!api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'apiKey')), false)
   t.assert.ok(api.paths['/address2/{id}'].get.parameters.find(({ name }) => (name === 'authKey')))
 })
 
@@ -546,13 +546,13 @@ test('security querystrings ignored when declared in security and securityScheme
   await fastify.ready()
 
   const swaggerObject = fastify.swagger()
-  t.assert.equal(typeof swaggerObject, 'object')
+  t.assert.strictEqual(typeof swaggerObject, 'object')
 
   const api = await Swagger.validate(swaggerObject)
   t.assert.ok(true, 'valid swagger object')
   t.assert.ok(api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'somethingElse')))
   t.assert.ok(api.paths['/address2/{id}'].get.parameters.find(({ name }) => (name === 'somethingElse')))
-  t.assert.equal(!!api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'apiKey')), false)
+  t.assert.strictEqual(!!api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'apiKey')), false)
   t.assert.ok(api.paths['/address2/{id}'].get.parameters.find(({ name }) => (name === 'authKey')))
 })
 
@@ -576,7 +576,7 @@ test('verify generated path param definition with route prefixing', async (t) =>
 
   const definedPath = api.paths['/v1/{userId}'].get
 
-  t.assert.deepEqual(definedPath.parameters, [{
+  t.assert.deepStrictEqual(definedPath.parameters, [{
     in: 'path',
     name: 'userId',
     type: 'string',

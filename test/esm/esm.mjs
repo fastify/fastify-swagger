@@ -10,5 +10,5 @@ t.test('esm support', async t => {
   await fastify.ready()
 
   const swaggerObject = fastify.swagger()
-  t.assert.equal(swaggerObject.swagger, '2.0')
+  t.assert.strictEqual(swaggerObject.swagger, '2.0')
 })

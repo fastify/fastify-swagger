@@ -39,7 +39,7 @@ test('openapi should return a valid swagger object', async (t) => {
   await fastify.ready()
 
   const openapiObject = fastify.swagger()
-  t.assert.equal(typeof openapiObject, 'object')
+  t.assert.strictEqual(typeof openapiObject, 'object')
 
   await Swagger.validate(openapiObject)
   t.assert.ok(true, 'valid swagger object')
@@ -63,7 +63,7 @@ test('openapi should return a valid swagger yaml', async (t) => {
   await fastify.ready()
 
   const swaggerYaml = fastify.swagger({ yaml: true })
-  t.assert.equal(typeof swaggerYaml, 'string')
+  t.assert.strictEqual(typeof swaggerYaml, 'string')
   yaml.parse(swaggerYaml)
   t.assert.ok(true, 'valid swagger yaml')
 })
@@ -136,12 +136,12 @@ test('route options - meta', async (t) => {
   const api = await Swagger.validate(openapiObject)
   const definedPath = api.paths['/'].get
   t.assert.ok(definedPath)
-  t.assert.equal(opts.schema.operationId, definedPath.operationId)
-  t.assert.equal(opts.schema.summary, definedPath.summary)
+  t.assert.strictEqual(opts.schema.operationId, definedPath.operationId)
+  t.assert.strictEqual(opts.schema.summary, definedPath.summary)
   t.assert.deepEqual(opts.schema.tags, definedPath.tags)
-  t.assert.equal(opts.schema.description, definedPath.description)
-  t.assert.equal(opts.schema.servers, definedPath.servers)
-  t.assert.equal(opts.schema.externalDocs, definedPath.externalDocs)
+  t.assert.strictEqual(opts.schema.description, definedPath.description)
+  t.assert.strictEqual(opts.schema.servers, definedPath.servers)
+  t.assert.strictEqual(opts.schema.externalDocs, definedPath.externalDocs)
 })
 
 test('route options - produces', async (t) => {
@@ -159,7 +159,7 @@ test('route options - produces', async (t) => {
   const api = await Swagger.validate(openapiObject)
   const definedPath = api.paths['/'].get
   t.assert.ok(definedPath)
-  t.assert.deepEqual(definedPath.responses[200].content, {
+  t.assert.deepEqual(JSON.parse(JSON.stringify(definedPath.responses[200].content)), {
     '*/*': {
       schema: {
         type: 'object',
@@ -234,7 +234,7 @@ test('parses form parameters when all api consumes application/x-www-form-urlenc
   const api = await Swagger.validate(openapiObject)
   const definedPath = api.paths['/'].post
   t.assert.ok(definedPath)
-  t.assert.deepEqual(definedPath.requestBody.content, {
+  t.assert.deepEqual(JSON.parse(JSON.stringify(definedPath.requestBody.content)), {
     'application/x-www-form-urlencoded': {
       schema: {
         type: 'object',
@@ -268,7 +268,7 @@ test('route options - method', async (t) => {
   await fastify.ready()
 
   const openapiObject = fastify.swagger()
-  t.assert.equal(typeof openapiObject, 'object')
+  t.assert.strictEqual(typeof openapiObject, 'object')
 
   await Swagger.validate(openapiObject)
   t.assert.ok(true, 'valid swagger object')
@@ -425,6 +425,7 @@ test('cookie and query with serialization type', async (t) => {
   t.assert.ok(cookiesPath)
   t.assert.deepEqual(cookiesPath.parameters, [
     {
+      [Symbol.for('@fastify/swagger.rawRequired')]: ['foo'],
       required: false,
       in: 'cookie',
       name: 'bar',
@@ -477,7 +478,7 @@ test('openapi should pass through operationId', async (t) => {
   await fastify.ready()
 
   const openapiObject = fastify.swagger()
-  t.assert.equal(typeof openapiObject, 'object')
+  t.assert.strictEqual(typeof openapiObject, 'object')
 
   await Swagger.validate(openapiObject)
   t.assert.ok(true, 'valid swagger object')
@@ -549,7 +550,7 @@ test('openapi should pass through Links', async (t) => {
   await fastify.ready()
 
   const openapiObject = fastify.swagger()
-  t.assert.equal(typeof openapiObject, 'object')
+  t.assert.strictEqual(typeof openapiObject, 'object')
 
   const api = await Swagger.validate(openapiObject)
   t.assert.ok(true, 'valid swagger object')
@@ -681,13 +682,13 @@ test('security headers ignored when declared in security and securityScheme', as
   await fastify.ready()
 
   const openapiObject = fastify.swagger()
-  t.assert.equal(typeof openapiObject, 'object')
+  t.assert.strictEqual(typeof openapiObject, 'object')
 
   const api = await Swagger.validate(openapiObject)
   t.assert.ok(true, 'valid swagger object')
   t.assert.ok(api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'id')))
   t.assert.ok(api.paths['/address2/{id}'].get.parameters.find(({ name }) => (name === 'id')))
-  t.assert.equal(!!api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'apiKey')), false)
+  t.assert.strictEqual(!!api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'apiKey')), false)
   t.assert.ok(api.paths['/address2/{id}'].get.parameters.find(({ name }) => (name === 'authKey')))
 })
 
@@ -751,13 +752,13 @@ test('security querystrings ignored when declared in security and securityScheme
   await fastify.ready()
 
   const openapiObject = fastify.swagger()
-  t.assert.equal(typeof openapiObject, 'object')
+  t.assert.strictEqual(typeof openapiObject, 'object')
 
   const api = await Swagger.validate(openapiObject)
   t.assert.ok(true, 'valid swagger object')
   t.assert.ok(api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'id')))
   t.assert.ok(api.paths['/address2/{id}'].get.parameters.find(({ name }) => (name === 'id')))
-  t.assert.equal(!!api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'apiKey')), false)
+  t.assert.strictEqual(!!api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'apiKey')), false)
   t.assert.ok(api.paths['/address2/{id}'].get.parameters.find(({ name }) => (name === 'authKey')))
 })
 
@@ -821,13 +822,13 @@ test('security cookies ignored when declared in security and securityScheme', as
   await fastify.ready()
 
   const openapiObject = fastify.swagger()
-  t.assert.equal(typeof openapiObject, 'object')
+  t.assert.strictEqual(typeof openapiObject, 'object')
 
   const api = await Swagger.validate(openapiObject)
   t.assert.ok(true, 'valid swagger object')
   t.assert.ok(api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'id')))
   t.assert.ok(api.paths['/address2/{id}'].get.parameters.find(({ name }) => (name === 'id')))
-  t.assert.equal(!!api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'apiKey')), false)
+  t.assert.strictEqual(!!api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'apiKey')), false)
   t.assert.ok(api.paths['/address2/{id}'].get.parameters.find(({ name }) => (name === 'authKey')))
 })
 

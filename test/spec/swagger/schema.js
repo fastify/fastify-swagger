@@ -35,7 +35,7 @@ test('support file in json schema', async t => {
 
   const definedPath = api.paths['/'].post
   t.assert.ok(definedPath)
-  t.assert.deepEqual(definedPath.parameters, [{
+  t.assert.deepStrictEqual(definedPath.parameters, [{
     in: 'formData',
     name: 'hello',
     description: 'hello',
@@ -66,7 +66,7 @@ test('support response description', async t => {
   const api = await Swagger.validate(swaggerObject)
 
   const definedPath = api.paths['/'].get
-  t.assert.deepEqual(definedPath.responses['200'].description, 'Response OK!')
+  t.assert.deepStrictEqual(definedPath.responses['200'].description, 'Response OK!')
 })
 
 test('support response description fallback to its $ref', async t => {
@@ -96,7 +96,7 @@ test('support response description fallback to its $ref', async t => {
   const api = await Swagger.validate(swaggerObject)
 
   const definedPath = api.paths['/'].get
-  t.assert.deepEqual(definedPath.responses['200'].description, 'Response OK!')
+  t.assert.deepStrictEqual(definedPath.responses['200'].description, 'Response OK!')
 })
 
 test('response default description', async t => {
@@ -120,7 +120,7 @@ test('response default description', async t => {
   const api = await Swagger.validate(swaggerObject)
 
   const definedPath = api.paths['/'].get
-  t.assert.deepEqual(definedPath.responses['200'].description, 'Default Response')
+  t.assert.deepStrictEqual(definedPath.responses['200'].description, 'Default Response')
 })
 
 test('response 2xx', async t => {
@@ -144,8 +144,8 @@ test('response 2xx', async t => {
   const api = await Swagger.validate(swaggerObject)
 
   const definedPath = api.paths['/'].get
-  t.assert.deepEqual(definedPath.responses['200'].description, 'Default Response')
-  t.assert.equal(!!definedPath.responses['2XX'], false)
+  t.assert.deepStrictEqual(definedPath.responses['200'].description, 'Default Response')
+  t.assert.strictEqual(!!definedPath.responses['2XX'], false)
 })
 
 test('response conflict 2xx and 200', async t => {
@@ -174,8 +174,8 @@ test('response conflict 2xx and 200', async t => {
   const api = await Swagger.validate(swaggerObject)
 
   const definedPath = api.paths['/'].get
-  t.assert.deepEqual(definedPath.responses['200'].description, '200')
-  t.assert.equal(!!definedPath.responses['2XX'], false)
+  t.assert.deepStrictEqual(definedPath.responses['200'].description, '200')
+  t.assert.strictEqual(!!definedPath.responses['2XX'], false)
 })
 
 test('support status code 204', async t => {
@@ -200,8 +200,8 @@ test('support status code 204', async t => {
   const api = await Swagger.validate(swaggerObject)
 
   const definedPath = api.paths['/'].get
-  t.assert.deepEqual(definedPath.responses['204'].description, 'No Content')
-  t.assert.equal(!!definedPath.responses['204'].schema, false)
+  t.assert.deepStrictEqual(definedPath.responses['204'].description, 'No Content')
+  t.assert.strictEqual(!!definedPath.responses['204'].schema, false)
 })
 
 test('support empty response body for different status than 204', async t => {
@@ -231,13 +231,13 @@ test('support empty response body for different status than 204', async t => {
 
   const definedPath = api.paths['/'].get
 
-  t.assert.deepEqual(definedPath.responses['204'].description, 'No Content')
-  t.assert.equal(!!definedPath.responses['204'].content, false)
-  t.assert.equal(!!definedPath.responses['503'].type, false)
+  t.assert.deepStrictEqual(definedPath.responses['204'].description, 'No Content')
+  t.assert.strictEqual(!!definedPath.responses['204'].content, false)
+  t.assert.strictEqual(!!definedPath.responses['503'].type, false)
 
-  t.assert.deepEqual(definedPath.responses['503'].description, 'Service Unavailable')
-  t.assert.equal(!!definedPath.responses['503'].content, false)
-  t.assert.equal(!!definedPath.responses['503'].type, false)
+  t.assert.deepStrictEqual(definedPath.responses['503'].description, 'Service Unavailable')
+  t.assert.strictEqual(!!definedPath.responses['503'].content, false)
+  t.assert.strictEqual(!!definedPath.responses['503'].type, false)
 })
 
 test('support response headers', async t => {
@@ -271,8 +271,8 @@ test('support response headers', async t => {
   const api = await Swagger.validate(swaggerObject)
 
   const definedPath = api.paths['/'].get
-  t.assert.deepEqual(definedPath.responses['200'].headers, opt.schema.response['200'].headers)
-  t.assert.equal(!!definedPath.responses['200'].schema.headers, false)
+  t.assert.deepStrictEqual(definedPath.responses['200'].headers, opt.schema.response['200'].headers)
+  t.assert.strictEqual(!!definedPath.responses['200'].schema.headers, false)
 })
 
 test('response: description and x-response-description', async () => {
@@ -302,8 +302,8 @@ test('response: description and x-response-description', async () => {
     // Then the /description endpoint uses the |description| as both the description of the Response Object as well as of its Schema Object
     const responseObject = api.paths['/description'].get.responses['200']
     t.assert.ok(responseObject)
-    t.assert.equal(responseObject.description, description)
-    t.assert.equal(responseObject.schema.description, description)
+    t.assert.strictEqual(responseObject.description, description)
+    t.assert.strictEqual(responseObject.schema.description, description)
   })
 
   await test('description alongside x-response-description only describes response body', async t => {
@@ -330,9 +330,9 @@ test('response: description and x-response-description', async () => {
     // Then the /responseDescription endpoint uses the |responseDescription| only for the Response Object and the |description| only for the Schema Object
     const responseObject = api.paths['/responseDescription'].get.responses['200']
     t.assert.ok(responseObject)
-    t.assert.equal(responseObject.description, responseDescription)
-    t.assert.equal(responseObject.schema.description, description)
-    t.assert.equal(responseObject.schema.responseDescription, undefined)
+    t.assert.strictEqual(responseObject.description, responseDescription)
+    t.assert.strictEqual(responseObject.schema.description, description)
+    t.assert.strictEqual(responseObject.schema.responseDescription, undefined)
   })
 })
 
@@ -373,7 +373,7 @@ test('support "default" parameter', async t => {
 
   const definedPath = api.paths['/'].get
 
-  t.assert.deepEqual(definedPath.responses.default, {
+  t.assert.deepStrictEqual(JSON.parse(JSON.stringify(definedPath.responses.default)), {
     description: 'Default Response',
     schema: {
       description: 'Default Response',
@@ -406,7 +406,7 @@ test('fluent-json-schema', async t => {
   const api = await Swagger.validate(swaggerObject)
 
   const definedPath = api.paths['/'].get
-  t.assert.deepEqual(definedPath.responses['200'].description, 'Default Response')
+  t.assert.deepStrictEqual(definedPath.responses['200'].description, 'Default Response')
 })
 
 test('support "patternProperties" in json schema', async t => {
@@ -451,12 +451,12 @@ test('support "patternProperties" in json schema', async t => {
 
   const definedPath = api.paths['/'].post
 
-  t.assert.deepEqual(definedPath.parameters[0].schema, {
+  t.assert.deepStrictEqual(JSON.parse(JSON.stringify(definedPath.parameters[0].schema)), {
     type: 'object',
     additionalProperties: { type: 'string' }
   })
 
-  t.assert.deepEqual(definedPath.responses[200], {
+  t.assert.deepStrictEqual(JSON.parse(JSON.stringify(definedPath.responses[200])), {
     description: 'Expected Response',
     schema: {
       description: 'Expected Response',
@@ -501,7 +501,7 @@ test('support "const" keyword', async t => {
   const api = await Swagger.validate(swaggerObject)
 
   const definedPath = api.paths['/'].post
-  t.assert.deepEqual(definedPath.parameters[0].schema, {
+  t.assert.deepStrictEqual(JSON.parse(JSON.stringify(definedPath.parameters[0].schema)), {
     type: 'object',
     properties: {
       obj: {
@@ -552,8 +552,8 @@ test('support "description" keyword', async t => {
   const api = await Swagger.validate(swaggerObject)
 
   const definedPath = api.paths['/'].post
-  t.assert.deepEqual(definedPath.parameters[0].description, 'Body description')
-  t.assert.deepEqual(definedPath.parameters[0].schema, {
+  t.assert.deepStrictEqual(definedPath.parameters[0].description, 'Body description')
+  t.assert.deepStrictEqual(JSON.parse(JSON.stringify(definedPath.parameters[0].schema)), {
     type: 'object',
     description: 'Body description',
     properties: {
@@ -591,11 +591,11 @@ test('no head routes by default', async (t) => {
   const swaggerObject = fastify.swagger()
   const api = await Swagger.validate(swaggerObject)
 
-  t.assert.deepEqual(
+  t.assert.deepStrictEqual(
     api.paths['/with-head'].get.responses['200'].description,
     'Expected Response'
   )
-  t.assert.deepEqual(
+  t.assert.deepStrictEqual(
     api.paths['/with-head'].head,
     undefined
   )
@@ -629,11 +629,11 @@ test('support "exposeHeadRoutes" option', async (t) => {
   const swaggerObject = fastify.swagger()
   const api = await Swagger.validate(swaggerObject)
 
-  t.assert.deepEqual(
+  t.assert.deepStrictEqual(
     api.paths['/with-head'].get.responses['200'].description,
     'Expected Response'
   )
-  t.assert.deepEqual(
+  t.assert.deepStrictEqual(
     api.paths['/with-head'].head.responses['200'].description,
     'Expected Response'
   )
@@ -671,11 +671,11 @@ test('support "exposeHeadRoutes" option at route level', async (t) => {
   const swaggerObject = fastify.swagger()
   const api = await Swagger.validate(swaggerObject)
 
-  t.assert.deepEqual(
+  t.assert.deepStrictEqual(
     api.paths['/with-head'].get.responses['200'].description,
     'Expected Response'
   )
-  t.assert.deepEqual(
+  t.assert.deepStrictEqual(
     api.paths['/with-head'].head.responses['200'].description,
     'Expected Response'
   )
@@ -726,7 +726,7 @@ test('add default properties for url params when missing schema.params', async t
 
   const definedPath = api.paths['/{userId}'].post
 
-  t.assert.deepEqual(definedPath.parameters[0].schema, {
+  t.assert.deepStrictEqual(JSON.parse(JSON.stringify(definedPath.parameters[0].schema)), {
     type: 'object',
     properties: {
       bio: {
@@ -773,7 +773,7 @@ test('avoid overwriting params when schema.params is provided', async t => {
 
   const definedPath = swaggerObject.paths['/{userId}'].post
 
-  t.assert.deepEqual(definedPath.parameters[0].schema, {
+  t.assert.deepStrictEqual(JSON.parse(JSON.stringify(definedPath.parameters[0].schema)), {
     type: 'object',
     properties: {
       bio: {

@@ -56,7 +56,7 @@ test('specification validation check works', async (t) => {
       })
     } catch (err) {
       t.assert.notEqual(err, undefined)
-      t.assert.equal(err.toString(), specificationTest.error)
+      t.assert.strictEqual(err.toString(), specificationTest.error)
     }
   }
 })
@@ -72,7 +72,7 @@ test('registering plugin with invalid mode throws an error', async (t) => {
   try {
     await fastify.register(fastifySwagger, config)
   } catch (err) {
-    t.assert.equal(err.message, 'unsupported mode, should be one of [\'static\', \'dynamic\']')
+    t.assert.strictEqual(err.message, 'unsupported mode, should be one of [\'static\', \'dynamic\']')
   }
 })
 
@@ -90,7 +90,7 @@ test('unsupported file extension in specification.path throws an error', async (
   try {
     await fastify.register(fastifySwagger, config)
   } catch (err) {
-    t.assert.equal(err.message, 'specification.path extension name is not supported, should be one from [\'.yaml\', \'.json\']')
+    t.assert.strictEqual(err.message, 'specification.path extension name is not supported, should be one from [\'.yaml\', \'.json\']')
   }
 })
 
@@ -109,7 +109,7 @@ test('non-string specification.baseDir throws an error ', async (t) => {
   try {
     await fastify.register(fastifySwagger, config)
   } catch (err) {
-    t.assert.equal(err.message, 'specification.baseDir should be string')
+    t.assert.strictEqual(err.message, 'specification.baseDir should be string')
   }
 })
 
@@ -127,7 +127,7 @@ test('valid specification.baseDir is handled properly /1', async (t) => {
 
   await fastify.register(fastifySwagger, config)
   await fastify.ready()
-  t.assert.deepEqual(
+  t.assert.deepStrictEqual(
     JSON.parse(readFileSync(resolve(__dirname, '..', '..', 'examples', 'example-static-specification.json'), 'utf8')),
     fastify.swagger({ json: true })
   )
@@ -147,7 +147,7 @@ test('valid specification.baseDir is handled properly /2', async (t) => {
 
   await fastify.register(fastifySwagger, config)
   await fastify.ready()
-  t.assert.deepEqual(
+  t.assert.deepStrictEqual(
     JSON.parse(readFileSync(resolve(__dirname, '..', '..', 'examples', 'example-static-specification.json'), 'utf8')),
     fastify.swagger({ json: true })
   )
@@ -166,7 +166,7 @@ test('valid yaml-specification is converted properly to json', async (t) => {
 
   await fastify.register(fastifySwagger, config)
   await fastify.ready()
-  t.assert.deepEqual(
+  t.assert.deepStrictEqual(
     JSON.parse(readFileSync(resolve(__dirname, '..', '..', 'examples', 'example-static-specification.json'), 'utf8')),
     fastify.swagger()
   )
@@ -186,7 +186,7 @@ test('valid specification yaml is properly handled as yaml', async (t) => {
 
   await fastify.register(fastifySwagger, config)
   await fastify.ready()
-  t.assert.equal(
+  t.assert.strictEqual(
     readFileSync(resolve(__dirname, '..', '..', 'examples', 'example-static-specification.yaml'), 'utf8'),
     fastify.swagger({ yaml: true })
   )
@@ -402,7 +402,7 @@ test('should still return valid swagger object when missing package.json', async
   await fastify.ready()
 
   const swaggerObject = fastify.swagger()
-  t.assert.equal(typeof swaggerObject, 'object')
+  t.assert.strictEqual(typeof swaggerObject, 'object')
 
   await Swagger.validate(swaggerObject)
   t.assert.ok(true, 'Swagger object is still valid.')
@@ -422,11 +422,11 @@ test('.swagger() returns cache.swaggerObject on second request in static mode', 
   await fastify.ready()
 
   const swaggerJson1 = fastify.swagger()
-  t.assert.equal(typeof swaggerJson1, 'object')
+  t.assert.strictEqual(typeof swaggerJson1, 'object')
 
   const swaggerJson2 = fastify.swagger()
-  t.assert.equal(typeof swaggerJson2, 'object')
-  t.assert.equal(swaggerJson1, swaggerJson2)
+  t.assert.strictEqual(typeof swaggerJson2, 'object')
+  t.assert.strictEqual(swaggerJson1, swaggerJson2)
 })
 
 test('.swagger({ yaml: true }) returns cache.swaggerString on second request in static mode', async (t) => {
@@ -443,11 +443,11 @@ test('.swagger({ yaml: true }) returns cache.swaggerString on second request in 
   await fastify.ready()
 
   const swaggerYaml1 = fastify.swagger({ yaml: true })
-  t.assert.equal(typeof swaggerYaml1, 'string')
+  t.assert.strictEqual(typeof swaggerYaml1, 'string')
 
   const swaggerYaml2 = fastify.swagger({ yaml: true })
-  t.assert.equal(typeof swaggerYaml2, 'string')
-  t.assert.equal(swaggerYaml1, swaggerYaml2)
+  t.assert.strictEqual(typeof swaggerYaml2, 'string')
+  t.assert.strictEqual(swaggerYaml1, swaggerYaml2)
 })
 
 test('postProcessor works, swagger route returns updated yaml', async (t) => {
@@ -503,8 +503,8 @@ paths:
   // check that yaml is there
   const res = fastify.swagger({ yaml: true })
 
-  t.assert.equal(typeof res, 'string')
+  t.assert.strictEqual(typeof res, 'string')
   yaml.parse(res)
-  t.assert.equal(res, expectedYaml)
+  t.assert.strictEqual(res, expectedYaml)
   t.assert.ok(true, 'valid swagger yaml')
 })
