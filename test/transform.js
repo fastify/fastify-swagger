@@ -139,7 +139,7 @@ test('transform can hide routes based on openapi version', async (t) => {
 
   await fastify.ready()
   const openapiObject = fastify.swagger()
-  t.assert.strictEqual(!!openapiObject.paths['/example'], false)
+  t.assert.strictEqual(openapiObject.paths['/example'], undefined)
 })
 
 test('endpoint transform should fail with a value other than Function', async (t) => {
@@ -270,7 +270,7 @@ test('endpoint transform can hide routes based on openapi version', async (t) =>
 
   await fastify.ready()
   const openapiObject = fastify.swagger()
-  t.assert.strictEqual(!!openapiObject.paths['/example'], false)
+  t.assert.strictEqual(openapiObject.paths['/example'], undefined)
 })
 
 test('endpoint transform takes precedence over global swagger transform', async (t) => {

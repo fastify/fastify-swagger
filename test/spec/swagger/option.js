@@ -186,7 +186,7 @@ test('basePath support', async (t) => {
   await fastify.ready()
 
   const swaggerObject = fastify.swagger()
-  t.assert.strictEqual(!!swaggerObject.paths['/prefix/endpoint'], false)
+  t.assert.strictEqual(swaggerObject.paths['/prefix/endpoint'], undefined)
   t.assert.ok(swaggerObject.paths['/endpoint'])
 })
 
@@ -206,7 +206,7 @@ test('basePath support with prefix', async (t) => {
   await fastify.ready()
 
   const swaggerObject = fastify.swagger()
-  t.assert.strictEqual(!!swaggerObject.paths['/prefix/endpoint'], false)
+  t.assert.strictEqual(swaggerObject.paths['/prefix/endpoint'], undefined)
   t.assert.ok(swaggerObject.paths['/endpoint'])
 })
 
@@ -225,7 +225,7 @@ test('basePath ensure leading slash', async (t) => {
   await fastify.ready()
 
   const swaggerObject = fastify.swagger()
-  t.assert.strictEqual(!!swaggerObject.paths.endpoint, false)
+  t.assert.strictEqual(swaggerObject.paths.endpoint, undefined)
   t.assert.ok(swaggerObject.paths['/endpoint'])
 })
 
@@ -245,7 +245,7 @@ test('basePath with prefix ensure leading slash', async (t) => {
   await fastify.ready()
 
   const swaggerObject = fastify.swagger()
-  t.assert.strictEqual(!!swaggerObject.paths.endpoint, false)
+  t.assert.strictEqual(swaggerObject.paths.endpoint, undefined)
   t.assert.ok(swaggerObject.paths['/endpoint'])
 })
 
@@ -266,8 +266,8 @@ test('basePath maintained when stripBasePath is set to false', async (t) => {
   await fastify.ready()
 
   const swaggerObject = fastify.swagger()
-  t.assert.strictEqual(!!swaggerObject.paths.endpoint, false)
-  t.assert.strictEqual(!!swaggerObject.paths['/endpoint'], false)
+  t.assert.strictEqual(swaggerObject.paths.endpoint, undefined)
+  t.assert.strictEqual(swaggerObject.paths['/endpoint'], undefined)
   t.assert.ok(swaggerObject.paths['/foo/endpoint'])
 })
 
@@ -302,7 +302,7 @@ test('hide support - property', async (t) => {
   await fastify.ready()
 
   const swaggerObject = fastify.swagger()
-  t.assert.strictEqual(!!swaggerObject.paths['/'], false)
+  t.assert.strictEqual(swaggerObject.paths['/'], undefined)
 })
 
 test('hide support when property set in transform() - property', async (t) => {
@@ -338,7 +338,7 @@ test('hide support when property set in transform() - property', async (t) => {
   await fastify.ready()
 
   const swaggerObject = fastify.swagger()
-  t.assert.strictEqual(!!swaggerObject.paths['/'], false)
+  t.assert.strictEqual(swaggerObject.paths['/'], undefined)
 })
 
 test('hide support - tags Default', async (t) => {
@@ -370,7 +370,7 @@ test('hide support - tags Default', async (t) => {
   await fastify.ready()
 
   const swaggerObject = fastify.swagger()
-  t.assert.strictEqual(!!swaggerObject.paths['/'], false)
+  t.assert.strictEqual(swaggerObject.paths['/'], undefined)
 })
 
 test('hide support - tags Custom', async (t) => {
@@ -402,7 +402,7 @@ test('hide support - tags Custom', async (t) => {
   await fastify.ready()
 
   const swaggerObject = fastify.swagger()
-  t.assert.strictEqual(!!swaggerObject.paths['/'], false)
+  t.assert.strictEqual(swaggerObject.paths['/'], undefined)
 })
 
 test('hide support - hidden untagged', async (t) => {
@@ -433,7 +433,7 @@ test('hide support - hidden untagged', async (t) => {
   await fastify.ready()
 
   const swaggerObject = fastify.swagger()
-  t.assert.strictEqual(!!swaggerObject.paths['/'], false)
+  t.assert.strictEqual(swaggerObject.paths['/'], undefined)
 })
 
 test('cache - json', async (t) => {

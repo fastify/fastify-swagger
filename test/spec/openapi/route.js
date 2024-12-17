@@ -688,7 +688,7 @@ test('security headers ignored when declared in security and securityScheme', as
   t.assert.ok(true, 'valid swagger object')
   t.assert.ok(api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'id')))
   t.assert.ok(api.paths['/address2/{id}'].get.parameters.find(({ name }) => (name === 'id')))
-  t.assert.strictEqual(!!api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'apiKey')), false)
+  t.assert.strictEqual(api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'apiKey')), undefined)
   t.assert.ok(api.paths['/address2/{id}'].get.parameters.find(({ name }) => (name === 'authKey')))
 })
 
@@ -758,7 +758,7 @@ test('security querystrings ignored when declared in security and securityScheme
   t.assert.ok(true, 'valid swagger object')
   t.assert.ok(api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'id')))
   t.assert.ok(api.paths['/address2/{id}'].get.parameters.find(({ name }) => (name === 'id')))
-  t.assert.strictEqual(!!api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'apiKey')), false)
+  t.assert.strictEqual(api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'apiKey')), undefined)
   t.assert.ok(api.paths['/address2/{id}'].get.parameters.find(({ name }) => (name === 'authKey')))
 })
 
@@ -828,7 +828,7 @@ test('security cookies ignored when declared in security and securityScheme', as
   t.assert.ok(true, 'valid swagger object')
   t.assert.ok(api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'id')))
   t.assert.ok(api.paths['/address2/{id}'].get.parameters.find(({ name }) => (name === 'id')))
-  t.assert.strictEqual(!!api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'apiKey')), false)
+  t.assert.strictEqual(api.paths['/address1/{id}'].get.parameters.find(({ name }) => (name === 'apiKey')), undefined)
   t.assert.ok(api.paths['/address2/{id}'].get.parameters.find(({ name }) => (name === 'authKey')))
 })
 

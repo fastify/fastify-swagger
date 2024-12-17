@@ -145,7 +145,7 @@ test('response 2xx', async t => {
 
   const definedPath = api.paths['/'].get
   t.assert.deepStrictEqual(definedPath.responses['200'].description, 'Default Response')
-  t.assert.strictEqual(!!definedPath.responses['2XX'], false)
+  t.assert.strictEqual(definedPath.responses['2XX'], undefined)
 })
 
 test('response conflict 2xx and 200', async t => {
@@ -175,7 +175,7 @@ test('response conflict 2xx and 200', async t => {
 
   const definedPath = api.paths['/'].get
   t.assert.deepStrictEqual(definedPath.responses['200'].description, '200')
-  t.assert.strictEqual(!!definedPath.responses['2XX'], false)
+  t.assert.strictEqual(definedPath.responses['2XX'], undefined)
 })
 
 test('support status code 204', async t => {
@@ -201,7 +201,7 @@ test('support status code 204', async t => {
 
   const definedPath = api.paths['/'].get
   t.assert.deepStrictEqual(definedPath.responses['204'].description, 'No Content')
-  t.assert.strictEqual(!!definedPath.responses['204'].schema, false)
+  t.assert.strictEqual(definedPath.responses['204'].schema, undefined)
 })
 
 test('support empty response body for different status than 204', async t => {
@@ -232,12 +232,12 @@ test('support empty response body for different status than 204', async t => {
   const definedPath = api.paths['/'].get
 
   t.assert.deepStrictEqual(definedPath.responses['204'].description, 'No Content')
-  t.assert.strictEqual(!!definedPath.responses['204'].content, false)
-  t.assert.strictEqual(!!definedPath.responses['503'].type, false)
+  t.assert.strictEqual(definedPath.responses['204'].content, undefined)
+  t.assert.strictEqual(definedPath.responses['503'].type, undefined)
 
   t.assert.deepStrictEqual(definedPath.responses['503'].description, 'Service Unavailable')
-  t.assert.strictEqual(!!definedPath.responses['503'].content, false)
-  t.assert.strictEqual(!!definedPath.responses['503'].type, false)
+  t.assert.strictEqual(definedPath.responses['503'].content, undefined)
+  t.assert.strictEqual(definedPath.responses['503'].type, undefined)
 })
 
 test('support response headers', async t => {
@@ -272,7 +272,7 @@ test('support response headers', async t => {
 
   const definedPath = api.paths['/'].get
   t.assert.deepStrictEqual(definedPath.responses['200'].headers, opt.schema.response['200'].headers)
-  t.assert.strictEqual(!!definedPath.responses['200'].schema.headers, false)
+  t.assert.strictEqual(definedPath.responses['200'].schema.headers, undefined)
 })
 
 test('response: description and x-response-description', async () => {

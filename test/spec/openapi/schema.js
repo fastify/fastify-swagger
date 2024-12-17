@@ -231,7 +231,7 @@ test('support status code 204', async t => {
 
   const definedPath = api.paths['/'].get
   t.assert.deepStrictEqual(definedPath.responses['204'].description, 'No Content')
-  t.assert.strictEqual(!!definedPath.responses['204'].content, false)
+  t.assert.strictEqual(definedPath.responses['204'].content, undefined)
 })
 
 test('support empty response body for different status than 204', async t => {
@@ -264,10 +264,10 @@ test('support empty response body for different status than 204', async t => {
   const definedPath = api.paths['/'].get
 
   t.assert.deepStrictEqual(definedPath.responses['204'].description, 'No Content')
-  t.assert.strictEqual(!!definedPath.responses['204'].content, false)
+  t.assert.strictEqual(definedPath.responses['204'].content, undefined)
 
   t.assert.deepStrictEqual(definedPath.responses['503'].description, 'Service Unavailable')
-  t.assert.strictEqual(!!definedPath.responses['503'].content, false)
+  t.assert.strictEqual(definedPath.responses['503'].content, undefined)
 })
 
 test('support response headers', async t => {
@@ -318,7 +318,7 @@ test('support response headers', async t => {
       type: 'string'
     }
   })
-  t.assert.strictEqual(!!definedPath.responses['200'].content['application/json'].schema.headers, false)
+  t.assert.strictEqual(definedPath.responses['200'].content['application/json'].schema.headers, undefined)
 })
 
 test('response: description and x-response-description', async () => {
@@ -952,7 +952,7 @@ test('support query serialization params', async t => {
   const swaggerObject = fastify.swagger()
   const api = await Swagger.validate(swaggerObject)
   t.assert.strictEqual(api.paths['/'].get.parameters[0].style, 'deepObject')
-  t.assert.strictEqual(!!api.paths['/'].get.parameters[0].explode, false)
+  t.assert.strictEqual(api.paths['/'].get.parameters[0].explode, false)
   t.assert.strictEqual(api.paths['/'].get.parameters[0].allowReserved, true)
 })
 

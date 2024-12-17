@@ -194,7 +194,7 @@ test('hide support when property set in transform() - property', async (t) => {
   await fastify.ready()
 
   const openapiObject = fastify.swagger()
-  t.assert.strictEqual(!!openapiObject.paths['/'], false)
+  t.assert.strictEqual(openapiObject.paths['/'], undefined)
 })
 
 test('hide support - tags Default', async (t) => {
@@ -226,7 +226,7 @@ test('hide support - tags Default', async (t) => {
   await fastify.ready()
 
   const openapiObject = fastify.swagger()
-  t.assert.strictEqual(!!openapiObject.paths['/'], false)
+  t.assert.strictEqual(openapiObject.paths['/'], undefined)
 })
 
 test('hide support - tags Custom', async (t) => {
@@ -258,7 +258,7 @@ test('hide support - tags Custom', async (t) => {
   await fastify.ready()
 
   const openapiObject = fastify.swagger()
-  t.assert.strictEqual(!!openapiObject.paths['/'], false)
+  t.assert.strictEqual(openapiObject.paths['/'], undefined)
 })
 
 test('hide support - hidden untagged', async (t) => {
@@ -289,7 +289,7 @@ test('hide support - hidden untagged', async (t) => {
   await fastify.ready()
 
   const openapiObject = fastify.swagger()
-  t.assert.strictEqual(!!openapiObject.paths['/'], false)
+  t.assert.strictEqual(openapiObject.paths['/'], undefined)
 })
 
 test('basePath support', async (t) => {
@@ -311,7 +311,7 @@ test('basePath support', async (t) => {
   await fastify.ready()
 
   const openapiObject = fastify.swagger()
-  t.assert.strictEqual(!!openapiObject.paths['/prefix/endpoint'], false)
+  t.assert.strictEqual(openapiObject.paths['/prefix/endpoint'], undefined)
   t.assert.ok(openapiObject.paths['/endpoint'])
 })
 
@@ -336,8 +336,8 @@ test('basePath maintained when stripBasePath is set to false', async (t) => {
   await fastify.ready()
 
   const openapiObject = fastify.swagger()
-  t.assert.strictEqual(!!openapiObject.paths.endpoint, false)
-  t.assert.strictEqual(!!openapiObject.paths['/endpoint'], false)
+  t.assert.strictEqual(openapiObject.paths.endpoint, undefined)
+  t.assert.strictEqual(openapiObject.paths['/endpoint'], undefined)
   t.assert.ok(openapiObject.paths['/foo/endpoint'])
 })
 
@@ -358,7 +358,7 @@ test('relative basePath support', async (t) => {
   await fastify.ready()
 
   const openapiObject = fastify.swagger()
-  t.assert.strictEqual(!!openapiObject.paths['/foo/endpoint'], false)
+  t.assert.strictEqual(openapiObject.paths['/foo/endpoint'], undefined)
   t.assert.ok(openapiObject.paths['/endpoint'])
 })
 
@@ -387,7 +387,7 @@ test('basePath containing variables support', async (t) => {
   await fastify.ready()
 
   const openapiObject = fastify.swagger()
-  t.assert.strictEqual(!!openapiObject.paths['/foo/endpoint'], false)
+  t.assert.strictEqual(openapiObject.paths['/foo/endpoint'], undefined)
   t.assert.ok(openapiObject.paths['/endpoint'])
 })
 
@@ -491,7 +491,7 @@ test('move examples from "x-examples" to examples field', async (t) => {
   const schema = content.schema
 
   t.assert.ok(schema)
-  t.assert.strictEqual(!!schema['x-examples'], false)
+  t.assert.strictEqual(schema['x-examples'], undefined)
   t.assert.deepStrictEqual(content.examples, {
     'lorem ipsum': {
       summary: 'Roman statesman',
@@ -564,10 +564,10 @@ test('request body examples', async t => {
     const content = openapiObject.paths['/'].post.requestBody.content['application/json']
     const schema = content.schema
 
-    t.assert.strictEqual(!!schema.example, false)
-    t.assert.strictEqual(!!schema.examples, false)
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
     t.assert.deepStrictEqual(content.example, 'hello')
-    t.assert.strictEqual(!!content.examples, false)
+    t.assert.strictEqual(content.examples, undefined)
   })
 
   await t.test('uses .examples field if has multiple top-level string examples', async t => {
@@ -584,9 +584,9 @@ test('request body examples', async t => {
     const content = openapiObject.paths['/'].post.requestBody.content['application/json']
     const schema = content.schema
 
-    t.assert.strictEqual(!!schema.example, false)
-    t.assert.strictEqual(!!schema.examples, false)
-    t.assert.strictEqual(!!content.example, false)
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
+    t.assert.strictEqual(content.example, undefined)
     t.assert.deepStrictEqual(content.examples, {
       hello: { value: 'hello' },
       world: { value: 'world' }
@@ -607,10 +607,10 @@ test('request body examples', async t => {
     const content = openapiObject.paths['/'].post.requestBody.content['application/json']
     const schema = content.schema
 
-    t.assert.strictEqual(!!schema.example, false)
-    t.assert.strictEqual(!!schema.examples, false)
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
     t.assert.deepStrictEqual(content.example, 0)
-    t.assert.strictEqual(!!content.examples, false)
+    t.assert.strictEqual(content.examples, undefined)
   })
 
   await t.test('uses .examples field if has multiple top-level numeric examples', async t => {
@@ -627,9 +627,9 @@ test('request body examples', async t => {
     const content = openapiObject.paths['/'].post.requestBody.content['application/json']
     const schema = content.schema
 
-    t.assert.strictEqual(!!schema.example, false)
-    t.assert.strictEqual(!!schema.examples, false)
-    t.assert.strictEqual(!!content.example, false)
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
+    t.assert.strictEqual(content.example, undefined)
     t.assert.deepStrictEqual(content.examples, {
       0: { value: 0 },
       1: { value: 1 }
@@ -656,10 +656,10 @@ test('request body examples', async t => {
     const schema = content.schema
 
     t.assert.ok(schema.properties)
-    t.assert.strictEqual(!!schema.example, false)
-    t.assert.strictEqual(!!schema.examples, false)
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
     t.assert.deepStrictEqual(content.example, { hello: 'world' })
-    t.assert.strictEqual(!!content.examples, false)
+    t.assert.strictEqual(content.examples, undefined)
   })
 
   await t.test('uses .examples field if has multiple top-level object examples', async t => {
@@ -682,13 +682,13 @@ test('request body examples', async t => {
     const schema = content.schema
 
     t.assert.ok(schema.properties)
-    t.assert.strictEqual(!!schema.example, false)
-    t.assert.strictEqual(!!schema.examples, false)
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
     t.assert.deepStrictEqual(content.examples, {
       example1: { value: { hello: 'world' } },
       example2: { value: { hello: 'universe' } }
     })
-    t.assert.strictEqual(!!content.example, false)
+    t.assert.strictEqual(content.example, undefined)
   })
 
   await t.test('uses .example field if has single top-level array example', async t => {
@@ -714,10 +714,10 @@ test('request body examples', async t => {
     const schema = content.schema
 
     t.assert.ok(schema.items)
-    t.assert.strictEqual(!!schema.example, false)
-    t.assert.strictEqual(!!schema.examples, false)
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
     t.assert.deepStrictEqual(content.example, [{ hello: 'world' }])
-    t.assert.strictEqual(!!content.examples, false)
+    t.assert.strictEqual(content.examples, undefined)
   })
 
   await t.test('uses .examples field if has multiple top-level array examples', async t => {
@@ -743,13 +743,13 @@ test('request body examples', async t => {
     const schema = content.schema
 
     t.assert.ok(schema.items)
-    t.assert.strictEqual(!!schema.example, false)
-    t.assert.strictEqual(!!schema.examples, false)
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
     t.assert.deepStrictEqual(content.examples, {
       example1: { value: [{ hello: 'world' }] },
       example2: { value: [{ hello: 'universe' }] }
     })
-    t.assert.strictEqual(!!content.example, false)
+    t.assert.strictEqual(content.example, undefined)
   })
 
   await t.test('uses .example field if has single nested string example', async t => {
@@ -781,12 +781,12 @@ test('request body examples', async t => {
     const schema = content.schema
 
     t.assert.ok(schema.properties)
-    t.assert.strictEqual(!!schema.example, false)
-    t.assert.strictEqual(!!schema.examples, false)
-    t.assert.strictEqual(!!content.example, false)
-    t.assert.strictEqual(!!content.examples, false)
-    t.assert.strictEqual(!!schema.properties.flat.examples, false)
-    t.assert.strictEqual(!!schema.properties.deep.properties.field.examples, false)
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
+    t.assert.strictEqual(content.example, undefined)
+    t.assert.strictEqual(content.examples, undefined)
+    t.assert.strictEqual(schema.properties.flat.examples, undefined)
+    t.assert.strictEqual(schema.properties.deep.properties.field.examples, undefined)
     t.assert.deepStrictEqual(schema.properties.flat.example, 'world')
     t.assert.deepStrictEqual(schema.properties.deep.properties.field.example, 'universe')
   })
@@ -820,12 +820,12 @@ test('request body examples', async t => {
     const schema = content.schema
 
     t.assert.ok(schema.properties)
-    t.assert.strictEqual(!!schema.example, false)
-    t.assert.strictEqual(!!schema.examples, false)
-    t.assert.strictEqual(!!content.example, false)
-    t.assert.strictEqual(!!content.examples, false)
-    t.assert.strictEqual(!!schema.properties.flat.examples, false)
-    t.assert.strictEqual(!!schema.properties.deep.properties.field.examples, false)
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
+    t.assert.strictEqual(content.example, undefined)
+    t.assert.strictEqual(content.examples, undefined)
+    t.assert.strictEqual(schema.properties.flat.examples, undefined)
+    t.assert.strictEqual(schema.properties.deep.properties.field.examples, undefined)
     t.assert.deepStrictEqual(schema.properties.flat.example, 0)
     t.assert.deepStrictEqual(schema.properties.deep.properties.field.example, 1)
   })
@@ -851,11 +851,11 @@ test('request body examples', async t => {
     const schema = content.schema
 
     t.assert.ok(schema.items)
-    t.assert.strictEqual(!!schema.example, false)
-    t.assert.strictEqual(!!schema.examples, false)
-    t.assert.strictEqual(!!content.example, false)
-    t.assert.strictEqual(!!content.examples, false)
-    t.assert.strictEqual(!!schema.items.examples, false)
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
+    t.assert.strictEqual(content.example, undefined)
+    t.assert.strictEqual(content.examples, undefined)
+    t.assert.strictEqual(schema.items.examples, undefined)
     t.assert.deepStrictEqual(schema.items.example, ['world', 'universe'])
   })
 
@@ -880,11 +880,11 @@ test('request body examples', async t => {
     const schema = content.schema
 
     t.assert.ok(schema.contains)
-    t.assert.strictEqual(!!schema.example, false)
-    t.assert.strictEqual(!!schema.examples, false)
-    t.assert.strictEqual(!!content.example, false)
-    t.assert.strictEqual(!!content.examples, false)
-    t.assert.strictEqual(!!schema.contains.examples, false)
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
+    t.assert.strictEqual(content.example, undefined)
+    t.assert.strictEqual(content.examples, undefined)
+    t.assert.strictEqual(schema.contains.examples, undefined)
     t.assert.deepStrictEqual(schema.contains.example, ['world', 'universe'])
   })
 
@@ -913,11 +913,11 @@ test('request body examples', async t => {
     const schema = content.schema
 
     t.assert.ok(schema.properties)
-    t.assert.strictEqual(!!schema.example, false)
-    t.assert.strictEqual(!!schema.examples, false)
-    t.assert.strictEqual(!!content.example, false)
-    t.assert.strictEqual(!!content.examples, false)
-    t.assert.strictEqual(!!schema.properties.deep.examples, false)
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
+    t.assert.strictEqual(content.example, undefined)
+    t.assert.strictEqual(content.examples, undefined)
+    t.assert.strictEqual(schema.properties.deep.examples, undefined)
     t.assert.deepStrictEqual(schema.properties.deep.example, { hello: 'world' })
   })
 
@@ -946,11 +946,11 @@ test('request body examples', async t => {
     const schema = content.schema
 
     t.assert.ok(schema.properties)
-    t.assert.strictEqual(!!schema.example, false)
-    t.assert.strictEqual(!!schema.examples, false)
-    t.assert.strictEqual(!!content.example, false)
-    t.assert.strictEqual(!!content.examples, false)
-    t.assert.strictEqual(!!schema.properties.deep.examples, false)
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
+    t.assert.strictEqual(content.example, undefined)
+    t.assert.strictEqual(content.examples, undefined)
+    t.assert.strictEqual(schema.properties.deep.examples, undefined)
     t.assert.deepStrictEqual(schema.properties.deep.example, { hello: 'world' })
   })
 })
@@ -970,10 +970,10 @@ test('response examples', async t => {
     const content = openapiObject.paths['/'].post.responses['200'].content['application/json']
     const schema = content.schema
 
-    t.assert.strictEqual(!!schema.example, false)
-    t.assert.strictEqual(!!schema.examples, false)
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
     t.assert.deepStrictEqual(content.example, 'hello')
-    t.assert.strictEqual(!!content.examples, false)
+    t.assert.strictEqual(content.examples, undefined)
   })
 
   await t.test('uses .examples field if has multiple top-level string examples', async t => {
@@ -990,9 +990,9 @@ test('response examples', async t => {
     const content = openapiObject.paths['/'].post.responses['200'].content['application/json']
     const schema = content.schema
 
-    t.assert.strictEqual(!!schema.example, false)
-    t.assert.strictEqual(!!schema.examples, false)
-    t.assert.strictEqual(!!content.example, false)
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
+    t.assert.strictEqual(content.example, undefined)
     t.assert.deepStrictEqual(content.examples, {
       hello: { value: 'hello' },
       world: { value: 'world' }
@@ -1013,10 +1013,10 @@ test('response examples', async t => {
     const content = openapiObject.paths['/'].post.responses['200'].content['application/json']
     const schema = content.schema
 
-    t.assert.strictEqual(!!schema.example, false)
-    t.assert.strictEqual(!!schema.examples, false)
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
     t.assert.deepStrictEqual(content.example, 0)
-    t.assert.strictEqual(!!content.examples, false)
+    t.assert.strictEqual(content.examples, undefined)
   })
 
   await t.test('uses .examples field if has multiple top-level numeric examples', async t => {
@@ -1033,9 +1033,9 @@ test('response examples', async t => {
     const content = openapiObject.paths['/'].post.responses['200'].content['application/json']
     const schema = content.schema
 
-    t.assert.strictEqual(!!schema.example, false)
-    t.assert.strictEqual(!!schema.examples, false)
-    t.assert.strictEqual(!!content.example, false)
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
+    t.assert.strictEqual(content.example, undefined)
     t.assert.deepStrictEqual(content.examples, {
       0: { value: 0 },
       1: { value: 1 }
@@ -1062,10 +1062,10 @@ test('response examples', async t => {
     const schema = content.schema
 
     t.assert.ok(schema.properties)
-    t.assert.strictEqual(!!schema.example, false)
-    t.assert.strictEqual(!!schema.examples, false)
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
     t.assert.deepStrictEqual(content.example, { hello: 'world' })
-    t.assert.strictEqual(!!content.examples, false)
+    t.assert.strictEqual(content.examples, undefined)
   })
 
   await t.test('uses .examples field if has multiple top-level object examples', async t => {
@@ -1088,13 +1088,13 @@ test('response examples', async t => {
     const schema = content.schema
 
     t.assert.ok(schema.properties)
-    t.assert.strictEqual(!!schema.example, false)
-    t.assert.strictEqual(!!schema.examples, false)
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
     t.assert.deepStrictEqual(content.examples, {
       example1: { value: { hello: 'world' } },
       example2: { value: { hello: 'universe' } }
     })
-    t.assert.strictEqual(!!content.example, false)
+    t.assert.strictEqual(content.example, undefined)
   })
 
   await t.test('uses .example field if has single top-level array example', async t => {
@@ -1120,10 +1120,10 @@ test('response examples', async t => {
     const schema = content.schema
 
     t.assert.ok(schema.items)
-    t.assert.strictEqual(!!schema.example, false)
-    t.assert.strictEqual(!!schema.examples, false)
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
     t.assert.deepStrictEqual(content.example, [{ hello: 'world' }])
-    t.assert.strictEqual(!!content.examples, false)
+    t.assert.strictEqual(content.examples, undefined)
   })
 
   await t.test('uses .examples field if has multiple top-level array examples', async t => {
@@ -1149,13 +1149,13 @@ test('response examples', async t => {
     const schema = content.schema
 
     t.assert.ok(schema.items)
-    t.assert.strictEqual(!!schema.example, false)
-    t.assert.strictEqual(!!schema.examples, false)
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
     t.assert.deepStrictEqual(content.examples, {
       example1: { value: [{ hello: 'world' }] },
       example2: { value: [{ hello: 'universe' }] }
     })
-    t.assert.strictEqual(!!content.example, false)
+    t.assert.strictEqual(content.example, undefined)
   })
 
   await t.test('uses .example field if has single nested string example', async t => {
@@ -1187,12 +1187,12 @@ test('response examples', async t => {
     const schema = content.schema
 
     t.assert.ok(schema.properties)
-    t.assert.strictEqual(!!schema.example, false)
-    t.assert.strictEqual(!!schema.examples, false)
-    t.assert.strictEqual(!!content.example, false)
-    t.assert.strictEqual(!!content.examples, false)
-    t.assert.strictEqual(!!schema.properties.flat.examples, false)
-    t.assert.strictEqual(!!schema.properties.deep.properties.field.examples, false)
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
+    t.assert.strictEqual(content.example, undefined)
+    t.assert.strictEqual(content.examples, undefined)
+    t.assert.strictEqual(schema.properties.flat.examples, undefined)
+    t.assert.strictEqual(schema.properties.deep.properties.field.examples, undefined)
     t.assert.deepStrictEqual(schema.properties.flat.example, 'world')
     t.assert.deepStrictEqual(schema.properties.deep.properties.field.example, 'universe')
   })
@@ -1226,12 +1226,12 @@ test('response examples', async t => {
     const schema = content.schema
 
     t.assert.ok(schema.properties)
-    t.assert.strictEqual(!!schema.example, false)
-    t.assert.strictEqual(!!schema.examples, false)
-    t.assert.strictEqual(!!content.example, false)
-    t.assert.strictEqual(!!content.examples, false)
-    t.assert.strictEqual(!!schema.properties.flat.examples, false)
-    t.assert.strictEqual(!!schema.properties.deep.properties.field.examples, false)
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
+    t.assert.strictEqual(content.example, undefined)
+    t.assert.strictEqual(content.examples, undefined)
+    t.assert.strictEqual(schema.properties.flat.examples, undefined)
+    t.assert.strictEqual(schema.properties.deep.properties.field.examples, undefined)
     t.assert.deepStrictEqual(schema.properties.flat.example, 0)
     t.assert.deepStrictEqual(schema.properties.deep.properties.field.example, 1)
   })
@@ -1257,11 +1257,11 @@ test('response examples', async t => {
     const schema = content.schema
 
     t.assert.ok(schema.items)
-    t.assert.strictEqual(!!schema.example, false)
-    t.assert.strictEqual(!!schema.examples, false)
-    t.assert.strictEqual(!!content.example, false)
-    t.assert.strictEqual(!!content.examples, false)
-    t.assert.strictEqual(!!schema.items.examples, false)
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
+    t.assert.strictEqual(content.example, undefined)
+    t.assert.strictEqual(content.examples, undefined)
+    t.assert.strictEqual(schema.items.examples, undefined)
     t.assert.deepStrictEqual(schema.items.example, ['world', 'universe'])
   })
 
@@ -1286,11 +1286,11 @@ test('response examples', async t => {
     const schema = content.schema
 
     t.assert.ok(schema.contains)
-    t.assert.strictEqual(!!schema.example, false)
-    t.assert.strictEqual(!!schema.examples, false)
-    t.assert.strictEqual(!!content.example, false)
-    t.assert.strictEqual(!!content.examples, false)
-    t.assert.strictEqual(!!schema.contains.examples, false)
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
+    t.assert.strictEqual(content.example, undefined)
+    t.assert.strictEqual(content.examples, undefined)
+    t.assert.strictEqual(schema.contains.examples, undefined)
     t.assert.deepStrictEqual(schema.contains.example, ['world', 'universe'])
   })
 
@@ -1319,11 +1319,11 @@ test('response examples', async t => {
     const schema = content.schema
 
     t.assert.ok(schema.properties)
-    t.assert.strictEqual(!!schema.example, false)
-    t.assert.strictEqual(!!schema.examples, false)
-    t.assert.strictEqual(!!content.example, false)
-    t.assert.strictEqual(!!content.examples, false)
-    t.assert.strictEqual(!!schema.properties.deep.examples, false)
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
+    t.assert.strictEqual(content.example, undefined)
+    t.assert.strictEqual(content.examples, undefined)
+    t.assert.strictEqual(schema.properties.deep.examples, undefined)
     t.assert.deepStrictEqual(schema.properties.deep.example, { hello: 'world' })
   })
 
@@ -1352,11 +1352,11 @@ test('response examples', async t => {
     const schema = content.schema
 
     t.assert.ok(schema.properties)
-    t.assert.strictEqual(!!schema.example, false)
-    t.assert.strictEqual(!!schema.examples, false)
-    t.assert.strictEqual(!!content.example, false)
-    t.assert.strictEqual(!!content.examples, false)
-    t.assert.strictEqual(!!schema.properties.deep.examples, false)
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
+    t.assert.strictEqual(content.example, undefined)
+    t.assert.strictEqual(content.examples, undefined)
+    t.assert.strictEqual(schema.properties.deep.examples, undefined)
     t.assert.deepStrictEqual(schema.properties.deep.example, { hello: 'world' })
   })
 })
@@ -1393,7 +1393,7 @@ test('copy example of body from component to media', async (t) => {
 
   t.assert.ok(schema)
   t.assert.ok(schema.properties)
-  t.assert.strictEqual(!!schema.example, false)
+  t.assert.strictEqual(schema.example, undefined)
   t.assert.deepStrictEqual(content.example, { hello: 'world' })
 })
 
@@ -1522,7 +1522,7 @@ test('move examples of body from component to media', async (t) => {
 
   t.assert.ok(schema)
   t.assert.ok(schema.properties)
-  t.assert.strictEqual(!!schema.examples, false)
+  t.assert.strictEqual(schema.examples, undefined)
   t.assert.deepStrictEqual(content.examples, { example1: { value: { hello: 'world' } }, example2: { value: { hello: 'lorem' } } })
 })
 
@@ -1558,7 +1558,7 @@ test('move examples of response from component to media', async (t) => {
 
   t.assert.ok(schema)
   t.assert.ok(schema.properties)
-  t.assert.strictEqual(!!schema.examples, false)
+  t.assert.strictEqual(schema.examples, undefined)
   t.assert.deepStrictEqual(content.examples, { example1: { value: { hello: 'world' } }, example2: { value: { hello: 'lorem' } } })
 })
 

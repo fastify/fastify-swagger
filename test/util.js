@@ -32,7 +32,7 @@ test('hasParams function', async (t) => {
   await t.test('should return false for empty url', (t) => {
     const url = ''
     const result = hasParams(url)
-    t.assert.strictEqual(!!result, false)
+    t.assert.strictEqual(result, false)
   })
 
   await t.test('should return true for url with parameters', (t) => {
@@ -50,7 +50,7 @@ test('hasParams function', async (t) => {
   await t.test('should return false for url without parameters', (t) => {
     const url = '/example/path'
     const result = hasParams(url)
-    t.assert.strictEqual(!!result, false)
+    t.assert.strictEqual(result, false)
   })
 })
 
