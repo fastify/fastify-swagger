@@ -1,6 +1,6 @@
 'use strict'
 
-const { test } = require('tap')
+const { test } = require('node:test')
 const Fastify = require('fastify')
 const fastifySwagger = require('../index')
 
@@ -11,7 +11,7 @@ test('fastify.swagger should exist', async (t) => {
   await fastify.register(fastifySwagger)
 
   await fastify.ready()
-  t.ok(fastify.swagger)
+  t.assert.ok(fastify.swagger)
 })
 
 test('fastify.swagger should throw if called before ready', async (t) => {
@@ -20,7 +20,7 @@ test('fastify.swagger should throw if called before ready', async (t) => {
 
   await fastify.register(fastifySwagger)
 
-  t.throws(fastify.swagger.bind(fastify))
+  t.assert.throws(fastify.swagger.bind(fastify))
 })
 
 test('fastify.swagger should throw if called before ready (openapi)', async (t) => {
@@ -31,7 +31,7 @@ test('fastify.swagger should throw if called before ready (openapi)', async (t) 
     openapi: {}
   })
 
-  t.throws(fastify.swagger.bind(fastify))
+  t.assert.throws(fastify.swagger.bind(fastify))
 })
 
 test('decorator can be overridden', async (t) => {
@@ -41,5 +41,5 @@ test('decorator can be overridden', async (t) => {
   await fastify.register(fastifySwagger, { decorator: 'customSwaggerDecorator' })
 
   await fastify.ready()
-  t.ok(fastify.customSwaggerDecorator())
+  t.assert.ok(fastify.customSwaggerDecorator())
 })

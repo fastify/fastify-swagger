@@ -1,4 +1,4 @@
-import t from 'tap'
+import t from 'node:test'
 import Fastify from 'fastify'
 import swaggerDefault from '../../index.js'
 
@@ -10,5 +10,5 @@ t.test('esm support', async t => {
   await fastify.ready()
 
   const swaggerObject = fastify.swagger()
-  t.equal(swaggerObject.swagger, '2.0')
+  t.assert.strictEqual(swaggerObject.swagger, '2.0')
 })
