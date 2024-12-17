@@ -159,7 +159,7 @@ test('route options - produces', async (t) => {
   const api = await Swagger.validate(openapiObject)
   const definedPath = api.paths['/'].get
   t.assert.ok(definedPath)
-  t.assert.deepEqual(JSON.parse(JSON.stringify(definedPath.responses[200].content)), {
+  t.assert.deepEqual(definedPath.responses[200].content, {
     '*/*': {
       schema: {
         type: 'object',
@@ -234,7 +234,7 @@ test('parses form parameters when all api consumes application/x-www-form-urlenc
   const api = await Swagger.validate(openapiObject)
   const definedPath = api.paths['/'].post
   t.assert.ok(definedPath)
-  t.assert.deepEqual(JSON.parse(JSON.stringify(definedPath.requestBody.content)), {
+  t.assert.deepEqual(definedPath.requestBody.content, {
     'application/x-www-form-urlencoded': {
       schema: {
         type: 'object',
