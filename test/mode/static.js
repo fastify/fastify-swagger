@@ -203,7 +203,7 @@ test('non-object specification.document throws an error', async (t) => {
   t.plan(1)
   const fastify = new Fastify()
 
-  t.assert.rejects(async () => await fastify.register(fastifySwagger, config), new Error('specification.document is not an object'))
+  await t.assert.rejects(async () => await fastify.register(fastifySwagger, config), new Error('specification.document is not an object'))
 })
 
 test('object specification.document', async (t) => {
