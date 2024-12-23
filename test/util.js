@@ -1,6 +1,6 @@
 'use strict'
 
-const { test } = require('tap')
+const { test } = require('node:test')
 const { formatParamUrl } = require('../lib/util/format-param-url')
 const { hasParams, matchParams } = require('../lib/util/match-params')
 const { generateParamsSchema, paramName } = require('../lib/util/generate-params-schema')
@@ -24,65 +24,54 @@ test('formatParamUrl', async (t) => {
   t.plan(cases.length)
 
   for (const kase of cases) {
-    t.equal(formatParamUrl(kase[0]), kase[1])
+    t.assert.strictEqual(formatParamUrl(kase[0]), kase[1])
   }
 })
 
-test('hasParams function', (t) => {
-  t.test('should return false for empty url', (t) => {
+test('hasParams function', async (t) => {
+  await t.test('should return false for empty url', (t) => {
     const url = ''
     const result = hasParams(url)
-    t.equal(result, false)
-    t.end()
+    t.assert.strictEqual(result, false)
   })
 
-  t.test('should return true for url with parameters', (t) => {
+  await t.test('should return true for url with parameters', (t) => {
     const url = '/example/{userId}'
     const result = hasParams(url)
-    t.equal(result, true)
-    t.end()
+    t.assert.strictEqual(result, true)
   })
 
-  t.test('should return true for url with multiple parameters', (t) => {
+  await t.test('should return true for url with multiple parameters', (t) => {
     const url = '/example/{userId}/{secretToken}'
     const result = hasParams(url)
-    t.equal(result, true)
-    t.end()
+    t.assert.strictEqual(result, true)
   })
 
-  t.test('should return false for url without parameters', (t) => {
+  await t.test('should return false for url without parameters', (t) => {
     const url = '/example/path'
     const result = hasParams(url)
-    t.equal(result, false)
-    t.end()
+    t.assert.strictEqual(result, false)
   })
-
-  t.end()
 })
 
-test('matchParams function', (t) => {
-  t.test('should return an empty array for empty url', (t) => {
+test('matchParams function', async (t) => {
+  await t.test('should return an empty array for empty url', (t) => {
     const url = ''
     const result = matchParams(url)
-    t.same(result, [])
-    t.end()
+    t.assert.deepStrictEqual(result, [])
   })
 
-  t.test('should return an array of matched parameters', (t) => {
+  await t.test('should return an array of matched parameters', (t) => {
     const url = '/example/{userId}/{secretToken}'
     const result = matchParams(url)
-    t.same(result, ['{userId}', '{secretToken}'])
-    t.end()
+    t.assert.deepStrictEqual(result, ['{userId}', '{secretToken}'])
   })
 
-  t.test('should return an empty array for url without parameters', (t) => {
+  await t.test('should return an empty array for url without parameters', (t) => {
     const url = '/example/path'
     const result = matchParams(url)
-    t.same(result, [])
-    t.end()
+    t.assert.deepStrictEqual(result, [])
   })
-
-  t.end()
 })
 
 const urlsToShemas = [
@@ -135,24 +124,20 @@ test('generateParamsSchema function', (t) => {
   for (const [url, expectedSchema] of urlsToShemas) {
     const result = generateParamsSchema(url)
 
-    t.same(result, expectedSchema)
+    t.assert.deepStrictEqual(result, expectedSchema)
   }
 })
 
-test('paramName function', (t) => {
-  t.test('should return the captured value from the param', (t) => {
+test('paramName function', async (t) => {
+  await t.test('should return the captured value from the param', (t) => {
     const param = '{userId}'
     const result = paramName(param)
-    t.equal(result, 'userId')
-    t.end()
+    t.assert.strictEqual(result, 'userId')
   })
 
-  t.test('should return the same value if there are no captures', (t) => {
+  await t.test('should return the same value if there are no captures', (t) => {
     const param = 'userId'
     const result = paramName(param)
-    t.equal(result, 'userId')
-    t.end()
+    t.assert.strictEqual(result, 'userId')
   })
-
-  t.end()
 })
