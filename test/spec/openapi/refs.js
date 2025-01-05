@@ -1,6 +1,6 @@
 'use strict'
 
-const { test } = require('tap')
+const { test } = require('node:test')
 const Fastify = require('fastify')
 const Swagger = require('@apidevtools/swagger-parser')
 const fastifySwagger = require('../../../index')
@@ -26,9 +26,9 @@ test('support $ref schema', async (t) => {
   await fastify.ready()
 
   const openapiObject = fastify.swagger()
-  t.equal(typeof openapiObject, 'object')
-  t.match(Object.keys(openapiObject.components.schemas), ['Order'])
-  t.equal(openapiObject.components.schemas.Order.properties.id.example, 25)
+  t.assert.strictEqual(typeof openapiObject, 'object')
+  t.assert.deepStrictEqual(Object.keys(openapiObject.components.schemas), ['Order'])
+  t.assert.strictEqual(openapiObject.components.schemas.Order.properties.id.example, 25)
 
   await Swagger.validate(openapiObject)
 })
@@ -58,8 +58,8 @@ test('support $ref relative pointers in params', async (t) => {
   await fastify.ready()
 
   const openapiObject = fastify.swagger()
-  t.equal(typeof openapiObject, 'object')
-  t.match(Object.keys(openapiObject.components.schemas), ['Order'])
+  t.assert.strictEqual(typeof openapiObject, 'object')
+  t.assert.deepStrictEqual(Object.keys(openapiObject.components.schemas), ['Order'])
 
   await Swagger.validate(openapiObject)
 })
@@ -78,14 +78,14 @@ test('support nested $ref schema : simple test', async (t) => {
   await fastify.ready()
 
   const openapiObject = fastify.swagger()
-  t.equal(typeof openapiObject, 'object')
+  t.assert.strictEqual(typeof openapiObject, 'object')
 
   const schemas = openapiObject.components.schemas
-  t.match(Object.keys(schemas), ['OrderItem', 'ProductItem', 'Order'])
+  t.assert.deepStrictEqual(Object.keys(schemas), ['OrderItem', 'ProductItem', 'Order'])
 
   //  ref must be prefixed by '#/components/schemas/'
-  t.equal(schemas.Order.properties.products.items.$ref, '#/components/schemas/OrderItem')
-  t.match(schemas.OrderItem.example, { id: 1 })
+  t.assert.strictEqual(schemas.Order.properties.products.items.$ref, '#/components/schemas/OrderItem')
+  t.assert.deepStrictEqual(schemas.OrderItem.example, { id: 1 })
 
   await Swagger.validate(openapiObject)
 })
@@ -105,16 +105,16 @@ test('support nested $ref schema : complex case', async (t) => {
   await fastify.ready()
 
   const openapiObject = fastify.swagger()
-  t.equal(typeof openapiObject, 'object')
+  t.assert.strictEqual(typeof openapiObject, 'object')
 
   const schemas = openapiObject.components.schemas
-  t.match(Object.keys(schemas), ['schemaA', 'schemaB', 'schemaC', 'schemaD'])
+  t.assert.deepStrictEqual(Object.keys(schemas), ['schemaA', 'schemaB', 'schemaC', 'schemaD'])
 
   // ref must be prefixed by '#/components/schemas/'
-  t.equal(schemas.schemaC.properties.a.items.$ref, '#/components/schemas/schemaA')
-  t.equal(schemas.schemaD.properties.b.$ref, '#/components/schemas/schemaB')
-  t.equal(schemas.schemaD.properties.c.$ref, '#/components/schemas/schemaC')
-  t.equal(schemas.schemaB.properties.id.example, 'ABC')
+  t.assert.strictEqual(schemas.schemaC.properties.a.items.$ref, '#/components/schemas/schemaA')
+  t.assert.strictEqual(schemas.schemaD.properties.b.$ref, '#/components/schemas/schemaB')
+  t.assert.strictEqual(schemas.schemaD.properties.c.$ref, '#/components/schemas/schemaC')
+  t.assert.strictEqual(schemas.schemaB.properties.id.example, 'ABC')
 
   await Swagger.validate(openapiObject)
 })
@@ -133,7 +133,7 @@ test('support $ref in response schema', async (t) => {
   await fastify.ready()
 
   const openapiObject = fastify.swagger()
-  t.equal(typeof openapiObject, 'object')
+  t.assert.strictEqual(typeof openapiObject, 'object')
 
   await Swagger.validate(openapiObject)
 })
@@ -156,16 +156,16 @@ test('support $ref for enums in other schemas', async (t) => {
 
   const responseBeforeSwagger = await fastify.inject({ method: 'POST', url: '/', payload: { order: 'foo' } })
 
-  t.equal(responseBeforeSwagger.statusCode, 200)
+  t.assert.strictEqual(responseBeforeSwagger.statusCode, 200)
   const openapiObject = fastify.swagger()
 
-  t.equal(typeof openapiObject, 'object')
+  t.assert.strictEqual(typeof openapiObject, 'object')
 
   await Swagger.validate(openapiObject)
 
   const responseAfterSwagger = await fastify.inject({ method: 'POST', url: '/', payload: { order: 'foo' } })
 
-  t.equal(responseAfterSwagger.statusCode, 200)
+  t.assert.strictEqual(responseAfterSwagger.statusCode, 200)
 })
 
 test('support nested $ref schema : complex case without modifying buildLocalReference', async (t) => {
@@ -183,15 +183,15 @@ test('support nested $ref schema : complex case without modifying buildLocalRefe
   await fastify.ready()
 
   const openapiObject = fastify.swagger()
-  t.equal(typeof openapiObject, 'object')
+  t.assert.strictEqual(typeof openapiObject, 'object')
 
   const schemas = openapiObject.components.schemas
-  t.match(Object.keys(schemas), ['def-0', 'def-1', 'def-2', 'def-3'])
+  t.assert.deepStrictEqual(Object.keys(schemas), ['def-0', 'def-1', 'def-2', 'def-3'])
 
   // ref must be prefixed by '#/components/schemas/'
-  t.equal(schemas['def-2'].properties.a.items.$ref, '#/components/schemas/def-0')
-  t.equal(schemas['def-3'].properties.b.$ref, '#/components/schemas/def-1')
-  t.equal(schemas['def-3'].properties.c.$ref, '#/components/schemas/def-2')
+  t.assert.strictEqual(schemas['def-2'].properties.a.items.$ref, '#/components/schemas/def-0')
+  t.assert.strictEqual(schemas['def-3'].properties.b.$ref, '#/components/schemas/def-1')
+  t.assert.strictEqual(schemas['def-3'].properties.c.$ref, '#/components/schemas/def-2')
 
   await Swagger.validate(openapiObject)
 })
@@ -207,13 +207,13 @@ test('support nested $ref with patternProperties', async (t) => {
   await fastify.ready()
 
   const openapiObject = fastify.swagger()
-  t.equal(typeof openapiObject, 'object')
+  t.assert.strictEqual(typeof openapiObject, 'object')
 
   const schemas = openapiObject.components.schemas
-  t.match(Object.keys(schemas), ['def-0', 'def-1'])
+  t.assert.deepStrictEqual(Object.keys(schemas), ['def-0', 'def-1'])
 
   // ref must be prefixed by '#/components/schemas/'
-  t.equal(schemas['def-1'].additionalProperties.$ref, '#/components/schemas/def-0')
+  t.assert.strictEqual(schemas['def-1'].additionalProperties.$ref, '#/components/schemas/def-0')
 
   await Swagger.validate(openapiObject)
 })
@@ -229,16 +229,16 @@ test('support $ref schema in allOf in querystring', async (t) => {
   await fastify.ready()
 
   const openapiObject = fastify.swagger()
-  t.equal(typeof openapiObject, 'object')
+  t.assert.strictEqual(typeof openapiObject, 'object')
 
   const schemas = openapiObject.components.schemas
-  t.match(Object.keys(schemas), ['def-0'])
+  t.assert.deepStrictEqual(Object.keys(schemas), ['def-0'])
 
   await Swagger.validate(openapiObject)
 
   const responseAfterSwagger = await fastify.inject({ method: 'GET', url: '/url1', query: { field1: 10, field3: false } })
 
-  t.equal(responseAfterSwagger.statusCode, 200)
+  t.assert.strictEqual(responseAfterSwagger.statusCode, 200)
 })
 
 test('support $ref schema in allOf in headers', async (t) => {
@@ -252,16 +252,16 @@ test('support $ref schema in allOf in headers', async (t) => {
   await fastify.ready()
 
   const openapiObject = fastify.swagger()
-  t.equal(typeof openapiObject, 'object')
+  t.assert.strictEqual(typeof openapiObject, 'object')
 
   const schemas = openapiObject.components.schemas
-  t.match(Object.keys(schemas), ['def-0'])
+  t.assert.deepStrictEqual(Object.keys(schemas), ['def-0'])
 
   await Swagger.validate(openapiObject)
 
   const responseAfterSwagger = await fastify.inject({ method: 'GET', url: '/url1', headers: { 'x-header-1': 'test', 'x-header-2': 'test' } })
 
-  t.equal(responseAfterSwagger.statusCode, 200)
+  t.assert.strictEqual(responseAfterSwagger.statusCode, 200)
 })
 
 test('uses examples if has property required in body', async (t) => {
@@ -303,9 +303,9 @@ test('uses examples if has property required in body', async (t) => {
   const openapiObject = fastify.swagger()
   const schema = openapiObject.paths['/'].get
 
-  t.ok(schema)
-  t.ok(schema.parameters)
-  t.same(schema.parameters[0].in, 'query')
+  t.assert.ok(schema)
+  t.assert.ok(schema.parameters)
+  t.assert.deepStrictEqual(schema.parameters[0].in, 'query')
 })
 
 test('renders $ref schema with enum in headers', async (t) => {
@@ -323,7 +323,7 @@ test('renders $ref schema with enum in headers', async (t) => {
   await Swagger.validate(openapiObject)
 
   // the OpenAPI spec should show the enum
-  t.match(openapiObject.paths['/url1'].get.parameters[0].schema, { type: 'string', enum: ['OK', 'NOT_OK'] })
+  t.assert.deepStrictEqual(openapiObject.paths['/url1'].get.parameters[0].schema, { type: 'string', enum: ['OK', 'NOT_OK'] })
 })
 
 test('renders $ref schema with additional keywords', async (t) => {
@@ -366,16 +366,16 @@ test('renders $ref schema with additional keywords', async (t) => {
   const openapiObject = fastify.swagger()
   await Swagger.validate(openapiObject)
 
-  t.match(openapiObject.paths['/url1'].get.parameters[0].schema, cookie)
+  t.assert.deepStrictEqual(openapiObject.paths['/url1'].get.parameters[0].schema, cookie)
 
   let res = await fastify.inject({ method: 'GET', url: 'url1', cookies: { a: 'hi', b: 'asd' } })
 
-  t.match(res.statusCode, 200)
+  t.assert.deepStrictEqual(res.statusCode, 200)
 
   res = await fastify.inject({ method: 'GET', url: 'url1', cookies: { a: 'hi' } })
 
-  t.match(res.statusCode, 400)
-  t.match(openapiObject.paths['/url1'].get.parameters[0].schema, cookie)
+  t.assert.deepStrictEqual(res.statusCode, 400)
+  t.assert.deepStrictEqual(openapiObject.paths['/url1'].get.parameters[0].schema, cookie)
 })
 
 test('support $ref in callbacks', async (t) => {
@@ -423,10 +423,10 @@ test('support $ref in callbacks', async (t) => {
 
   const openapiObject = fastify.swagger()
 
-  t.equal(typeof openapiObject, 'object')
-  t.match(Object.keys(openapiObject.components.schemas), ['Subscription', 'Event'])
-  t.equal(openapiObject.components.schemas.Subscription.properties.callbackUrl.example, 'https://example.com')
-  t.equal(openapiObject.components.schemas.Event.properties.message.example, 'Some event happened')
+  t.assert.strictEqual(typeof openapiObject, 'object')
+  t.assert.deepStrictEqual(Object.keys(openapiObject.components.schemas), ['Subscription', 'Event'])
+  t.assert.strictEqual(openapiObject.components.schemas.Subscription.properties.callbackUrl.example, 'https://example.com')
+  t.assert.strictEqual(openapiObject.components.schemas.Event.properties.message.example, 'Some event happened')
 
   await Swagger.validate(openapiObject)
 })

@@ -3,8 +3,7 @@
 module.exports = require('neostandard')({
   ignores: [
     ...require('neostandard').resolveIgnoresFromGitignore(),
-    'static',
-    'tap-snapshots/*'
+    'static'
   ],
   ts: true
 })

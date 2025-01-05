@@ -1,6 +1,6 @@
 'use strict'
 
-const { test } = require('tap')
+const { test } = require('node:test')
 const Fastify = require('fastify')
 const Swagger = require('@apidevtools/swagger-parser')
 const yaml = require('yaml')
@@ -17,7 +17,7 @@ test('openapi should have default version', async (t) => {
   await fastify.ready()
 
   const openapiObject = fastify.swagger()
-  t.equal(openapiObject.openapi, '3.0.3')
+  t.assert.strictEqual(openapiObject.openapi, '3.0.3')
 })
 
 test('openapi version can be overridden', async (t) => {
@@ -29,7 +29,7 @@ test('openapi version can be overridden', async (t) => {
   await fastify.ready()
 
   const openapiObject = fastify.swagger()
-  t.equal(openapiObject.openapi, '3.1.0')
+  t.assert.strictEqual(openapiObject.openapi, '3.1.0')
 })
 
 test('openapi should have default info properties', async (t) => {
@@ -42,8 +42,8 @@ test('openapi should have default info properties', async (t) => {
 
   const openapiObject = fastify.swagger()
   const pkg = readPackageJson()
-  t.equal(openapiObject.info.title, pkg.name)
-  t.equal(openapiObject.info.version, pkg.version)
+  t.assert.strictEqual(openapiObject.info.title, pkg.name)
+  t.assert.strictEqual(openapiObject.info.version, pkg.version)
 })
 
 test('openapi basic properties', async (t) => {
@@ -74,10 +74,10 @@ test('openapi basic properties', async (t) => {
   await fastify.ready()
 
   const openapiObject = fastify.swagger()
-  t.equal(openapiObject.info, openapiOption.openapi.info)
-  t.equal(openapiObject.servers, openapiOption.openapi.servers)
-  t.ok(openapiObject.paths)
-  t.ok(openapiObject.paths['/'])
+  t.assert.strictEqual(openapiObject.info, openapiOption.openapi.info)
+  t.assert.strictEqual(openapiObject.servers, openapiOption.openapi.servers)
+  t.assert.ok(openapiObject.paths)
+  t.assert.ok(openapiObject.paths['/'])
 })
 
 test('openapi components', async (t) => {
@@ -107,7 +107,7 @@ test('openapi components', async (t) => {
   await fastify.ready()
 
   const openapiObject = fastify.swagger()
-  t.match(openapiObject.components.schemas, openapiOption.openapi.components.schemas)
+  t.assert.deepStrictEqual(JSON.parse(JSON.stringify(openapiObject.components.schemas)), openapiOption.openapi.components.schemas)
   delete openapiOption.openapi.components.schemas // remove what we just added
 })
 
@@ -157,7 +157,7 @@ test('openapi paths', async (t) => {
   await fastify.ready()
 
   const openapiObject = fastify.swagger()
-  t.same(openapiObject.paths, openapiOption.openapi.paths)
+  t.assert.deepStrictEqual(openapiObject.paths, openapiOption.openapi.paths)
   delete openapiOption.openapi.paths // remove what we just added
 })
 
@@ -194,7 +194,7 @@ test('hide support when property set in transform() - property', async (t) => {
   await fastify.ready()
 
   const openapiObject = fastify.swagger()
-  t.notOk(openapiObject.paths['/'])
+  t.assert.strictEqual(openapiObject.paths['/'], undefined)
 })
 
 test('hide support - tags Default', async (t) => {
@@ -226,7 +226,7 @@ test('hide support - tags Default', async (t) => {
   await fastify.ready()
 
   const openapiObject = fastify.swagger()
-  t.notOk(openapiObject.paths['/'])
+  t.assert.strictEqual(openapiObject.paths['/'], undefined)
 })
 
 test('hide support - tags Custom', async (t) => {
@@ -258,7 +258,7 @@ test('hide support - tags Custom', async (t) => {
   await fastify.ready()
 
   const openapiObject = fastify.swagger()
-  t.notOk(openapiObject.paths['/'])
+  t.assert.strictEqual(openapiObject.paths['/'], undefined)
 })
 
 test('hide support - hidden untagged', async (t) => {
@@ -289,7 +289,7 @@ test('hide support - hidden untagged', async (t) => {
   await fastify.ready()
 
   const openapiObject = fastify.swagger()
-  t.notOk(openapiObject.paths['/'])
+  t.assert.strictEqual(openapiObject.paths['/'], undefined)
 })
 
 test('basePath support', async (t) => {
@@ -311,8 +311,8 @@ test('basePath support', async (t) => {
   await fastify.ready()
 
   const openapiObject = fastify.swagger()
-  t.notOk(openapiObject.paths['/prefix/endpoint'])
-  t.ok(openapiObject.paths['/endpoint'])
+  t.assert.strictEqual(openapiObject.paths['/prefix/endpoint'], undefined)
+  t.assert.ok(openapiObject.paths['/endpoint'])
 })
 
 test('basePath maintained when stripBasePath is set to false', async (t) => {
@@ -336,9 +336,9 @@ test('basePath maintained when stripBasePath is set to false', async (t) => {
   await fastify.ready()
 
   const openapiObject = fastify.swagger()
-  t.notOk(openapiObject.paths.endpoint)
-  t.notOk(openapiObject.paths['/endpoint'])
-  t.ok(openapiObject.paths['/foo/endpoint'])
+  t.assert.strictEqual(openapiObject.paths.endpoint, undefined)
+  t.assert.strictEqual(openapiObject.paths['/endpoint'], undefined)
+  t.assert.ok(openapiObject.paths['/foo/endpoint'])
 })
 
 test('relative basePath support', async (t) => {
@@ -358,8 +358,8 @@ test('relative basePath support', async (t) => {
   await fastify.ready()
 
   const openapiObject = fastify.swagger()
-  t.notOk(openapiObject.paths['/foo/endpoint'])
-  t.ok(openapiObject.paths['/endpoint'])
+  t.assert.strictEqual(openapiObject.paths['/foo/endpoint'], undefined)
+  t.assert.ok(openapiObject.paths['/endpoint'])
 })
 
 test('basePath containing variables support', async (t) => {
@@ -387,8 +387,8 @@ test('basePath containing variables support', async (t) => {
   await fastify.ready()
 
   const openapiObject = fastify.swagger()
-  t.notOk(openapiObject.paths['/foo/endpoint'])
-  t.ok(openapiObject.paths['/endpoint'])
+  t.assert.strictEqual(openapiObject.paths['/foo/endpoint'], undefined)
+  t.assert.ok(openapiObject.paths['/endpoint'])
 })
 
 test('throw when a basePath with variables but no corresponding default values is provided', async (t) => {
@@ -409,7 +409,7 @@ test('throw when a basePath with variables but no corresponding default values i
   fastify.get('/foo/endpoint', {}, () => {})
 
   await fastify.ready()
-  t.throws(fastify.swagger)
+  t.assert.throws(fastify.swagger)
 })
 
 test('cache - json', async (t) => {
@@ -422,10 +422,10 @@ test('cache - json', async (t) => {
 
   fastify.swagger()
   const openapiObject = fastify.swagger()
-  t.equal(typeof openapiObject, 'object')
+  t.assert.strictEqual(typeof openapiObject, 'object')
 
   await Swagger.validate(openapiObject)
-  t.pass('valid swagger object')
+  t.assert.ok(true, 'valid swagger object')
 })
 
 test('cache - yaml', async (t) => {
@@ -438,9 +438,9 @@ test('cache - yaml', async (t) => {
 
   fastify.swagger({ yaml: true })
   const swaggerYaml = fastify.swagger({ yaml: true })
-  t.equal(typeof swaggerYaml, 'string')
+  t.assert.strictEqual(typeof swaggerYaml, 'string')
   yaml.parse(swaggerYaml)
-  t.pass('valid swagger yaml')
+  t.assert.ok(true, 'valid swagger yaml')
 })
 
 test('move examples from "x-examples" to examples field', async (t) => {
@@ -490,9 +490,9 @@ test('move examples from "x-examples" to examples field', async (t) => {
   const content = openapiObject.paths['/'].post.requestBody.content['application/json']
   const schema = content.schema
 
-  t.ok(schema)
-  t.notOk(schema['x-examples'])
-  t.same(content.examples, {
+  t.assert.ok(schema)
+  t.assert.strictEqual(schema['x-examples'], undefined)
+  t.assert.deepStrictEqual(content.examples, {
     'lorem ipsum': {
       summary: 'Roman statesman',
       value: { lorem: 'ipsum' }
@@ -501,7 +501,7 @@ test('move examples from "x-examples" to examples field', async (t) => {
 })
 
 test('parameter & header examples', async t => {
-  t.test('uses .example if has single example', async t => {
+  await t.test('uses .example if has single example', async t => {
     t.plan(2)
     const fastify = Fastify()
     await fastify.register(fastifySwagger, openapiOption)
@@ -519,11 +519,11 @@ test('parameter & header examples', async t => {
     const openapiObject = fastify.swagger()
     const { parameters } = openapiObject.paths['/'].post
 
-    t.ok(parameters.every(({ example }) => example === 'world'))
-    t.ok(parameters.every(param => !Object.hasOwn(param, 'examples')))
+    t.assert.ok(parameters.every(({ example }) => example === 'world'))
+    t.assert.ok(parameters.every(param => !Object.hasOwn(param, 'examples')))
   })
 
-  t.test('uses .examples if has multiple examples', async t => {
+  await t.test('uses .examples if has multiple examples', async t => {
     t.plan(2)
     const fastify = Fastify()
     await fastify.register(fastifySwagger, openapiOption)
@@ -541,16 +541,16 @@ test('parameter & header examples', async t => {
     const openapiObject = fastify.swagger()
     const { parameters } = openapiObject.paths['/'].post
     const examples = parameters.map(({ examples }) => examples)
-    t.strictSame(examples, Array(3).fill({
+    t.assert.deepStrictEqual(examples, Array(3).fill({
       world: { value: 'world' },
       universe: { value: 'universe' }
     }))
-    t.ok(parameters.every(param => !Object.hasOwn(param, 'example')))
+    t.assert.ok(parameters.every(param => !Object.hasOwn(param, 'example')))
   })
 })
 
 test('request body examples', async t => {
-  t.test('uses .example field if has single top-level string example', async t => {
+  await t.test('uses .example field if has single top-level string example', async t => {
     t.plan(4)
     const fastify = Fastify()
     await fastify.register(fastifySwagger, openapiOption)
@@ -564,13 +564,13 @@ test('request body examples', async t => {
     const content = openapiObject.paths['/'].post.requestBody.content['application/json']
     const schema = content.schema
 
-    t.notOk(schema.example)
-    t.notOk(schema.examples)
-    t.strictSame(content.example, 'hello')
-    t.notOk(content.examples)
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
+    t.assert.deepStrictEqual(content.example, 'hello')
+    t.assert.strictEqual(content.examples, undefined)
   })
 
-  t.test('uses .examples field if has multiple top-level string examples', async t => {
+  await t.test('uses .examples field if has multiple top-level string examples', async t => {
     t.plan(4)
     const fastify = Fastify()
     await fastify.register(fastifySwagger, openapiOption)
@@ -584,16 +584,16 @@ test('request body examples', async t => {
     const content = openapiObject.paths['/'].post.requestBody.content['application/json']
     const schema = content.schema
 
-    t.notOk(schema.example)
-    t.notOk(schema.examples)
-    t.notOk(content.example)
-    t.strictSame(content.examples, {
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
+    t.assert.strictEqual(content.example, undefined)
+    t.assert.deepStrictEqual(content.examples, {
       hello: { value: 'hello' },
       world: { value: 'world' }
     })
   })
 
-  t.test('uses .example field if has single top-level numeric example', async t => {
+  await t.test('uses .example field if has single top-level numeric example', async t => {
     t.plan(4)
     const fastify = Fastify()
     await fastify.register(fastifySwagger, openapiOption)
@@ -607,13 +607,13 @@ test('request body examples', async t => {
     const content = openapiObject.paths['/'].post.requestBody.content['application/json']
     const schema = content.schema
 
-    t.notOk(schema.example)
-    t.notOk(schema.examples)
-    t.strictSame(content.example, 0)
-    t.notOk(content.examples)
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
+    t.assert.deepStrictEqual(content.example, 0)
+    t.assert.strictEqual(content.examples, undefined)
   })
 
-  t.test('uses .examples field if has multiple top-level numeric examples', async t => {
+  await t.test('uses .examples field if has multiple top-level numeric examples', async t => {
     t.plan(4)
     const fastify = Fastify()
     await fastify.register(fastifySwagger, openapiOption)
@@ -627,16 +627,16 @@ test('request body examples', async t => {
     const content = openapiObject.paths['/'].post.requestBody.content['application/json']
     const schema = content.schema
 
-    t.notOk(schema.example)
-    t.notOk(schema.examples)
-    t.notOk(content.example)
-    t.strictSame(content.examples, {
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
+    t.assert.strictEqual(content.example, undefined)
+    t.assert.deepStrictEqual(content.examples, {
       0: { value: 0 },
       1: { value: 1 }
     })
   })
 
-  t.test('uses .example field if has single top-level object example', async t => {
+  await t.test('uses .example field if has single top-level object example', async t => {
     t.plan(5)
     const fastify = Fastify()
     await fastify.register(fastifySwagger, openapiOption)
@@ -655,14 +655,14 @@ test('request body examples', async t => {
     const content = openapiObject.paths['/'].post.requestBody.content['application/json']
     const schema = content.schema
 
-    t.ok(schema.properties)
-    t.notOk(schema.example)
-    t.notOk(schema.examples)
-    t.strictSame(content.example, { hello: 'world' })
-    t.notOk(content.examples)
+    t.assert.ok(schema.properties)
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
+    t.assert.deepStrictEqual(content.example, { hello: 'world' })
+    t.assert.strictEqual(content.examples, undefined)
   })
 
-  t.test('uses .examples field if has multiple top-level object examples', async t => {
+  await t.test('uses .examples field if has multiple top-level object examples', async t => {
     t.plan(5)
     const fastify = Fastify()
     await fastify.register(fastifySwagger, openapiOption)
@@ -681,17 +681,17 @@ test('request body examples', async t => {
     const content = openapiObject.paths['/'].post.requestBody.content['application/json']
     const schema = content.schema
 
-    t.ok(schema.properties)
-    t.notOk(schema.example)
-    t.notOk(schema.examples)
-    t.strictSame(content.examples, {
+    t.assert.ok(schema.properties)
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
+    t.assert.deepStrictEqual(content.examples, {
       example1: { value: { hello: 'world' } },
       example2: { value: { hello: 'universe' } }
     })
-    t.notOk(content.example)
+    t.assert.strictEqual(content.example, undefined)
   })
 
-  t.test('uses .example field if has single top-level array example', async t => {
+  await t.test('uses .example field if has single top-level array example', async t => {
     t.plan(5)
     const fastify = Fastify()
     await fastify.register(fastifySwagger, openapiOption)
@@ -713,14 +713,14 @@ test('request body examples', async t => {
     const content = openapiObject.paths['/'].post.requestBody.content['application/json']
     const schema = content.schema
 
-    t.ok(schema.items)
-    t.notOk(schema.example)
-    t.notOk(schema.examples)
-    t.strictSame(content.example, [{ hello: 'world' }])
-    t.notOk(content.examples)
+    t.assert.ok(schema.items)
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
+    t.assert.deepStrictEqual(content.example, [{ hello: 'world' }])
+    t.assert.strictEqual(content.examples, undefined)
   })
 
-  t.test('uses .examples field if has multiple top-level array examples', async t => {
+  await t.test('uses .examples field if has multiple top-level array examples', async t => {
     t.plan(5)
     const fastify = Fastify()
     await fastify.register(fastifySwagger, openapiOption)
@@ -742,17 +742,17 @@ test('request body examples', async t => {
     const content = openapiObject.paths['/'].post.requestBody.content['application/json']
     const schema = content.schema
 
-    t.ok(schema.items)
-    t.notOk(schema.example)
-    t.notOk(schema.examples)
-    t.strictSame(content.examples, {
+    t.assert.ok(schema.items)
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
+    t.assert.deepStrictEqual(content.examples, {
       example1: { value: [{ hello: 'world' }] },
       example2: { value: [{ hello: 'universe' }] }
     })
-    t.notOk(content.example)
+    t.assert.strictEqual(content.example, undefined)
   })
 
-  t.test('uses .example field if has single nested string example', async t => {
+  await t.test('uses .example field if has single nested string example', async t => {
     t.plan(9)
     const fastify = Fastify()
     await fastify.register(fastifySwagger, openapiOption)
@@ -780,18 +780,18 @@ test('request body examples', async t => {
     const content = openapiObject.paths['/'].post.requestBody.content['application/json']
     const schema = content.schema
 
-    t.ok(schema.properties)
-    t.notOk(schema.example)
-    t.notOk(schema.examples)
-    t.notOk(content.example)
-    t.notOk(content.examples)
-    t.notOk(schema.properties.flat.examples)
-    t.notOk(schema.properties.deep.properties.field.examples)
-    t.strictSame(schema.properties.flat.example, 'world')
-    t.strictSame(schema.properties.deep.properties.field.example, 'universe')
+    t.assert.ok(schema.properties)
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
+    t.assert.strictEqual(content.example, undefined)
+    t.assert.strictEqual(content.examples, undefined)
+    t.assert.strictEqual(schema.properties.flat.examples, undefined)
+    t.assert.strictEqual(schema.properties.deep.properties.field.examples, undefined)
+    t.assert.deepStrictEqual(schema.properties.flat.example, 'world')
+    t.assert.deepStrictEqual(schema.properties.deep.properties.field.example, 'universe')
   })
 
-  t.test('uses .example field if has multiple nested numeric examples', async t => {
+  await t.test('uses .example field if has multiple nested numeric examples', async t => {
     t.plan(9)
     const fastify = Fastify()
     await fastify.register(fastifySwagger, openapiOption)
@@ -819,18 +819,18 @@ test('request body examples', async t => {
     const content = openapiObject.paths['/'].post.requestBody.content['application/json']
     const schema = content.schema
 
-    t.ok(schema.properties)
-    t.notOk(schema.example)
-    t.notOk(schema.examples)
-    t.notOk(content.example)
-    t.notOk(content.examples)
-    t.notOk(schema.properties.flat.examples)
-    t.notOk(schema.properties.deep.properties.field.examples)
-    t.strictSame(schema.properties.flat.example, 0)
-    t.strictSame(schema.properties.deep.properties.field.example, 1)
+    t.assert.ok(schema.properties)
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
+    t.assert.strictEqual(content.example, undefined)
+    t.assert.strictEqual(content.examples, undefined)
+    t.assert.strictEqual(schema.properties.flat.examples, undefined)
+    t.assert.strictEqual(schema.properties.deep.properties.field.examples, undefined)
+    t.assert.deepStrictEqual(schema.properties.flat.example, 0)
+    t.assert.deepStrictEqual(schema.properties.deep.properties.field.example, 1)
   })
 
-  t.test('uses .example if has single nested array example', async t => {
+  await t.test('uses .example if has single nested array example', async t => {
     t.plan(7)
     const fastify = Fastify()
     await fastify.register(fastifySwagger, openapiOption)
@@ -850,16 +850,16 @@ test('request body examples', async t => {
     const content = openapiObject.paths['/'].post.requestBody.content['application/json']
     const schema = content.schema
 
-    t.ok(schema.items)
-    t.notOk(schema.example)
-    t.notOk(schema.examples)
-    t.notOk(content.example)
-    t.notOk(content.examples)
-    t.notOk(schema.items.examples)
-    t.strictSame(schema.items.example, ['world', 'universe'])
+    t.assert.ok(schema.items)
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
+    t.assert.strictEqual(content.example, undefined)
+    t.assert.strictEqual(content.examples, undefined)
+    t.assert.strictEqual(schema.items.examples, undefined)
+    t.assert.deepStrictEqual(schema.items.example, ['world', 'universe'])
   })
 
-  t.test('uses .example if has multiple nested array examples', async t => {
+  await t.test('uses .example if has multiple nested array examples', async t => {
     t.plan(7)
     const fastify = Fastify()
     await fastify.register(fastifySwagger, openapiOption)
@@ -879,16 +879,16 @@ test('request body examples', async t => {
     const content = openapiObject.paths['/'].post.requestBody.content['application/json']
     const schema = content.schema
 
-    t.ok(schema.contains)
-    t.notOk(schema.example)
-    t.notOk(schema.examples)
-    t.notOk(content.example)
-    t.notOk(content.examples)
-    t.notOk(schema.contains.examples)
-    t.strictSame(schema.contains.example, ['world', 'universe'])
+    t.assert.ok(schema.contains)
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
+    t.assert.strictEqual(content.example, undefined)
+    t.assert.strictEqual(content.examples, undefined)
+    t.assert.strictEqual(schema.contains.examples, undefined)
+    t.assert.deepStrictEqual(schema.contains.example, ['world', 'universe'])
   })
 
-  t.test('uses .example if has single nested object example', async t => {
+  await t.test('uses .example if has single nested object example', async t => {
     t.plan(7)
     const fastify = Fastify()
     await fastify.register(fastifySwagger, openapiOption)
@@ -912,16 +912,16 @@ test('request body examples', async t => {
     const content = openapiObject.paths['/'].post.requestBody.content['application/json']
     const schema = content.schema
 
-    t.ok(schema.properties)
-    t.notOk(schema.example)
-    t.notOk(schema.examples)
-    t.notOk(content.example)
-    t.notOk(content.examples)
-    t.notOk(schema.properties.deep.examples)
-    t.strictSame(schema.properties.deep.example, { hello: 'world' })
+    t.assert.ok(schema.properties)
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
+    t.assert.strictEqual(content.example, undefined)
+    t.assert.strictEqual(content.examples, undefined)
+    t.assert.strictEqual(schema.properties.deep.examples, undefined)
+    t.assert.deepStrictEqual(schema.properties.deep.example, { hello: 'world' })
   })
 
-  t.test('uses .example if has multiple nested object examples', async t => {
+  await t.test('uses .example if has multiple nested object examples', async t => {
     t.plan(7)
     const fastify = Fastify()
     await fastify.register(fastifySwagger, openapiOption)
@@ -945,18 +945,18 @@ test('request body examples', async t => {
     const content = openapiObject.paths['/'].post.requestBody.content['application/json']
     const schema = content.schema
 
-    t.ok(schema.properties)
-    t.notOk(schema.example)
-    t.notOk(schema.examples)
-    t.notOk(content.example)
-    t.notOk(content.examples)
-    t.notOk(schema.properties.deep.examples)
-    t.strictSame(schema.properties.deep.example, { hello: 'world' })
+    t.assert.ok(schema.properties)
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
+    t.assert.strictEqual(content.example, undefined)
+    t.assert.strictEqual(content.examples, undefined)
+    t.assert.strictEqual(schema.properties.deep.examples, undefined)
+    t.assert.deepStrictEqual(schema.properties.deep.example, { hello: 'world' })
   })
 })
 
 test('response examples', async t => {
-  t.test('uses .example field if has single top-level string example', async t => {
+  await t.test('uses .example field if has single top-level string example', async t => {
     t.plan(4)
     const fastify = Fastify()
     await fastify.register(fastifySwagger, openapiOption)
@@ -970,13 +970,13 @@ test('response examples', async t => {
     const content = openapiObject.paths['/'].post.responses['200'].content['application/json']
     const schema = content.schema
 
-    t.notOk(schema.example)
-    t.notOk(schema.examples)
-    t.strictSame(content.example, 'hello')
-    t.notOk(content.examples)
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
+    t.assert.deepStrictEqual(content.example, 'hello')
+    t.assert.strictEqual(content.examples, undefined)
   })
 
-  t.test('uses .examples field if has multiple top-level string examples', async t => {
+  await t.test('uses .examples field if has multiple top-level string examples', async t => {
     t.plan(4)
     const fastify = Fastify()
     await fastify.register(fastifySwagger, openapiOption)
@@ -990,16 +990,16 @@ test('response examples', async t => {
     const content = openapiObject.paths['/'].post.responses['200'].content['application/json']
     const schema = content.schema
 
-    t.notOk(schema.example)
-    t.notOk(schema.examples)
-    t.notOk(content.example)
-    t.strictSame(content.examples, {
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
+    t.assert.strictEqual(content.example, undefined)
+    t.assert.deepStrictEqual(content.examples, {
       hello: { value: 'hello' },
       world: { value: 'world' }
     })
   })
 
-  t.test('uses .example field if has single top-level numeric example', async t => {
+  await t.test('uses .example field if has single top-level numeric example', async t => {
     t.plan(4)
     const fastify = Fastify()
     await fastify.register(fastifySwagger, openapiOption)
@@ -1013,13 +1013,13 @@ test('response examples', async t => {
     const content = openapiObject.paths['/'].post.responses['200'].content['application/json']
     const schema = content.schema
 
-    t.notOk(schema.example)
-    t.notOk(schema.examples)
-    t.strictSame(content.example, 0)
-    t.notOk(content.examples)
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
+    t.assert.deepStrictEqual(content.example, 0)
+    t.assert.strictEqual(content.examples, undefined)
   })
 
-  t.test('uses .examples field if has multiple top-level numeric examples', async t => {
+  await t.test('uses .examples field if has multiple top-level numeric examples', async t => {
     t.plan(4)
     const fastify = Fastify()
     await fastify.register(fastifySwagger, openapiOption)
@@ -1033,16 +1033,16 @@ test('response examples', async t => {
     const content = openapiObject.paths['/'].post.responses['200'].content['application/json']
     const schema = content.schema
 
-    t.notOk(schema.example)
-    t.notOk(schema.examples)
-    t.notOk(content.example)
-    t.strictSame(content.examples, {
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
+    t.assert.strictEqual(content.example, undefined)
+    t.assert.deepStrictEqual(content.examples, {
       0: { value: 0 },
       1: { value: 1 }
     })
   })
 
-  t.test('uses .example field if has single top-level object example', async t => {
+  await t.test('uses .example field if has single top-level object example', async t => {
     t.plan(5)
     const fastify = Fastify()
     await fastify.register(fastifySwagger, openapiOption)
@@ -1061,14 +1061,14 @@ test('response examples', async t => {
     const content = openapiObject.paths['/'].post.responses['200'].content['application/json']
     const schema = content.schema
 
-    t.ok(schema.properties)
-    t.notOk(schema.example)
-    t.notOk(schema.examples)
-    t.strictSame(content.example, { hello: 'world' })
-    t.notOk(content.examples)
+    t.assert.ok(schema.properties)
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
+    t.assert.deepStrictEqual(content.example, { hello: 'world' })
+    t.assert.strictEqual(content.examples, undefined)
   })
 
-  t.test('uses .examples field if has multiple top-level object examples', async t => {
+  await t.test('uses .examples field if has multiple top-level object examples', async t => {
     t.plan(5)
     const fastify = Fastify()
     await fastify.register(fastifySwagger, openapiOption)
@@ -1087,17 +1087,17 @@ test('response examples', async t => {
     const content = openapiObject.paths['/'].post.responses['200'].content['application/json']
     const schema = content.schema
 
-    t.ok(schema.properties)
-    t.notOk(schema.example)
-    t.notOk(schema.examples)
-    t.strictSame(content.examples, {
+    t.assert.ok(schema.properties)
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
+    t.assert.deepStrictEqual(content.examples, {
       example1: { value: { hello: 'world' } },
       example2: { value: { hello: 'universe' } }
     })
-    t.notOk(content.example)
+    t.assert.strictEqual(content.example, undefined)
   })
 
-  t.test('uses .example field if has single top-level array example', async t => {
+  await t.test('uses .example field if has single top-level array example', async t => {
     t.plan(5)
     const fastify = Fastify()
     await fastify.register(fastifySwagger, openapiOption)
@@ -1119,14 +1119,14 @@ test('response examples', async t => {
     const content = openapiObject.paths['/'].post.responses['200'].content['application/json']
     const schema = content.schema
 
-    t.ok(schema.items)
-    t.notOk(schema.example)
-    t.notOk(schema.examples)
-    t.strictSame(content.example, [{ hello: 'world' }])
-    t.notOk(content.examples)
+    t.assert.ok(schema.items)
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
+    t.assert.deepStrictEqual(content.example, [{ hello: 'world' }])
+    t.assert.strictEqual(content.examples, undefined)
   })
 
-  t.test('uses .examples field if has multiple top-level array examples', async t => {
+  await t.test('uses .examples field if has multiple top-level array examples', async t => {
     t.plan(5)
     const fastify = Fastify()
     await fastify.register(fastifySwagger, openapiOption)
@@ -1148,17 +1148,17 @@ test('response examples', async t => {
     const content = openapiObject.paths['/'].post.responses['200'].content['application/json']
     const schema = content.schema
 
-    t.ok(schema.items)
-    t.notOk(schema.example)
-    t.notOk(schema.examples)
-    t.strictSame(content.examples, {
+    t.assert.ok(schema.items)
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
+    t.assert.deepStrictEqual(content.examples, {
       example1: { value: [{ hello: 'world' }] },
       example2: { value: [{ hello: 'universe' }] }
     })
-    t.notOk(content.example)
+    t.assert.strictEqual(content.example, undefined)
   })
 
-  t.test('uses .example field if has single nested string example', async t => {
+  await t.test('uses .example field if has single nested string example', async t => {
     t.plan(9)
     const fastify = Fastify()
     await fastify.register(fastifySwagger, openapiOption)
@@ -1186,18 +1186,18 @@ test('response examples', async t => {
     const content = openapiObject.paths['/'].post.responses['200'].content['application/json']
     const schema = content.schema
 
-    t.ok(schema.properties)
-    t.notOk(schema.example)
-    t.notOk(schema.examples)
-    t.notOk(content.example)
-    t.notOk(content.examples)
-    t.notOk(schema.properties.flat.examples)
-    t.notOk(schema.properties.deep.properties.field.examples)
-    t.strictSame(schema.properties.flat.example, 'world')
-    t.strictSame(schema.properties.deep.properties.field.example, 'universe')
+    t.assert.ok(schema.properties)
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
+    t.assert.strictEqual(content.example, undefined)
+    t.assert.strictEqual(content.examples, undefined)
+    t.assert.strictEqual(schema.properties.flat.examples, undefined)
+    t.assert.strictEqual(schema.properties.deep.properties.field.examples, undefined)
+    t.assert.deepStrictEqual(schema.properties.flat.example, 'world')
+    t.assert.deepStrictEqual(schema.properties.deep.properties.field.example, 'universe')
   })
 
-  t.test('uses .example field if has multiple nested numeric examples', async t => {
+  await t.test('uses .example field if has multiple nested numeric examples', async t => {
     t.plan(9)
     const fastify = Fastify()
     await fastify.register(fastifySwagger, openapiOption)
@@ -1225,18 +1225,18 @@ test('response examples', async t => {
     const content = openapiObject.paths['/'].post.responses['200'].content['application/json']
     const schema = content.schema
 
-    t.ok(schema.properties)
-    t.notOk(schema.example)
-    t.notOk(schema.examples)
-    t.notOk(content.example)
-    t.notOk(content.examples)
-    t.notOk(schema.properties.flat.examples)
-    t.notOk(schema.properties.deep.properties.field.examples)
-    t.strictSame(schema.properties.flat.example, 0)
-    t.strictSame(schema.properties.deep.properties.field.example, 1)
+    t.assert.ok(schema.properties)
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
+    t.assert.strictEqual(content.example, undefined)
+    t.assert.strictEqual(content.examples, undefined)
+    t.assert.strictEqual(schema.properties.flat.examples, undefined)
+    t.assert.strictEqual(schema.properties.deep.properties.field.examples, undefined)
+    t.assert.deepStrictEqual(schema.properties.flat.example, 0)
+    t.assert.deepStrictEqual(schema.properties.deep.properties.field.example, 1)
   })
 
-  t.test('uses .example if has single nested array example', async t => {
+  await t.test('uses .example if has single nested array example', async t => {
     t.plan(7)
     const fastify = Fastify()
     await fastify.register(fastifySwagger, openapiOption)
@@ -1256,16 +1256,16 @@ test('response examples', async t => {
     const content = openapiObject.paths['/'].post.responses['200'].content['application/json']
     const schema = content.schema
 
-    t.ok(schema.items)
-    t.notOk(schema.example)
-    t.notOk(schema.examples)
-    t.notOk(content.example)
-    t.notOk(content.examples)
-    t.notOk(schema.items.examples)
-    t.strictSame(schema.items.example, ['world', 'universe'])
+    t.assert.ok(schema.items)
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
+    t.assert.strictEqual(content.example, undefined)
+    t.assert.strictEqual(content.examples, undefined)
+    t.assert.strictEqual(schema.items.examples, undefined)
+    t.assert.deepStrictEqual(schema.items.example, ['world', 'universe'])
   })
 
-  t.test('uses .example if has multiple nested array examples', async t => {
+  await t.test('uses .example if has multiple nested array examples', async t => {
     t.plan(7)
     const fastify = Fastify()
     await fastify.register(fastifySwagger, openapiOption)
@@ -1285,16 +1285,16 @@ test('response examples', async t => {
     const content = openapiObject.paths['/'].post.responses['200'].content['application/json']
     const schema = content.schema
 
-    t.ok(schema.contains)
-    t.notOk(schema.example)
-    t.notOk(schema.examples)
-    t.notOk(content.example)
-    t.notOk(content.examples)
-    t.notOk(schema.contains.examples)
-    t.strictSame(schema.contains.example, ['world', 'universe'])
+    t.assert.ok(schema.contains)
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
+    t.assert.strictEqual(content.example, undefined)
+    t.assert.strictEqual(content.examples, undefined)
+    t.assert.strictEqual(schema.contains.examples, undefined)
+    t.assert.deepStrictEqual(schema.contains.example, ['world', 'universe'])
   })
 
-  t.test('uses .example if has single nested object example', async t => {
+  await t.test('uses .example if has single nested object example', async t => {
     t.plan(7)
     const fastify = Fastify()
     await fastify.register(fastifySwagger, openapiOption)
@@ -1318,16 +1318,16 @@ test('response examples', async t => {
     const content = openapiObject.paths['/'].post.responses['200'].content['application/json']
     const schema = content.schema
 
-    t.ok(schema.properties)
-    t.notOk(schema.example)
-    t.notOk(schema.examples)
-    t.notOk(content.example)
-    t.notOk(content.examples)
-    t.notOk(schema.properties.deep.examples)
-    t.strictSame(schema.properties.deep.example, { hello: 'world' })
+    t.assert.ok(schema.properties)
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
+    t.assert.strictEqual(content.example, undefined)
+    t.assert.strictEqual(content.examples, undefined)
+    t.assert.strictEqual(schema.properties.deep.examples, undefined)
+    t.assert.deepStrictEqual(schema.properties.deep.example, { hello: 'world' })
   })
 
-  t.test('uses .example if has multiple nested object examples', async t => {
+  await t.test('uses .example if has multiple nested object examples', async t => {
     t.plan(7)
     const fastify = Fastify()
     await fastify.register(fastifySwagger, openapiOption)
@@ -1351,13 +1351,13 @@ test('response examples', async t => {
     const content = openapiObject.paths['/'].post.responses['200'].content['application/json']
     const schema = content.schema
 
-    t.ok(schema.properties)
-    t.notOk(schema.example)
-    t.notOk(schema.examples)
-    t.notOk(content.example)
-    t.notOk(content.examples)
-    t.notOk(schema.properties.deep.examples)
-    t.strictSame(schema.properties.deep.example, { hello: 'world' })
+    t.assert.ok(schema.properties)
+    t.assert.strictEqual(schema.example, undefined)
+    t.assert.strictEqual(schema.examples, undefined)
+    t.assert.strictEqual(content.example, undefined)
+    t.assert.strictEqual(content.examples, undefined)
+    t.assert.strictEqual(schema.properties.deep.examples, undefined)
+    t.assert.deepStrictEqual(schema.properties.deep.example, { hello: 'world' })
   })
 })
 
@@ -1391,10 +1391,10 @@ test('copy example of body from component to media', async (t) => {
   const content = openapiObject.paths['/'].post.requestBody.content['application/json']
   const schema = content.schema
 
-  t.ok(schema)
-  t.ok(schema.properties)
-  t.notOk(schema.example)
-  t.same(content.example, { hello: 'world' })
+  t.assert.ok(schema)
+  t.assert.ok(schema.properties)
+  t.assert.strictEqual(schema.example, undefined)
+  t.assert.deepStrictEqual(content.example, { hello: 'world' })
 })
 
 test('copy example of response from component to media', async (t) => {
@@ -1427,9 +1427,9 @@ test('copy example of response from component to media', async (t) => {
   const content = openapiObject.paths['/'].post.responses['200'].content['application/json']
   const schema = content.schema
 
-  t.ok(schema)
-  t.ok(schema.properties)
-  t.same(content.example, { hello: 'world' })
+  t.assert.ok(schema)
+  t.assert.ok(schema.properties)
+  t.assert.deepStrictEqual(content.example, { hello: 'world' })
 })
 
 test('copy example of parameters from component to media', async (t) => {
@@ -1473,21 +1473,21 @@ test('copy example of parameters from component to media', async (t) => {
   const openapiObject = fastify.swagger()
   const parameters = openapiObject.paths['/{port}'].post.parameters
 
-  t.ok(parameters)
+  t.assert.ok(parameters)
 
   const paramsMap = new Map(parameters.map(param => [param.in, param]))
 
   const headerParam = paramsMap.get('header')
-  t.ok(headerParam)
-  t.same(headerParam.example, 8080)
+  t.assert.ok(headerParam)
+  t.assert.deepStrictEqual(headerParam.example, 8080)
 
   const queryParam = paramsMap.get('query')
-  t.ok(queryParam)
-  t.same(queryParam.example, 8080)
+  t.assert.ok(queryParam)
+  t.assert.deepStrictEqual(queryParam.example, 8080)
 
   const pathParam = paramsMap.get('path')
-  t.ok(pathParam)
-  t.same(pathParam.example, 8080)
+  t.assert.ok(pathParam)
+  t.assert.deepStrictEqual(pathParam.example, 8080)
 })
 
 test('move examples of body from component to media', async (t) => {
@@ -1520,10 +1520,10 @@ test('move examples of body from component to media', async (t) => {
   const content = openapiObject.paths['/'].post.requestBody.content['application/json']
   const schema = content.schema
 
-  t.ok(schema)
-  t.ok(schema.properties)
-  t.notOk(schema.examples)
-  t.same(content.examples, { example1: { value: { hello: 'world' } }, example2: { value: { hello: 'lorem' } } })
+  t.assert.ok(schema)
+  t.assert.ok(schema.properties)
+  t.assert.strictEqual(schema.examples, undefined)
+  t.assert.deepStrictEqual(content.examples, { example1: { value: { hello: 'world' } }, example2: { value: { hello: 'lorem' } } })
 })
 
 test('move examples of response from component to media', async (t) => {
@@ -1556,10 +1556,10 @@ test('move examples of response from component to media', async (t) => {
   const content = openapiObject.paths['/'].post.responses['200'].content['application/json']
   const schema = content.schema
 
-  t.ok(schema)
-  t.ok(schema.properties)
-  t.notOk(schema.examples)
-  t.same(content.examples, { example1: { value: { hello: 'world' } }, example2: { value: { hello: 'lorem' } } })
+  t.assert.ok(schema)
+  t.assert.ok(schema.properties)
+  t.assert.strictEqual(schema.examples, undefined)
+  t.assert.deepStrictEqual(content.examples, { example1: { value: { hello: 'world' } }, example2: { value: { hello: 'lorem' } } })
 })
 
 test('move examples of parameters from component to media', async (t) => {
@@ -1603,7 +1603,7 @@ test('move examples of parameters from component to media', async (t) => {
   const openapiObject = fastify.swagger()
   const parameters = openapiObject.paths['/{port}'].post.parameters
 
-  t.ok(parameters)
+  t.assert.ok(parameters)
 
   const paramsMap = new Map(parameters.map(param => [param.in, param]))
 
@@ -1613,16 +1613,16 @@ test('move examples of parameters from component to media', async (t) => {
   }
 
   const headerParam = paramsMap.get('header')
-  t.ok(headerParam)
-  t.same(headerParam.examples, expectedExamples)
+  t.assert.ok(headerParam)
+  t.assert.deepStrictEqual(headerParam.examples, expectedExamples)
 
   const queryParam = paramsMap.get('query')
-  t.ok(queryParam)
-  t.same(queryParam.examples, expectedExamples)
+  t.assert.ok(queryParam)
+  t.assert.deepStrictEqual(queryParam.examples, expectedExamples)
 
   const pathParam = paramsMap.get('path')
-  t.ok(pathParam)
-  t.same(pathParam.examples, expectedExamples)
+  t.assert.ok(pathParam)
+  t.assert.deepStrictEqual(pathParam.examples, expectedExamples)
 })
 
 test('marks request body as required', async (t) => {
@@ -1654,10 +1654,10 @@ test('marks request body as required', async (t) => {
   const schema = openapiObject.paths['/'].post.requestBody.content['application/json'].schema
   const requestBody = openapiObject.paths['/'].post.requestBody
 
-  t.ok(schema)
-  t.ok(schema.properties)
-  t.same(body.required, ['hello'])
-  t.same(requestBody.required, true)
+  t.assert.ok(schema)
+  t.assert.ok(schema.properties)
+  t.assert.deepStrictEqual(body.required, ['hello'])
+  t.assert.deepStrictEqual(requestBody.required, true)
 })
 
 test('openapi webhooks properties', async (t) => {
@@ -1710,7 +1710,7 @@ test('openapi webhooks properties', async (t) => {
   await fastify.ready()
 
   const openapiObject = fastify.swagger()
-  t.equal(openapiObject.webhooks, openapiWebHookOption.openapi.webhooks)
+  t.assert.strictEqual(openapiObject.webhooks, openapiWebHookOption.openapi.webhooks)
 })
 
 test('webhooks options for openapi 3.1.0 must valid format', async (t) => {
@@ -1723,10 +1723,10 @@ test('webhooks options for openapi 3.1.0 must valid format', async (t) => {
 
   fastify.swagger()
   const openapiObject = fastify.swagger()
-  t.equal(typeof openapiObject, 'object')
+  t.assert.strictEqual(typeof openapiObject, 'object')
 
   await Swagger.validate(openapiObject)
-  t.pass('valid swagger object')
+  t.assert.ok(true, 'valid swagger object')
 })
 
 module.exports = { openapiOption }
