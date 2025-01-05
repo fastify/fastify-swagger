@@ -20,7 +20,7 @@ test('support $ref schema', async t => {
 
   await fastify.register(fastifySwagger)
 
-  fastify.register((instance, opts, next) => {
+  fastify.register((instance, _opts, next) => {
     instance.addSchema({
       $id: 'subschema-two',
       type: 'object',
@@ -29,7 +29,7 @@ test('support $ref schema', async t => {
       }
     })
 
-    instance.register((subinstance, opts, next) => {
+    instance.register((subinstance, _opts, next) => {
       subinstance.addSchema({
         $id: 'subschema-three',
         type: 'object',
@@ -67,7 +67,7 @@ test('support nested $ref schema : complex case', async (t) => {
   const options = {
     swagger: {},
     refResolver: {
-      buildLocalReference: (json, baseUri, fragment, i) => {
+      buildLocalReference: (json, _baseUri, _fragment, i) => {
         return json.$id || `def-${i}`
       }
     }

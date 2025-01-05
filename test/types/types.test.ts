@@ -45,7 +45,7 @@ const fastifyDynamicSwaggerOptions: SwaggerOptions = {
   hideUntagged: true,
   stripBasePath: true,
   refResolver: {
-    buildLocalReference: (json, baseUri, fragment, i) => `${fragment}-${i}`
+    buildLocalReference: (_json, _baseUri, fragment, i) => `${fragment}-${i}`
   }
 }
 app.register(fastifySwagger, fastifyDynamicSwaggerOptions)
@@ -85,7 +85,7 @@ app.put('/image.png', {
       }
     }
   }
-}, async (req, reply) => {
+}, async (_req, reply) => {
   reply
     .type('image/png')
     .send(Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAIAAAACDbGyAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAEnQAABJ0Ad5mH3gAAAAgSURBVBhXY/iPCkB8BgYkEiSIBICiCCEoB0SBwf///wGHRzXLSklJLQAAAABJRU5ErkJggg==', 'base64'))
