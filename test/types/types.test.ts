@@ -55,7 +55,7 @@ app.get('/deprecated', {
     deprecated: true,
     hide: true
   }
-}, (req, reply) => {})
+}, () => {})
 
 app.put('/some-route/:id', {
   schema: {
@@ -70,7 +70,7 @@ app.put('/some-route/:id', {
       description: 'Find more info here'
     },
   }
-}, (req, reply) => {})
+}, () => {})
 
 app.put('/image.png', {
   schema: {
@@ -101,7 +101,7 @@ app.get('/public/route', {
   links: {
     200: { 'some-route': { operationId: 'opeId' } }
   }
-}, (req, reply) => {})
+}, () => {})
 
 app.get('/public/readonly-schema-route', {
   schema: {
@@ -114,7 +114,7 @@ app.get('/public/readonly-schema-route', {
   links: {
     200: { 'some-route': { operationId: 'opeId' } }
   }
-} as const, (req, reply) => {})
+} as const, () => {})
 
 app
   .register(fastifySwagger, {

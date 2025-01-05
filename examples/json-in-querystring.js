@@ -23,7 +23,7 @@ const fastify = require('fastify')({
 
 ajv.addKeyword({
   keyword: 'x-consume',
-  code: (ctx) => Promise.resolve(true)
+  code: () => Promise.resolve(true)
 })
 
 fastify.setValidatorCompiler(({ schema }) => ajv.compile(schema))
@@ -67,6 +67,6 @@ fastify.register(async function (fastify) {
   })
 })
 
-fastify.listen({ port: 3000 }, (err, addr) => {
+fastify.listen({ port: 3000 }, (err) => {
   if (err) throw err
 })
