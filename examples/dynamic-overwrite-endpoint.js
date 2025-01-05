@@ -55,7 +55,7 @@ fastify.register(async function (fastify) {
         }
       }
     }
-  }, (req, reply) => {})
+  }, () => {})
 })
 
 fastify.listen({ port: 3000 }, err => {

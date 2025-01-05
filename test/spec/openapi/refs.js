@@ -296,7 +296,7 @@ test('uses examples if has property required in body', async (t) => {
         }
       }
     }
-  }, (req, reply) => ({ result: 'OK' }))
+  }, () => ({ result: 'OK' }))
 
   await fastify.ready()
 
