@@ -8,7 +8,7 @@ const fastifySwagger = require('../../../index')
 const openapiOption = {
   openapi: {},
   refResolver: {
-    buildLocalReference: (json, baseUri, fragment, i) => {
+    buildLocalReference: (json, _baseUri, _fragment, i) => {
       return json.$id || `def-${i}`
     }
   }
