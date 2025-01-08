@@ -241,3 +241,19 @@ expectType<string>(app.swagger({ yaml: true }))
 expectType<OpenAPI.Document | string>(app.swagger({ yaml: Boolean(process.env.YAML) }))
 
 expectType<(arg: string)=>string>(formatParamUrl)
+
+app.register(fastifySwagger, {
+  decorator: 'swagger'
+})
+
+app.register(fastifySwagger, {
+  decorator: 'customSwagger'
+})
+
+app.register(fastifySwagger, {
+  exposeHeadRoutes: true
+})
+
+app.register(fastifySwagger, {
+  exposeHeadRoutes: false
+})
