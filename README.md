@@ -234,7 +234,6 @@ An example of using `@fastify/swagger` with `static` mode enabled can be found [
  | ---------------- | --------  | ----------------------------------------------------------------------------------------------------------------------------- |
  | hiddenTag        | X-HIDDEN  | Tag to control hiding of routes.                                                                                              |
  | hideUntagged     | false     | If `true` remove routes without tags from resulting Swagger/OpenAPI schema file.                                              |
- | initOAuth        | {}        | Configuration options for [Swagger UI initOAuth](https://swagger.io/docs/open-source-tools/swagger-ui/usage/oauth2/).         |
  | openapi          | {}        | [OpenAPI configuration](https://swagger.io/specification/#oasObject).                                                         |
  | stripBasePath    | true      | Strips base path from routes in docs.                                                                                         |
  | swagger          | {}        | [Swagger configuration](https://swagger.io/specification/v2/#swaggerObject).                                                  |

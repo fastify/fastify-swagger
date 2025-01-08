@@ -112,6 +112,10 @@ declare namespace fastifySwagger {
     openapi?: Partial<OpenAPIV3.Document | OpenAPIV3_1.Document>
     hiddenTag?: string;
     hideUntagged?: boolean;
+
+    /** Include HEAD routes in the definitions */
+    exposeHeadRoutes?: boolean;
+
     /**
      * Strips matching base path from routes in documentation
      * @default true
@@ -126,6 +130,9 @@ declare namespace fastifySwagger {
      * custom function to transform the openapi or swagger object before it is rendered
      */
     transformObject?: SwaggerTransformObject;
+
+    /** Overrides the Fastify decorator. */
+    decorator?: 'swagger' | (string & Record<never, never>);
 
     refResolver?: {
       /** Clone the input schema without changing it. Default to `false`. */
