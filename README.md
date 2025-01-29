@@ -693,7 +693,6 @@ There is a complete runnable example [here](examples/collection-format.js).
 http://localhost/?filter={"foo":"baz","bar":"qux"}
 ```
 
-
 > 🛈 Note: Change Fastify's default query string parser to produce a JavaScript object conforming to the schema. See [example](examples/json-in-querystring.js).
 
 ```js
