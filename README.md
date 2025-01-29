@@ -413,7 +413,7 @@ fastify.externalSwagger()
 <a name="route.options"></a>
 ### Route options
 
-`HEAD` routes can be in the definitions by adding `exposeHeadRoute` in the route config:
+`HEAD` routes can be included in the definitions by adding `exposeHeadRoute` in the route config:
 
 ```js
   fastify.get('/with-head', {
