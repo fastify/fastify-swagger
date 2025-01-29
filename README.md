@@ -1145,7 +1145,7 @@ fastify.route({
 
 #### How to work with $refs
 
-The `/docs/json` endpoint in dynamic mode produces a single `swagger.json` file resolving all of the references.
+The `/docs/json` endpoint in dynamic mode produces a single `swagger.json` file, resolving all of the references.
 
 ## Acknowledgments
 
