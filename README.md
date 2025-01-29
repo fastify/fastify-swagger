@@ -13,7 +13,7 @@ The following plugins serve Swagger/OpenAPI front-ends based on the swagger defi
 - [@fastify/swagger-ui](https://github.com/fastify/fastify-swagger-ui)
 - [@scalar/fastify-api-reference](https://github.com/scalar/scalar/tree/main/packages/fastify-api-reference)
 
-See [the migration guide](MIGRATION.md) for migrating from `@fastify/swagger` version <= `<=7.x` to version `>=8.x`.
+See [the migration guide](MIGRATION.md) for migrating from `@fastify/swagger` version `<=7.x` to version `>=8.x`.
 
 <a name="install"></a>
 ## Install
@@ -43,7 +43,7 @@ See [Fastify's LTS policy](https://github.com/fastify/fastify/blob/main/docs/Ref
 <a name="usage"></a>
 ## Usage
 
-Add it to your project with `register`, pass it some options, call the `swagger` API, and you are done! Below is an example of how to configure the OpenAPI v3 specification with Fastify Swagger:
+Add it with `register`, pass it options, call the `swagger` API, and you are done! Below is an example of configuring the OpenAPI v3 specification with Fastify Swagger:
 
 ```js
 const fastify = require('fastify')()
@@ -135,7 +135,7 @@ fastify.swagger()
 <a name="usage.fastify.autoload"></a>
 ### With `@fastify/autoload`
 
-You need to register `@fastify/swagger` before registering routes:
+Register `@fastify/swagger` before routes are loaded with `@fastify/autoload`:
 
 ```js
 const fastify = require('fastify')()
@@ -156,11 +156,11 @@ fastify.swagger()
 
 <a name="register.options.modes"></a>
 #### Modes
-`@fastify/swagger` supports two registration modes `dynamic` and `static`:
+`@fastify/swagger` supports `dynamic` and `static` registration modes:
 
 <a name="register.options.mode.dynamic"></a>
 ##### Dynamic
-`dynamic` is the default mode, if you use `@fastify/swagger` this way API schemas will be auto-generated from route schemas:
+`dynamic` is the default mode, which auto-generates API schemas from route schemas:
 ```js
 // All of the below parameters are optional but are included for demonstration purposes
 {
@@ -195,9 +195,9 @@ fastify.swagger()
 }
 ```
 
-All properties detailed in the [Swagger (OpenAPI v2)](https://swagger.io/specification/v2/) and [OpenAPI v3](https://swagger.io/specification/) specifications can be used.
-`@fastify/swagger` will generate API schemas that adhere to the Swagger specification by default.
-If provided an `openapi` option it will generate OpenAPI compliant API schemas instead.
+All properties in the [Swagger (OpenAPI v2)](https://swagger.io/specification/v2/) and [OpenAPI v3](https://swagger.io/specification/) specifications can be used.
+`@fastify/swagger` generates API schemas adhering to the Swagger specification by default.
+Providing an `openapi` option generates OpenAPI compliant API schemas instead.
 
 Examples of using `@fastify/swagger` in `dynamic` mode:
 - [Using the `swagger` option](examples/dynamic-swagger.js)
@@ -205,7 +205,7 @@ Examples of using `@fastify/swagger` in `dynamic` mode:
 
 <a name="register.options.mode.static"></a>
 ##### Static
- `static` mode must be configured explicitly. In this mode, `@fastify/swagger` serves an already existing Swagger or OpenAPI schema that is passed to it in `specification.path`:
+ `static` mode must be configured explicitly. It serves an existing Swagger or OpenAPI schema passed to `specification.path`:
 
 ```js
 {
@@ -220,11 +220,11 @@ Examples of using `@fastify/swagger` in `dynamic` mode:
 }
 ```
 
-The `specification.postProcessor` parameter is optional. It allows you to change your Swagger object on the fly (for example - based on the environment).
-It accepts `swaggerObject` - a JavaScript object that was parsed from your `yaml` or `json` file and should return a Swagger schema object.
+The `specification.postProcessor` parameter is optional and allows modifying the Swagger object on the fly, e.g., based on the environment.
+It accepts `swaggerObject` - a JavaScript object parsed from a `yaml` or `json` file and should return a Swagger schema object.
 
 `specification.baseDir` allows specifying the directory where all spec files that are included in the main one using `$ref` will be located.
-By default, this is the directory where the main spec file is located. The provided value should be an absolute path **without** a trailing slash.
+By default, it is the directory of the main spec file. The value should be an absolute path **without** a trailing slash.
 
 An example of using `@fastify/swagger` with `static` mode enabled can be found [here](examples/static-json-file.js).
 
@@ -239,23 +239,21 @@ An example of using `@fastify/swagger` with `static` mode enabled can be found [
  | swagger          | {}        | [Swagger configuration](https://swagger.io/specification/v2/#swaggerObject).                                                  |
  | transform        | null      | Transform method for the route's schema and url. [documentation](#register.options.transform).                                |
  | transformObject  | null      | Transform method for the swagger or openapi object before it is rendered. [documentation](#register.options.transformObject). |
- | refResolver      | {}        | Option to manage the `$ref`s of your application's schemas. Read the [`$ref` documentation](#register.options.refResolver)    |
+ | refResolver      | {}        | Option to manage the `$ref`s of the application's schemas. Read the [`$ref` documentation](#register.options.refResolver)    |
  | exposeHeadRoutes | false     | Include HEAD routes in the definitions                                                                                        |
  | decorator        | 'swagger' | Overrides the Fastify decorator. [documentation](#register.options.decorator).                                                |
 
 <a name="register.options.transform"></a>
 #### Transform
 
-By passing a synchronous `transform` function you can modify the route's URL and schema.
-
-You may also access the `openapiObject` and `swaggerObject`
+Pass a synchronous `transform` function to modify the route's URL and schema.
+`openapiObject` and `swaggerObject` are also available.
 
 Some possible uses of this are:
-
-- add the `hide` flag on schema according to your own logic based on URL & schema
-- altering the route URL into something that is more suitable for the API spec
-- using different schemas such as [Joi](https://github.com/hapijs/joi) and transforming them to standard JSON schemas expected by this plugin
-- hiding routes based on version constraints
+- Adding the `hide` flag to the schema based on URL and schema logic
+- Altering the route URL to suit the API spec
+- Transforming different schemas (e.g., [Joi](https://github.com/hapijs/joi)) to standard JSON schemas
+- Hiding routes based on version constraints
 
 This option is available in `dynamic` mode only.
 
@@ -299,7 +297,7 @@ await fastify.register(require('@fastify/swagger'), {
 })
 ```
 
-You can also attach the transform function on a specific endpoint:
+The transform function can also be attached to a specific endpoint:
 
 ```js
 fastify.get("/", {
@@ -310,16 +308,11 @@ fastify.get("/", {
 })
 ```
 
-If both a global and a local transform function is available for an endpoint, the endpoint-specific transform function will be used.
+If both global and local transform functions are available for an endpoint, the endpoint-specific transform function is used.
 
-The local transform function can be useful if you:
+The local transform function is useful for adding information to a specific endpoint, applying different transformations, or ignoring the global transform function.
 
-- want to add additional information to a specific endpoint
-- have an endpoint that requires a different transformation from other endpoints
-- want to entirely ignore the global transform function for one endpoint
-
-The endpoint-specific transform can be used to "disable" the global transform function by passing in `false` instead of a function.
-
+The global transform function can be disabled by passing `false` instead of a function.
 
 <a name="register.options.transformObject"></a>
 #### Transform Object
@@ -339,14 +332,12 @@ await fastify.register(require('@fastify/swagger'), {
 <a name="register.options.refResolver"></a>
 #### Managing your `$ref`s
 
-When this plugin is configured as `dynamic` mode, it will resolve all `$ref`s in your application's schemas.
-This process will create a new in-line schema that is going to reference itself.
+In `dynamic` mode, this plugin resolves all `$ref`s in the application's schemas, creating a new in-line schema that references itself.
+This ensures the generated documentation is valid, preventing Swagger UI from failing to fetch schemas from the server or network.
 
-This logic step is done to make sure that the generated documentation is valid, otherwise the Swagger UI will try to fetch the schemas from the server or the network and fail.
+By default, this option resolves all `$ref`s, renaming them to `def-${counter}`, while view models keep the original `$id` naming using the [`title` parameter](https://swagger.io/docs/specification/2-0/basic-structure/#metadata).
 
-By default, this option will resolve all `$ref`s renaming them to `def-${counter}`, but your view models keep the original `$id` naming thanks to the [`title` parameter](https://swagger.io/docs/specification/2-0/basic-structure/#metadata).
-
-To customize this logic you can pass a `refResolver` option to the plugin:
+This logic can be customized by passing a `refResolver` option to the plugin:
 
 ```js
 await fastify.register(require('@fastify/swagger'), {
@@ -360,12 +351,12 @@ await fastify.register(require('@fastify/swagger'), {
 }
 ```
 
-For a deep dive into the `buildLocalReference` arguments, you may read the [documentation](https://github.com/Eomm/json-schema-resolver#usage-resolve-one-schema-against-external-schemas).
+For details on `buildLocalReference` arguments, see the [documentation](https://github.com/Eomm/json-schema-resolver#usage-resolve-one-schema-against-external-schemas).
 
 <a name="register.options.decorator"></a>
 #### Decorator
 
-By passing a string to the `decorator` option, you can override the default decorator function (`fastify.swagger()`) with a custom one. This allows you to create multiple documents by registering `@fastify/swagger` multiple times with different `transform` functions:
+The default decorate function (`fastify.swagger()`) can be overridden by passing a string to the `decorator` option. This allows creating multiple documents by registering `@fastify/swagger` multiple times with different `transform` functions:
 
 ```js
 // Create an internal Swagger doc
@@ -413,7 +404,7 @@ await fastify.register(require('@fastify/swagger'), {
 })
 ```
 
-You can then call those decorators individually to retrieve them:
+Then call those decorators individually to retrieve them:
 ```
 fastify.internalSwagger()
 fastify.externalSwagger()
@@ -422,8 +413,7 @@ fastify.externalSwagger()
 <a name="route.options"></a>
 ### Route options
 
-It is possible to instruct `@fastify/swagger` to include specific `HEAD` routes in the definitions
-by adding `exposeHeadRoute` in the route config, like so:
+`HEAD` routes can be included in the definitions by adding `exposeHeadRoute` in the route config:
 
 ```js
   fastify.get('/with-head', {
@@ -452,8 +442,8 @@ by adding `exposeHeadRoute` in the route config, like so:
 
 <a name="route.response.description"></a>
 ##### Response description and response body description
-`description` is a required field as per the Swagger specification. If it is not provided then the plugin will automatically generate one with the value `'Default Response'`.
-If you supply a `description` it will be used for both the response and response body schema, for example:
+`description` is required by the Swagger specification. If not provided, the plugin defaults to `'Default Response'`.
+If a `description` is supplied, it will be used for both the response and response body schema:
 
 ```js
 fastify.get('/description', {
@@ -488,7 +478,7 @@ Generates this in a Swagger (OpenAPI v2) schema's `paths`:
 }
 ```
 
-And this in a OpenAPI v3 schema's `paths`:
+And this in an OpenAPI v3 schema's `paths`:
 
 ```json
 {
@@ -512,7 +502,7 @@ And this in a OpenAPI v3 schema's `paths`:
 }
 ```
 
-If you want to provide different descriptions for the response and response body, use the `x-response-description` field alongside `description`:
+To provide different descriptions for the response and response body, use the `x-response-description` field alongside `description`:
 
 ```js
 fastify.get('/responseDescription', {
@@ -528,13 +518,13 @@ fastify.get('/responseDescription', {
 }, () => {})
 ```
 
-Additionally, if you provide a `$ref` in your response schema but no description, the reference's description will be used as a fallback. Note that at the moment, `$ref` will only be resolved by matching with `$id` and not through complex paths.
+If a `$ref` is provided in the response schema without a description, the reference's description will be used as a fallback. Currently, `$ref` is resolved by matching with `$id` only, not through complex paths.
 
 <a name="route.response.2xx"></a>
 ##### Status code 2xx
-Fastify supports both the `2xx` and `3xx` status codes, however Swagger (OpenAPI v2) itself does not.
-`@fastify/swagger` transforms `2xx` status codes into `200`, but will omit it if a `200` status code has already been declared.
-OpenAPI v3 [supports the `2xx` syntax](https://swagger.io/specification/#http-codes) so is unaffected.
+Fastify supports `2xx` and `3xx` status codes, but Swagger (OpenAPI v2) does not.
+`@fastify/swagger` transforms `2xx` into `200`, omitting it if `200` is already declared.
+OpenAPI v3 supports [`2xx` syntax](https://swagger.io/specification/#http-codes) so is unaffected.
 
 Example:
 
@@ -562,7 +552,8 @@ Example:
 ```
 <a name="route.response.headers"></a>
 ##### Response headers
-You can decorate your own response headers by following the below example:
+Response headers can be decorated with the following example.
+Specify the `type` property when decorating response headers to prevent schema modification by Fastify.
 
 ```js
 {
@@ -578,13 +569,13 @@ You can decorate your own response headers by following the below example:
   }
 }
 ```
-Note: You need to specify `type` property when you decorate the response headers, otherwise the schema will be modified by Fastify.
 
 <a name="route.response.empty_body"></a>
 ##### Different content types responses
-**Note:** not supported by Swagger (OpenAPI v2), [only OpenAPI v3](https://swagger.io/docs/specification/describing-responses/)
-Different content types responses are supported by `@fastify/swagger` and `@fastify`.
-Please use `content` for the response otherwise Fastify itself will fail to compile the schema:
+> 🛈 Note: Supported [only by OpenAPI v3](https://swagger.io/docs/specification/describing-responses/), not Swagger (OpenAPI v2).
+
+Different content types are supported by `@fastify/swagger` and `@fastify`.
+Use `content` for the response to prevent Fastify from failing to compile the schema:
 
 ```js
 {
@@ -612,7 +603,7 @@ Please use `content` for the response otherwise Fastify itself will fail to comp
 ```
 ##### Empty Body Responses
 Empty body responses are supported by `@fastify/swagger`.
-Please specify `type: 'null'` for the response otherwise Fastify itself will fail to compile the schema:
+Specify `type: 'null'` for the response to prevent Fastify from failing to compile the schema:
 
 ```js
 {
@@ -632,17 +623,16 @@ Please specify `type: 'null'` for the response otherwise Fastify itself will fai
 <a name="route.openapi"></a>
 #### OpenAPI Parameter Options
 
-**Note:** OpenAPI's terminology differs from Fastify's. OpenAPI uses "parameter" to refer to parts of a request that in [Fastify's validation documentation](https://fastify.dev/docs/latest/Reference/Validation-and-Serialization/) are called "querystring", "params", and "headers".
+> 🛈 Note: OpenAPI's terminology differs from Fastify's. OpenAPI uses "parameter" to refer to parts of a request that in [Fastify's validation documentation](https://fastify.dev/docs/latest/Reference/Validation-and-Serialization/) are called "querystring", "params", and "headers".
 
-OpenAPI provides some options beyond those provided by the [JSON schema specification](https://json-schema.org/specification.html) for specifying the shape of parameters. A prime example of this is the `collectionFormat` option for specifying how to encode parameters that should be handled as arrays of values.
+OpenAPI extends the [JSON schema specification](https://json-schema.org/specification.html) with options like `collectionFormat` for encoding array parameters.
 
-These encoding options only change how Swagger UI presents its documentation and how it generates `curl` commands when the `Try it out` button is clicked.
-Depending on which options you set in your schema, you *may also need* to change the default query string parser used by Fastify so that it produces a JavaScript object that will conform to the schema.
-As far as arrays are concerned, the default query string parser conforms to the `collectionFormat: "multi"` specification.
-If you were to select `collectionFormat: "csv"`, you would have to replace the default query string parser with one that parses CSV parameter values into arrays.
-The same applies to the other parts of a request that OpenAPI calls "parameters" and which are not encoded as JSON in a request.
+These encoding options only affect how Swagger UI presents documentation and generates `curl` commands.
+Depending on the schema options, you may need to change Fastify's default query string parser to produce a JavaScript object conforming to the schema.
+The default parser conforms to `collectionFormat: "multi"`.
+For `collectionFormat: "csv"`, replace the default parser with one that parses CSV values into arrays. This applies to other request parts that OpenAPI calls "parameters" and are not encoded as JSON.
 
-You can also apply a different serialization `style` and `explode` as specified [here](https://swagger.io/docs/specification/serialization/#query).
+Different serialization `style` and `explode` can also be applied as specified [here](https://swagger.io/docs/specification/serialization/#query).
 
 `@fastify/swagger` supports these options as shown in this example:
 
@@ -697,13 +687,13 @@ There is a complete runnable example [here](examples/collection-format.js).
 <a name="route.complex-serialization"></a>
 #### Complex serialization in query and cookie, eg. JSON
 
-**Note:** not supported by Swagger (OpenAPI v2), [only OpenAPI v3](https://swagger.io/docs/specification/describing-parameters/#schema-vs-content)
+> 🛈 Note: Supported [only by OpenAPI v3](https://swagger.io/docs/specification/describing-parameters/#schema-vs-content), not Swagger (OpenAPI v2).
 
 ```
 http://localhost/?filter={"foo":"baz","bar":"qux"}
 ```
 
-**IMPORTANT CAVEAT** You will need to change the default query string parser used by Fastify so that it produces a JavaScript object that will conform to the schema. See [example](examples/json-in-querystring.js).
+> 🛈 Note: Change Fastify's default query string parser to produce a JavaScript object conforming to the schema. See [example](examples/json-in-querystring.js).
 
 ```js
 fastify.route({
@@ -733,7 +723,7 @@ fastify.route({
 })
 ```
 
-Will generate this in the OpenAPI v3 schema's `paths`:
+Generates this in the OpenAPI v3 schema's `paths`:
 
 ```json
 {
@@ -771,7 +761,8 @@ Will generate this in the OpenAPI v3 schema's `paths`:
 
 ##### Route parameters
 
-Route parameters in Fastify are called params, these are values included in the URL of the requests, for example:
+Route parameters in Fastify are called params.
+These are values included in the URL of the requests, for example:
 
 ```js
 fastify.route({
@@ -794,7 +785,7 @@ fastify.route({
 })
 ```
 
-Will generate this in the Swagger (OpenAPI v2) schema's `paths`:
+Generates this in the Swagger (OpenAPI v2) schema's `paths`:
 
 ```json
 {
@@ -819,7 +810,7 @@ Will generate this in the Swagger (OpenAPI v2) schema's `paths`:
 }
 ```
 
-Will generate this in the OpenAPI v3 schema's `paths`:
+Generates this in the OpenAPI v3 schema's `paths`:
 
 ```json
 {
@@ -846,7 +837,7 @@ Will generate this in the OpenAPI v3 schema's `paths`:
 }
 ```
 
-When `params` is not present in the schema, or a schema is not provided, parameters are automatically generated, for example:
+When `params` is not present in the schema, or a schema is not provided, parameters are automatically generated:
 
 ```js
 fastify.route({
@@ -858,7 +849,7 @@ fastify.route({
 })
 ```
 
-Will generate this in the Swagger (OpenAPI v2) schema's `paths`:
+Generates this in the Swagger (OpenAPI v2) schema's `paths`:
 
 ```json
 {
@@ -882,7 +873,7 @@ Will generate this in the Swagger (OpenAPI v2) schema's `paths`:
 }
 ```
 
-Will generate this in the OpenAPI v3 schema's `paths`:
+Generates this in the OpenAPI v3 schema's `paths`:
 
 ```json
 {
@@ -911,9 +902,9 @@ Will generate this in the OpenAPI v3 schema's `paths`:
 <a name="route.links"></a>
 #### Links
 
-**Note:** not supported by Swagger (OpenAPI v2), [only OpenAPI v3](https://swagger.io/docs/specification/links/)
+> 🛈 Note: Supported [only by OpenAPI v3](https://swagger.io/docs/specification/links), not Swagger (OpenAPI v2).
 
-OpenAPI v3 Links are added by adding a `links` property to the top-level options of a route. See:
+Add OpenAPI v3 Links by adding a `links` property to the top-level options of a route. See:
 
 ```js
 fastify.get('/user/:id', {
@@ -986,14 +977,13 @@ There are two ways to hide a route from the Swagger UI:
 ### Swagger function options
 
 Registering `@fastify/swagger` decorates the fastify instance with `fastify.swagger()`, which returns a JSON object representing the API.
-If `{ yaml: true }` is passed to `fastify.swagger()` it will return a YAML string.
+If `{ yaml: true }` is passed to `fastify.swagger()` it returns a YAML string.
 
 <a name="integration"></a>
 ### Integration
-You can integrate this plugin with ```@fastify/helmet``` with some little work.
 
-```@fastify/helmet``` options example:
-```javascript
+This plugin can be integrated with `@fastify/helmet` with minimal effort:
+```js
 .register(helmet, instance => {
   return {
     contentSecurityPolicy: {
@@ -1014,7 +1004,7 @@ You can integrate this plugin with ```@fastify/helmet``` with some little work.
 <a name="schema.examplesField"></a>
 ### Add examples to the schema
 
-Note: [OpenAPI](https://swagger.io/specification/#example-object) and [JSON Schema](https://json-schema.org/draft/2020-12/json-schema-validation.html#rfc.section.9.5) have different examples field formats.
+[OpenAPI](https://swagger.io/specification/#example-object) and [JSON Schema](https://json-schema.org/draft/2020-12/json-schema-validation.html#rfc.section.9.5) have different examples field formats.
 
 Array with examples from JSON Schema converted to OpenAPI `example` or `examples` field automatically with generated names (example1, example2...):
 
@@ -1051,7 +1041,7 @@ fastify.route({
 })
 ```
 
-Will generate this in the OpenAPI v3 schema's `path`:
+Generates this in the OpenAPI v3 schema's `paths`:
 
 ```json
 "/": {
@@ -1091,7 +1081,7 @@ Will generate this in the OpenAPI v3 schema's `path`:
 }
 ```
 
-If you want to set your own names or add descriptions to the examples of schemas, you can use `x-examples` field to set examples in [OpenAPI format](https://swagger.io/specification/#example-object):
+Use the `x-examples` field to set names or add descriptions to schema examples in [OpenAPI format](https://swagger.io/specification/#example-object):
 
 ```js
 // Need to add a new allowed keyword to ajv in fastify instance
@@ -1148,23 +1138,13 @@ fastify.route({
 <a name="usage"></a>
 ## `$id` and `$ref` usage
 
-
-## Development
-To start development run:
-```
-npm i
-npm run prepare
-```
-
-So that [swagger-ui](https://github.com/swagger-api/swagger-ui) static folder will be generated for you.
-
 ### How it works under the hood
 
 `@fastify/static` serves `swagger-ui` static files, then calls `/docs/json` to get the Swagger file and render it.
 
 #### How to work with $refs
 
-The `/docs/json` endpoint in dynamic mode produces a single `swagger.json` file resolving all your references.
+The `/docs/json` endpoint in dynamic mode produces a single `swagger.json` file, resolving all of the references.
 
 ## Acknowledgments
 
