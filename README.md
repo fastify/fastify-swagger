@@ -1138,11 +1138,7 @@ fastify.route({
 <a name="usage"></a>
 ## `$id` and `$ref` usage
 
-### How it works under the hood
-
-`@fastify/static` serves `swagger-ui` static files, then calls `/docs/json` to get the Swagger file and render it.
-
-#### How to work with $refs
+### How to work with $refs
 
 The `/docs/json` endpoint in dynamic mode produces a single `swagger.json` file, resolving all of the references.
 
