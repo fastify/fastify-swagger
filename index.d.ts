@@ -60,7 +60,7 @@ declare module 'fastify' {
   }
 
   interface FastifyContextConfig {
-    swaggerTransform?: SwaggerTransform | false;
+    swaggerTransform?: fastifySwagger.SwaggerTransform | false;
   }
 }
 
@@ -70,20 +70,6 @@ type SwaggerDocumentObject = {
   // eslint-disable-next-line camelcase
   openapiObject: Partial<OpenAPIV3.Document | OpenAPIV3_1.Document>;
 }
-
-type SwaggerTransform = <S extends FastifySchema = FastifySchema>({
-  schema,
-  url,
-  route,
-  ...documentObject
-}: {
-  schema: S;
-  url: string;
-  route: RouteOptions;
-} & SwaggerDocumentObject) => { schema: FastifySchema; url: string }
-
-// eslint-disable-next-line camelcase
-type SwaggerTransformObject = (documentObject: SwaggerDocumentObject) => Partial<OpenAPIV2.Document> | Partial<OpenAPIV3.Document | OpenAPIV3_1.Document>
 
 type FastifySwagger = FastifyPluginCallback<fastifySwagger.SwaggerOptions>
 
@@ -104,6 +90,20 @@ declare namespace fastifySwagger {
   export interface JSONObject {
     [key: string]: JSONValue;
   }
+
+  export type SwaggerTransform<S extends FastifySchema = FastifySchema> = ({
+    schema,
+    url,
+    route,
+    ...documentObject
+  }: {
+    schema: S;
+    url: string;
+    route: RouteOptions;
+  } & SwaggerDocumentObject) => { schema: FastifySchema; url: string }
+
+  // eslint-disable-next-line camelcase
+  export type SwaggerTransformObject = (documentObject: SwaggerDocumentObject) => Partial<OpenAPIV2.Document> | Partial<OpenAPIV3.Document | OpenAPIV3_1.Document>
 
   export interface FastifyDynamicSwaggerOptions extends FastifySwaggerOptions {
     mode?: 'dynamic';
