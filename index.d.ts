@@ -91,7 +91,7 @@ declare namespace fastifySwagger {
     [key: string]: JSONValue;
   }
 
-  export type SwaggerTransform = <S extends FastifySchema = FastifySchema>({
+  export type SwaggerTransform<S extends FastifySchema = FastifySchema> = ({
     schema,
     url,
     route,
