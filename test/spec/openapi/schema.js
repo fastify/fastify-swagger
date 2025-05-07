@@ -1801,4 +1801,66 @@ test('support callbacks', async () => {
 
     await Swagger.validate(openapiObject)
   })
+
+  await test('should preserve original headers schema across multiple responses', async t => {
+    const headersSchema = {
+      'X-DESCRIPTION': {
+        type: 'string',
+        description: 'Foo',
+      },
+    }
+
+    const opt = {
+      schema: {
+        response: {
+          200: {
+            type: 'object',
+            properties: {
+              hello: {
+                type: 'string'
+              }
+            },
+            headers: headersSchema
+          },
+          201: {
+            type: 'object',
+            properties: {
+              hello: {
+                type: 'string'
+              }
+            },
+            headers: headersSchema
+          }
+        }
+      }
+    }
+
+    const fastify = Fastify()
+    await fastify.register(fastifySwagger, {
+      openapi: true
+    })
+    fastify.get('/', opt, () => {})
+
+    await fastify.ready()
+
+    const swaggerObject = fastify.swagger()
+    const api = await Swagger.validate(swaggerObject)
+
+    const definedPath = api.paths['/'].get
+
+    t.assert.deepStrictEqual(definedPath.responses['200'].headers['X-DESCRIPTION'], {
+      description: 'Foo',
+      schema: {
+        type: 'string'
+      }
+    })
+    t.assert.strictEqual(definedPath.responses['200'].content['application/json'].schema.headers, undefined)
+    t.assert.deepStrictEqual(definedPath.responses['201'].headers['X-DESCRIPTION'], {
+      description: 'Foo',
+      schema: {
+        type: 'string'
+      }
+    })
+    t.assert.strictEqual(definedPath.responses['201'].content['application/json'].schema.headers, undefined)
+  })
 })
