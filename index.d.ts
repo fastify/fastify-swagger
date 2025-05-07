@@ -61,6 +61,9 @@ declare module 'fastify' {
 
   interface FastifyContextConfig {
     swaggerTransform?: fastifySwagger.SwaggerTransform | false;
+    swagger?: {
+      exposeHeadRoute?: boolean
+    }
   }
 }
 

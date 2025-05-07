@@ -257,3 +257,15 @@ app.register(fastifySwagger, {
 app.register(fastifySwagger, {
   exposeHeadRoutes: false
 })
+
+app.get(
+  '/endpoint-expose-head-route',
+  {
+    config: {
+      swagger: {
+        exposeHeadRoute: true
+      }
+    },
+  },
+  () => {}
+)
