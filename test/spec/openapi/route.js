@@ -27,14 +27,14 @@ test('openapi should return a valid swagger object', async (t) => {
 
   await fastify.register(fastifySwagger, openapiOption)
 
-  fastify.get('/', () => {})
-  fastify.post('/', () => {})
-  fastify.get('/example', schemaQuerystring, () => {})
-  fastify.post('/example', schemaBody, () => {})
-  fastify.get('/parameters/:id', schemaParams, () => {})
-  fastify.get('/headers', schemaHeaders, () => {})
-  fastify.get('/headers/:id', schemaHeadersParams, () => {})
-  fastify.get('/security', schemaSecurity, () => {})
+  fastify.get('/', () => { })
+  fastify.post('/', () => { })
+  fastify.get('/example', schemaQuerystring, () => { })
+  fastify.post('/example', schemaBody, () => { })
+  fastify.get('/parameters/:id', schemaParams, () => { })
+  fastify.get('/headers', schemaHeaders, () => { })
+  fastify.get('/headers/:id', schemaHeadersParams, () => { })
+  fastify.get('/security', schemaSecurity, () => { })
 
   await fastify.ready()
 
@@ -51,14 +51,14 @@ test('openapi should return a valid swagger yaml', async (t) => {
 
   await fastify.register(fastifySwagger, openapiOption)
 
-  fastify.get('/', () => {})
-  fastify.post('/', () => {})
-  fastify.get('/example', schemaQuerystring, () => {})
-  fastify.post('/example', schemaBody, () => {})
-  fastify.get('/parameters/:id', schemaParams, () => {})
-  fastify.get('/headers', schemaHeaders, () => {})
-  fastify.get('/headers/:id', schemaHeadersParams, () => {})
-  fastify.get('/security', schemaSecurity, () => {})
+  fastify.get('/', () => { })
+  fastify.post('/', () => { })
+  fastify.get('/example', schemaQuerystring, () => { })
+  fastify.post('/example', schemaBody, () => { })
+  fastify.get('/parameters/:id', schemaParams, () => { })
+  fastify.get('/headers', schemaHeaders, () => { })
+  fastify.get('/headers/:id', schemaHeadersParams, () => { })
+  fastify.get('/security', schemaSecurity, () => { })
 
   await fastify.ready()
 
@@ -92,7 +92,7 @@ test('route options - deprecated', async (t) => {
     }
   }
 
-  fastify.post('/', opts, () => {})
+  fastify.post('/', opts, () => { })
 
   await fastify.ready()
 
@@ -127,7 +127,7 @@ test('route options - meta', async (t) => {
     }
   }
 
-  fastify.get('/', opts, () => {})
+  fastify.get('/', opts, () => { })
 
   await fastify.ready()
 
@@ -150,7 +150,7 @@ test('route options - produces', async (t) => {
 
   await fastify.register(fastifySwagger, openapiOption)
 
-  fastify.get('/', schemaProduces, () => {})
+  fastify.get('/', schemaProduces, () => { })
 
   await fastify.ready()
 
@@ -182,7 +182,7 @@ test('route options - cookies', async (t) => {
 
   await fastify.register(fastifySwagger, openapiOption)
 
-  fastify.get('/', schemaCookies, () => {})
+  fastify.get('/', schemaCookies, () => { })
 
   await fastify.ready()
 
@@ -206,7 +206,7 @@ test('route options - extension', async (t) => {
   t.plan(4)
   const fastify = Fastify()
   await fastify.register(fastifySwagger, { openapi: { 'x-ternal': true } })
-  fastify.get('/', schemaExtension, () => {})
+  fastify.get('/', schemaExtension, () => { })
 
   await fastify.ready()
 
@@ -221,11 +221,47 @@ test('route options - extension', async (t) => {
   t.assert.deepEqual(definedPath['x-tension'], true)
 })
 
+test('route options - websocket', async (t) => {
+  t.plan(1)
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, openapiOption)
+
+  const opts = {
+    schema: {
+      operationId: 'doSomething',
+      summary: 'Route summary',
+      tags: ['tag'],
+      description: 'Route description',
+      servers: [
+        {
+          url: 'https://localhost'
+        }
+      ],
+      externalDocs: {
+        description: 'Find more info here',
+        url: 'https://swagger.io'
+      }
+    },
+    websocket: true
+  }
+
+  fastify.get('/', opts, () => { })
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+
+  const api = await Swagger.validate(openapiObject)
+  console.log("api.paths['/']", api.paths['/'])
+  t.assert.strictEqual(api.paths['/'], undefined, 'no schema created when websocket route')
+})
+
 test('parses form parameters when all api consumes application/x-www-form-urlencoded', async (t) => {
   t.plan(2)
   const fastify = Fastify()
   await fastify.register(fastifySwagger, openapiOption)
-  fastify.post('/', schemaConsumes, () => {})
+  fastify.post('/', schemaConsumes, () => { })
 
   await fastify.ready()
 
@@ -312,9 +348,9 @@ test('cookie, query, path description', async (t) => {
     }
   }
 
-  fastify.get('/', schemaCookies, () => {})
-  fastify.get('/example', schemaQuerystring, () => {})
-  fastify.get('/parameters/:id', schemaParams, () => {})
+  fastify.get('/', schemaCookies, () => { })
+  fastify.get('/example', schemaQuerystring, () => { })
+  fastify.get('/parameters/:id', schemaParams, () => { })
 
   await fastify.ready()
 
@@ -413,8 +449,8 @@ test('cookie and query with serialization type', async (t) => {
     }
   }
 
-  fastify.get('/', schemaCookies, () => {})
-  fastify.get('/example', schemaQuerystring, () => {})
+  fastify.get('/', schemaCookies, () => { })
+  fastify.get('/example', schemaQuerystring, () => { })
 
   await fastify.ready()
 
@@ -473,7 +509,7 @@ test('openapi should pass through operationId', async (t) => {
 
   await fastify.register(fastifySwagger, openapiOption)
 
-  fastify.get('/hello', schemaOperationId, () => {})
+  fastify.get('/hello', schemaOperationId, () => { })
 
   await fastify.ready()
 
@@ -524,7 +560,7 @@ test('openapi should pass through Links', async (t) => {
         }
       }
     }
-  }, () => {})
+  }, () => { })
 
   fastify.get('/user/:id/address', {
     schema: {
@@ -545,7 +581,7 @@ test('openapi should pass through Links', async (t) => {
         }
       }
     }
-  }, () => {})
+  }, () => { })
 
   await fastify.ready()
 
@@ -605,7 +641,7 @@ test('links without status code', async (t) => {
         }
       }
     }
-  }, () => {})
+  }, () => { })
 
   fastify.get('/user/:id/address', {
     schema: {
@@ -626,7 +662,7 @@ test('links without status code', async (t) => {
         }
       }
     }
-  }, () => {})
+  }, () => { })
 
   await fastify.ready()
 
@@ -659,7 +695,7 @@ test('security headers ignored when declared in security and securityScheme', as
         }
       }
     }
-  }, () => {})
+  }, () => { })
 
   fastify.get('/address2/:id', {
     schema: {
@@ -677,7 +713,7 @@ test('security headers ignored when declared in security and securityScheme', as
         }
       }
     }
-  }, () => {})
+  }, () => { })
 
   await fastify.ready()
 
@@ -729,7 +765,7 @@ test('security querystrings ignored when declared in security and securityScheme
         }
       }
     }
-  }, () => {})
+  }, () => { })
 
   fastify.get('/address2/:id', {
     schema: {
@@ -747,7 +783,7 @@ test('security querystrings ignored when declared in security and securityScheme
         }
       }
     }
-  }, () => {})
+  }, () => { })
 
   await fastify.ready()
 
@@ -799,7 +835,7 @@ test('security cookies ignored when declared in security and securityScheme', as
         }
       }
     }
-  }, () => {})
+  }, () => { })
 
   fastify.get('/address2/:id', {
     schema: {
@@ -817,7 +853,7 @@ test('security cookies ignored when declared in security and securityScheme', as
         }
       }
     }
-  }, () => {})
+  }, () => { })
 
   await fastify.ready()
 
@@ -848,7 +884,7 @@ test('path params on relative url', async (t) => {
       }
     }
   }
-  fastify.get('/parameters/:id', schemaParams, () => {})
+  fastify.get('/parameters/:id', schemaParams, () => { })
 
   await fastify.ready()
 
@@ -877,7 +913,7 @@ test('verify generated path param definition with route prefixing', async (t) =>
 
   await fastify.register(fastifySwagger, openapiRelativeOptions)
   await fastify.register(function (app, _, done) {
-    app.get('/:userId', opts, () => {})
+    app.get('/:userId', opts, () => { })
 
     done()
   }, { prefix: '/v1' })
