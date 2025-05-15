@@ -229,17 +229,17 @@ test('route options - websocket', async (t) => {
 
   const opts = {
     schema: {
-      operationId: 'doSomething',
-      summary: 'Route summary',
+      operationId: 'websocket',
+      summary: 'Websocket route',
       tags: ['tag'],
-      description: 'Route description',
+      description: 'Route with websocket true',
       servers: [
         {
           url: 'https://localhost'
         }
       ],
       externalDocs: {
-        description: 'Find more info here',
+        description: 'Swagger',
         url: 'https://swagger.io'
       }
     },
