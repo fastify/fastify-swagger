@@ -2,7 +2,7 @@ import fastify, { FastifySchema, RouteOptions } from 'fastify'
 import fastifySwagger, {
   formatParamUrl,
   SwaggerOptions,
-} from '..'
+} from '../..'
 import { minimalOpenApiV3Document } from './minimal-openapiV3-document'
 import { expectType } from 'tsd'
 
