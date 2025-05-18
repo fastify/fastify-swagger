@@ -253,7 +253,6 @@ test('route options - websocket', async (t) => {
   const openapiObject = fastify.swagger()
 
   const api = await Swagger.validate(openapiObject)
-  console.log("api.paths['/']", api.paths['/'])
   t.assert.strictEqual(api.paths['/'], undefined, 'no schema created when websocket route')
 })
 
