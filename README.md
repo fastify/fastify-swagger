@@ -571,7 +571,7 @@ Specify the `type` property when decorating response headers to prevent schema m
 
 <a name="route.response.empty_body"></a>
 ##### Different content types responses
-> 🛈 Note: Supported [only by OpenAPI v3](https://swagger.io/docs/specification/describing-responses/), not Swagger (OpenAPI v2).
+> ℹ️ Note: Supported [only by OpenAPI v3](https://swagger.io/docs/specification/describing-responses/), not Swagger (OpenAPI v2).
 
 Different content types are supported by `@fastify/swagger` and `@fastify`.
 Use `content` for the response to prevent Fastify from failing to compile the schema:
@@ -622,7 +622,7 @@ Specify `type: 'null'` for the response to prevent Fastify from failing to compi
 <a name="route.openapi"></a>
 #### OpenAPI Parameter Options
 
-> 🛈 Note: OpenAPI's terminology differs from Fastify's. OpenAPI uses "parameter" to refer to parts of a request that in [Fastify's validation documentation](https://fastify.dev/docs/latest/Reference/Validation-and-Serialization/) are called "querystring", "params", and "headers".
+> ℹ️ Note: OpenAPI's terminology differs from Fastify's. OpenAPI uses "parameter" to refer to parts of a request that in [Fastify's validation documentation](https://fastify.dev/docs/latest/Reference/Validation-and-Serialization/) are called "querystring", "params", and "headers".
 
 OpenAPI extends the [JSON schema specification](https://json-schema.org/specification.html) with options like `collectionFormat` for encoding array parameters.
 
@@ -686,13 +686,13 @@ There is a complete runnable example [here](examples/collection-format.js).
 <a name="route.complex-serialization"></a>
 #### Complex serialization in query and cookie, eg. JSON
 
-> 🛈 Note: Supported [only by OpenAPI v3](https://swagger.io/docs/specification/describing-parameters/#schema-vs-content), not Swagger (OpenAPI v2).
+> ℹ️ Note: Supported [only by OpenAPI v3](https://swagger.io/docs/specification/describing-parameters/#schema-vs-content), not Swagger (OpenAPI v2).
 
 ```
 http://localhost/?filter={"foo":"baz","bar":"qux"}
 ```
 
-> 🛈 Note: Change Fastify's default query string parser to produce a JavaScript object conforming to the schema. See [example](examples/json-in-querystring.js).
+> ℹ️ Note: Change Fastify's default query string parser to produce a JavaScript object conforming to the schema. See [example](examples/json-in-querystring.js).
 
 ```js
 fastify.route({
@@ -901,7 +901,7 @@ Generates this in the OpenAPI v3 schema's `paths`:
 <a name="route.links"></a>
 #### Links
 
-> 🛈 Note: Supported [only by OpenAPI v3](https://swagger.io/docs/specification/links), not Swagger (OpenAPI v2).
+> ℹ️ Note: Supported [only by OpenAPI v3](https://swagger.io/docs/specification/links), not Swagger (OpenAPI v2).
 
 Add OpenAPI v3 Links by adding a `links` property to the top-level options of a route. See:
 
