@@ -221,6 +221,41 @@ test('route options - extension', async (t) => {
   t.assert.deepEqual(definedPath['x-tension'], true)
 })
 
+test('route options - websocket', async (t) => {
+  t.plan(1)
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, openapiOption)
+
+  const opts = {
+    schema: {
+      operationId: 'websocket',
+      summary: 'Websocket route',
+      tags: ['tag'],
+      description: 'Route with websocket true',
+      servers: [
+        {
+          url: 'https://localhost'
+        }
+      ],
+      externalDocs: {
+        description: 'Swagger',
+        url: 'https://swagger.io'
+      }
+    },
+    websocket: true
+  }
+
+  fastify.get('/', opts, () => {})
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+
+  const api = await Swagger.validate(openapiObject)
+  t.assert.strictEqual(api.paths['/'], undefined, 'no schema created when websocket route')
+})
+
 test('parses form parameters when all api consumes application/x-www-form-urlencoded', async (t) => {
   t.plan(2)
   const fastify = Fastify()
