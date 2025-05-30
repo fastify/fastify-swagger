@@ -231,18 +231,19 @@ An example of using `@fastify/swagger` with `static` mode enabled can be found [
 
 #### Options
 
- | Option           | Default   | Description                                                                                                                   |
- | ---------------- | --------  | ----------------------------------------------------------------------------------------------------------------------------- |
- | hiddenTag        | X-HIDDEN  | Tag to control hiding of routes.                                                                                              |
- | hideUntagged     | false     | If `true` remove routes without tags from resulting Swagger/OpenAPI schema file.                                              |
- | openapi          | {}        | [OpenAPI configuration](https://swagger.io/specification/#oasObject).                                                         |
- | stripBasePath    | true      | Strips base path from routes in docs.                                                                                         |
- | swagger          | {}        | [Swagger configuration](https://swagger.io/specification/v2/#swaggerObject).                                                  |
- | transform        | null      | Transform method for the route's schema and url. [documentation](#register.options.transform).                                |
- | transformObject  | null      | Transform method for the swagger or openapi object before it is rendered. [documentation](#register.options.transformObject). |
- | refResolver      | {}        | Option to manage the `$ref`s of the application's schemas. Read the [`$ref` documentation](#register.options.refResolver)    |
- | exposeHeadRoutes | false     | Include HEAD routes in the definitions                                                                                        |
- | decorator        | 'swagger' | Overrides the Fastify decorator. [documentation](#register.options.decorator).                                                |
+ | Option             | Default   | Description                                                                                                                   |
+ |--------------------|-----------|-------------------------------------------------------------------------------------------------------------------------------|
+ | hiddenTag          | X-HIDDEN  | Tag to control hiding of routes.                                                                                              |
+ | hideUntagged       | false     | If `true` remove routes without tags from resulting Swagger/OpenAPI schema file.                                              |
+ | openapi            | {}        | [OpenAPI configuration](https://swagger.io/specification/#oasObject).                                                         |
+ | stripBasePath      | true      | Strips base path from routes in docs.                                                                                         |
+ | swagger            | {}        | [Swagger configuration](https://swagger.io/specification/v2/#swaggerObject).                                                  |
+ | transform          | null      | Transform method for the route's schema and url. [documentation](#register.options.transform).                                |
+ | transformObject    | null      | Transform method for the swagger or openapi object before it is rendered. [documentation](#register.options.transformObject). |
+ | refResolver        | {}        | Option to manage the `$ref`s of the application's schemas. Read the [`$ref` documentation](#register.options.refResolver)     |
+ | exposeHeadRoutes   | false     | Include HEAD routes in the definitions                                                                                        |
+ | decorator          | 'swagger' | Overrides the Fastify decorator. [documentation](#register.options.decorator).                                                |
+ | convertConstToEnum | true      | Converts const properties to single-value enums. Support for const was only added in OpenAPI Schema 3.1.0.                    |
 
 <a name="register.options.transform"></a>
 #### Transform
