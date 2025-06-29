@@ -10,7 +10,7 @@
     "lint:fix": "eslint --fix",
     "test": "npm run test:unit && npm run test:typescript",
     "test:typescript": "tsd",
-    "test:unit": "c8 --100 node --test \"test/**/*.test.js\""
+    "test:unit": "c8 --100 node --test \"**/*.test.js\""
   },
   "repository": {
     "type": "git",
