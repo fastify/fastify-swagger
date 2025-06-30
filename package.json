@@ -10,7 +10,7 @@
     "lint:fix": "eslint --fix",
     "test": "npm run test:unit && npm run test:typescript",
     "test:typescript": "tsd",
-    "test:unit": "c8 --100 node --test \"**/*.test.js\""
+    "test:unit": "c8 --100 node --test"
   },
   "repository": {
     "type": "git",
@@ -82,7 +82,7 @@
     "yaml": "^2.4.2"
   },
   "tsd": {
-    "directory": "test/types"
+    "directory": "test-types"
   },
   "publishConfig": {
     "access": "public"

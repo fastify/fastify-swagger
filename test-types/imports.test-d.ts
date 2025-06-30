@@ -1,7 +1,7 @@
 import fastify from 'fastify'
 
-import swaggerDefault, { fastifySwagger, SwaggerOptions } from '../..'
-import * as fastifySwaggerStar from '../..'
+import swaggerDefault, { fastifySwagger, SwaggerOptions } from '..'
+import * as fastifySwaggerStar from '..'
 import { minimalOpenApiV3Document } from './minimal-openapiV3-document'
 
 const app = fastify()
