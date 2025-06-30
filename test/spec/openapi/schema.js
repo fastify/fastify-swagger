@@ -1127,6 +1127,57 @@ test('avoid overwriting params when schema.params is provided', async t => {
   })
 })
 
+test('supports setting body fields manually on request', async t => {
+  const opt = {
+    schema: {
+      body: {
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                jsonProperty: {
+                  type: 'string'
+                }
+              }
+            }
+          }
+        },
+        description: 'My body description',
+        required: true
+      }
+    }
+  }
+
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, {
+    openapi: true
+  })
+  fastify.post('/', opt, () => { })
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  const api = await Swagger.validate(swaggerObject)
+
+  const definedPath = api.paths['/'].post
+  t.assert.deepStrictEqual(definedPath.requestBody, {
+    content: {
+      'application/json': {
+        schema: {
+          type: 'object',
+          properties: {
+            jsonProperty: {
+              type: 'string'
+            }
+          }
+        }
+      }
+    },
+    description: 'My body description',
+    required: true
+  })
+})
+
 test('support multiple content types as request', async t => {
   const opt = {
     schema: {
