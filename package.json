@@ -82,7 +82,7 @@
     "yaml": "^2.4.2"
   },
   "tsd": {
-    "directory": "test/types"
+    "directory": "test-types"
   },
   "publishConfig": {
     "access": "public"
