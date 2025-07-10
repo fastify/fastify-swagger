@@ -430,3 +430,135 @@ test('support $ref in callbacks', async (t) => {
 
   await Swagger.validate(openapiObject)
 })
+
+test('should return only ref if defs and ref is defined', async (t) => {
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, { openapi: { openapi: '3.1.0' } })
+
+  fastify.addSchema({
+    $id: 'sharedSchema',
+    humanModule: {
+      $defs: {
+        AddressSchema: {
+          type: 'object',
+          properties: {
+            street: {
+              type: 'string',
+            },
+            streetNumber: {
+              type: 'number',
+            },
+          },
+          required: [
+            'street',
+            'streetNumber',
+          ],
+          $id: 'AddressSchema',
+        },
+        PersonSchema: {
+          type: 'object',
+          properties: {
+            name: {
+              type: 'string',
+            },
+            homeAddress: {
+              $ref: 'AddressSchema',
+            },
+            workAddress: {
+              $ref: 'AddressSchema',
+            },
+          },
+          required: [
+            'name',
+            'homeAddress',
+            'workAddress',
+          ],
+          $id: 'PersonSchema',
+        },
+        PostRequestSchema: {
+          type: 'object',
+          properties: {
+            person: {
+              $ref: 'PersonSchema',
+            },
+          },
+          required: [
+            'person',
+          ],
+          $id: 'PostRequestSchema',
+        },
+      },
+    },
+  })
+  fastify.get('/person', {
+    schema: {
+      response: {
+        200:
+        {
+          $defs: {
+            AddressSchema: {
+              type: 'object',
+              properties: {
+                street: {
+                  type: 'string',
+                },
+                streetNumber: {
+                  type: 'number',
+                },
+              },
+              required: [
+                'street',
+                'streetNumber',
+              ],
+              $id: 'AddressSchema',
+            },
+            PersonSchema: {
+              type: 'object',
+              properties: {
+                name: {
+                  type: 'string',
+                },
+                homeAddress: {
+                  $ref: 'AddressSchema',
+                },
+                workAddress: {
+                  $ref: 'AddressSchema',
+                },
+              },
+              required: [
+                'name',
+                'homeAddress',
+                'workAddress',
+              ],
+              $id: 'PersonSchema',
+            },
+            PostRequestSchema: {
+              type: 'object',
+              properties: {
+                person: {
+                  $ref: 'PersonSchema',
+                },
+              },
+              required: [
+                'person',
+              ],
+              $id: 'PostRequestSchema',
+            },
+          },
+          $ref: 'PersonSchema',
+        }
+      }
+    },
+  }, async () => ({ result: 'OK' }))
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+
+  t.assert.strictEqual(typeof openapiObject, 'object')
+
+  const expectedPathContent = { 'application/json': { schema: { $ref: '#/components/schemas/def-2' } } }
+  t.assert.deepStrictEqual(openapiObject.paths['/person'].get.responses[200].content, expectedPathContent)
+
+  await Swagger.validate(openapiObject)
+})
