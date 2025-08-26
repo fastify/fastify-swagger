@@ -131,6 +131,8 @@ await fastify.ready()
 fastify.swagger()
 ```
 
+**Note**: `@fastify/swagger` must be registered before any routes to ensure proper route discovery. Routes registered before this plugin will not appear in the generated documentation.
+
 <a name="usage.fastify.autoload"></a>
 ### With `@fastify/autoload`
 
