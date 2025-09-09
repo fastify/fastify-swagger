@@ -4,6 +4,7 @@ const { test } = require('node:test')
 const { formatParamUrl } = require('../lib/util/format-param-url')
 const { hasParams, matchParams } = require('../lib/util/match-params')
 const { generateParamsSchema, paramName } = require('../lib/util/generate-params-schema')
+const { shouldRouteHide } = require('../lib/util/should-route-hide')
 
 const cases = [
   ['/example/:userId', '/example/{userId}'],
@@ -139,5 +140,23 @@ test('paramName function', async (t) => {
     const param = 'userId'
     const result = paramName(param)
     t.assert.strictEqual(result, 'userId')
+  })
+})
+
+test('shouldRouteHide', async (t) => {
+  t.test('shouldRouteHide should return true for hidden route', () => {
+    t.assert.ok(shouldRouteHide({ hide: true }, {}))
+  })
+
+  t.test('shouldRouteHide should return true for hideUntagged', () => {
+    t.assert.ok(shouldRouteHide({ tags: [] }, { hideUntagged: true }))
+  })
+
+  t.test('shouldRouteHide should return true for hiddenTag', () => {
+    t.assert.ok(shouldRouteHide({ tags: ['x-test'] }, { hiddenTag: 'x-test' }))
+  })
+
+  t.test('shouldRouteHide should return false for non hidden route', () => {
+    t.assert.equal(shouldRouteHide({}, {}), false)
   })
 })
