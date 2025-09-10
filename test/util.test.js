@@ -144,19 +144,19 @@ test('paramName function', async (t) => {
 })
 
 test('shouldRouteHide', async (t) => {
-  t.test('shouldRouteHide should return true for hidden route', () => {
+  await t.test('shouldRouteHide should return true for hidden route', () => {
     t.assert.ok(shouldRouteHide({ hide: true }, {}))
   })
 
-  t.test('shouldRouteHide should return true for hideUntagged', () => {
+  await t.test('shouldRouteHide should return true for hideUntagged', () => {
     t.assert.ok(shouldRouteHide({ tags: [] }, { hideUntagged: true }))
   })
 
-  t.test('shouldRouteHide should return true for hiddenTag', () => {
+  await t.test('shouldRouteHide should return true for hiddenTag', () => {
     t.assert.ok(shouldRouteHide({ tags: ['x-test'] }, { hiddenTag: 'x-test' }))
   })
 
-  t.test('shouldRouteHide should return false for non hidden route', () => {
+  await t.test('shouldRouteHide should return false for non hidden route', () => {
     t.assert.equal(shouldRouteHide({}, {}), false)
   })
 })
