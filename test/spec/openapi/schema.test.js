@@ -713,7 +713,77 @@ test('support "const" keyword', async t => {
 
   const fastify = Fastify()
   await fastify.register(fastifySwagger, {
-    openapi: true
+    openapi: {
+      openapi: '3.1.0',
+    },
+    convertConstToEnum: false
+  })
+  fastify.post('/', opt, () => {})
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  const api = await Swagger.validate(swaggerObject)
+
+  const definedPath = api.paths['/'].post
+  t.assert.deepStrictEqual(JSON.parse(JSON.stringify(definedPath.requestBody)), {
+    content: {
+      'application/json': {
+        schema: {
+          type: 'object',
+          properties: {
+            obj: {
+              type: 'object',
+              properties: {
+                constantProp: {
+                  const: 'my-const'
+                },
+                constantPropZero: {
+                  const: 0
+                },
+                constantPropNull: {
+                  const: null
+                },
+                constantPropFalse: {
+                  const: false
+                },
+                constantPropEmptyString: {
+                  const: ''
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  })
+})
+
+test('convert "const" to "enum"', async t => {
+  const opt = {
+    schema: {
+      body: {
+        type: 'object',
+        properties: {
+          obj: {
+            type: 'object',
+            properties: {
+              constantProp: { const: 'my-const' },
+              constantPropZero: { const: 0 },
+              constantPropNull: { const: null },
+              constantPropFalse: { const: false },
+              constantPropEmptyString: { const: '' }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, {
+    openapi: true,
+    // Default is true
+    // convertConstToEnum: true
   })
   fastify.post('/', opt, () => {})
   await fastify.ready()
