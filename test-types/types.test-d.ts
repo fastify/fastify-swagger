@@ -30,6 +30,7 @@ app.register(fastifySwagger, {
     document: minimalOpenApiV3Document
   }
 })
+app.register(fastifySwagger, { convertConstToEnum: false })
 
 const fastifySwaggerOptions: SwaggerOptions = {
   mode: 'static',
