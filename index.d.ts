@@ -160,17 +160,15 @@ declare namespace fastifySwagger {
         /** `i` is a local counter to generate a unique key. */
         i: number
       ) => string;
-
-      /**
-       * Whether to convert const definitions to enum definitions.
-       *
-       * const support was added in OpenAPI 3.1, but not all tools support it.
-       * This option only affects OpenAPI documents.
-       *
-       * @default true
-       */
-      convertConstToEnum?: boolean;
     }
+
+    /**
+     * Whether to convert const definitions to enum definitions.
+     * const support was added in OpenAPI 3.1, but not all tools support it.
+     * This option only affects OpenAPI documents.
+     * @default true
+     */
+    convertConstToEnum?: boolean;
   }
 
   export interface StaticPathSpec {
