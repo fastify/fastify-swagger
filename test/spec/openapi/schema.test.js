@@ -726,6 +726,7 @@ test('support "const" keyword', async t => {
 
   const definedPath = api.paths['/'].post
   t.assert.deepStrictEqual(JSON.parse(JSON.stringify(definedPath.requestBody)), {
+    required: true,
     content: {
       'application/json': {
         schema: {
@@ -793,6 +794,7 @@ test('convert "const" to "enum"', async t => {
 
   const definedPath = api.paths['/'].post
   t.assert.deepStrictEqual(JSON.parse(JSON.stringify(definedPath.requestBody)), {
+    required: true,
     content: {
       'application/json': {
         schema: {
@@ -855,6 +857,7 @@ test('support object properties named "const"', async t => {
 
   const definedPath = api.paths['/'].post
   t.assert.deepStrictEqual(JSON.parse(JSON.stringify(definedPath.requestBody)), {
+    required: true,
     content: {
       'application/json': {
         schema: {
@@ -914,6 +917,7 @@ test('support object properties with special names', async t => {
 
   const definedPath = api.paths['/'].post
   t.assert.deepStrictEqual(JSON.parse(JSON.stringify(definedPath.requestBody)), {
+    required: true,
     content: {
       'application/json': {
         schema: {
@@ -968,6 +972,7 @@ test('support "description" keyword', async t => {
 
   const definedPath = api.paths['/'].post
   t.assert.deepStrictEqual(JSON.parse(JSON.stringify(definedPath.requestBody)), {
+    required: true,
     description: 'Body description',
     content: {
       'application/json': {
@@ -1239,6 +1244,7 @@ test('support multiple content types as request', async t => {
 
   const definedPath = api.paths['/'].post
   t.assert.deepStrictEqual(definedPath.requestBody, {
+    required: true,
     content: {
       'application/json': {
         schema: {

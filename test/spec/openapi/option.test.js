@@ -1660,6 +1660,38 @@ test('marks request body as required', async (t) => {
   t.assert.deepStrictEqual(requestBody.required, true)
 })
 
+test('marks request body as required even when all properties are optional', async (t) => {
+  t.plan(3)
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, openapiOption)
+
+  const body = {
+    type: 'object',
+    properties: {
+      hello: {
+        type: 'string'
+      }
+    }
+  }
+
+  const opts = {
+    schema: {
+      body
+    }
+  }
+
+  fastify.put('/', opts, () => {})
+
+  await fastify.ready()
+  const openapiObject = fastify.swagger()
+  const requestBody = openapiObject.paths['/'].put.requestBody
+
+  t.assert.ok(requestBody)
+  t.assert.strictEqual(requestBody.required, true)
+  t.assert.ok(requestBody.content['application/json'].schema)
+})
+
 test('openapi webhooks properties', async (t) => {
   t.plan(1)
   const fastify = Fastify()
