@@ -360,6 +360,200 @@ test('cookie, query, path description', async (t) => {
   ])
 })
 
+test('nested object properties with descriptions in querystring', async (t) => {
+  t.plan(2)
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, openapiOption)
+
+  const schemaQuerystring = {
+    schema: {
+      querystring: {
+        type: 'object',
+        properties: {
+          filter: {
+            type: 'object',
+            properties: {
+              foo: { type: 'string', description: 'foo description' },
+              bar: { type: 'string', description: 'bar description' }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  fastify.get('/example', schemaQuerystring, () => {})
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+  const api = await Swagger.validate(openapiObject)
+  const querystringPath = api.paths['/example'].get
+  t.assert.ok(querystringPath)
+  t.assert.deepEqual(querystringPath.parameters, [
+    {
+      required: false,
+      in: 'query',
+      name: 'filter',
+      schema: {
+        type: 'object',
+        properties: {
+          foo: { type: 'string', description: 'foo description' },
+          bar: { type: 'string', description: 'bar description' }
+        }
+      }
+    }
+  ])
+})
+
+test('nested object properties with descriptions in body', async (t) => {
+  t.plan(5)
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, openapiOption)
+
+  const schemaBody = {
+    schema: {
+      body: {
+        type: 'object',
+        properties: {
+          filter: {
+            type: 'object',
+            properties: {
+              foo: { type: 'string', description: 'foo description' },
+              bar: { type: 'string', description: 'bar description' }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  fastify.post('/example', schemaBody, () => {})
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+  const api = await Swagger.validate(openapiObject)
+  const bodyPath = api.paths['/example'].post
+  t.assert.ok(bodyPath)
+  t.assert.ok(bodyPath.requestBody)
+  t.assert.ok(bodyPath.requestBody.content['application/json'])
+  t.assert.ok(bodyPath.requestBody.content['application/json'].schema)
+  t.assert.deepEqual(bodyPath.requestBody.content['application/json'].schema.properties.filter.properties, {
+    foo: { type: 'string', description: 'foo description' },
+    bar: { type: 'string', description: 'bar description' }
+  })
+})
+
+test('path parameters with descriptions', async (t) => {
+  t.plan(2)
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, openapiOption)
+
+  const schemaParams = {
+    schema: {
+      params: {
+        type: 'object',
+        properties: {
+          id: { type: 'string', description: 'User ID' },
+          orgName: { type: 'string', description: 'Organization name' }
+        }
+      }
+    }
+  }
+
+  fastify.get('/users/:id/orgs/:orgName', schemaParams, () => {})
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+  const api = await Swagger.validate(openapiObject)
+  const paramPath = api.paths['/users/{id}/orgs/{orgName}'].get
+  t.assert.ok(paramPath)
+  t.assert.deepEqual(paramPath.parameters, [
+    {
+      required: true,
+      in: 'path',
+      name: 'id',
+      description: 'User ID',
+      schema: {
+        type: 'string'
+      }
+    },
+    {
+      required: true,
+      in: 'path',
+      name: 'orgName',
+      description: 'Organization name',
+      schema: {
+        type: 'string'
+      }
+    }
+  ])
+})
+
+test('nested object properties with descriptions in response', async (t) => {
+  t.plan(6)
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, openapiOption)
+
+  const schemaResponse = {
+    schema: {
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            data: {
+              type: 'object',
+              properties: {
+                user: {
+                  type: 'object',
+                  properties: {
+                    name: { type: 'string', description: 'User name' },
+                    email: { type: 'string', description: 'User email address' }
+                  }
+                },
+                metadata: {
+                  type: 'object',
+                  properties: {
+                    createdAt: { type: 'string', description: 'Creation timestamp' },
+                    updatedAt: { type: 'string', description: 'Last update timestamp' }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  fastify.get('/example', schemaResponse, () => {})
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+  const api = await Swagger.validate(openapiObject)
+  const responsePath = api.paths['/example'].get
+  t.assert.ok(responsePath)
+  t.assert.ok(responsePath.responses['200'])
+  t.assert.ok(responsePath.responses['200'].content['application/json'])
+  t.assert.ok(responsePath.responses['200'].content['application/json'].schema)
+  const responseSchema = responsePath.responses['200'].content['application/json'].schema
+  t.assert.deepEqual(responseSchema.properties.data.properties.user.properties, {
+    name: { type: 'string', description: 'User name' },
+    email: { type: 'string', description: 'User email address' }
+  })
+  t.assert.deepEqual(responseSchema.properties.data.properties.metadata.properties, {
+    createdAt: { type: 'string', description: 'Creation timestamp' },
+    updatedAt: { type: 'string', description: 'Last update timestamp' }
+  })
+})
+
 test('cookie and query with serialization type', async (t) => {
   t.plan(4)
   const fastify = Fastify({
