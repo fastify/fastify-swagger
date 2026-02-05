@@ -308,6 +308,49 @@ test('uses examples if has property required in body', async (t) => {
   t.assert.deepStrictEqual(schema.parameters[0].in, 'query')
 })
 
+test('renders required query parameter when property is a $ref', async (t) => {
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, { openapi: {} })
+
+  fastify.addSchema({
+    $id: 'CoringUploadTypeApiModel',
+    type: 'string',
+    enum: ['health_safety', 'coring']
+  })
+
+  fastify.get('/some-route', {
+    schema: {
+      query: {
+        type: 'object',
+        required: ['thing'],
+        properties: {
+          thing: { $ref: 'CoringUploadTypeApiModel' },
+          other: { type: 'string' }
+        }
+      },
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            hello: { type: 'string' }
+          }
+        }
+      }
+    }
+  }, () => ({ hello: 'world' }))
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+  await Swagger.validate(openapiObject)
+
+  const thingQueryParam = openapiObject.paths['/some-route'].get.parameters.find(parameter => parameter.name === 'thing')
+  const otherQueryParam = openapiObject.paths['/some-route'].get.parameters.find(parameter => parameter.name === 'other')
+
+  t.assert.strictEqual(thingQueryParam.required, true)
+  t.assert.strictEqual(otherQueryParam.required, false)
+})
+
 test('renders $ref schema with enum in headers', async (t) => {
   const fastify = Fastify()
   await fastify.register(fastifySwagger, { openapi: {} })
