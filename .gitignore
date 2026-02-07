@@ -153,3 +153,9 @@ yarn.lock
 
 # static files
 static
+
+# AI assistant local config
+.pi
+.claude
+AGENTS.md
+CLAUDE.md
