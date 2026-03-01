@@ -64,7 +64,7 @@
     "@fastify/cookie": "^11.0.1",
     "@types/node": "^25.0.3",
     "c8": "^11.0.0",
-    "eslint": "^9.17.0",
+    "eslint": "^10.0.2",
     "fastify": "^5.0.0",
     "fluent-json-schema": "^6.0.0",
     "joi": "^17.13.1",
