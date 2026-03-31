@@ -10,6 +10,84 @@ const {
   schemaAllOf
 } = require('../../../examples/options')
 
+test('support file in json schema', async t => {
+  const opts = {
+    schema: {
+      consumes: ['multipart/form-data'],
+      body: {
+        type: 'object',
+        properties: {
+          file: {
+            description: 'a file',
+            type: 'string',
+            contentEncoding: 'binary'
+          }
+        },
+        required: ['file']
+      }
+    }
+  }
+
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, openapiOption)
+  fastify.post('/', opts, () => {})
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+  const api = await Swagger.validate(openapiObject)
+
+  const definedPath = api.paths['/'].post
+  t.assert.ok(definedPath)
+  t.assert.deepStrictEqual(
+    definedPath.requestBody.content['multipart/form-data'].schema.properties.file,
+    {
+      description: 'a file',
+      type: 'string',
+      format: 'binary'
+    }
+  )
+})
+
+test('support base64 contentEncoding in json schema', async t => {
+  const opts = {
+    schema: {
+      consumes: ['multipart/form-data'],
+      body: {
+        type: 'object',
+        properties: {
+          file: {
+            description: 'a base64 file',
+            type: 'string',
+            contentEncoding: 'base64'
+          }
+        },
+        required: ['file']
+      }
+    }
+  }
+
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, openapiOption)
+  fastify.post('/', opts, () => {})
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+  const api = await Swagger.validate(openapiObject)
+
+  const definedPath = api.paths['/'].post
+  t.assert.ok(definedPath)
+  t.assert.deepStrictEqual(
+    definedPath.requestBody.content['multipart/form-data'].schema.properties.file,
+    {
+      description: 'a base64 file',
+      type: 'string',
+      format: 'byte'
+    }
+  )
+})
+
 test('support - oneOf, anyOf, allOf', async (t) => {
   t.plan(2)
   const fastify = Fastify()
