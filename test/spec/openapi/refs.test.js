@@ -119,6 +119,53 @@ test('support nested $ref schema : complex case', async (t) => {
   await Swagger.validate(openapiObject)
 })
 
+test('support nested definitions in schema', async (t) => {
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, openapiOption)
+
+  fastify.register(async (instance) => {
+    instance.addSchema({
+      $id: 'http://foo/common.json',
+      type: 'object',
+      definitions: {
+        foo: {
+          type: 'object',
+          properties: { city: { type: 'string' } }
+        }
+      }
+    })
+
+    instance.post('/test', {
+      schema: {
+        body: { $ref: 'http://foo/common.json#/definitions/foo' }
+      }
+    }, () => {})
+  })
+
+  await fastify.ready()
+  const openapiObject = fastify.swagger()
+  const schemas = openapiObject.components.schemas
+
+  t.assert.strictEqual(typeof openapiObject, 'object')
+
+  // parent schema exists
+  t.assert.ok(schemas['http://foo/common.json'])
+
+  // hoisted definition exists as sibling
+  t.assert.ok(schemas['http://foo/common.json-foo'])
+  t.assert.deepStrictEqual(schemas['http://foo/common.json-foo'], {
+    type: 'object',
+    properties: { city: { type: 'string' } }
+  })
+
+  // $ref correctly rewritten
+  const bodyRef = openapiObject.paths['/test'].post.requestBody.content['application/json'].schema.$ref
+  t.assert.strictEqual(bodyRef, '#/components/schemas/http://foo/common.json-foo')
+
+  // valid openapi doc
+  await Swagger.validate(openapiObject)
+})
+
 test('support $ref in response schema', async (t) => {
   const fastify = Fastify()
 
