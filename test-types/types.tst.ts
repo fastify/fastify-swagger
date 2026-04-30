@@ -4,8 +4,7 @@ import fastifySwagger, {
   SwaggerOptions,
 } from '..'
 import { minimalOpenApiV3Document } from './minimal-openapiV3-document'
-import { expectType } from 'tsd'
-
+import { expect } from 'tstyche'
 import {
   OpenAPI,
   OpenAPIV2,
@@ -236,12 +235,12 @@ app.get(
   () => {}
 )
 
-expectType<OpenAPI.Document>(app.swagger())
-expectType<OpenAPI.Document>(app.swagger({ yaml: false }))
-expectType<string>(app.swagger({ yaml: true }))
-expectType<OpenAPI.Document | string>(app.swagger({ yaml: Boolean(process.env.YAML) }))
+expect(app.swagger()).type.toBe<OpenAPI.Document>()
+expect(app.swagger({ yaml: false })).type.toBe<OpenAPI.Document>()
+expect(app.swagger({ yaml: true })).type.toBe<string>()
+expect(app.swagger({ yaml: Boolean(process.env.YAML) })).type.toBe<OpenAPI.Document | string>()
 
-expectType<(arg: string)=>string>(formatParamUrl)
+expect(formatParamUrl).type.toBe<(arg: string) => string>()
 
 app.register(fastifySwagger, {
   decorator: 'swagger'
