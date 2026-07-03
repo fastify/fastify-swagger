@@ -4,7 +4,7 @@
 [![CI](https://github.com/fastify/fastify-swagger/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/fastify/fastify-swagger/actions/workflows/ci.yml)
 [![neostandard javascript style](https://img.shields.io/badge/code_style-neostandard-brightgreen?style=flat)](https://github.com/neostandard/neostandard)
 
-A Fastify plugin for serving [Swagger (OpenAPI v2)](https://swagger.io/specification/v2/) or [OpenAPI v3](https://swagger.io/specification) schemas, which are automatically generated from your route schemas, or an existing Swagger/OpenAPI schema.
+A Fastify plugin for serving [Swagger (OpenAPI v2)](https://swagger.io/specification/v2/) or [OpenAPI v3](https://swagger.io/specification/) schemas, which are automatically generated from your route schemas, or an existing Swagger/OpenAPI schema.
 
 If you are looking for a plugin to generate routes from an existing OpenAPI schema, check out [fastify-openapi-glue](https://github.com/seriousme/fastify-openapi-glue).
 
@@ -337,7 +337,7 @@ await fastify.register(require('@fastify/swagger'), {
 In `dynamic` mode, this plugin resolves all `$ref`s in the application's schemas, creating a new in-line schema that references itself.
 This ensures the generated documentation is valid, preventing Swagger UI from failing to fetch schemas from the server or network.
 
-By default, this option resolves all `$ref`s, renaming them to `def-${counter}`, while view models keep the original `$id` naming using the [`title` parameter](https://swagger.io/docs/specification/2-0/basic-structure/#metadata).
+By default, this option resolves all `$ref`s, renaming them to `def-${counter}`, while view models keep the original `$id` naming using the [`title` parameter](https://swagger.io/docs/specification/v2_0/basic-structure/#metadata).
 
 This logic can be customized by passing a `refResolver` option to the plugin:
 
@@ -574,7 +574,7 @@ Specify the `type` property when decorating response headers to prevent schema m
 
 <a name="route.response.empty_body"></a>
 ##### Different content types responses
-> ℹ️ Note: Supported [only by OpenAPI v3](https://swagger.io/docs/specification/describing-responses/), not Swagger (OpenAPI v2).
+> ℹ️ Note: Supported [only by OpenAPI v3](https://swagger.io/docs/specification/v3_0/describing-responses/), not Swagger (OpenAPI v2).
 
 Different content types are supported by `@fastify/swagger` and `@fastify`.
 Use `content` for the response to prevent Fastify from failing to compile the schema:
@@ -627,14 +627,14 @@ Specify `type: 'null'` for the response to prevent Fastify from failing to compi
 
 > ℹ️ Note: OpenAPI's terminology differs from Fastify's. OpenAPI uses "parameter" to refer to parts of a request that in [Fastify's validation documentation](https://fastify.dev/docs/latest/Reference/Validation-and-Serialization/) are called "querystring", "params", and "headers".
 
-OpenAPI extends the [JSON schema specification](https://json-schema.org/specification.html) with options like `collectionFormat` for encoding array parameters.
+OpenAPI extends the [JSON schema specification](https://json-schema.org/specification) with options like `collectionFormat` for encoding array parameters.
 
 These encoding options only affect how Swagger UI presents documentation and generates `curl` commands.
 Depending on the schema options, you may need to change Fastify's default query string parser to produce a JavaScript object conforming to the schema.
 The default parser conforms to `collectionFormat: "multi"`.
 For `collectionFormat: "csv"`, replace the default parser with one that parses CSV values into arrays. This applies to other request parts that OpenAPI calls "parameters" and are not encoded as JSON.
 
-Different serialization `style` and `explode` can also be applied as specified [here](https://swagger.io/docs/specification/serialization/#query).
+Different serialization `style` and `explode` can also be applied as specified [here](https://swagger.io/docs/specification/v3_0/serialization/#query).
 
 `@fastify/swagger` supports these options as shown in this example:
 
@@ -689,7 +689,7 @@ There is a complete runnable example [here](examples/collection-format.js).
 <a name="route.complex-serialization"></a>
 #### Complex serialization in query and cookie, eg. JSON
 
-> ℹ️ Note: Supported [only by OpenAPI v3](https://swagger.io/docs/specification/describing-parameters/#schema-vs-content), not Swagger (OpenAPI v2).
+> ℹ️ Note: Supported [only by OpenAPI v3](https://swagger.io/docs/specification/v3_0/describing-parameters/#schema-vs-content), not Swagger (OpenAPI v2).
 
 ```
 http://localhost/?filter={"foo":"baz","bar":"qux"}
@@ -904,7 +904,7 @@ Generates this in the OpenAPI v3 schema's `paths`:
 <a name="route.links"></a>
 #### Links
 
-> ℹ️ Note: Supported [only by OpenAPI v3](https://swagger.io/docs/specification/links), not Swagger (OpenAPI v2).
+> ℹ️ Note: Supported [only by OpenAPI v3](https://swagger.io/docs/specification/v3_0/links/), not Swagger (OpenAPI v2).
 
 Add OpenAPI v3 Links by adding a `links` property to the top-level options of a route. See:
 
@@ -1006,7 +1006,7 @@ This plugin can be integrated with `@fastify/helmet` with minimal effort:
 <a name="schema.examplesField"></a>
 ### Add examples to the schema
 
-[OpenAPI](https://swagger.io/specification/#example-object) and [JSON Schema](https://json-schema.org/draft/2020-12/json-schema-validation.html#rfc.section.9.5) have different examples field formats.
+[OpenAPI](https://swagger.io/specification/#example-object) and [JSON Schema](https://json-schema.org/draft/2020-12/json-schema-validation) have different examples field formats.
 
 Array with examples from JSON Schema converted to OpenAPI `example` or `examples` field automatically with generated names (example1, example2...):
 
@@ -1148,7 +1148,9 @@ The `/docs/json` endpoint in dynamic mode produces a single `swagger.json` file,
 
 This project is kindly sponsored by:
 - [nearForm](https://nearform.com)
-- [LetzDoIt](https://www.letzdoitapp.com/)
+
+Past sponsors:
+- LetzDoIt
 
 <a name="license"></a>
 ## License
