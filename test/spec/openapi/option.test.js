@@ -1719,6 +1719,202 @@ test('move examples of parameters from component to media', async (t) => {
   t.assert.deepStrictEqual(pathParam.examples, expectedExamples)
 })
 
+test('openapi 3.1 examples', async t => {
+  const openapi31Option = { openapi: { ...openapiOption.openapi, openapi: '3.1.0' } }
+
+  await t.test('keeps .examples in parameter & header schemas', async t => {
+    t.plan(3)
+    const fastify = Fastify()
+    await fastify.register(fastifySwagger, openapi31Option)
+    const [params, querystring, headers] = Array(3).fill({
+      type: 'object',
+      properties: {
+        hello: {
+          type: 'string',
+          examples: ['world', 'universe']
+        }
+      }
+    })
+    fastify.post('/', { schema: { params, querystring, headers } }, () => {})
+    await fastify.ready()
+    const openapiObject = fastify.swagger()
+    const { parameters } = openapiObject.paths['/'].post
+    const examples = parameters.map(({ schema }) => schema.examples)
+
+    t.assert.deepStrictEqual(examples, Array(3).fill(['world', 'universe']))
+    t.assert.ok(parameters.every(param => !Object.hasOwn(param, 'example')))
+    t.assert.ok(parameters.every(param => !Object.hasOwn(param, 'examples')))
+  })
+
+  await t.test('keeps .examples in the request body schema', async t => {
+    t.plan(4)
+    const fastify = Fastify()
+    await fastify.register(fastifySwagger, openapi31Option)
+    const body = {
+      type: 'object',
+      properties: {
+        hello: {
+          type: 'string',
+          examples: ['world', 'universe']
+        }
+      },
+      examples: [{ hello: 'world' }]
+    }
+    fastify.post('/', { schema: { body } }, () => {})
+    await fastify.ready()
+    const openapiObject = fastify.swagger()
+    const content = openapiObject.paths['/'].post.requestBody.content['application/json']
+    const schema = content.schema
+
+    t.assert.deepStrictEqual(schema.examples, [{ hello: 'world' }])
+    t.assert.deepStrictEqual(schema.properties.hello.examples, ['world', 'universe'])
+    t.assert.strictEqual(content.example, undefined)
+    t.assert.strictEqual(content.examples, undefined)
+  })
+
+  await t.test('keeps .examples in the response schema', async t => {
+    t.plan(3)
+    const fastify = Fastify()
+    await fastify.register(fastifySwagger, openapi31Option)
+    const response = {
+      200: {
+        type: 'object',
+        properties: {
+          hello: {
+            type: 'string',
+            examples: ['world']
+          }
+        }
+      }
+    }
+    fastify.post('/', { schema: { response } }, () => {})
+    await fastify.ready()
+    const openapiObject = fastify.swagger()
+    const content = openapiObject.paths['/'].post.responses['200'].content['application/json']
+
+    t.assert.deepStrictEqual(content.schema.properties.hello.examples, ['world'])
+    t.assert.strictEqual(content.example, undefined)
+    t.assert.strictEqual(content.examples, undefined)
+  })
+
+  await t.test('keeps .examples in component schemas', async t => {
+    t.plan(2)
+    const fastify = Fastify()
+    await fastify.register(fastifySwagger, openapi31Option)
+    fastify.addSchema({
+      $id: 'Offset',
+      type: 'string',
+      examples: ['0', '50']
+    })
+    fastify.post('/', { schema: { body: { $ref: 'Offset#' } } }, () => {})
+    await fastify.ready()
+    const openapiObject = fastify.swagger()
+    const schema = openapiObject.components.schemas['def-0']
+
+    t.assert.deepStrictEqual(schema.examples, ['0', '50'])
+    t.assert.strictEqual(schema.example, undefined)
+  })
+
+  await t.test('moves examples from "x-examples" to examples field', async t => {
+    t.plan(2)
+    const fastify = Fastify({
+      ajv: {
+        plugins: [
+          function (ajv) {
+            ajv.addKeyword({ keyword: 'x-examples' })
+          }
+        ]
+      }
+    })
+    await fastify.register(fastifySwagger, openapi31Option)
+    const body = {
+      type: 'object',
+      properties: {
+        hello: { type: 'string' }
+      },
+      'x-examples': {
+        'lorem ipsum': {
+          summary: 'Roman statesman',
+          value: { hello: 'world' }
+        }
+      }
+    }
+    fastify.post('/', { schema: { body } }, () => {})
+    await fastify.ready()
+    const openapiObject = fastify.swagger()
+    const content = openapiObject.paths['/'].post.requestBody.content['application/json']
+
+    t.assert.strictEqual(content.schema['x-examples'], undefined)
+    t.assert.deepStrictEqual(content.examples, {
+      'lorem ipsum': {
+        summary: 'Roman statesman',
+        value: { hello: 'world' }
+      }
+    })
+  })
+
+  await t.test('generates a valid openapi 3.1 object', async t => {
+    t.plan(1)
+    const fastify = Fastify()
+    await fastify.register(fastifySwagger, openapi31Option)
+    const body = {
+      type: 'object',
+      properties: {
+        hello: {
+          type: 'string',
+          examples: ['world', 'universe']
+        }
+      }
+    }
+    fastify.post('/', { schema: { body } }, () => {})
+    await fastify.ready()
+    const openapiObject = fastify.swagger()
+
+    await Swagger.validate(openapiObject)
+    t.assert.ok(true, 'valid swagger object')
+  })
+})
+
+test('openapi 3.2 keeps examples in parameter and media schemas', async t => {
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, {
+    openapi: { ...openapiOption.openapi, openapi: '3.2.0' }
+  })
+  const schema = {
+    type: 'object',
+    properties: {
+      hello: {
+        type: 'array',
+        items: { type: 'string', examples: ['world', 'universe'] },
+        examples: [['world'], ['universe']]
+      }
+    },
+    examples: [{ hello: ['world'] }, { hello: ['universe'] }]
+  }
+  fastify.post('/', {
+    schema: { querystring: schema, body: schema, response: { 200: schema } }
+  }, () => {})
+  await fastify.ready()
+  const operation = fastify.swagger().paths['/'].post
+  const media = [
+    operation.parameters[0],
+    operation.requestBody.content['application/json'],
+    operation.responses['200'].content['application/json']
+  ]
+
+  for (const entry of media) {
+    t.assert.strictEqual(entry.example, undefined)
+    t.assert.strictEqual(entry.examples, undefined)
+  }
+  t.assert.deepStrictEqual(media[0].schema.examples, schema.properties.hello.examples)
+  t.assert.deepStrictEqual(media[0].schema.items.examples, ['world', 'universe'])
+  for (const entry of media.slice(1)) {
+    t.assert.deepStrictEqual(entry.schema.examples, schema.examples)
+    t.assert.deepStrictEqual(entry.schema.properties.hello.examples, schema.properties.hello.examples)
+    t.assert.deepStrictEqual(entry.schema.properties.hello.items.examples, ['world', 'universe'])
+  }
+})
+
 test('marks request body as required', async (t) => {
   t.plan(4)
   const fastify = Fastify()
