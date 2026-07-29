@@ -1008,14 +1008,16 @@ This plugin can be integrated with `@fastify/helmet` with minimal effort:
 
 [OpenAPI](https://swagger.io/specification/#example-object) and [JSON Schema](https://json-schema.org/draft/2020-12/json-schema-validation) have different examples field formats.
 
-Array with examples from JSON Schema converted to OpenAPI `example` or `examples` field automatically with generated names (example1, example2...):
+Up to OpenAPI 3.0 the Schema Object only supports a single `example`, so the array
+with examples from JSON Schema is converted to the OpenAPI `example` or `examples`
+field automatically with generated names (example1, example2...):
 
 ```js
 fastify.route({
   method: 'POST',
   url: '/',
   schema: {
-    querystring: {
+    body: {
       type: 'object',
       required: ['filter'],
       properties: {
@@ -1033,12 +1035,13 @@ fastify.route({
         }
       },
       examples: [
-        { filter: { foo: 'bar', bar: 'baz' } }
+        { filter: { foo: 'bar', bar: 'baz' } },
+        { filter: { foo: 'foo', bar: 'bar' } }
       ]
     }
   },
   handler (request, reply) {
-    reply.send(request.query.filter)
+    reply.send(request.body.filter)
   }
 })
 ```
@@ -1083,7 +1086,50 @@ Generates this in the OpenAPI v3 schema's `paths`:
 }
 ```
 
-Use the `x-examples` field to set names or add descriptions to schema examples in [OpenAPI format](https://swagger.io/specification/#example-object):
+In OpenAPI 3.1 the Schema Object *is* a JSON Schema, where `examples` is an array
+and `example` is deprecated. When the `openapi` version is set to `3.1.x` the
+examples are therefore left untouched, and the same route generates:
+
+```json
+"/": {
+  "post": {
+    "requestBody": {
+      "content": {
+        "application/json": {
+          "schema": {
+            "type": "object",
+            "required": ["filter"],
+            "properties": {
+              "filter": {
+                "type": "object",
+                "required": ["foo"],
+                "properties": {
+                  "foo": { "type": "string" },
+                  "bar": { "type": "string" }
+                },
+                "examples": [
+                  { "foo": "bar", "bar": "baz" },
+                  { "foo": "foo", "bar": "bar" }
+                ]
+              }
+            },
+            "examples": [
+              { "filter": { "foo": "bar", "bar": "baz" } },
+              { "filter": { "foo": "foo", "bar": "bar" } }
+            ]
+          }
+        }
+      },
+      "required": true
+    },
+    "responses": { "200": { "description": "Default Response" } }
+  }
+}
+```
+
+Use the `x-examples` field to set names or add descriptions to schema examples in
+[OpenAPI format](https://swagger.io/specification/#example-object). It behaves the
+same way in every OpenAPI version:
 
 ```js
 // Need to add a new allowed keyword to ajv in fastify instance
