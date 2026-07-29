@@ -547,6 +547,56 @@ test('parameter & header examples', async t => {
     }))
     t.assert.ok(parameters.every(param => !Object.hasOwn(param, 'example')))
   })
+
+  await t.test('uses .example if has single nested example', async t => {
+    t.plan(2)
+    const fastify = Fastify()
+    await fastify.register(fastifySwagger, openapiOption)
+    const querystring = {
+      type: 'object',
+      properties: {
+        hello: {
+          type: 'array',
+          items: {
+            type: 'string',
+            examples: ['world']
+          }
+        }
+      }
+    }
+    fastify.post('/', { schema: { querystring } }, () => {})
+    await fastify.ready()
+    const openapiObject = fastify.swagger()
+    const [{ schema }] = openapiObject.paths['/'].post.parameters
+
+    t.assert.strictEqual(schema.items.example, 'world')
+    t.assert.strictEqual(schema.items.examples, undefined)
+  })
+
+  await t.test('uses .example if has multiple nested examples', async t => {
+    t.plan(2)
+    const fastify = Fastify()
+    await fastify.register(fastifySwagger, openapiOption)
+    const querystring = {
+      type: 'object',
+      properties: {
+        hello: {
+          type: 'array',
+          items: {
+            type: 'string',
+            examples: ['world', 'universe']
+          }
+        }
+      }
+    }
+    fastify.post('/', { schema: { querystring } }, () => {})
+    await fastify.ready()
+    const openapiObject = fastify.swagger()
+    const [{ schema }] = openapiObject.paths['/'].post.parameters
+
+    t.assert.strictEqual(schema.items.example, 'world')
+    t.assert.strictEqual(schema.items.examples, undefined)
+  })
 })
 
 test('request body examples', async t => {
