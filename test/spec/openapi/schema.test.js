@@ -1109,6 +1109,44 @@ test('support query serialization params', async t => {
   t.assert.strictEqual(api.paths['/'].get.parameters[0].allowReserved, true)
 })
 
+test('support path serialization params (style and explode)', async t => {
+  const opt = {
+    schema: {
+      params: {
+        style: 'matrix',
+        explode: false,
+        type: 'object',
+        properties: {
+          id: {
+            type: 'string'
+          }
+        }
+      }
+    }
+  }
+
+  const fastify = Fastify({
+    ajv: {
+      plugins: [
+        function (ajv) {
+          ajv.addKeyword({ keyword: 'style' })
+          ajv.addKeyword({ keyword: 'explode' })
+        }
+      ]
+    }
+  })
+  await fastify.register(fastifySwagger, {
+    openapi: true
+  })
+  fastify.get('/users/:id', opt, () => {})
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  const api = await Swagger.validate(swaggerObject)
+  t.assert.strictEqual(api.paths['/users/{id}'].get.parameters[0].style, 'matrix')
+  t.assert.strictEqual(api.paths['/users/{id}'].get.parameters[0].explode, false)
+})
+
 test('add default properties for url params when missing schema', async t => {
   const opt = {}
 
@@ -2017,4 +2055,47 @@ test('support callbacks', async () => {
     })
     t.assert.strictEqual(definedPath.responses['201'].content['application/json'].schema.headers, undefined)
   })
+})
+
+test('support type null and array types with null in response schema (OpenAPI 3.0 nullable conversion)', async t => {
+  const opt = {
+    schema: {
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            dataNull: {
+              type: 'null'
+            },
+            dataStringNull: {
+              type: ['string', 'null']
+            },
+            dataMultiNull: {
+              type: ['string', 'number', 'null']
+            },
+            dataOnlyNullArray: {
+              type: ['null']
+            }
+          }
+        }
+      }
+    }
+  }
+
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, {
+    openapi: true
+  })
+  fastify.get('/', opt, () => {})
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  const api = await Swagger.validate(swaggerObject)
+
+  const definedPath = api.paths['/'].get
+  const props = definedPath.responses['200'].content['application/json'].schema.properties
+  t.assert.deepStrictEqual(props.dataNull, { nullable: true })
+  t.assert.deepStrictEqual(props.dataStringNull, { type: 'string', nullable: true })
+  t.assert.deepStrictEqual(props.dataMultiNull, { anyOf: [{ type: 'string' }, { type: 'number' }], nullable: true })
+  t.assert.deepStrictEqual(props.dataOnlyNullArray, { nullable: true })
 })
