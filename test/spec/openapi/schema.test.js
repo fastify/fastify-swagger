@@ -2018,3 +2018,46 @@ test('support callbacks', async () => {
     t.assert.strictEqual(definedPath.responses['201'].content['application/json'].schema.headers, undefined)
   })
 })
+
+test('support type null and array types with null in response schema (OpenAPI 3.0 nullable conversion)', async t => {
+  const opt = {
+    schema: {
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            dataNull: {
+              type: 'null'
+            },
+            dataStringNull: {
+              type: ['string', 'null']
+            },
+            dataMultiNull: {
+              type: ['string', 'number', 'null']
+            },
+            dataOnlyNullArray: {
+              type: ['null']
+            }
+          }
+        }
+      }
+    }
+  }
+
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, {
+    openapi: true
+  })
+  fastify.get('/', opt, () => {})
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  const api = await Swagger.validate(swaggerObject)
+
+  const definedPath = api.paths['/'].get
+  const props = definedPath.responses['200'].content['application/json'].schema.properties
+  t.assert.deepStrictEqual(props.dataNull, { nullable: true })
+  t.assert.deepStrictEqual(props.dataStringNull, { type: 'string', nullable: true })
+  t.assert.deepStrictEqual(props.dataMultiNull, { anyOf: [{ type: 'string' }, { type: 'number' }], nullable: true })
+  t.assert.deepStrictEqual(props.dataOnlyNullArray, { nullable: true })
+})
