@@ -953,6 +953,57 @@ test('request body examples', async t => {
     t.assert.strictEqual(schema.properties.deep.examples, undefined)
     t.assert.deepStrictEqual(schema.properties.deep.example, { hello: 'world' })
   })
+
+  await t.test('preserves summary, description and custom name in example objects', async t => {
+    t.plan(2)
+    const fastify = Fastify()
+    await fastify.register(fastifySwagger, openapiOption)
+    const body = {
+      type: 'object',
+      properties: {
+        hello: {
+          type: 'string'
+        }
+      },
+      examples: [
+        {
+          name: 'firstExample',
+          summary: 'First summary',
+          description: 'First description',
+          value: { hello: 'world' }
+        },
+        {
+          id: 'secondExample',
+          summary: 'Second summary',
+          value: { hello: 'universe' }
+        },
+        {
+          summary: 'Third summary',
+          externalValue: 'https://example.com/example.json'
+        }
+      ]
+    }
+    fastify.post('/', { schema: { body } }, () => {})
+    await fastify.ready()
+    const openapiObject = fastify.swagger()
+    const content = openapiObject.paths['/'].post.requestBody.content['application/json']
+    t.assert.deepStrictEqual(content.examples, {
+      firstExample: {
+        summary: 'First summary',
+        description: 'First description',
+        value: { hello: 'world' }
+      },
+      secondExample: {
+        summary: 'Second summary',
+        value: { hello: 'universe' }
+      },
+      example3: {
+        summary: 'Third summary',
+        externalValue: 'https://example.com/example.json'
+      }
+    })
+    t.assert.strictEqual(content.example, undefined)
+  })
 })
 
 test('response examples', async t => {
