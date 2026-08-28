@@ -2018,3 +2018,54 @@ test('support callbacks', async () => {
     t.assert.strictEqual(definedPath.responses['201'].content['application/json'].schema.headers, undefined)
   })
 })
+
+test('extracts inline definitions and $defs into components.schemas for recursive schemas', async t => {
+  const nodeSchema = {
+    $id: 'Node',
+    type: 'object',
+    properties: {
+      name: { type: 'string' },
+      children: {
+        type: 'array',
+        items: { $ref: '#/definitions/def-0' }
+      }
+    },
+    definitions: {
+      'def-0': {
+        type: 'object',
+        properties: {
+          name: { type: 'string' }
+        }
+      }
+    }
+  }
+
+  const opt = {
+    schema: {
+      body: {
+        type: 'object',
+        properties: {
+          tree: nodeSchema
+        }
+      }
+    }
+  }
+
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, {
+    openapi: true
+  })
+  fastify.post('/submit', opt, () => {})
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  const api = await Swagger.validate(swaggerObject)
+
+  t.assert.ok(api.components.schemas['def-0'])
+  t.assert.deepStrictEqual(api.components.schemas['def-0'], {
+    type: 'object',
+    properties: {
+      name: { type: 'string' }
+    }
+  })
+})
