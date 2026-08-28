@@ -2018,3 +2018,43 @@ test('support callbacks', async () => {
     t.assert.strictEqual(definedPath.responses['201'].content['application/json'].schema.headers, undefined)
   })
 })
+
+test('exclude HEAD route when exposeHeadRoutes is false on multi-method routes (openapi)', async (t) => {
+  const fastify = Fastify({ exposeHeadRoutes: true })
+  await fastify.register(fastifySwagger, {
+    openapi: {
+      info: { title: 'Test', version: '1.0.0' }
+    },
+    exposeHeadRoutes: false
+  })
+
+  fastify.route({
+    method: ['GET', 'HEAD'],
+    url: '/multi-method',
+    schema: {
+      response: {
+        200: {
+          description: 'Expected Response',
+          type: 'object',
+          properties: { foo: { type: 'string' } }
+        }
+      }
+    },
+    handler: () => {}
+  })
+
+  fastify.route({
+    method: ['HEAD'],
+    url: '/only-head-array',
+    handler: () => {}
+  })
+
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  const api = await Swagger.validate(swaggerObject)
+
+  t.assert.ok(api.paths['/multi-method'].get)
+  t.assert.strictEqual(api.paths['/multi-method'].head, undefined)
+  t.assert.strictEqual(api.paths['/only-head-array'], undefined)
+})
