@@ -4,7 +4,7 @@
   "description": "Serve Swagger/OpenAPI documentation for Fastify, supporting dynamic generation",
   "main": "index.js",
   "type": "commonjs",
-  "types": "index.d.ts",
+  "types": "types/index.d.ts",
   "scripts": {
     "lint": "eslint",
     "lint:fix": "eslint --fix",
