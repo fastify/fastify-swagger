@@ -1761,4 +1761,47 @@ test('webhooks options for openapi 3.1.0 must valid format', async (t) => {
   t.assert.ok(true, 'valid swagger object')
 })
 
+test('openapi 3.2.0: $self and tag summary, parent and kind are passed through', async (t) => {
+  t.plan(3)
+  const fastify = Fastify()
+
+  const openapi32Option = {
+    openapi: {
+      openapi: '3.2.0',
+      $self: 'https://example.com/openapi.json',
+      info: {
+        title: 'Test openapi 3.2',
+        version: '1.0.0'
+      },
+      tags: [
+        { name: 'products', summary: 'Products', kind: 'nav' },
+        { name: 'books', summary: 'Books', parent: 'products', kind: 'nav' }
+      ]
+    }
+  }
+
+  await fastify.register(fastifySwagger, openapi32Option)
+
+  fastify.get('/books', { schema: { tags: ['books'] } }, () => {})
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+  t.assert.strictEqual(openapiObject.openapi, '3.2.0')
+  t.assert.strictEqual(openapiObject.$self, 'https://example.com/openapi.json')
+  t.assert.deepStrictEqual(openapiObject.tags, openapi32Option.openapi.tags)
+})
+
+test('$self is not added when it is not configured', async (t) => {
+  t.plan(1)
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, openapiOption)
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+  t.assert.strictEqual('$self' in openapiObject, false)
+})
+
 module.exports = { openapiOption }

@@ -103,6 +103,92 @@ test('route options - deprecated', async (t) => {
   t.assert.ok(openapiObject.paths['/'])
 })
 
+test('route options - QUERY method (OpenAPI 3.2.0)', async (t) => {
+  t.plan(3)
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, {
+    openapi: { openapi: '3.2.0' }
+  })
+
+  fastify.route({
+    method: 'QUERY',
+    url: '/search',
+    schema: {
+      body: {
+        type: 'object',
+        properties: {
+          q: { type: 'string' }
+        }
+      },
+      response: {
+        200: {
+          type: 'array',
+          items: { type: 'string' }
+        }
+      }
+    },
+    handler: () => []
+  })
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+  const operation = openapiObject.paths['/search'].query
+
+  t.assert.ok(operation, 'query operation is generated')
+  t.assert.deepStrictEqual(operation.requestBody, {
+    required: true,
+    content: {
+      'application/json': {
+        schema: {
+          type: 'object',
+          properties: {
+            q: { type: 'string' }
+          }
+        }
+      }
+    }
+  })
+  t.assert.ok(operation.responses['200'])
+})
+
+test('route options - custom HTTP methods are additionalOperations (OpenAPI 3.2.0)', async (t) => {
+  const fastify = Fastify()
+  fastify.addHttpMethod('PROPFIND', { hasBody: true })
+  fastify.addHttpMethod('MKCOL')
+
+  await fastify.register(fastifySwagger, {
+    openapi: { openapi: '3.2.0' }
+  })
+
+  const schema = { body: { type: 'object', properties: { depth: { type: 'string' } } } }
+  fastify.route({ method: ['POST', 'PROPFIND'], url: '/dav', schema, handler: () => ({}) })
+  fastify.route({ method: 'MKCOL', url: '/dav', handler: () => ({}) })
+
+  await fastify.ready()
+
+  const pathItem = fastify.swagger().paths['/dav']
+
+  t.assert.deepStrictEqual(Object.keys(pathItem), ['post', 'additionalOperations'])
+  t.assert.deepStrictEqual(Object.keys(pathItem.additionalOperations), ['PROPFIND', 'MKCOL'])
+  t.assert.deepStrictEqual(pathItem.additionalOperations.PROPFIND.requestBody.content['application/json'].schema, schema.body)
+  t.assert.ok(pathItem.additionalOperations.MKCOL.responses['200'])
+})
+
+test('route options - custom HTTP methods are left as they are before OpenAPI 3.2.0', async (t) => {
+  for (const openapi of [{}, { openapi: '3.1.0' }, { openapi: 'latest' }]) {
+    const fastify = Fastify()
+    fastify.addHttpMethod('PROPFIND', { hasBody: true })
+
+    await fastify.register(fastifySwagger, { openapi })
+    fastify.route({ method: 'PROPFIND', url: '/dav', handler: () => ({}) })
+    await fastify.ready()
+
+    t.assert.deepStrictEqual(Object.keys(fastify.swagger().paths['/dav']), ['propfind'])
+  }
+})
+
 test('route options - meta', async (t) => {
   t.plan(7)
   const fastify = Fastify()
