@@ -103,6 +103,56 @@ test('route options - deprecated', async (t) => {
   t.assert.ok(openapiObject.paths['/'])
 })
 
+test('route options - QUERY method (OpenAPI 3.2.0)', async (t) => {
+  t.plan(3)
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, {
+    openapi: { openapi: '3.2.0' }
+  })
+
+  fastify.route({
+    method: 'QUERY',
+    url: '/search',
+    schema: {
+      body: {
+        type: 'object',
+        properties: {
+          q: { type: 'string' }
+        }
+      },
+      response: {
+        200: {
+          type: 'array',
+          items: { type: 'string' }
+        }
+      }
+    },
+    handler: () => []
+  })
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+  const operation = openapiObject.paths['/search'].query
+
+  t.assert.ok(operation, 'query operation is generated')
+  t.assert.deepStrictEqual(operation.requestBody, {
+    required: true,
+    content: {
+      'application/json': {
+        schema: {
+          type: 'object',
+          properties: {
+            q: { type: 'string' }
+          }
+        }
+      }
+    }
+  })
+  t.assert.ok(operation.responses['200'])
+})
+
 test('route options - meta', async (t) => {
   t.plan(7)
   const fastify = Fastify()

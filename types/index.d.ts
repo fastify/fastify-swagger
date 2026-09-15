@@ -77,6 +77,23 @@ type SwaggerDocumentObject = {
 type FastifySwagger = FastifyPluginCallback<fastifySwagger.SwaggerOptions>
 
 declare namespace fastifySwagger {
+  /**
+   * OpenAPI 3.2.0 additions on top of the 3.1 types provided by `openapi-types`.
+   * @see https://spec.openapis.org/oas/v3.2.0.html
+   */
+  export namespace OpenAPIV3_2 {
+    export interface TagObject extends OpenAPIV3.TagObject {
+      summary?: string;
+      parent?: string;
+      kind?: string;
+    }
+    // eslint-disable-next-line camelcase
+    export type Document<T extends {} = {}> = Omit<OpenAPIV3_1.Document<T>, 'tags'> & {
+      $self?: string;
+      tags?: TagObject[];
+    }
+  }
+
   export type SwaggerOptions = (FastifyStaticSwaggerOptions | FastifyDynamicSwaggerOptions)
   export interface FastifySwaggerOptions {
     mode?: 'static' | 'dynamic';
@@ -106,13 +123,13 @@ declare namespace fastifySwagger {
   } & SwaggerDocumentObject) => { schema: FastifySchema; url: string }
 
   // eslint-disable-next-line camelcase
-  export type SwaggerTransformObject = (documentObject: SwaggerDocumentObject) => Partial<OpenAPIV2.Document> | Partial<OpenAPIV3.Document | OpenAPIV3_1.Document>
+  export type SwaggerTransformObject = (documentObject: SwaggerDocumentObject) => Partial<OpenAPIV2.Document> | Partial<OpenAPIV3.Document | OpenAPIV3_1.Document | OpenAPIV3_2.Document>
 
   export interface FastifyDynamicSwaggerOptions extends FastifySwaggerOptions {
     mode?: 'dynamic';
     swagger?: Partial<OpenAPIV2.Document>;
     // eslint-disable-next-line camelcase
-    openapi?: Partial<OpenAPIV3.Document | OpenAPIV3_1.Document>
+    openapi?: Partial<OpenAPIV3.Document | OpenAPIV3_1.Document | OpenAPIV3_2.Document>
     hiddenTag?: string;
     hideUntagged?: boolean;
 

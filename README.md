@@ -200,6 +200,25 @@ All properties in the [Swagger (OpenAPI v2)](https://swagger.io/specification/v2
 `@fastify/swagger` generates API schemas adhering to the Swagger specification by default.
 Providing an `openapi` option generates OpenAPI compliant API schemas instead.
 
+The OpenAPI version of the generated document is taken from the `openapi.openapi` string (`3.0.3` by default).
+Set it to `3.1.0` or `3.2.0` to generate a document for that version; the top-level properties introduced by newer
+versions (`webhooks` in 3.1, `$self` and the `summary`, `parent` and `kind` properties of the tag object in 3.2) are
+passed through to the generated document. Routes registered with the `QUERY` HTTP method (OpenAPI 3.2) are documented
+like any other method with a request body.
+
+```js
+{
+  openapi: {
+    openapi: '3.2.0',
+    $self: 'https://example.com/openapi.json',
+    tags: [
+      { name: 'products', summary: 'Products', kind: 'nav' },
+      { name: 'books', summary: 'Books', parent: 'products', kind: 'nav' }
+    ]
+  }
+}
+```
+
 Examples of using `@fastify/swagger` in `dynamic` mode:
 - [Using the `swagger` option](examples/dynamic-swagger.js)
 - [Using the `openapi` option](examples/dynamic-openapi.js)
