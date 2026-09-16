@@ -721,6 +721,30 @@ Specify `type: 'null'` for the response to prevent Fastify from failing to compi
 }
 ```
 
+<a name="route.null"></a>
+#### Null types
+
+JSON Schema describes `null` with `type: 'null'`, which does not exist in OpenAPI 3.0.
+When the document version is `3.0.x` (the default), `@fastify/swagger` converts it to `nullable`:
+
+| JSON Schema                                         | OpenAPI 3.0                                                         |
+| --------------------------------------------------- | ------------------------------------------------------------------- |
+| `{ type: ['string', 'null'] }`                      | `{ type: 'string', nullable: true }`                                |
+| `{ anyOf: [{ type: 'string' }, { type: 'null' }] }` | `{ type: 'string', nullable: true }`                                |
+| `{ type: 'null' }`                                  | `{ type: 'object', nullable: true, enum: [null] }`                  |
+| `{ anyOf: [{ $ref: 'Item#' }, { type: 'null' }] }`  | `{ anyOf: [{ $ref: '...' }, { type: 'object', nullable: true, enum: [null] }] }` |
+| `{ type: ['string', 'number', 'null'] }`            | `{ anyOf: [{ type: 'string' }, { type: 'number' }, { type: 'object', nullable: true, enum: [null] }] }` |
+| `{ type: ['string', 'number'] }`                    | `{ anyOf: [{ type: 'string' }, { type: 'number' }] }`               |
+
+In OpenAPI 3.0 `nullable: true` only adds `null` to the `type` defined in the same Schema Object:
+next to `anyOf`, `oneOf` or `$ref` it has no effect. For this reason a union is simplified only
+when its single non-null member defines a `type`, otherwise the `null` member is kept as a nullable
+schema restricted to `enum: [null]`.
+
+The array form of `type` does not exist in OpenAPI 3.0 either, so it is converted even when `null` is not one of the types.
+
+The same applies to `oneOf`. Schemas are left untouched in OpenAPI 3.1 documents, where `type: 'null'` is valid.
+
 <a name="route.openapi"></a>
 #### OpenAPI Parameter Options
 

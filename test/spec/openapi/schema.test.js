@@ -2018,3 +2018,349 @@ test('support callbacks', async () => {
     t.assert.strictEqual(definedPath.responses['201'].content['application/json'].schema.headers, undefined)
   })
 })
+
+// OpenAPI 3.0.3: `nullable` only applies to the `type` defined in the same
+// Schema Object, so the schema accepting nothing but `null` is a nullable type
+// restricted to `enum: [null]`.
+const nullSchema = { type: 'object', nullable: true, enum: [null] }
+
+test('openapi 3.0: `type: null` is converted to `nullable: true`', async (t) => {
+  const cases = [
+    {
+      name: 'anyOf with null member',
+      input: { anyOf: [{ type: 'string' }, { type: 'null' }] },
+      expected: { type: 'string', nullable: true }
+    },
+    {
+      name: 'oneOf with null member keeps sibling keywords',
+      input: { description: 'maybe', oneOf: [{ type: 'string' }, { type: 'null' }] },
+      expected: { description: 'maybe', type: 'string', nullable: true }
+    },
+    {
+      name: 'anyOf with several non-null members',
+      input: { anyOf: [{ type: 'string' }, { type: 'number' }, { type: 'null' }] },
+      expected: { anyOf: [{ type: 'string' }, { type: 'number' }, nullSchema] }
+    },
+    {
+      name: 'anyOf with null member and a member already marked nullable (#594)',
+      input: { anyOf: [{ type: 'null' }, { type: 'string', format: 'date-time', nullable: true }] },
+      expected: { type: 'string', format: 'date-time', nullable: true }
+    },
+    {
+      name: 'multiple types without null (#861)',
+      input: { description: 'id', type: ['string', 'number'] },
+      expected: { description: 'id', anyOf: [{ type: 'string' }, { type: 'number' }] }
+    },
+    {
+      name: 'single type in the array form',
+      input: { type: ['string'] },
+      expected: { type: 'string' }
+    },
+    {
+      name: 'anyOf with a $ref member is not collapsed',
+      input: { anyOf: [{ $ref: 'Item#' }, { type: 'null' }] },
+      expected: { anyOf: [{ $ref: '#/components/schemas/def-0' }, nullSchema] }
+    },
+    {
+      name: 'type array with null',
+      input: { type: ['string', 'null'] },
+      expected: { type: 'string', nullable: true }
+    },
+    {
+      name: 'type array with several types and null',
+      input: { type: ['string', 'number', 'null'] },
+      expected: { anyOf: [{ type: 'string' }, { type: 'number' }, nullSchema] }
+    },
+    {
+      name: 'type array with only null',
+      input: { type: ['null'] },
+      expected: nullSchema
+    },
+    {
+      name: 'type null',
+      input: { type: 'null' },
+      expected: nullSchema
+    },
+    {
+      name: 'nested in array items',
+      input: { type: 'array', items: { type: ['integer', 'null'] } },
+      expected: { type: 'array', items: { type: 'integer', nullable: true } }
+    }
+  ]
+
+  t.plan(cases.length * 3)
+
+  for (const { name, input, expected } of cases) {
+    const fastify = Fastify()
+    fastify.addSchema({ $id: 'Item', type: 'object', properties: { id: { type: 'integer' } } })
+    await fastify.register(fastifySwagger, { openapi: { openapi: '3.0.3' } })
+
+    fastify.post('/', {
+      schema: {
+        body: { type: 'object', properties: { value: input } },
+        response: { 200: { type: 'object', properties: { value: input } } }
+      }
+    }, () => ({}))
+
+    await fastify.ready()
+
+    const openapiObject = fastify.swagger()
+    await Swagger.validate(structuredClone(openapiObject))
+
+    const body = openapiObject.paths['/'].post.requestBody.content['application/json'].schema.properties.value
+    const response = openapiObject.paths['/'].post.responses['200'].content['application/json'].schema.properties.value
+
+    t.assert.ok(true, `${name}: valid document`)
+    t.assert.deepStrictEqual(body, expected, `${name}: body`)
+    t.assert.deepStrictEqual(response, expected, `${name}: response`)
+  }
+})
+
+test('openapi 3.0 is the default: `type: null` is converted when no version is set', async (t) => {
+  const options = [
+    { openapi: true },
+    { openapi: {} }
+  ]
+
+  t.plan(options.length * 3)
+
+  for (const option of options) {
+    const fastify = Fastify()
+    await fastify.register(fastifySwagger, option)
+
+    fastify.post('/', {
+      schema: { response: { 200: { type: 'object', properties: { value: { type: ['string', 'null'] } } } } }
+    }, () => ({}))
+
+    await fastify.ready()
+
+    const openapiObject = fastify.swagger()
+    await Swagger.validate(structuredClone(openapiObject))
+
+    const value = openapiObject.paths['/'].post.responses['200'].content['application/json'].schema.properties.value
+
+    t.assert.strictEqual(openapiObject.openapi, '3.0.3')
+    t.assert.ok(true, 'valid document')
+    t.assert.deepStrictEqual(value, { type: 'string', nullable: true })
+  }
+})
+
+test('openapi 3.1: `type: null` is kept as is', async (t) => {
+  const cases = [
+    { anyOf: [{ type: 'string' }, { type: 'null' }] },
+    { type: ['string', 'null'] },
+    { type: 'null' }
+  ]
+
+  t.plan(cases.length * 2)
+
+  for (const input of cases) {
+    const fastify = Fastify()
+    await fastify.register(fastifySwagger, { openapi: { openapi: '3.1.0' } })
+
+    fastify.post('/', {
+      schema: { response: { 200: { type: 'object', properties: { value: input } } } }
+    }, () => ({}))
+
+    await fastify.ready()
+
+    const openapiObject = fastify.swagger()
+    await Swagger.validate(structuredClone(openapiObject))
+
+    const value = openapiObject.paths['/'].post.responses['200'].content['application/json'].schema.properties.value
+
+    t.assert.ok(true, 'valid document')
+    t.assert.strictEqual('nullable' in value, false)
+  }
+})
+
+test('openapi 3.0: `type: null` conversion does not lose sibling keywords', async (t) => {
+  const cases = [
+    {
+      name: 'member is not collapsed when it would overwrite keywords of the parent',
+      input: {
+        type: 'object',
+        properties: { a: { type: 'string' } },
+        anyOf: [{ properties: { b: { type: 'string' } }, required: ['b'] }, { type: 'null' }]
+      },
+      expected: {
+        type: 'object',
+        properties: { a: { type: 'string' } },
+        anyOf: [{ properties: { b: { type: 'string' } }, required: ['b'] }, nullSchema]
+      }
+    },
+    {
+      name: 'description of the parent is not replaced by the one of the member',
+      input: { description: 'outer', anyOf: [{ type: 'string', description: 'inner' }, { type: 'null' }] },
+      expected: { description: 'outer', anyOf: [{ type: 'string', description: 'inner' }, nullSchema] }
+    },
+    {
+      name: 'member with `nullable: false` cannot undo the conversion',
+      input: { anyOf: [{ type: 'string', nullable: false }, { type: 'null' }] },
+      expected: { type: 'string', nullable: true }
+    },
+    {
+      name: 'type array does not overwrite an existing anyOf',
+      input: { type: ['string', 'number', 'null'], anyOf: [{ minLength: 1 }, { minimum: 1 }] },
+      expected: {
+        anyOf: [{ minLength: 1 }, { minimum: 1 }],
+        allOf: [{ anyOf: [{ type: 'string' }, { type: 'number' }, nullSchema] }]
+      }
+    },
+    {
+      name: 'type array is appended to an existing allOf',
+      input: { type: ['string', 'number', 'null'], allOf: [{ description: 'first' }], anyOf: [{ minLength: 1 }, { minimum: 1 }] },
+      expected: {
+        anyOf: [{ minLength: 1 }, { minimum: 1 }],
+        allOf: [{ description: 'first' }, { anyOf: [{ type: 'string' }, { type: 'number' }, nullSchema] }]
+      }
+    },
+    {
+      name: 'anyOf and oneOf both with a null member',
+      input: { anyOf: [{ type: 'string' }, { type: 'null' }], oneOf: [{ type: 'number' }, { type: 'null' }] },
+      expected: { type: 'string', nullable: true, oneOf: [{ type: 'number' }, nullSchema] }
+    },
+    {
+      name: 'null member with annotations is removed',
+      input: { anyOf: [{ type: 'string' }, { type: 'null', title: 'Nothing', description: 'no value', 'x-internal': true }] },
+      expected: { type: 'string', nullable: true }
+    },
+    {
+      name: 'anyOf with only null members',
+      input: { anyOf: [{ type: 'null' }] },
+      expected: { anyOf: [nullSchema] }
+    },
+    {
+      name: 'member without a type is not collapsed, `nullable` would have no effect',
+      input: { anyOf: [{ enum: ['a', 'b'] }, { type: 'null' }] },
+      expected: { anyOf: [{ enum: ['a', 'b'] }, nullSchema] }
+    },
+    {
+      name: 'null member keeps its annotations when it is not collapsed',
+      input: { oneOf: [{ type: 'string' }, { type: 'number' }, { type: 'null', title: 'Nothing' }] },
+      expected: { oneOf: [{ type: 'string' }, { type: 'number' }, { ...nullSchema, title: 'Nothing' }] }
+    }
+  ]
+
+  t.plan(cases.length * 2)
+
+  for (const { name, input, expected } of cases) {
+    // `x-` extensions are unknown keywords for Ajv in strict mode
+    const fastify = Fastify({ ajv: { customOptions: { strictSchema: false } } })
+    await fastify.register(fastifySwagger, { openapi: { openapi: '3.0.3' } })
+
+    fastify.post('/', {
+      schema: { body: { type: 'object', properties: { value: input } } }
+    }, () => ({}))
+
+    await fastify.ready()
+
+    const openapiObject = fastify.swagger()
+    await Swagger.validate(structuredClone(openapiObject))
+
+    const body = openapiObject.paths['/'].post.requestBody.content['application/json'].schema.properties.value
+
+    t.assert.ok(true, `${name}: valid document`)
+    t.assert.deepStrictEqual(body, expected, name)
+  }
+})
+
+test('openapi 3.0: `type: null` is converted in shared schemas', async (t) => {
+  t.plan(3)
+
+  const fastify = Fastify()
+  fastify.addSchema({
+    $id: 'Item',
+    type: 'object',
+    properties: {
+      name: { type: ['string', 'null'] },
+      deletedAt: { anyOf: [{ type: 'string', format: 'date-time' }, { type: 'null' }] }
+    }
+  })
+  await fastify.register(fastifySwagger, {
+    openapi: {
+      openapi: '3.0.3',
+      components: {
+        schemas: {
+          Custom: { type: 'object', properties: { note: { type: ['string', 'null'] } } }
+        }
+      }
+    }
+  })
+
+  fastify.get('/', { schema: { response: { 200: { $ref: 'Item#' } } } }, () => ({}))
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+  await Swagger.validate(structuredClone(openapiObject))
+  t.assert.ok(true, 'valid document')
+
+  t.assert.deepStrictEqual(openapiObject.components.schemas['def-0'].properties, {
+    name: { type: 'string', nullable: true },
+    deletedAt: { type: 'string', format: 'date-time', nullable: true }
+  })
+  t.assert.deepStrictEqual(openapiObject.components.schemas.Custom.properties, {
+    note: { type: 'string', nullable: true }
+  })
+})
+
+test('openapi 3.0: `type: null` is converted in parameters', async (t) => {
+  t.plan(4)
+
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, { openapi: { openapi: '3.0.3' } })
+
+  const nullableString = { type: ['string', 'null'] }
+  fastify.get('/:id', {
+    schema: {
+      params: { type: 'object', properties: { id: nullableString } },
+      querystring: { type: 'object', properties: { filter: { anyOf: [{ type: 'string' }, { type: 'null' }] } } },
+      headers: { type: 'object', properties: { 'x-trace': nullableString } }
+    }
+  }, () => ({}))
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+  await Swagger.validate(structuredClone(openapiObject))
+  t.assert.ok(true, 'valid document')
+
+  const parameters = openapiObject.paths['/{id}'].get.parameters
+  for (const [location, name] of [['path', 'id'], ['query', 'filter'], ['header', 'x-trace']]) {
+    const parameter = parameters.find(p => p.in === location && p.name === name)
+    t.assert.deepStrictEqual(parameter.schema, { type: 'string', nullable: true }, `${location} parameter`)
+  }
+})
+
+test('openapi 3.0: `type: null` conversion does not mutate the route schema', async (t) => {
+  t.plan(2)
+
+  const createValue = () => ({
+    type: 'object',
+    properties: {
+      union: { description: 'maybe', anyOf: [{ type: 'string' }, { type: 'null' }] },
+      list: { type: 'array', items: { type: ['integer', 'null'] } },
+      several: { type: ['string', 'number', 'null'] }
+    }
+  })
+  const body = createValue()
+  const response = createValue()
+
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, { openapi: { openapi: '3.0.3' } })
+
+  fastify.post('/', { schema: { body, response: { 200: response } } }, () => ({}))
+
+  await fastify.ready()
+
+  // Snapshot taken once Fastify has compiled the schemas: fast-json-stringify
+  // reorders `type` arrays in place, which is unrelated to the conversion.
+  const bodyBefore = structuredClone(body)
+  const responseBefore = structuredClone(response)
+
+  fastify.swagger()
+
+  t.assert.deepStrictEqual(body, bodyBefore)
+  t.assert.deepStrictEqual(response, responseBefore)
+})
