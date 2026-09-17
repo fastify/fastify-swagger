@@ -161,6 +161,50 @@ test('openapi paths', async (t) => {
   delete openapiOption.openapi.paths // remove what we just added
 })
 
+test('openapi paths are merged with the registered routes', async (t) => {
+  t.plan(6)
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, {
+    openapi: {
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/static': {
+          post: {
+            summary: 'static route',
+            responses: { 200: { description: 'OK' } }
+          }
+        },
+        '/mixed': {
+          get: {
+            summary: 'static get',
+            responses: { 200: { description: 'OK' } }
+          },
+          post: {
+            summary: 'static post',
+            responses: { 200: { description: 'OK' } }
+          }
+        }
+      }
+    }
+  })
+
+  fastify.get('/dynamic', { schema: { summary: 'dynamic route' } }, () => {})
+  fastify.get('/mixed', { schema: { summary: 'dynamic get' } }, () => {})
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+  t.assert.deepStrictEqual(Object.keys(openapiObject.paths).sort(), ['/dynamic', '/mixed', '/static'])
+  t.assert.strictEqual(openapiObject.paths['/static'].post.summary, 'static route')
+  t.assert.strictEqual(openapiObject.paths['/dynamic'].get.summary, 'dynamic route')
+  t.assert.strictEqual(openapiObject.paths['/mixed'].post.summary, 'static post')
+  t.assert.strictEqual(openapiObject.paths['/mixed'].get.summary, 'dynamic get')
+
+  await Swagger.validate(structuredClone(openapiObject))
+  t.assert.ok(true, 'valid openapi object')
+})
+
 test('hide support when property set in transform() - property', async (t) => {
   t.plan(1)
   const fastify = Fastify()
