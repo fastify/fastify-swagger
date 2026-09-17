@@ -204,6 +204,54 @@ Examples of using `@fastify/swagger` in `dynamic` mode:
 - [Using the `swagger` option](examples/dynamic-swagger.js)
 - [Using the `openapi` option](examples/dynamic-openapi.js)
 
+<a name="register.options.mode.dynamic.paths"></a>
+###### Documenting routes not registered in Fastify
+
+Some routes are served by the application but are not registered through Fastify's router (e.g., routes added by a third-party middleware), so `dynamic` mode cannot discover them.
+These routes can be described by hand using the `paths` property of the `openapi` (or `swagger`) option. The routes discovered from Fastify are then merged on top of it:
+
+```js
+await fastify.register(require('@fastify/swagger'), {
+  openapi: {
+    info: { title: 'My API', version: '1.0.0' },
+    paths: {
+      '/auth/signin': {
+        post: {
+          tags: ['auth'],
+          summary: 'Sign in',
+          responses: {
+            200: { description: 'OK' }
+          }
+        }
+      }
+    }
+  }
+})
+
+// this route is generated from its schema and added next to `/auth/signin`
+fastify.get('/users', { schema: { ... } }, handler)
+```
+
+If a path in `paths` has the same URL as a registered route, their methods are merged. When both define the same method, the registered route takes precedence.
+
+The `paths` can also be loaded from an existing specification file:
+
+```js
+const fs = require('node:fs')
+const yaml = require('yaml')
+
+const { paths } = yaml.parse(fs.readFileSync('./auth.yaml', 'utf8'))
+
+await fastify.register(require('@fastify/swagger'), {
+  openapi: {
+    info: { title: 'My API', version: '1.0.0' },
+    paths
+  }
+})
+```
+
+To merge other parts of an existing specification (`components`, `tags`, etc.), use [`transformObject`](#register.options.transformObject).
+
 <a name="register.options.mode.static"></a>
 ##### Static
  `static` mode must be configured explicitly. It serves an existing Swagger or OpenAPI schema passed to `specification.path`:
