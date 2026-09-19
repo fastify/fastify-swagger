@@ -2,6 +2,8 @@ import fastify, { FastifySchema, RouteOptions } from 'fastify'
 import fastifySwagger, {
   formatParamUrl,
   SwaggerOptions,
+  // eslint-disable-next-line camelcase
+  OpenAPIV3_2,
 } from '..'
 import { minimalOpenApiV3Document } from './minimal-openapiV3-document'
 import { expect } from 'tstyche'
@@ -177,6 +179,27 @@ app
   .ready(() => {
     app.swagger()
   })
+
+// OpenAPI 3.2.0: $self and the extended tag object
+app.register(fastifySwagger, {
+  openapi: {
+    openapi: '3.2.0',
+    $self: 'https://example.com/openapi.json',
+    info: { title: 'Test openapi 3.2', version: '1.0.0' },
+    tags: [
+      { name: 'products', summary: 'Products', kind: 'nav' },
+      { name: 'books', summary: 'Books', parent: 'products', kind: 'nav' }
+    ]
+  }
+})
+
+// eslint-disable-next-line camelcase
+expect<OpenAPIV3_2.TagObject>().type.toBeAssignableFrom({
+  name: 'books',
+  summary: 'Books',
+  parent: 'products',
+  kind: 'nav'
+})
 
 app.register(fastifySwagger, {
   openapi: {
