@@ -205,7 +205,7 @@ Examples of using `@fastify/swagger` in `dynamic` mode:
 - [Using the `openapi` option](examples/dynamic-openapi.js)
 
 <a name="register.options.specification-extensions"></a>
-###### Specification extensions in TypeScript
+##### Specification extensions in TypeScript
 
 The `swagger` and `openapi` option types come from [`openapi-types`](https://www.npmjs.com/package/openapi-types).
 The OpenAPI specification allows [extensions](https://swagger.io/specification/#specification-extensions) (`x-*` properties) on most objects, but the `openapi-types` interfaces do not declare an index signature for them, so adding e.g. `x-logo` to the `info` object fails to compile.
@@ -256,7 +256,7 @@ await fastify.register(import('@fastify/swagger'), {
 > Package managers with a strict `node_modules` layout (e.g. pnpm) do not expose transitive dependencies, and in that case the augmentation is silently ignored: add `openapi-types` to your `devDependencies`.
 
 <a name="register.options.mode.dynamic.paths"></a>
-###### Documenting routes not registered in Fastify
+##### Documenting routes not registered in Fastify
 
 Some routes are served by the application but are not registered through Fastify's router (e.g., routes added by a third-party middleware), so `dynamic` mode cannot discover them.
 These routes can be described by hand using the `paths` property of the `openapi` (or `swagger`) option. The routes discovered from Fastify are then merged on top of it:
