@@ -161,3 +161,15 @@ describe('shouldRouteHide', () => {
     t.assert.equal(shouldRouteHide({}, {}), false)
   })
 })
+
+describe('resolveLocalRef', () => {
+  const { resolveLocalRef } = require('../lib/util/resolve-local-ref')
+  const definition = { type: 'object', properties: { a: { type: 'string' } } }
+
+  test('falls back to the definition when the pointer cannot be followed', (t) => {
+    const expected = { a: { type: 'string', required: false } }
+    t.assert.deepStrictEqual(resolveLocalRef({ $ref: '#/definitions/def-0/definitions/missing/deep' }, { 'def-0': definition }), expected)
+    t.assert.deepStrictEqual(resolveLocalRef({ $ref: '#/definitions/def-0/properties/a' }, { 'def-0': definition }), expected)
+    t.assert.deepStrictEqual(resolveLocalRef({ $ref: '#/components/schemas/def-0' }, { 'def-0': definition }), expected)
+  })
+})
