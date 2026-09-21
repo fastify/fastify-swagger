@@ -200,6 +200,29 @@ All properties in the [Swagger (OpenAPI v2)](https://swagger.io/specification/v2
 `@fastify/swagger` generates API schemas adhering to the Swagger specification by default.
 Providing an `openapi` option generates OpenAPI compliant API schemas instead.
 
+The OpenAPI version of the generated document is taken from the `openapi.openapi` string (`3.0.3` by default).
+Set it to `3.1.0` or `3.2.0` to generate a document for that version; the top-level properties introduced by newer
+versions (`webhooks` in 3.1, `$self` and the `summary`, `parent` and `kind` properties of the tag object in 3.2) are
+passed through to the generated document. Routes registered with the `QUERY` HTTP method (OpenAPI 3.2) are documented
+like any other method with a request body.
+
+When the version is `3.2.0` or higher, the routes of the HTTP methods without a fixed field in the Path Item Object
+(eg: the ones added with `fastify.addHttpMethod()`, like `PROPFIND`) are listed in its `additionalOperations` map.
+Older OpenAPI versions cannot describe those methods.
+
+```js
+{
+  openapi: {
+    openapi: '3.2.0',
+    $self: 'https://example.com/openapi.json',
+    tags: [
+      { name: 'products', summary: 'Products', kind: 'nav' },
+      { name: 'books', summary: 'Books', parent: 'products', kind: 'nav' }
+    ]
+  }
+}
+```
+
 Examples of using `@fastify/swagger` in `dynamic` mode:
 - [Using the `swagger` option](examples/dynamic-swagger.js)
 - [Using the `openapi` option](examples/dynamic-openapi.js)
@@ -743,6 +766,30 @@ Specify `type: 'null'` for the response to prevent Fastify from failing to compi
   }
 }
 ```
+
+<a name="route.null"></a>
+#### Null types
+
+JSON Schema describes `null` with `type: 'null'`, which does not exist in OpenAPI 3.0.
+When the document version is `3.0.x` (the default), `@fastify/swagger` converts it to `nullable`:
+
+| JSON Schema                                         | OpenAPI 3.0                                                         |
+| --------------------------------------------------- | ------------------------------------------------------------------- |
+| `{ type: ['string', 'null'] }`                      | `{ type: 'string', nullable: true }`                                |
+| `{ anyOf: [{ type: 'string' }, { type: 'null' }] }` | `{ type: 'string', nullable: true }`                                |
+| `{ type: 'null' }`                                  | `{ type: 'object', nullable: true, enum: [null] }`                  |
+| `{ anyOf: [{ $ref: 'Item#' }, { type: 'null' }] }`  | `{ anyOf: [{ $ref: '...' }, { type: 'object', nullable: true, enum: [null] }] }` |
+| `{ type: ['string', 'number', 'null'] }`            | `{ anyOf: [{ type: 'string' }, { type: 'number' }, { type: 'object', nullable: true, enum: [null] }] }` |
+| `{ type: ['string', 'number'] }`                    | `{ anyOf: [{ type: 'string' }, { type: 'number' }] }`               |
+
+In OpenAPI 3.0 `nullable: true` only adds `null` to the `type` defined in the same Schema Object:
+next to `anyOf`, `oneOf` or `$ref` it has no effect. For this reason a union is simplified only
+when its single non-null member defines a `type`, otherwise the `null` member is kept as a nullable
+schema restricted to `enum: [null]`.
+
+The array form of `type` does not exist in OpenAPI 3.0 either, so it is converted even when `null` is not one of the types.
+
+The same applies to `oneOf`. Schemas are left untouched in OpenAPI 3.1 documents, where `type: 'null'` is valid.
 
 <a name="route.openapi"></a>
 #### OpenAPI Parameter Options
