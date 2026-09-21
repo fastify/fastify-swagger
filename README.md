@@ -227,6 +227,105 @@ Examples of using `@fastify/swagger` in `dynamic` mode:
 - [Using the `swagger` option](examples/dynamic-swagger.js)
 - [Using the `openapi` option](examples/dynamic-openapi.js)
 
+<a name="register.options.specification-extensions"></a>
+##### Specification extensions in TypeScript
+
+The `swagger` and `openapi` option types come from [`openapi-types`](https://www.npmjs.com/package/openapi-types).
+The OpenAPI specification allows [extensions](https://swagger.io/specification/#specification-extensions) (`x-*` properties) on most objects, but the `openapi-types` interfaces do not declare an index signature for them, so adding e.g. `x-logo` to the `info` object fails to compile.
+The plugin passes these properties through unchanged at runtime; only the type definitions need to be extended.
+To do so, augment the `openapi-types` module (not `@fastify/swagger`) in a `.d.ts` file of your project.
+Use the `OpenAPIV3` namespace for the `openapi` option (it covers OpenAPI 3.1 documents too, as the `OpenAPIV3_1` types are derived from it) and the `OpenAPIV2` namespace for the `swagger` option:
+
+```ts
+import 'openapi-types'
+
+interface Logo {
+  url: string
+  altText?: string
+}
+
+declare module 'openapi-types' {
+  // `openapi` option (OpenAPI 3.0 and 3.1)
+  namespace OpenAPIV3 {
+    interface InfoObject {
+      'x-logo'?: Logo
+    }
+  }
+
+  // `swagger` option (Swagger 2.0)
+  namespace OpenAPIV2 {
+    interface InfoObject {
+      'x-logo'?: Logo
+    }
+  }
+}
+```
+
+The extension can then be used in the `openapi` (or `swagger`) option:
+
+```ts
+await fastify.register(import('@fastify/swagger'), {
+  openapi: {
+    info: {
+      title: 'Test swagger',
+      version: '0.1.0',
+      'x-logo': { url: 'https://example.com/logo.png', altText: 'Logo' }
+    }
+  }
+})
+```
+
+> ℹ️ Note: `openapi-types` must be resolvable from your project for the augmentation to be applied.
+> Package managers with a strict `node_modules` layout (e.g. pnpm) do not expose transitive dependencies, and in that case the augmentation is silently ignored: add `openapi-types` to your `devDependencies`.
+
+<a name="register.options.mode.dynamic.paths"></a>
+##### Documenting routes not registered in Fastify
+
+Some routes are served by the application but are not registered through Fastify's router (e.g., routes added by a third-party middleware), so `dynamic` mode cannot discover them.
+These routes can be described by hand using the `paths` property of the `openapi` (or `swagger`) option. The routes discovered from Fastify are then merged on top of it:
+
+```js
+await fastify.register(require('@fastify/swagger'), {
+  openapi: {
+    info: { title: 'My API', version: '1.0.0' },
+    paths: {
+      '/auth/signin': {
+        post: {
+          tags: ['auth'],
+          summary: 'Sign in',
+          responses: {
+            200: { description: 'OK' }
+          }
+        }
+      }
+    }
+  }
+})
+
+// this route is generated from its schema and added next to `/auth/signin`
+fastify.get('/users', { schema: { ... } }, handler)
+```
+
+If a path in `paths` has the same URL as a registered route, their methods are merged. When both define the same method, the registered route takes precedence.
+
+The `paths` can also be loaded from an existing specification file:
+
+```js
+const fs = require('node:fs')
+const yaml = require('yaml')
+
+const { paths } = yaml.parse(fs.readFileSync('./auth.yaml', 'utf8'))
+
+await fastify.register(require('@fastify/swagger'), {
+  openapi: {
+    info: { title: 'My API', version: '1.0.0' },
+    paths
+  }
+})
+```
+
+To merge other parts of an existing specification (`components`, `tags`, etc.), use [`transformObject`](#register.options.transformObject).
+
 <a name="register.options.mode.static"></a>
 ##### Static
  `static` mode must be configured explicitly. It serves an existing Swagger or OpenAPI schema passed to `specification.path`:
@@ -644,6 +743,30 @@ Specify `type: 'null'` for the response to prevent Fastify from failing to compi
   }
 }
 ```
+
+<a name="route.null"></a>
+#### Null types
+
+JSON Schema describes `null` with `type: 'null'`, which does not exist in OpenAPI 3.0.
+When the document version is `3.0.x` (the default), `@fastify/swagger` converts it to `nullable`:
+
+| JSON Schema                                         | OpenAPI 3.0                                                         |
+| --------------------------------------------------- | ------------------------------------------------------------------- |
+| `{ type: ['string', 'null'] }`                      | `{ type: 'string', nullable: true }`                                |
+| `{ anyOf: [{ type: 'string' }, { type: 'null' }] }` | `{ type: 'string', nullable: true }`                                |
+| `{ type: 'null' }`                                  | `{ type: 'object', nullable: true, enum: [null] }`                  |
+| `{ anyOf: [{ $ref: 'Item#' }, { type: 'null' }] }`  | `{ anyOf: [{ $ref: '...' }, { type: 'object', nullable: true, enum: [null] }] }` |
+| `{ type: ['string', 'number', 'null'] }`            | `{ anyOf: [{ type: 'string' }, { type: 'number' }, { type: 'object', nullable: true, enum: [null] }] }` |
+| `{ type: ['string', 'number'] }`                    | `{ anyOf: [{ type: 'string' }, { type: 'number' }] }`               |
+
+In OpenAPI 3.0 `nullable: true` only adds `null` to the `type` defined in the same Schema Object:
+next to `anyOf`, `oneOf` or `$ref` it has no effect. For this reason a union is simplified only
+when its single non-null member defines a `type`, otherwise the `null` member is kept as a nullable
+schema restricted to `enum: [null]`.
+
+The array form of `type` does not exist in OpenAPI 3.0 either, so it is converted even when `null` is not one of the types.
+
+The same applies to `oneOf`. Schemas are left untouched in OpenAPI 3.1 documents, where `type: 'null'` is valid.
 
 <a name="route.openapi"></a>
 #### OpenAPI Parameter Options

@@ -147,6 +147,50 @@ test('swagger paths', async (t) => {
   delete swaggerOption.swagger.paths // remove what we just added
 })
 
+test('swagger paths are merged with the registered routes', async (t) => {
+  t.plan(6)
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, {
+    swagger: {
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/static': {
+          post: {
+            summary: 'static route',
+            responses: { 200: { description: 'OK' } }
+          }
+        },
+        '/mixed': {
+          get: {
+            summary: 'static get',
+            responses: { 200: { description: 'OK' } }
+          },
+          post: {
+            summary: 'static post',
+            responses: { 200: { description: 'OK' } }
+          }
+        }
+      }
+    }
+  })
+
+  fastify.get('/dynamic', { schema: { summary: 'dynamic route' } }, () => {})
+  fastify.get('/mixed', { schema: { summary: 'dynamic get' } }, () => {})
+
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  t.assert.deepStrictEqual(Object.keys(swaggerObject.paths).sort(), ['/dynamic', '/mixed', '/static'])
+  t.assert.strictEqual(swaggerObject.paths['/static'].post.summary, 'static route')
+  t.assert.strictEqual(swaggerObject.paths['/dynamic'].get.summary, 'dynamic route')
+  t.assert.strictEqual(swaggerObject.paths['/mixed'].post.summary, 'static post')
+  t.assert.strictEqual(swaggerObject.paths['/mixed'].get.summary, 'dynamic get')
+
+  await Swagger.validate(structuredClone(swaggerObject))
+  t.assert.ok(true, 'valid swagger object')
+})
+
 test('swagger tags', async (t) => {
   t.plan(1)
   const fastify = Fastify()
