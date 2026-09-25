@@ -605,3 +605,186 @@ test('should return only ref if defs and ref is defined', async (t) => {
 
   await Swagger.validate(openapiObject)
 })
+
+// https://github.com/fastify/fastify-swagger/issues/639
+const definitionsCases = [
+  ['openapi', { openapi: {} }, (document) => document.components.schemas, '#/components/schemas/']
+]
+
+for (const [name, option, getSchemas, prefix] of definitionsCases) {
+  test(`${name}: support $ref to the definitions of a shared schema`, async (t) => {
+    const fastify = Fastify()
+    await fastify.register(fastifySwagger, option)
+
+    fastify.addSchema({
+      $id: 'http://foo/common.json',
+      type: 'object',
+      definitions: {
+        foo: {
+          $id: '#address',
+          type: 'object',
+          properties: { city: { type: 'string' } }
+        }
+      }
+    })
+    fastify.post('/', {
+      schema: {
+        body: { $ref: 'http://foo/common.json#/definitions/foo' },
+        response: { 200: { $ref: 'http://foo/common.json#/definitions/foo/properties/city' } }
+      }
+    }, () => {})
+
+    await fastify.ready()
+
+    const document = fastify.swagger()
+    const schemas = getSchemas(document)
+    await Swagger.validate(JSON.parse(JSON.stringify(document)))
+
+    t.assert.strictEqual(schemas['def-0'].definitions, undefined)
+    t.assert.deepStrictEqual(schemas['def-0-foo'].properties, { city: { type: 'string' } })
+    t.assert.match(JSON.stringify(document.paths['/'].post), new RegExp(`"\\$ref":"${prefix}def-0-foo"`))
+    t.assert.match(JSON.stringify(document.paths['/'].post), new RegExp(`"\\$ref":"${prefix}def-0-foo/properties/city"`))
+  })
+
+  test(`${name}: support local $ref and nested definitions in a shared schema`, async (t) => {
+    const fastify = Fastify()
+    await fastify.register(fastifySwagger, option)
+
+    fastify.addSchema({
+      $id: 'tree',
+      type: 'object',
+      definitions: {
+        node: {
+          type: 'object',
+          definitions: {
+            leaf: { type: 'string', enum: ['a', 'b'], default: 'a' }
+          },
+          properties: {
+            // a property named as a keyword must not be hoisted
+            definitions: { type: 'string' },
+            value: { $ref: '#/definitions/node/definitions/leaf' },
+            children: { type: 'array', items: { $ref: '#/definitions/node' } }
+          }
+        }
+      },
+      properties: {
+        self: { $ref: '#' },
+        root: { $ref: '#/definitions/node' },
+        nested: {
+          type: 'object',
+          $defs: { node: { type: 'integer' } },
+          properties: { id: { $ref: '#/properties/nested/$defs/node' } }
+        },
+        sibling: { $ref: '#/properties/nested' }
+      }
+    })
+    // takes the name that would be assigned to the hoisted definition
+    fastify.addSchema({ $id: 'other', type: 'object', properties: { tree: { $ref: 'tree#' } } })
+    fastify.get('/', { schema: { response: { 200: { $ref: 'tree#' } } } }, () => {})
+
+    await fastify.ready()
+
+    const document = fastify.swagger()
+    const schemas = getSchemas(document)
+    await Swagger.validate(JSON.parse(JSON.stringify(document)))
+
+    t.assert.deepStrictEqual(Object.keys(schemas).sort(), [
+      'def-0', 'def-0-leaf', 'def-0-node', 'def-0-node-1', 'def-1'
+    ])
+    t.assert.deepStrictEqual(schemas['def-0'].properties, {
+      self: { $ref: `${prefix}def-0` },
+      root: { $ref: `${prefix}def-0-node` },
+      nested: { type: 'object', properties: { id: { $ref: `${prefix}def-0-node-1` } } },
+      sibling: { $ref: `${prefix}def-0/properties/nested` }
+    })
+    t.assert.deepStrictEqual(schemas['def-0-node'].properties, {
+      definitions: { type: 'string' },
+      value: { $ref: `${prefix}def-0-leaf` },
+      children: { type: 'array', items: { $ref: `${prefix}def-0-node` } }
+    })
+    t.assert.deepStrictEqual(schemas['def-0-node-1'], { type: 'integer' })
+  })
+}
+
+for (const [name, option, getSchemas, prefix] of definitionsCases) {
+  test(`${name}: support $ref to the anchor of a shared schema`, async (t) => {
+    const fastify = Fastify()
+    await fastify.register(fastifySwagger, option)
+
+    // same shape of the schemas of the Fastify "Fluent Schema" guide
+    fastify.addSchema({
+      $id: 'https://fastify/demo',
+      type: 'object',
+      definitions: {
+        addressSchema: {
+          $id: '#address',
+          type: 'object',
+          properties: { city: { type: 'string' } }
+        },
+        userSchema: {
+          $id: '#user',
+          type: 'object',
+          properties: { home: { $ref: '#address' } }
+        }
+      }
+    })
+
+    const body = {
+      type: 'object',
+      properties: {
+        residence: { $ref: 'https://fastify/demo#address' },
+        office: { $ref: 'https://fastify/demo#/definitions/addressSchema' },
+        owner: { $ref: 'https://fastify/demo#user' }
+      }
+    }
+    fastify.post('/', {
+      schema: {
+        body,
+        response: { 200: { $ref: 'https://fastify/demo#address' } }
+      }
+    }, () => {})
+
+    await fastify.ready()
+
+    const document = fastify.swagger()
+    const schemas = getSchemas(document)
+    await Swagger.validate(JSON.parse(JSON.stringify(document)))
+
+    // the anchored subschemas are not listed twice
+    t.assert.deepStrictEqual(Object.keys(schemas), ['def-0', 'def-0-addressSchema', 'def-0-userSchema'])
+    t.assert.deepStrictEqual(schemas['def-0-userSchema'].properties.home, { $ref: `${prefix}def-0-addressSchema` })
+
+    const operation = JSON.stringify(document.paths['/'].post)
+    t.assert.doesNotMatch(operation, /def-0address/)
+    t.assert.strictEqual(operation.split(`"$ref":"${prefix}def-0-addressSchema"`).length - 1, 3)
+    t.assert.match(operation, new RegExp(`"\\$ref":"${prefix}def-0-userSchema"`))
+
+    // the schema of the route is left untouched
+    t.assert.strictEqual(body.properties.residence.$ref, 'https://fastify/demo#address')
+  })
+
+  test(`${name}: support $ref to an anchor outside of the definitions`, async (t) => {
+    const fastify = Fastify()
+    await fastify.register(fastifySwagger, option)
+
+    fastify.addSchema({
+      $id: 'order',
+      type: 'object',
+      properties: {
+        shipping: { $id: '#shipping', type: 'object', properties: { city: { type: 'string' } } },
+        billing: { $ref: '#shipping' }
+      }
+    })
+    fastify.post('/', { schema: { body: { $ref: 'order#shipping' } } }, () => {})
+
+    await fastify.ready()
+
+    const document = fastify.swagger()
+    const schemas = getSchemas(document)
+    await Swagger.validate(JSON.parse(JSON.stringify(document)))
+
+    t.assert.deepStrictEqual(Object.keys(schemas), ['def-0'])
+    t.assert.deepStrictEqual(schemas['def-0'].properties.billing, { $ref: `${prefix}def-0/properties/shipping` })
+    t.assert.match(JSON.stringify(document.paths['/'].post), new RegExp(`"\\$ref":"${prefix}def-0/properties/shipping"`))
+  })
+}
