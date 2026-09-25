@@ -2364,3 +2364,69 @@ test('openapi 3.0: `type: null` conversion does not mutate the route schema', as
   t.assert.deepStrictEqual(body, bodyBefore)
   t.assert.deepStrictEqual(response, responseBefore)
 })
+
+test('openapi 3.1+: `nullable` is converted to a `null` type', async (t) => {
+  const cases = [
+    [{ type: 'string', nullable: true }, { type: ['string', 'null'] }],
+    [{ type: ['string', 'integer'], nullable: true }, { type: ['string', 'integer', 'null'] }],
+    [{ type: ['null', 'string'], nullable: true }, { type: ['null', 'string'] }],
+    // Ajv (and JSON Schema) only accept `null` if `enum` lists it explicitly
+    [{ type: 'string', enum: ['a', 'b'], nullable: true }, { type: ['string', 'null'], enum: ['a', 'b'] }],
+    [{ type: 'string', enum: ['a', null], nullable: true }, { type: ['string', 'null'], enum: ['a', null] }],
+    [{ type: 'string', nullable: false }, { type: 'string' }],
+    // like in OpenAPI 3.0, `nullable` without `type` has no effect
+    [{ nullable: true }, {}]
+  ]
+
+  for (const openapi of ['3.1.0', '3.2.0']) {
+    for (const [input, expected] of cases) {
+      const fastify = Fastify()
+      await fastify.register(fastifySwagger, { openapi: { openapi } })
+
+      fastify.post('/', {
+        schema: { response: { 200: { type: 'object', properties: { value: input } } } }
+      }, () => ({}))
+
+      await fastify.ready()
+
+      const openapiObject = fastify.swagger()
+      if (openapi === '3.1.0') await Swagger.validate(structuredClone(openapiObject))
+
+      const value = openapiObject.paths['/'].post.responses['200'].content['application/json'].schema.properties.value
+      t.assert.deepStrictEqual(value, expected)
+    }
+  }
+})
+
+test('openapi 3.1: `examples` array is kept in nested schemas', async (t) => {
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, { openapi: { openapi: '3.1.0' } })
+
+  fastify.post('/', {
+    schema: {
+      body: {
+        type: 'object',
+        properties: {
+          multipleExamples: { type: 'string', examples: ['foo', 'bar'] },
+          nullableObject: {
+            type: 'object',
+            nullable: true,
+            properties: { x: { type: 'integer', examples: [1, 2] } }
+          }
+        }
+      }
+    }
+  }, () => ({}))
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+  await Swagger.validate(structuredClone(openapiObject))
+
+  const { properties } = openapiObject.paths['/'].post.requestBody.content['application/json'].schema
+  t.assert.deepStrictEqual(properties.multipleExamples, { type: 'string', examples: ['foo', 'bar'] })
+  t.assert.deepStrictEqual(properties.nullableObject, {
+    type: ['object', 'null'],
+    properties: { x: { type: 'integer', examples: [1, 2] } }
+  })
+})
