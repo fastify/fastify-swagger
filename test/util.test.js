@@ -166,6 +166,7 @@ describe('definitions', () => {
   const {
     prepareSharedSchemas,
     hoistDefinitions,
+    referenceInlineDefinitions,
     rewriteAnchorRefs,
     rewriteHoistedRefs
   } = require('../lib/util/definitions')
@@ -309,5 +310,36 @@ describe('definitions', () => {
       404: { oneOf: [{ $ref: 'common#/definitions/foo' }, { $ref: 'common#unknown' }, { $ref: 42 }, null] }
     })
     t.assert.strictEqual(rewriteAnchorRefs(true, anchors), true)
+  })
+
+  test('referenceInlineDefinitions only replaces the known schema resources', (t) => {
+    const node = { $id: 'Node', type: 'object' }
+    const shared = { $id: 'Shared', type: 'object' }
+    const ref = { definitions: () => ({ definitions: { 'def-0': shared, 'def-1': node } }) }
+    const schema = {
+      $id: 'Root',
+      definitions: { 'def-0': shared },
+      properties: {
+        node: { $id: 'Node', type: 'object', properties: { child: { $id: 'Node', type: 'object' } } },
+        shared: { $id: 'Shared', type: 'object' },
+        anchor: { $id: '#anchor', type: 'object' },
+        unknown: { $id: 'Unknown', type: 'object' },
+        plain: { type: 'object' }
+      }
+    }
+
+    const found = referenceInlineDefinitions(schema, ref, new Set(['def-0']))
+    t.assert.deepStrictEqual(found, { 'def-1': node })
+    t.assert.deepStrictEqual(schema, {
+      $id: 'Root',
+      definitions: { 'def-0': shared },
+      properties: {
+        node: { $ref: '#/definitions/def-1' },
+        shared: { $id: 'Shared', type: 'object' },
+        anchor: { $id: '#anchor', type: 'object' },
+        unknown: { $id: 'Unknown', type: 'object' },
+        plain: { type: 'object' }
+      }
+    })
   })
 })

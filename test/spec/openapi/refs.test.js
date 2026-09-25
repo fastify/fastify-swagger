@@ -788,3 +788,54 @@ for (const [name, option, getSchemas, prefix] of definitionsCases) {
     t.assert.match(JSON.stringify(document.paths['/'].post), new RegExp(`"\\$ref":"${prefix}def-0/properties/shipping"`))
   })
 }
+
+// https://github.com/fastify/fastify-swagger/issues/865
+test('openapi: support recursive schemas with an `$id` nested in a route schema', async (t) => {
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, { openapi: {} })
+
+  // what TypeBox `Type.Recursive(..., { $id: 'Node' })` produces
+  const node = {
+    $id: 'Node',
+    type: 'object',
+    properties: {
+      name: { type: 'string' },
+      children: { type: 'array', items: { $ref: 'Node' } }
+    }
+  }
+  const body = { type: 'object', properties: { treeNodes: { type: 'array', items: node } } }
+  fastify.post('/', { schema: { body } }, () => {})
+  fastify.put('/', { schema: { body } }, () => {})
+
+  await fastify.ready()
+
+  const document = fastify.swagger()
+  await Swagger.validate(JSON.parse(JSON.stringify(document)))
+
+  const schemas = document.components.schemas
+  t.assert.deepStrictEqual(Object.keys(schemas), ['def-0'])
+  t.assert.deepStrictEqual(schemas['def-0'].properties.children.items, { $ref: '#/components/schemas/def-0' })
+  t.assert.deepStrictEqual(document.paths['/'].post.requestBody.content['application/json'].schema.properties.treeNodes.items, { $ref: '#/components/schemas/def-0' })
+  t.assert.deepStrictEqual(document.paths['/'].put, document.paths['/'].post)
+})
+
+test('openapi: support schemas with an `$id` nested in another one', async (t) => {
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, { openapi: {} })
+
+  fastify.addSchema({ $id: 'Shared', type: 'object', properties: { name: { type: 'string' } } })
+  const leaf = { $id: 'Leaf', type: 'object', properties: { shared: { $ref: 'Shared#' } } }
+  const tree = { $id: 'Tree', type: 'object', properties: { leaf, leaves: { type: 'array', items: { $ref: 'Leaf' } } } }
+  fastify.post('/', { schema: { body: { type: 'object', properties: { tree } } } }, () => {})
+
+  await fastify.ready()
+
+  const document = fastify.swagger()
+  await Swagger.validate(JSON.parse(JSON.stringify(document)))
+
+  const schemas = document.components.schemas
+  t.assert.deepStrictEqual(Object.keys(schemas).sort(), ['def-0', 'def-1', 'def-2'])
+  t.assert.deepStrictEqual(document.paths['/'].post.requestBody.content['application/json'].schema.properties.tree, { $ref: '#/components/schemas/def-1' })
+  t.assert.deepStrictEqual(schemas['def-1'].properties, { leaf: { $ref: '#/components/schemas/def-2' }, leaves: { type: 'array', items: { $ref: '#/components/schemas/def-2' } } })
+  t.assert.deepStrictEqual(schemas['def-2'].properties, { shared: { $ref: '#/components/schemas/def-0' } })
+})
