@@ -477,6 +477,29 @@ await fastify.register(require('@fastify/swagger'), {
 
 For details on `buildLocalReference` arguments, see the [documentation](https://github.com/Eomm/json-schema-resolver#usage-resolve-one-schema-against-external-schemas).
 
+##### `definitions` and `$defs` of a shared schema
+
+Swagger and OpenAPI do not allow the `definitions` and `$defs` keywords inside a schema object.
+The definitions nested into a schema added with `fastify.addSchema()` are moved next to it, named `<schema>-<key>`
+(a numeric suffix is appended when the name is already taken), and the `$ref`s pointing to them are updated:
+
+```js
+fastify.addSchema({
+  $id: 'http://example.com/common.json',
+  type: 'object',
+  definitions: {
+    address: { $id: '#address', type: 'object', properties: { city: { type: 'string' } } }
+  }
+})
+
+// both are rendered as `#/components/schemas/def-0-address` (`#/definitions/def-0-address` with Swagger)
+{ $ref: 'http://example.com/common.json#/definitions/address' }
+{ $ref: 'http://example.com/common.json#address' }
+```
+
+A reference to an anchor (a fragment-only `$id` like `#address`) must be written as the `$id` of the shared schema
+followed by the anchor, or as `#address` from inside the shared schema itself.
+
 <a name="register.options.decorator"></a>
 #### Decorator
 
