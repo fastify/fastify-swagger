@@ -173,3 +173,153 @@ describe('resolveLocalRef', () => {
     t.assert.deepStrictEqual(resolveLocalRef({ $ref: '#/components/schemas/def-0' }, { 'def-0': definition }), expected)
   })
 })
+
+describe('definitions', () => {
+  const {
+    prepareSharedSchemas,
+    hoistDefinitions,
+    rewriteAnchorRefs,
+    rewriteHoistedRefs
+  } = require('../lib/util/definitions')
+
+  test('prepareSharedSchemas absolutizes the local refs using the closest non-fragment $id', (t) => {
+    const schema = {
+      $id: 'http://example.com/root.json#',
+      properties: {
+        a: { $ref: '#/definitions/a' },
+        b: { $id: '#anchor', properties: { c: { $ref: '#' } } },
+        d: { $id: 'other.json', items: [{ $ref: '#/items/1' }, { type: 'string' }] },
+        e: { $ref: 'external#' },
+        f: { enum: [{ $ref: '#/not/a/schema' }], dependencies: { a: ['b'] } }
+      }
+    }
+    prepareSharedSchemas([schema])
+
+    t.assert.strictEqual(schema.properties.a.$ref, 'http://example.com/root.json#/definitions/a')
+    t.assert.strictEqual(schema.properties.b.properties.c.$ref, 'http://example.com/root.json#')
+    t.assert.strictEqual(schema.properties.d.items[0].$ref, 'other.json#/items/1')
+    t.assert.strictEqual(schema.properties.e.$ref, 'external#')
+    t.assert.strictEqual(schema.properties.f.enum[0].$ref, '#/not/a/schema')
+  })
+
+  test('prepareSharedSchemas ignores schemas without $id', (t) => {
+    const schema = { $ref: '#/definitions/a' }
+    t.assert.deepStrictEqual(prepareSharedSchemas([schema, true]), new Map())
+    t.assert.deepStrictEqual(schema, { $ref: '#/definitions/a' })
+  })
+
+  test('hoistDefinitions escapes the JSON pointer tokens', (t) => {
+    const hoisted = new Map()
+    const shared = { type: 'string' }
+    const schema = {
+      definitions: { shared, 'a/b~c': { type: 'integer' } },
+      properties: { 'x/y': { definitions: { z: { type: 'boolean' } } } }
+    }
+
+    const result = hoistDefinitions('root', schema, { shared }, hoisted)
+
+    t.assert.deepStrictEqual(result, [
+      ['root-a/b~c', { type: 'integer' }],
+      ['root-z', { type: 'boolean' }]
+    ])
+    t.assert.deepStrictEqual(Object.fromEntries(hoisted), {
+      'root/definitions/a~1b~0c': 'root-a/b~c',
+      'root/properties/x~1y/definitions/z': 'root-z'
+    })
+    t.assert.deepStrictEqual(schema, { properties: { 'x/y': {} } })
+  })
+
+  test('rewriteHoistedRefs rewrites only the hoisted references', (t) => {
+    const hoisted = new Map([['a/definitions/b', 'a-b'], ['a/definitions/b/definitions/c', 'a-c']])
+    const document = {
+      list: [
+        { $ref: '#/definitions/a/definitions/b/definitions/c/properties/d' },
+        { $ref: '#/definitions/a/definitions/b' },
+        { $ref: '#/definitions/a/properties/b' },
+        { $ref: '#/parameters/a/definitions/b' },
+        { $ref: 42 },
+        null
+      ]
+    }
+
+    rewriteHoistedRefs(document, '#/definitions/', hoisted)
+    t.assert.deepStrictEqual(document.list, [
+      { $ref: '#/definitions/a-c/properties/d' },
+      { $ref: '#/definitions/a-b' },
+      { $ref: '#/definitions/a/properties/b' },
+      { $ref: '#/parameters/a/definitions/b' },
+      { $ref: 42 },
+      null
+    ])
+
+    const untouched = { $ref: '#/definitions/a/definitions/b' }
+    rewriteHoistedRefs(untouched, '#/definitions/', new Map())
+    t.assert.deepStrictEqual(untouched, { $ref: '#/definitions/a/definitions/b' })
+  })
+
+  test('prepareSharedSchemas maps the anchors to the JSON pointer of their schema resource', (t) => {
+    const orphan = { definitions: { noBase: { $id: '#orphan' } } }
+    const root = {
+      $id: 'http://example.com/root.json',
+      definitions: {
+        'a/b': { $id: '#escaped' },
+        first: { $id: '#twice' },
+        second: { $id: '#twice' },
+        empty: { $id: '#' },
+        nested: {
+          $id: 'http://example.com/nested.json',
+          properties: { c: { $id: '#inner' } }
+        }
+      },
+      enum: [{ $id: '#data' }]
+    }
+    const anchors = prepareSharedSchemas([root, orphan, true])
+
+    t.assert.deepStrictEqual(Object.fromEntries(anchors), {
+      'http://example.com/root.json#escaped': 'http://example.com/root.json#/definitions/a~1b',
+      'http://example.com/root.json#twice': 'http://example.com/root.json#/definitions/first',
+      'http://example.com/nested.json#inner': 'http://example.com/nested.json#/properties/c'
+    })
+
+    // the anchors are removed, data and schemas without a base URI are left untouched
+    t.assert.deepStrictEqual(root.definitions.first, {})
+    t.assert.deepStrictEqual(root.definitions.empty, {})
+    t.assert.strictEqual(root.definitions.nested.$id, 'http://example.com/nested.json')
+    t.assert.deepStrictEqual(root.definitions.nested.properties.c, {})
+    t.assert.deepStrictEqual(root.enum, [{ $id: '#data' }])
+    t.assert.strictEqual(orphan.definitions.noBase.$id, '#orphan')
+  })
+
+  test('prepareSharedSchemas rewrites the refs to an anchor declared later', (t) => {
+    const schema = {
+      $id: 'http://example.com/root.json',
+      properties: {
+        a: { $ref: '#address' },
+        b: { $ref: 'http://example.com/root.json#address' },
+        c: { $ref: '#missing' }
+      },
+      definitions: { address: { $id: '#address', type: 'object' } }
+    }
+    prepareSharedSchemas([schema])
+
+    t.assert.strictEqual(schema.properties.a.$ref, 'http://example.com/root.json#/definitions/address')
+    t.assert.strictEqual(schema.properties.b.$ref, 'http://example.com/root.json#/definitions/address')
+    t.assert.strictEqual(schema.properties.c.$ref, 'http://example.com/root.json#missing')
+    t.assert.deepStrictEqual(schema.definitions.address, { type: 'object' })
+  })
+
+  test('rewriteAnchorRefs only touches the references to a known anchor', (t) => {
+    const anchors = new Map([['common#address', 'common#/definitions/foo']])
+    const responses = {
+      200: { $ref: 'common#address' },
+      404: { oneOf: [{ $ref: 'common#address' }, { $ref: 'common#unknown' }, { $ref: 42 }, null] }
+    }
+
+    t.assert.strictEqual(rewriteAnchorRefs(responses, anchors), responses)
+    t.assert.deepStrictEqual(responses, {
+      200: { $ref: 'common#/definitions/foo' },
+      404: { oneOf: [{ $ref: 'common#/definitions/foo' }, { $ref: 'common#unknown' }, { $ref: 42 }, null] }
+    })
+    t.assert.strictEqual(rewriteAnchorRefs(true, anchors), true)
+  })
+})
