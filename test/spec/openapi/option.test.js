@@ -161,6 +161,50 @@ test('openapi paths', async (t) => {
   delete openapiOption.openapi.paths // remove what we just added
 })
 
+test('openapi paths are merged with the registered routes', async (t) => {
+  t.plan(6)
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, {
+    openapi: {
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/static': {
+          post: {
+            summary: 'static route',
+            responses: { 200: { description: 'OK' } }
+          }
+        },
+        '/mixed': {
+          get: {
+            summary: 'static get',
+            responses: { 200: { description: 'OK' } }
+          },
+          post: {
+            summary: 'static post',
+            responses: { 200: { description: 'OK' } }
+          }
+        }
+      }
+    }
+  })
+
+  fastify.get('/dynamic', { schema: { summary: 'dynamic route' } }, () => {})
+  fastify.get('/mixed', { schema: { summary: 'dynamic get' } }, () => {})
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+  t.assert.deepStrictEqual(Object.keys(openapiObject.paths).sort(), ['/dynamic', '/mixed', '/static'])
+  t.assert.strictEqual(openapiObject.paths['/static'].post.summary, 'static route')
+  t.assert.strictEqual(openapiObject.paths['/dynamic'].get.summary, 'dynamic route')
+  t.assert.strictEqual(openapiObject.paths['/mixed'].post.summary, 'static post')
+  t.assert.strictEqual(openapiObject.paths['/mixed'].get.summary, 'dynamic get')
+
+  await Swagger.validate(structuredClone(openapiObject))
+  t.assert.ok(true, 'valid openapi object')
+})
+
 test('hide support when property set in transform() - property', async (t) => {
   t.plan(1)
   const fastify = Fastify()
@@ -1759,6 +1803,49 @@ test('webhooks options for openapi 3.1.0 must valid format', async (t) => {
 
   await Swagger.validate(openapiObject)
   t.assert.ok(true, 'valid swagger object')
+})
+
+test('openapi 3.2.0: $self and tag summary, parent and kind are passed through', async (t) => {
+  t.plan(3)
+  const fastify = Fastify()
+
+  const openapi32Option = {
+    openapi: {
+      openapi: '3.2.0',
+      $self: 'https://example.com/openapi.json',
+      info: {
+        title: 'Test openapi 3.2',
+        version: '1.0.0'
+      },
+      tags: [
+        { name: 'products', summary: 'Products', kind: 'nav' },
+        { name: 'books', summary: 'Books', parent: 'products', kind: 'nav' }
+      ]
+    }
+  }
+
+  await fastify.register(fastifySwagger, openapi32Option)
+
+  fastify.get('/books', { schema: { tags: ['books'] } }, () => {})
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+  t.assert.strictEqual(openapiObject.openapi, '3.2.0')
+  t.assert.strictEqual(openapiObject.$self, 'https://example.com/openapi.json')
+  t.assert.deepStrictEqual(openapiObject.tags, openapi32Option.openapi.tags)
+})
+
+test('$self is not added when it is not configured', async (t) => {
+  t.plan(1)
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, openapiOption)
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+  t.assert.strictEqual('$self' in openapiObject, false)
 })
 
 module.exports = { openapiOption }
