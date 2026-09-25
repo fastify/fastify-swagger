@@ -164,15 +164,14 @@ describe('shouldRouteHide', () => {
 
 describe('definitions', () => {
   const {
-    absolutizeLocalRefs,
-    collectAnchors,
+    prepareSharedSchemas,
     hoistDefinitions,
     rewriteAnchorRefs,
     rewriteHoistedRefs
   } = require('../lib/util/definitions')
 
-  test('absolutizeLocalRefs uses the closest non-fragment $id', (t) => {
-    const schema = absolutizeLocalRefs({
+  test('prepareSharedSchemas absolutizes the local refs using the closest non-fragment $id', (t) => {
+    const schema = {
       $id: 'http://example.com/root.json#',
       properties: {
         a: { $ref: '#/definitions/a' },
@@ -181,7 +180,8 @@ describe('definitions', () => {
         e: { $ref: 'external#' },
         f: { enum: [{ $ref: '#/not/a/schema' }], dependencies: { a: ['b'] } }
       }
-    })
+    }
+    prepareSharedSchemas([schema])
 
     t.assert.strictEqual(schema.properties.a.$ref, 'http://example.com/root.json#/definitions/a')
     t.assert.strictEqual(schema.properties.b.properties.c.$ref, 'http://example.com/root.json#')
@@ -190,9 +190,10 @@ describe('definitions', () => {
     t.assert.strictEqual(schema.properties.f.enum[0].$ref, '#/not/a/schema')
   })
 
-  test('absolutizeLocalRefs ignores schemas without $id', (t) => {
-    t.assert.deepStrictEqual(absolutizeLocalRefs({ $ref: '#/definitions/a' }), { $ref: '#/definitions/a' })
-    t.assert.strictEqual(absolutizeLocalRefs(true), true)
+  test('prepareSharedSchemas ignores schemas without $id', (t) => {
+    const schema = { $ref: '#/definitions/a' }
+    t.assert.deepStrictEqual(prepareSharedSchemas([schema, true]), new Map())
+    t.assert.deepStrictEqual(schema, { $ref: '#/definitions/a' })
   })
 
   test('hoistDefinitions escapes the JSON pointer tokens', (t) => {
@@ -244,7 +245,7 @@ describe('definitions', () => {
     t.assert.deepStrictEqual(untouched, { $ref: '#/definitions/a/definitions/b' })
   })
 
-  test('collectAnchors maps the anchors to the JSON pointer of their schema resource', (t) => {
+  test('prepareSharedSchemas maps the anchors to the JSON pointer of their schema resource', (t) => {
     const orphan = { definitions: { noBase: { $id: '#orphan' } } }
     const root = {
       $id: 'http://example.com/root.json',
@@ -260,7 +261,7 @@ describe('definitions', () => {
       },
       enum: [{ $id: '#data' }]
     }
-    const anchors = collectAnchors([root, orphan, true])
+    const anchors = prepareSharedSchemas([root, orphan, true])
 
     t.assert.deepStrictEqual(Object.fromEntries(anchors), {
       'http://example.com/root.json#escaped': 'http://example.com/root.json#/definitions/a~1b',
@@ -275,6 +276,24 @@ describe('definitions', () => {
     t.assert.deepStrictEqual(root.definitions.nested.properties.c, {})
     t.assert.deepStrictEqual(root.enum, [{ $id: '#data' }])
     t.assert.strictEqual(orphan.definitions.noBase.$id, '#orphan')
+  })
+
+  test('prepareSharedSchemas rewrites the refs to an anchor declared later', (t) => {
+    const schema = {
+      $id: 'http://example.com/root.json',
+      properties: {
+        a: { $ref: '#address' },
+        b: { $ref: 'http://example.com/root.json#address' },
+        c: { $ref: '#missing' }
+      },
+      definitions: { address: { $id: '#address', type: 'object' } }
+    }
+    prepareSharedSchemas([schema])
+
+    t.assert.strictEqual(schema.properties.a.$ref, 'http://example.com/root.json#/definitions/address')
+    t.assert.strictEqual(schema.properties.b.$ref, 'http://example.com/root.json#/definitions/address')
+    t.assert.strictEqual(schema.properties.c.$ref, 'http://example.com/root.json#missing')
+    t.assert.deepStrictEqual(schema.definitions.address, { type: 'object' })
   })
 
   test('rewriteAnchorRefs only touches the references to a known anchor', (t) => {
