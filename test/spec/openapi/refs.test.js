@@ -606,6 +606,30 @@ test('should return only ref if defs and ref is defined', async (t) => {
   await Swagger.validate(openapiObject)
 })
 
+// https://github.com/fastify/fastify-swagger/issues/791
+test('openapi: support querystring $ref to the definitions of a shared schema', async (t) => {
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, { openapi: {} })
+
+  fastify.addSchema({
+    $id: 'shared',
+    type: 'object',
+    definitions: {
+      genericQuery: {
+        type: 'object',
+        properties: { order: { type: 'string' }, limit: { type: 'number' } }
+      }
+    }
+  })
+  fastify.get('/', { schema: { querystring: { $ref: 'shared#/definitions/genericQuery' } } }, () => {})
+
+  await fastify.ready()
+
+  const document = fastify.swagger()
+  await Swagger.validate(JSON.parse(JSON.stringify(document)))
+  t.assert.deepStrictEqual(document.paths['/'].get.parameters.map((p) => p.name), ['order', 'limit'])
+})
+
 // https://github.com/fastify/fastify-swagger/issues/639
 const definitionsCases = [
   ['openapi', { openapi: {} }, (document) => document.components.schemas, '#/components/schemas/']
