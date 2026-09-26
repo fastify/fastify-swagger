@@ -615,13 +615,13 @@ test('openapi: support querystring $ref to the definitions of a shared schema', 
     $id: 'shared',
     type: 'object',
     definitions: {
-      'generic/query': {
+      genericQuery: {
         type: 'object',
         properties: { order: { type: 'string' }, limit: { type: 'number' } }
       }
     }
   })
-  fastify.get('/', { schema: { querystring: { $ref: 'shared#/definitions/generic~1query' } } }, () => {})
+  fastify.get('/', { schema: { querystring: { $ref: 'shared#/definitions/genericQuery' } } }, () => {})
 
   await fastify.ready()
 
