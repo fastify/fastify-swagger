@@ -264,8 +264,7 @@ test('support $ref schema in allOf in headers', async (t) => {
   t.assert.strictEqual(responseAfterSwagger.statusCode, 200)
 })
 
-test('uses examples if has property required in body', async (t) => {
-  t.plan(3)
+test('supports properties in oneOf query schemas without explicit type', async (t) => {
   const fastify = Fastify()
 
   await fastify.register(fastifySwagger, openapiOption)
@@ -301,11 +300,25 @@ test('uses examples if has property required in body', async (t) => {
   await fastify.ready()
 
   const openapiObject = fastify.swagger()
-  const schema = openapiObject.paths['/'].get
+  await Swagger.validate(openapiObject)
 
-  t.assert.ok(schema)
-  t.assert.ok(schema.parameters)
-  t.assert.deepStrictEqual(schema.parameters[0].in, 'query')
+  t.assert.deepStrictEqual(
+    openapiObject.paths['/'].get.parameters.map(parameter => parameter.name),
+    ['bar', 'foo']
+  )
+})
+
+test('supports empty query schemas', async (t) => {
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, openapiOption)
+  fastify.get('/', { schema: { query: {} } }, () => {})
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+  await Swagger.validate(openapiObject)
+  t.assert.strictEqual(openapiObject.paths['/'].get.parameters, undefined)
 })
 
 test('renders required query parameter when property is a $ref', async (t) => {
