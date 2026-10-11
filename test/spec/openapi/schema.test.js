@@ -399,6 +399,60 @@ test('support response headers', async t => {
   t.assert.strictEqual(definedPath.responses['200'].content['application/json'].schema.headers, undefined)
 })
 
+test('support response headers defined as JSON schema object with properties', async t => {
+  const opt = {
+    schema: {
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            hello: {
+              type: 'string'
+            }
+          },
+          headers: {
+            type: 'object',
+            properties: {
+              'X-WORLD': {
+                type: 'string'
+              },
+              'X-DESCRIPTION': {
+                description: 'Foo',
+                type: 'string'
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, {
+    openapi: true
+  })
+  fastify.get('/', opt, () => {})
+
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  const api = await Swagger.validate(swaggerObject)
+
+  const definedPath = api.paths['/'].get
+  t.assert.deepStrictEqual(definedPath.responses['200'].headers['X-WORLD'], {
+    schema: {
+      type: 'string'
+    }
+  })
+  t.assert.deepStrictEqual(definedPath.responses['200'].headers['X-DESCRIPTION'], {
+    description: 'Foo',
+    schema: {
+      type: 'string'
+    }
+  })
+  t.assert.strictEqual(definedPath.responses['200'].content['application/json'].schema.headers, undefined)
+})
+
 test('response: description and x-response-description', async () => {
   const description = 'description - always that of response body, sometimes also that of response as a whole'
   const responseDescription = 'description only for the response as a whole'
