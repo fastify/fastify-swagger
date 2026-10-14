@@ -166,6 +166,8 @@ describe('definitions', () => {
   const {
     prepareSharedSchemas,
     hoistDefinitions,
+    moveRefToAllOf,
+    moveRefsToAllOf,
     rewriteAnchorRefs,
     rewriteHoistedRefs
   } = require('../lib/util/definitions')
@@ -294,6 +296,20 @@ describe('definitions', () => {
     t.assert.strictEqual(schema.properties.b.$ref, 'http://example.com/root.json#/definitions/address')
     t.assert.strictEqual(schema.properties.c.$ref, 'http://example.com/root.json#missing')
     t.assert.deepStrictEqual(schema.definitions.address, { type: 'object' })
+  })
+
+  test('moveRefToAllOf moves a $ref with other keywords into an allOf', (t) => {
+    t.assert.deepStrictEqual(moveRefToAllOf({ $ref: 'a', title: 'A' }), { title: 'A', allOf: [{ $ref: 'a' }] })
+    t.assert.deepStrictEqual(moveRefToAllOf({ $ref: 'a', allOf: [{ $ref: 'b' }] }), { allOf: [{ $ref: 'a' }, { $ref: 'b' }] })
+    t.assert.deepStrictEqual(moveRefToAllOf({ $ref: 'a', $id: 'b', $schema: 'c', definitions: {}, $defs: {} }), { $ref: 'a', $id: 'b', $schema: 'c', definitions: {}, $defs: {} })
+    t.assert.deepStrictEqual(moveRefToAllOf({ title: 'A' }), { title: 'A' })
+  })
+
+  test('moveRefsToAllOf moves the $refs of the subschemas', (t) => {
+    const schema = { type: 'object', properties: { a: { $ref: 'a', description: 'A' }, b: { $ref: 'b' } } }
+
+    t.assert.strictEqual(moveRefsToAllOf(schema), schema)
+    t.assert.deepStrictEqual(schema, { type: 'object', properties: { a: { description: 'A', allOf: [{ $ref: 'a' }] }, b: { $ref: 'b' } } })
   })
 
   test('rewriteAnchorRefs only touches the references to a known anchor', (t) => {
