@@ -2145,6 +2145,50 @@ test('openapi 3.0 is the default: `type: null` is converted when no version is s
   }
 })
 
+test('openapi 3.0: numeric `exclusiveMinimum`/`exclusiveMaximum` are converted to booleans', async (t) => {
+  const cases = [
+    [{ type: 'integer', exclusiveMinimum: 0 }, { type: 'integer', minimum: 0, exclusiveMinimum: true }],
+    [{ type: 'number', exclusiveMaximum: 10 }, { type: 'number', maximum: 10, exclusiveMaximum: true }],
+    [{ type: 'number', minimum: 0, exclusiveMinimum: 5 }, { type: 'number', minimum: 5, exclusiveMinimum: true }],
+    [{ type: 'number', minimum: 5, exclusiveMinimum: 0 }, { type: 'number', minimum: 5 }],
+    [{ type: 'number', maximum: 5, exclusiveMaximum: 10 }, { type: 'number', maximum: 5 }]
+  ]
+
+  t.plan(cases.length)
+
+  for (const [input, expected] of cases) {
+    const fastify = Fastify()
+    await fastify.register(fastifySwagger, { openapi: true })
+
+    fastify.get('/', {
+      schema: { querystring: { type: 'object', properties: { value: input } } }
+    }, () => ({}))
+
+    await fastify.ready()
+
+    const openapiObject = fastify.swagger()
+    await Swagger.validate(structuredClone(openapiObject))
+
+    t.assert.deepStrictEqual(openapiObject.paths['/'].get.parameters[0].schema, expected)
+  }
+})
+
+test('openapi 3.1: numeric `exclusiveMinimum`/`exclusiveMaximum` are kept as is', async (t) => {
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, { openapi: { openapi: '3.1.0' } })
+
+  fastify.get('/', {
+    schema: { querystring: { type: 'object', properties: { value: { type: 'number', exclusiveMinimum: 0, exclusiveMaximum: 10 } } } }
+  }, () => ({}))
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+  await Swagger.validate(structuredClone(openapiObject))
+
+  t.assert.deepStrictEqual(openapiObject.paths['/'].get.parameters[0].schema, { type: 'number', exclusiveMinimum: 0, exclusiveMaximum: 10 })
+})
+
 test('openapi 3.1: `type: null` is kept as is', async (t) => {
   const cases = [
     { anyOf: [{ type: 'string' }, { type: 'null' }] },
