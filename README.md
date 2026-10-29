@@ -803,7 +803,7 @@ Depending on the schema options, you may need to change Fastify's default query 
 The default parser conforms to `collectionFormat: "multi"`.
 For `collectionFormat: "csv"`, replace the default parser with one that parses CSV values into arrays. This applies to other request parts that OpenAPI calls "parameters" and are not encoded as JSON.
 
-Different serialization `style` and `explode` can also be applied as specified [here](https://swagger.io/docs/specification/v3_0/serialization/#query).
+Different serialization `style` and `explode` can also be applied to query and path parameters as specified [here](https://swagger.io/docs/specification/v3_0/serialization/).
 
 `@fastify/swagger` supports these options as shown in this example:
 
