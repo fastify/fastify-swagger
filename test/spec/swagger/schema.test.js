@@ -788,3 +788,41 @@ test('avoid overwriting params when schema.params is provided', async t => {
     required: true
   })
 })
+
+test('swagger 2.0: numeric `exclusiveMinimum`/`exclusiveMaximum` are converted to booleans', async (t) => {
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger)
+
+  fastify.post('/', {
+    schema: {
+      querystring: {
+        type: 'object',
+        properties: {
+          page: { type: 'integer', exclusiveMinimum: 0 },
+          ids: { type: 'array', items: { type: 'integer', minimum: 5, exclusiveMinimum: 0 } }
+        }
+      },
+      body: {
+        type: 'object',
+        properties: { ratio: { type: 'number', minimum: 0, exclusiveMaximum: 1 } }
+      },
+      response: {
+        200: {
+          type: 'object',
+          properties: { score: { type: 'number', exclusiveMinimum: 0, exclusiveMaximum: 10 } }
+        }
+      }
+    }
+  }, () => ({}))
+
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  await Swagger.validate(structuredClone(swaggerObject))
+
+  const { parameters, responses } = swaggerObject.paths['/'].post
+  t.assert.deepStrictEqual(parameters.find(p => p.name === 'page'), { type: 'integer', minimum: 0, exclusiveMinimum: true, required: false, in: 'query', name: 'page' })
+  t.assert.deepStrictEqual(parameters.find(p => p.name === 'ids').items, { type: 'integer', minimum: 5 })
+  t.assert.deepStrictEqual(parameters.find(p => p.in === 'body').schema.properties.ratio, { type: 'number', minimum: 0, maximum: 1, exclusiveMaximum: true })
+  t.assert.deepStrictEqual(responses[200].schema.properties.score, { type: 'number', minimum: 0, exclusiveMinimum: true, maximum: 10, exclusiveMaximum: true })
+})
