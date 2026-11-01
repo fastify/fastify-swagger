@@ -344,4 +344,46 @@ for (const [name, option, getSchemas, prefix] of definitionsCases) {
     t.assert.deepStrictEqual(schemas['def-0'].properties.billing, { $ref: `${prefix}def-0/properties/shipping` })
     t.assert.match(JSON.stringify(document.paths['/'].post), new RegExp(`"\\$ref":"${prefix}def-0/properties/shipping"`))
   })
+
+  test(`${name}: support $ref to shared schema definitions in querystring`, async (t) => {
+    const fastify = Fastify()
+    await fastify.register(fastifySwagger, option)
+
+    fastify.addSchema({
+      $id: 'shared',
+      type: 'object',
+      definitions: {
+        genericQueryString: {
+          type: 'object',
+          properties: {
+            order: { type: 'string', description: 'Order by a specific field' },
+            limit: { type: 'number', description: 'Limit the results' }
+          }
+        }
+      }
+    })
+
+    fastify.get('/users', {
+      schema: {
+        description: 'Get all users',
+        querystring: {
+          $ref: 'shared#/definitions/genericQueryString'
+        }
+      }
+    }, () => {})
+
+    await fastify.ready()
+
+    const document = fastify.swagger()
+    await Swagger.validate(JSON.parse(JSON.stringify(document)))
+
+    const params = document.paths['/users'].get.parameters
+    t.assert.strictEqual(params.length, 2)
+    t.assert.strictEqual(params[0].name, 'order')
+    t.assert.strictEqual(params[0].in, 'query')
+    t.assert.strictEqual(params[0].description, 'Order by a specific field')
+    t.assert.strictEqual(params[1].name, 'limit')
+    t.assert.strictEqual(params[1].in, 'query')
+    t.assert.strictEqual(params[1].description, 'Limit the results')
+  })
 }
