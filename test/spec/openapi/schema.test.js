@@ -1109,6 +1109,45 @@ test('support query serialization params', async t => {
   t.assert.strictEqual(api.paths['/'].get.parameters[0].allowReserved, true)
 })
 
+test('support path serialization params', async t => {
+  const opt = {
+    schema: {
+      params: {
+        style: 'matrix',
+        explode: false,
+        type: 'object',
+        properties: {
+          id: {
+            type: 'string'
+          }
+        }
+      }
+    }
+  }
+
+  const fastify = Fastify({
+    ajv: {
+      plugins: [
+        function (ajv) {
+          ajv.addKeyword({ keyword: 'style' })
+          ajv.addKeyword({ keyword: 'explode' })
+        }
+      ]
+    }
+  })
+  await fastify.register(fastifySwagger, {
+    openapi: true
+  })
+  fastify.get('/:id', opt, () => {})
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  const api = await Swagger.validate(swaggerObject)
+  t.assert.strictEqual(api.paths['/{id}'].get.parameters[0].style, 'matrix')
+  t.assert.strictEqual(api.paths['/{id}'].get.parameters[0].explode, false)
+  t.assert.strictEqual(api.paths['/{id}'].get.parameters[0].required, true)
+})
+
 test('add default properties for url params when missing schema', async t => {
   const opt = {}
 
