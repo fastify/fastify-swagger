@@ -619,6 +619,53 @@ test('should return only ref if defs and ref is defined', async (t) => {
   await Swagger.validate(openapiObject)
 })
 
+for (const openapi of ['3.0.3', '3.1.0']) {
+  test(`${openapi}: keeps the keywords beside a $ref in an allOf`, async (t) => {
+    const fastify = Fastify()
+    await fastify.register(fastifySwagger, { openapi: { openapi } })
+
+    fastify.addSchema({ $id: 'parent', type: 'object', properties: { parent: { type: 'string' } }, required: ['parent'] })
+    fastify.addSchema({
+      $id: 'child',
+      $ref: 'parent',
+      type: 'object',
+      properties: { child: { type: 'string' } },
+      required: ['child'],
+      allOf: [{ properties: { age: { type: 'integer' } } }],
+      description: 'A child'
+    })
+    fastify.post('/', {
+      schema: {
+        body: { type: 'object', properties: { child: { $ref: 'child', description: 'The child' } } },
+        response: { 200: { $ref: 'child', $defs: { unused: { type: 'string' } } } }
+      }
+    }, () => {})
+
+    await fastify.ready()
+
+    const openapiObject = fastify.swagger()
+    await Swagger.validate(JSON.parse(JSON.stringify(openapiObject)))
+
+    t.assert.deepStrictEqual(openapiObject.components.schemas['def-1'], {
+      type: 'object',
+      properties: { child: { type: 'string' } },
+      required: ['child'],
+      // the $ref goes first, the order the keywords are listed in does not matter
+      allOf: [{ $ref: '#/components/schemas/def-0' }, { properties: { age: { type: 'integer' } } }],
+      description: 'A child',
+      title: 'child'
+    })
+
+    const { requestBody, responses } = openapiObject.paths['/'].post
+    t.assert.deepStrictEqual(requestBody.content['application/json'].schema.properties.child, {
+      description: 'The child',
+      allOf: [{ $ref: '#/components/schemas/def-1' }]
+    })
+    // the $defs beside a $ref is not a reason for an allOf
+    t.assert.deepStrictEqual(responses[200].content['application/json'].schema, { $ref: '#/components/schemas/def-1' })
+  })
+}
+
 // https://github.com/fastify/fastify-swagger/issues/639
 const definitionsCases = [
   ['openapi', { openapi: {} }, (document) => document.components.schemas, '#/components/schemas/']
