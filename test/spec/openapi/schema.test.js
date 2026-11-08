@@ -2082,6 +2082,21 @@ test('openapi 3.0: `type: null` is converted to `nullable: true`', async (t) => 
       expected: nullSchema
     },
     {
+      name: 'anyOf with null member and an enum member',
+      input: { anyOf: [{ type: 'null' }, { type: 'string', enum: ['a', 'b'] }] },
+      expected: { type: 'string', enum: ['a', 'b', null], nullable: true }
+    },
+    {
+      name: 'anyOf with null member and an enum member that lists null',
+      input: { anyOf: [{ type: 'string', enum: ['a', null] }, { type: 'null' }] },
+      expected: { type: 'string', enum: ['a', null], nullable: true }
+    },
+    {
+      name: 'type array with null and an enum without null',
+      input: { type: ['string', 'null'], enum: ['a', 'b'] },
+      expected: { type: 'string', enum: ['a', 'b'], nullable: true }
+    },
+    {
       name: 'nested in array items',
       input: { type: 'array', items: { type: ['integer', 'null'] } },
       expected: { type: 'array', items: { type: 'integer', nullable: true } }
