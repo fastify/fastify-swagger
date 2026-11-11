@@ -863,6 +863,9 @@ test('openapi: resolve the $ref nested in a shared schema used by the parameters
     instance.addSchema({ $id: 'AliasQuery', $ref: 'Query#' })
     instance.get('/', { schema: { querystring: { $ref: 'Query#' } } }, () => {})
     instance.get('/alias', { schema: { querystring: { $ref: 'AliasQuery#' } } }, () => {})
+    instance.addSchema({ $id: 'Common', type: 'object', definitions: { id: { type: 'integer' } } })
+    instance.addSchema({ $id: 'Params', type: 'object', definitions: { name: { type: 'string' } }, properties: { id: { $ref: 'Common#/definitions/id' }, name: { $ref: '#/definitions/name' } } })
+    instance.get('/:id/:name', { schema: { params: { $ref: 'Params#' } } }, () => {})
   })
 
   await fastify.ready()
@@ -871,6 +874,10 @@ test('openapi: resolve the $ref nested in a shared schema used by the parameters
   const expected = [{ in: 'query', name: 'status', required: false, schema: { $ref: '#/components/schemas/Status' } }]
   t.assert.deepStrictEqual(openapiObject.paths['/'].get.parameters, expected)
   t.assert.deepStrictEqual(openapiObject.paths['/alias'].get.parameters, expected)
+  t.assert.deepStrictEqual(openapiObject.paths['/{id}/{name}'].get.parameters, [
+    { in: 'path', name: 'id', required: true, schema: { $ref: '#/components/schemas/Common-id' } },
+    { in: 'path', name: 'name', required: true, schema: { $ref: '#/components/schemas/Params-name' } }
+  ])
 
   await Swagger.validate(openapiObject)
 })
@@ -887,5 +894,5 @@ test('openapi: throw on a circular $ref between shared schemas used by the param
 
   await fastify.ready()
 
-  t.assert.throws(() => fastify.swagger(), { message: 'Circular $ref in query schema: #/components/schemas/First' })
+  t.assert.throws(() => fastify.swagger(), { message: 'Circular $ref in query schema: #/definitions/First' })
 })
