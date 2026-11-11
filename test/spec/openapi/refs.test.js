@@ -852,3 +852,40 @@ test('openapi: support schemas with an `$id` nested in another one', async (t) =
   t.assert.deepStrictEqual(schemas['def-1'].properties, { leaf: { $ref: '#/components/schemas/def-2' }, leaves: { type: 'array', items: { $ref: '#/components/schemas/def-2' } } })
   t.assert.deepStrictEqual(schemas['def-2'].properties, { shared: { $ref: '#/components/schemas/def-0' } })
 })
+
+test('openapi: resolve the $ref nested in a shared schema used by the parameters', async (t) => {
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, openapiOption)
+  fastify.register(async (instance) => {
+    instance.addSchema({ $id: 'Status', type: 'string', enum: ['open', 'closed'] })
+    instance.addSchema({ $id: 'Query', type: 'object', properties: { status: { $ref: 'Status#' } } })
+    instance.addSchema({ $id: 'AliasQuery', $ref: 'Query#' })
+    instance.get('/', { schema: { querystring: { $ref: 'Query#' } } }, () => {})
+    instance.get('/alias', { schema: { querystring: { $ref: 'AliasQuery#' } } }, () => {})
+  })
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+  const expected = [{ in: 'query', name: 'status', required: false, schema: { $ref: '#/components/schemas/Status' } }]
+  t.assert.deepStrictEqual(openapiObject.paths['/'].get.parameters, expected)
+  t.assert.deepStrictEqual(openapiObject.paths['/alias'].get.parameters, expected)
+
+  await Swagger.validate(openapiObject)
+})
+
+test('openapi: throw on a circular $ref between shared schemas used by the parameters', async (t) => {
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, openapiOption)
+  fastify.register(async (instance) => {
+    instance.addSchema({ $id: 'First', $ref: 'Second#' })
+    instance.addSchema({ $id: 'Second', $ref: 'First#' })
+    instance.get('/', { schema: { querystring: { $ref: 'First#' } } }, () => {})
+  })
+
+  await fastify.ready()
+
+  t.assert.throws(() => fastify.swagger(), { message: 'Circular $ref in query schema: #/components/schemas/First' })
+})
