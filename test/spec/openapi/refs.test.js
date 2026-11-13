@@ -896,3 +896,62 @@ test('openapi: throw on a circular $ref between shared schemas used by the param
 
   t.assert.throws(() => fastify.swagger(), { message: 'Circular $ref in query schema: #/definitions/First' })
 })
+
+test('openapi: resolve an allOf referencing a shared schema with an absolute $id in the parameters', async (t) => {
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, { openapi: {} })
+  fastify.register(async (instance) => {
+    instance.addSchema({ $id: 'https://example.com/schemas/page-query.schema.json', type: 'object', properties: { skip: { type: 'integer' } } })
+    instance.addSchema({
+      $id: 'search-query',
+      type: 'object',
+      allOf: [
+        { $ref: 'https://example.com/schemas/page-query.schema.json#' },
+        { type: 'object', properties: { q: { type: 'string' } } }
+      ]
+    })
+    instance.get('/search', { schema: { querystring: { $ref: 'search-query#' } } }, () => {})
+  })
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+  t.assert.deepStrictEqual(openapiObject.paths['/search'].get.parameters, [
+    { in: 'query', name: 'skip', required: false, schema: { type: 'integer' } },
+    { in: 'query', name: 'q', required: false, schema: { type: 'string' } }
+  ])
+
+  await Swagger.validate(openapiObject)
+})
+
+test('openapi: resolve the shared schemas reached through the allOf of the parameters', async (t) => {
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, openapiOption)
+  fastify.register(async (instance) => {
+    instance.addSchema({ $id: 'Sort', type: 'string', enum: ['asc', 'desc'] })
+    instance.addSchema({ $id: 'Page', type: 'object', properties: { sort: { $ref: 'Sort#' } } })
+    instance.addSchema({ $id: 'Search', type: 'object', allOf: [{ $ref: 'Page#' }, { type: 'object', properties: { q: { type: 'string' } } }] })
+    instance.get('/deep', { schema: { querystring: { $ref: 'Search#' } } }, () => {})
+    instance.addSchema({ $id: 'Base', type: 'object', properties: { skip: { type: 'integer' } } })
+    instance.addSchema({ $id: 'Alias', $ref: 'Base#' })
+    instance.addSchema({ $id: 'Wrap', type: 'object', allOf: [{ $ref: 'Alias#' }] })
+    instance.get('/wrap', { schema: { querystring: { $ref: 'Wrap#' } } }, () => {})
+    // the same shared schema can be referenced more than once
+    instance.get('/twice', { schema: { querystring: { type: 'object', anyOf: [{ $ref: 'Base#' }, { $ref: 'Alias#' }] } } }, () => {})
+  })
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+  t.assert.deepStrictEqual(openapiObject.paths['/deep'].get.parameters, [
+    { in: 'query', name: 'sort', required: false, schema: { $ref: '#/components/schemas/Sort' } },
+    { in: 'query', name: 'q', required: false, schema: { type: 'string' } }
+  ])
+  const skip = [{ in: 'query', name: 'skip', required: false, schema: { type: 'integer' } }]
+  t.assert.deepStrictEqual(openapiObject.paths['/wrap'].get.parameters, skip)
+  t.assert.deepStrictEqual(openapiObject.paths['/twice'].get.parameters, skip)
+
+  await Swagger.validate(openapiObject)
+})
