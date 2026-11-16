@@ -163,6 +163,50 @@ test('renders $ref schema with enum in headers', async (t) => {
   )
 })
 
+// https://github.com/fastify/fastify-swagger/issues/791
+test('swagger: support querystring $ref to the definitions of a shared schema', async (t) => {
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, { swagger: {} })
+
+  fastify.addSchema({
+    $id: 'shared',
+    type: 'object',
+    definitions: {
+      genericQuery: {
+        type: 'object',
+        properties: { order: { type: 'string' }, limit: { type: 'number' } }
+      }
+    }
+  })
+  fastify.get('/', { schema: { querystring: { $ref: 'shared#/definitions/genericQuery' } } }, () => {})
+
+  await fastify.ready()
+
+  const document = fastify.swagger()
+  await Swagger.validate(JSON.parse(JSON.stringify(document)))
+  t.assert.deepStrictEqual(document.paths['/'].get.parameters.map((p) => p.name), ['order', 'limit'])
+})
+
+test('swagger: resolve the $ref nested in a shared schema used by the parameters', async (t) => {
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, { swagger: {} })
+
+  fastify.addSchema({ $id: 'Status', type: 'string', enum: ['open', 'closed'] })
+  fastify.addSchema({ $id: 'Query', type: 'object', properties: { status: { $ref: 'Status#' } } })
+  fastify.addSchema({ $id: 'AliasQuery', $ref: 'Query#' })
+  fastify.get('/', { schema: { querystring: { $ref: 'Query#' } } }, () => {})
+  fastify.get('/alias', { schema: { querystring: { $ref: 'AliasQuery#' } } }, () => {})
+
+  await fastify.ready()
+
+  const document = fastify.swagger()
+  for (const url of ['/', '/alias']) {
+    const parameters = document.paths[url].get.parameters
+    t.assert.deepStrictEqual(parameters.map((p) => p.name), ['status'])
+    t.assert.strictEqual(parameters[0].$ref, '#/definitions/def-0')
+  }
+})
+
 // https://github.com/fastify/fastify-swagger/issues/639
 const definitionsCases = [
   ['swagger', { swagger: {} }, (document) => document.definitions, '#/definitions/']
