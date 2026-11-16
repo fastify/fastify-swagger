@@ -897,6 +897,21 @@ test('openapi: throw on a circular $ref between shared schemas used by the param
   t.assert.throws(() => fastify.swagger(), { message: 'Circular $ref in query schema: #/definitions/First' })
 })
 
+test('openapi: throw on a circular $ref going through the allOf of the parameters', async (t) => {
+  const fastify = Fastify()
+
+  await fastify.register(fastifySwagger, openapiOption)
+  fastify.register(async (instance) => {
+    instance.addSchema({ $id: 'First', type: 'object', allOf: [{ $ref: 'Second#' }] })
+    instance.addSchema({ $id: 'Second', type: 'object', allOf: [{ $ref: 'First#' }] })
+    instance.get('/', { schema: { querystring: { $ref: 'First#' } } }, () => {})
+  })
+
+  await fastify.ready()
+
+  t.assert.throws(() => fastify.swagger(), { message: 'Circular $ref in query schema: #/definitions/First' })
+})
+
 test('openapi: resolve an allOf referencing a shared schema with an absolute $id in the parameters', async (t) => {
   const fastify = Fastify()
 
