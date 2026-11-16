@@ -591,6 +591,33 @@ test('parameter & header examples', async t => {
     }))
     t.assert.ok(parameters.every(param => !Object.hasOwn(param, 'example')))
   })
+  await t.test('uses .example in nested parameter schemas', async t => {
+    t.plan(4)
+    const fastify = Fastify()
+    await fastify.register(fastifySwagger, openapiOption)
+    const querystring = {
+      type: 'object',
+      properties: {
+        tags: {
+          type: 'array',
+          items: {
+            type: 'string',
+            examples: ['alpha', 'beta']
+          }
+        }
+      }
+    }
+    fastify.get('/', { schema: { querystring } }, () => {})
+    await fastify.ready()
+    const openapiObject = fastify.swagger()
+    await Swagger.validate(structuredClone(openapiObject))
+    t.assert.ok(true, 'valid openapi document')
+
+    const paramSchema = openapiObject.paths['/'].get.parameters[0].schema
+    t.assert.strictEqual(paramSchema.items.examples, undefined)
+    t.assert.strictEqual(paramSchema.items.example, 'alpha')
+    t.assert.strictEqual(openapiObject.paths['/'].get.parameters[0].example, undefined)
+  })
 })
 
 test('request body examples', async t => {
@@ -996,6 +1023,163 @@ test('request body examples', async t => {
     t.assert.strictEqual(content.examples, undefined)
     t.assert.strictEqual(schema.properties.deep.examples, undefined)
     t.assert.deepStrictEqual(schema.properties.deep.example, { hello: 'world' })
+  })
+
+  await t.test('resolves examples inside additionalProperties and preserves a property named examples', async t => {
+    t.plan(7)
+    const fastify = Fastify()
+    await fastify.register(fastifySwagger, openapiOption)
+    const body = {
+      type: 'object',
+      additionalProperties: {
+        type: 'object',
+        examples: [{ field: 'val', examples: 'prop-val' }],
+        properties: {
+          field: { type: 'string', examples: ['val'] },
+          examples: { type: 'string', examples: ['prop-val'] }
+        }
+      }
+    }
+    fastify.post('/', { schema: { body } }, () => {})
+    await fastify.ready()
+    const openapiObject = fastify.swagger()
+    await Swagger.validate(structuredClone(openapiObject))
+    t.assert.ok(true, 'valid openapi document')
+
+    const addl = openapiObject.paths['/'].post.requestBody.content['application/json'].schema.additionalProperties
+    t.assert.strictEqual(addl.examples, undefined)
+    t.assert.deepStrictEqual(addl.example, { field: 'val', examples: 'prop-val' })
+    t.assert.strictEqual(addl.properties.field.examples, undefined)
+    t.assert.strictEqual(addl.properties.field.example, 'val')
+    t.assert.strictEqual(addl.properties.examples.examples, undefined)
+    t.assert.strictEqual(addl.properties.examples.example, 'prop-val')
+  })
+
+  await t.test('resolves examples inside patternProperties', async t => {
+    t.plan(4)
+    const fastify = Fastify()
+    await fastify.register(fastifySwagger, openapiOption)
+    const body = {
+      type: 'object',
+      patternProperties: {
+        '^x-': {
+          type: 'string',
+          examples: ['custom-a', 'custom-b']
+        }
+      }
+    }
+    fastify.post('/', { schema: { body } }, () => {})
+    await fastify.ready()
+    const openapiObject = fastify.swagger()
+    await Swagger.validate(structuredClone(openapiObject))
+    t.assert.ok(true, 'valid openapi document')
+
+    const addl = openapiObject.paths['/'].post.requestBody.content['application/json'].schema.additionalProperties
+    t.assert.strictEqual(addl.examples, undefined)
+    t.assert.strictEqual(addl.example, 'custom-a')
+    t.assert.strictEqual(openapiObject.paths['/'].post.requestBody.content['application/json'].schema.patternProperties, undefined)
+  })
+
+  await t.test('resolves examples inside tuple items, additionalItems, prefixItems, and untyped schemas', async t => {
+    t.plan(9)
+    const fastify = Fastify({ ajv: { customOptions: { strict: false } } })
+    await fastify.register(fastifySwagger, { openapi: { openapi: '3.1.0' } })
+    const body = {
+      prefixItems: [
+        { type: 'string', examples: ['first'] }
+      ],
+      items: [
+        { type: 'string', examples: ['tuple-0'] },
+        { type: 'integer', examples: [42] }
+      ],
+      additionalItems: { type: 'boolean', examples: [true] },
+      unevaluatedItems: { type: 'string', examples: ['extra-item'] }
+    }
+    fastify.post('/tuple31', { schema: { body } }, () => {})
+
+    const fastify30 = Fastify({ ajv: { customOptions: { strict: false } } })
+    await fastify30.register(fastifySwagger, openapiOption)
+    fastify30.post('/tuple30', {
+      schema: {
+        body: {
+          type: 'array',
+          items: [
+            { type: 'string', examples: ['tuple-0'] }
+          ],
+          additionalItems: { type: 'integer', examples: [7] },
+          unevaluatedItems: { type: 'string', examples: ['extra-30'] }
+        }
+      }
+    }, () => {})
+
+    await fastify.ready()
+    await fastify30.ready()
+
+    const doc31 = fastify.swagger()
+    const schema31 = doc31.paths['/tuple31'].post.requestBody.content['application/json'].schema
+    t.assert.deepStrictEqual(schema31.prefixItems[0].examples, ['first'])
+    t.assert.deepStrictEqual(schema31.items[0].examples, ['tuple-0'])
+    t.assert.deepStrictEqual(schema31.additionalItems.examples, [true])
+    t.assert.deepStrictEqual(schema31.unevaluatedItems.examples, ['extra-item'])
+
+    const doc30 = fastify30.swagger()
+    const schema30 = doc30.paths['/tuple30'].post.requestBody.content['application/json'].schema
+    t.assert.strictEqual(schema30.items[0].example, 'tuple-0')
+    t.assert.strictEqual(schema30.items[0].examples, undefined)
+    t.assert.strictEqual(schema30.additionalItems.example, 7)
+    t.assert.strictEqual(schema30.additionalItems.examples, undefined)
+    t.assert.strictEqual(schema30.unevaluatedItems.example, 'extra-30')
+  })
+
+  await t.test('resolves examples inside combinators, conditionals, propertyNames, and dependencies without explicit type', async t => {
+    t.plan(14)
+    const fastify = Fastify({ ajv: { customOptions: { strict: false } } })
+    await fastify.register(fastifySwagger, openapiOption)
+    fastify.addSchema({
+      $id: 'UnionShared',
+      anyOf: [
+        { type: 'object', additionalProperties: { type: 'string', examples: ['map-val'] } },
+        { type: 'string', examples: ['shared-str'] }
+      ]
+    })
+    const body = {
+      allOf: [{ properties: { a: { type: 'string', examples: ['a1'] } } }],
+      anyOf: [{ properties: { b: { type: 'integer', examples: [2] } } }],
+      oneOf: [{ properties: { c: { type: 'boolean', examples: [true] } } }],
+      not: { type: 'string', examples: ['forbidden'] },
+      if: { properties: { kind: { type: 'string', examples: ['k'] } } },
+      then: { properties: { val: { type: 'number', examples: [1.5] } } },
+      else: { properties: { val: { type: 'string', examples: ['fallback'] } } },
+      propertyNames: { type: 'string', examples: ['keyName'] },
+      unevaluatedProperties: { type: 'string', examples: ['extra-prop'] },
+      dependencies: {
+        a: ['b'],
+        kind: { properties: { extra: { type: 'string', examples: ['dep-val'] } } }
+      },
+      dependentSchemas: {
+        b: { properties: { dep2: { type: 'string', examples: ['dep2-val'] } } }
+      }
+    }
+    fastify.post('/', { schema: { body, response: { 200: { $ref: 'UnionShared#' } } } }, () => {})
+    await fastify.ready()
+    const openapiObject = fastify.swagger()
+    const schema = openapiObject.paths['/'].post.requestBody.content['application/json'].schema
+    const sharedSchema = openapiObject.components.schemas['def-0']
+
+    t.assert.strictEqual(schema.allOf[0].properties.a.example, 'a1')
+    t.assert.strictEqual(schema.anyOf[0].properties.b.example, 2)
+    t.assert.strictEqual(schema.oneOf[0].properties.c.example, true)
+    t.assert.strictEqual(schema.not.example, 'forbidden')
+    t.assert.strictEqual(schema.if.properties.kind.example, 'k')
+    t.assert.strictEqual(schema.then.properties.val.example, 1.5)
+    t.assert.strictEqual(schema.else.properties.val.example, 'fallback')
+    t.assert.strictEqual(schema.propertyNames.example, 'keyName')
+    t.assert.strictEqual(schema.unevaluatedProperties.example, 'extra-prop')
+    t.assert.deepStrictEqual(schema.dependencies.a, ['b'])
+    t.assert.strictEqual(schema.dependencies.kind.properties.extra.example, 'dep-val')
+    t.assert.strictEqual(schema.dependentSchemas.b.properties.dep2.example, 'dep2-val')
+    t.assert.strictEqual(sharedSchema.anyOf[0].additionalProperties.example, 'map-val')
+    t.assert.strictEqual(sharedSchema.anyOf[1].example, 'shared-str')
   })
 })
 
