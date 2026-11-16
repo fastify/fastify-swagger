@@ -2430,3 +2430,73 @@ test('openapi 3.1: `examples` array is kept in nested schemas', async (t) => {
     properties: { x: { type: 'integer', examples: [1, 2] } }
   })
 })
+
+test('support empty content in body and response without throwing', async (t) => {
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, { openapi: true })
+
+  fastify.post('/', {
+    schema: {
+      body: { content: {} },
+      response: {
+        200: { content: {} }
+      }
+    }
+  }, async () => ({}))
+
+  await fastify.ready()
+  const openapiObject = fastify.swagger()
+  t.assert.deepStrictEqual(openapiObject.paths['/'].post.requestBody.content, {})
+  t.assert.deepStrictEqual(openapiObject.paths['/'].post.responses['200'].content, {})
+})
+
+test('support media entries without schema in body and response via transform', async (t) => {
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, {
+    openapi: true,
+    transform: ({ schema, url }) => {
+      return {
+        schema: {
+          ...schema,
+          body: {
+            content: {
+              'application/octet-stream': {},
+              'application/json': {
+                schema: { type: 'object', properties: { hello: { type: 'string' } } },
+                example: { hello: 'world' }
+              }
+            }
+          },
+          response: {
+            200: {
+              content: {
+                'text/plain': { example: 'ok' },
+                'application/json': {
+                  schema: { type: 'string', examples: ['sample'] }
+                }
+              }
+            }
+          }
+        },
+        url
+      }
+    }
+  })
+
+  fastify.post('/', async () => ({}))
+
+  await fastify.ready()
+  const openapiObject = fastify.swagger()
+  const reqContent = openapiObject.paths['/'].post.requestBody.content
+  t.assert.deepStrictEqual(reqContent['application/octet-stream'], {})
+  t.assert.deepStrictEqual(reqContent['application/json'].example, { hello: 'world' })
+  t.assert.deepStrictEqual(reqContent['application/json'].schema, {
+    type: 'object',
+    properties: { hello: { type: 'string' } }
+  })
+
+  const resContent = openapiObject.paths['/'].post.responses['200'].content
+  t.assert.deepStrictEqual(resContent['text/plain'], { example: 'ok' })
+  t.assert.deepStrictEqual(resContent['application/json'].example, 'sample')
+  t.assert.deepStrictEqual(resContent['application/json'].schema, { type: 'string' })
+})
