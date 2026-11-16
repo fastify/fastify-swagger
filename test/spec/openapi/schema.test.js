@@ -1348,6 +1348,160 @@ test('support multiple content types as request', async t => {
   })
 })
 
+test('support empty content objects in request body and response', async t => {
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, { openapi: true })
+  fastify.post('/', {
+    schema: {
+      body: { content: {} },
+      response: { 200: { content: {} } }
+    }
+  }, () => ({}))
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  const api = await Swagger.validate(swaggerObject)
+
+  const definedPath = api.paths['/'].post
+  t.assert.deepStrictEqual(definedPath.requestBody, {
+    required: true,
+    content: {}
+  })
+  t.assert.deepStrictEqual(definedPath.responses['200'], {
+    description: 'Default Response',
+    content: {}
+  })
+})
+
+test('support content entries without schema and resolve examples inside content schemas', async t => {
+  const fastify = Fastify({
+    ajv: { customOptions: { strict: false } }
+  })
+
+  await fastify.register(fastifySwagger, {
+    openapi: true,
+    transform: ({ schema, url }) => {
+      if (url === '/transformed') {
+        return {
+          url,
+          schema: {
+            body: {
+              content: {
+                'application/octet-stream': {},
+                'application/json': {
+                  example: { existing: true },
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      nested: { type: 'string', examples: ['val'] }
+                    }
+                  }
+                }
+              }
+            },
+            response: {
+              200: {
+                content: {
+                  'text/plain': { example: 'ok' },
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        hello: { type: 'string', examples: ['world'] }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      if (url === '/null-media') {
+        return {
+          url,
+          schema: {
+            body: { content: { 'application/octet-stream': null } },
+            response: { 200: { content: { 'application/octet-stream': null } } }
+          }
+        }
+      }
+      if (url === '/non-object-content') {
+        return {
+          url,
+          schema: {
+            body: { type: 'object', content: 'ignored-non-object', properties: { a: { type: 'string' } } },
+            response: { 200: { type: 'object', content: 'ignored-non-object' } }
+          }
+        }
+      }
+      return { schema, url }
+    }
+  })
+
+  fastify.post('/', {
+    schema: {
+      response: {
+        200: {
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  hello: { type: 'string', examples: ['world'] }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }, () => ({}))
+
+  fastify.post('/transformed', {}, () => ({}))
+  fastify.post('/null-media', {}, () => ({}))
+  fastify.post('/non-object-content', {}, () => ({}))
+
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  const nonNullDoc = structuredClone(swaggerObject)
+  delete nonNullDoc.paths['/null-media']
+  delete nonNullDoc.paths['/non-object-content']
+  const api = await Swagger.validate(nonNullDoc)
+
+  const op = api.paths['/'].post
+  t.assert.deepStrictEqual(op.responses['200'].content['application/json'].schema.properties.hello, {
+    type: 'string',
+    example: 'world'
+  })
+
+  const nonObjectOp = swaggerObject.paths['/non-object-content'].post
+  t.assert.deepStrictEqual(nonObjectOp.requestBody.content['application/json'].schema.properties, {
+    a: { type: 'string' }
+  })
+  t.assert.strictEqual(nonObjectOp.responses['200'].content['application/json'].schema.type, 'object')
+
+  const transformedOp = api.paths['/transformed'].post
+  t.assert.deepStrictEqual(transformedOp.requestBody.content['application/octet-stream'], {})
+  t.assert.deepStrictEqual(transformedOp.requestBody.content['application/json'], {
+    example: { existing: true },
+    schema: {
+      type: 'object',
+      properties: {
+        nested: { type: 'string', example: 'val' }
+      }
+    }
+  })
+  t.assert.deepStrictEqual(transformedOp.responses['200'].content['text/plain'], { example: 'ok' })
+  t.assert.deepStrictEqual(transformedOp.responses['200'].content['application/json'].schema.properties.hello, {
+    type: 'string',
+    example: 'world'
+  })
+  t.assert.strictEqual(swaggerObject.paths['/null-media'].post.requestBody.content['application/octet-stream'], null)
+  t.assert.strictEqual(swaggerObject.paths['/null-media'].post.responses['200'].content['application/octet-stream'], null)
+})
+
 test('support callbacks', async () => {
   await test('includes callbacks in openapiObject', async t => {
     const fastify = Fastify()
