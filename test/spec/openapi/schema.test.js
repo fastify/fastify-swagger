@@ -2430,3 +2430,107 @@ test('openapi 3.1: `examples` array is kept in nested schemas', async (t) => {
     properties: { x: { type: 'integer', examples: [1, 2] } }
   })
 })
+
+test('additionalProperties with subschema converts examples without deleting properties.examples', async (t) => {
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, { openapi: true })
+
+  fastify.post('/repro', {
+    schema: {
+      body: {
+        type: 'object',
+        additionalProperties: {
+          type: 'object',
+          examples: [{ foo: 'bar', examples: 'x' }],
+          properties: {
+            foo: { type: 'string', examples: ['bar'] },
+            examples: { type: 'string', examples: ['baz'] }
+          }
+        }
+      }
+    }
+  }, () => ({}))
+
+  await fastify.ready()
+  const doc = fastify.swagger()
+  await Swagger.validate(structuredClone(doc))
+
+  const schema = doc.paths['/repro'].post.requestBody.content['application/json'].schema
+  t.assert.deepStrictEqual(schema.additionalProperties.example, { foo: 'bar', examples: 'x' })
+  t.assert.strictEqual(schema.additionalProperties.examples, undefined)
+  t.assert.deepStrictEqual(schema.additionalProperties.properties.foo, { type: 'string', example: 'bar' })
+  t.assert.deepStrictEqual(schema.additionalProperties.properties.examples, { type: 'string', example: 'baz' })
+})
+
+test('converts examples recursively in combinators and query parameters', async (t) => {
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, { openapi: true })
+
+  fastify.get('/combinators', {
+    schema: {
+      querystring: {
+        type: 'object',
+        properties: {
+          tags: {
+            type: 'array',
+            items: { type: 'string', examples: ['fastify'] }
+          }
+        }
+      },
+      response: {
+        200: {
+          oneOf: [
+            {
+              type: 'object',
+              properties: {
+                id: { type: 'integer', examples: [123] }
+              }
+            },
+            {
+              type: 'array',
+              items: { type: 'string', examples: ['first'] }
+            }
+          ]
+        }
+      }
+    }
+  }, () => ({}))
+
+  await fastify.ready()
+  const doc = fastify.swagger()
+  await Swagger.validate(structuredClone(doc))
+
+  const queryParam = doc.paths['/combinators'].get.parameters.find(p => p.name === 'tags')
+  t.assert.deepStrictEqual(queryParam.schema.items, { type: 'string', example: 'fastify' })
+
+  const resSchema = doc.paths['/combinators'].get.responses['200'].content['application/json'].schema
+  t.assert.deepStrictEqual(resSchema.oneOf[0].properties.id, { type: 'integer', example: 123 })
+  t.assert.deepStrictEqual(resSchema.oneOf[1].items, { type: 'string', example: 'first' })
+})
+
+test('openapi 3.1: converts examples in prefixItems tuple schemas', async (t) => {
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, { openapi: { openapi: '3.1.0' } })
+
+  fastify.get('/tuples', {
+    schema: {
+      response: {
+        200: {
+          type: 'array',
+          prefixItems: [
+            { type: 'string', examples: ['hello'] },
+            { type: 'integer', examples: [42] }
+          ]
+        }
+      }
+    }
+  }, () => ({}))
+
+  await fastify.ready()
+  const doc = fastify.swagger()
+  await Swagger.validate(structuredClone(doc))
+
+  const resSchema = doc.paths['/tuples'].get.responses['200'].content['application/json'].schema
+  t.assert.deepStrictEqual(resSchema.prefixItems[0], { type: 'string', examples: ['hello'] })
+  t.assert.deepStrictEqual(resSchema.prefixItems[1], { type: 'integer', examples: [42] })
+})
