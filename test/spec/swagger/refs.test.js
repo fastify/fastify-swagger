@@ -163,6 +163,37 @@ test('renders $ref schema with enum in headers', async (t) => {
   )
 })
 
+test('keeps the keywords beside a $ref in an allOf', async (t) => {
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, { swagger: {} })
+
+  fastify.addSchema({ $id: 'parent', type: 'object', properties: { parent: { type: 'string' } }, required: ['parent'] })
+  fastify.addSchema({ $id: 'child', $ref: 'parent', type: 'object', properties: { child: { type: 'string' } }, required: ['child'] })
+  fastify.post('/', {
+    schema: {
+      body: { type: 'object', properties: { child: { $ref: 'child', description: 'The child' } } },
+      response: { 200: { $ref: 'child', description: 'The child' } }
+    }
+  }, () => {})
+
+  await fastify.ready()
+
+  const swaggerObject = fastify.swagger()
+  await Swagger.validate(JSON.parse(JSON.stringify(swaggerObject)))
+
+  t.assert.deepStrictEqual(swaggerObject.definitions['def-1'], {
+    type: 'object',
+    properties: { child: { type: 'string' } },
+    required: ['child'],
+    title: 'child',
+    allOf: [{ $ref: '#/definitions/def-0' }]
+  })
+
+  const { parameters, responses } = swaggerObject.paths['/'].post
+  t.assert.deepStrictEqual(parameters[0].schema.properties.child, { description: 'The child', allOf: [{ $ref: '#/definitions/def-1' }] })
+  t.assert.deepStrictEqual(responses[200].schema, { description: 'The child', allOf: [{ $ref: '#/definitions/def-1' }] })
+})
+
 // https://github.com/fastify/fastify-swagger/issues/639
 const definitionsCases = [
   ['swagger', { swagger: {} }, (document) => document.definitions, '#/definitions/']
