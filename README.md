@@ -717,6 +717,32 @@ Specify the `type` property when decorating response headers to prevent schema m
 }
 ```
 
+Response headers can also be declared using standard JSON Schema or TypeBox object structures containing `properties`:
+
+```js
+{
+  response: {
+    200: {
+      type: 'object',
+      properties: {
+        id: { type: 'string' }
+      },
+      headers: {
+        type: 'object',
+        properties: {
+          'X-Total-Count': {
+            type: 'integer',
+            description: 'Total number of items'
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+In OpenAPI 3.0/3.1 specifications, response `headers` are mapped as key-value maps of Header Objects (with `schema` and optional `description`). When `headers` is passed as a top-level schema object with `properties`, `@fastify/swagger` unwraps the nested properties to populate the response headers map.
+
 <a name="route.response.empty_body"></a>
 ##### Different content types responses
 > ℹ️ Note: Supported [only by OpenAPI v3](https://swagger.io/docs/specification/v3_0/describing-responses/), not Swagger (OpenAPI v2).
