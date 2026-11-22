@@ -2495,3 +2495,48 @@ test('support empty content and media entries without schema', async t => {
   t.assert.deepStrictEqual(schemalessPath.responses['200'].content['application/octet-stream'], {})
   t.assert.deepStrictEqual(schemalessPath.responses['200'].content['text/plain'], { example: 'ok' })
 })
+
+test('explicit media-level example is preserved and not overwritten by schema examples', async t => {
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, {
+    openapi: true
+  })
+
+  fastify.post('/media-examples', {
+    schema: {
+      body: {
+        content: {
+          'application/json': {
+            schema: { type: 'string', examples: ['from-schema-1', 'from-schema-2'] },
+            example: 'custom-single'
+          }
+        }
+      },
+      response: {
+        200: {
+          content: {
+            'application/json': {
+              schema: { type: 'string', examples: ['from-schema'] },
+              example: 'custom-response-example'
+            }
+          }
+        }
+      }
+    }
+  }, async () => ({}))
+
+  await fastify.ready()
+
+  const openapiObject = fastify.swagger()
+  await Swagger.validate(structuredClone(openapiObject))
+
+  const route = openapiObject.paths['/media-examples'].post
+  t.assert.deepStrictEqual(route.requestBody.content['application/json'], {
+    schema: { type: 'string' },
+    example: 'custom-single'
+  })
+  t.assert.deepStrictEqual(route.responses['200'].content['application/json'], {
+    schema: { type: 'string' },
+    example: 'custom-response-example'
+  })
+})
