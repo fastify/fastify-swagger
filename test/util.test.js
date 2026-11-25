@@ -172,16 +172,98 @@ describe('resolveLocalRef', () => {
     t.assert.deepStrictEqual(resolveLocalRef({ $ref: '#/definitions/def-0/properties/a' }, { 'def-0': definition }), expected)
     t.assert.deepStrictEqual(resolveLocalRef({ $ref: '#/components/schemas/def-0' }, { 'def-0': definition }), expected)
   })
+
+  test('follows the escaped tokens of the pointer', (t) => {
+    const schemas = {
+      'def-0': {
+        type: 'object',
+        definitions: {
+          'a/b': { type: 'object', properties: { slash: { type: 'string' } } },
+          'a~b': { type: 'object', properties: { tilde: { type: 'string' } } },
+          'a~1b': { type: 'object', properties: { both: { type: 'string' } } }
+        }
+      }
+    }
+    t.assert.deepStrictEqual(Object.keys(resolveLocalRef({ $ref: '#/definitions/def-0/definitions/a~1b' }, schemas)), ['slash'])
+    t.assert.deepStrictEqual(Object.keys(resolveLocalRef({ $ref: '#/definitions/def-0/definitions/a~0b' }, schemas)), ['tilde'])
+    t.assert.deepStrictEqual(Object.keys(resolveLocalRef({ $ref: '#/definitions/def-0/definitions/a~01b' }, schemas)), ['both'])
+  })
+
+  test('reads the name of the definition from the prefix of the pointer', (t) => {
+    const schemas = {
+      schemas: { type: 'object', properties: { wrong: { type: 'string' } } },
+      components: { type: 'object', properties: { wrong: { type: 'string' } } },
+      Query: { type: 'object', properties: { right: { type: 'string' } } }
+    }
+    t.assert.deepStrictEqual(Object.keys(resolveLocalRef({ $ref: '#/components/schemas/Query' }, schemas)), ['right'])
+    t.assert.deepStrictEqual(Object.keys(resolveLocalRef({ $ref: '#/definitions/Query' }, schemas)), ['right'])
+    t.assert.deepStrictEqual(Object.keys(resolveLocalRef({ $ref: '#/definitions/schemas' }, schemas)), ['wrong'])
+  })
+
+  test('falls back to the definition when the pointer leads to a schema without parameters', (t) => {
+    const schemas = {
+      'def-0': {
+        ...definition,
+        definitions: { enum: { enum: ['a', 'b'] }, scalar: { type: 'string' }, list: [{ type: 'string' }] }
+      }
+    }
+    const expected = { a: { type: 'string', required: false } }
+    t.assert.deepStrictEqual(resolveLocalRef({ $ref: '#/definitions/def-0/definitions/enum' }, schemas), expected)
+    t.assert.deepStrictEqual(resolveLocalRef({ $ref: '#/definitions/def-0/definitions/scalar' }, schemas), expected)
+    t.assert.deepStrictEqual(resolveLocalRef({ $ref: '#/definitions/def-0/definitions/list' }, schemas), expected)
+    t.assert.deepStrictEqual(resolveLocalRef({ $ref: '#/definitions/def-0/definitions/enum/enum' }, schemas), expected)
+  })
+
+  test('does not read parameters from a schema without any', (t) => {
+    const order = { order: { type: 'string', required: false } }
+    const composed = { allOf: [{ type: 'object', properties: { order: { type: 'string' } } }, { type: 'object' }] }
+    const schemas = { 'def-0': { ...definition, definitions: { composed } }, empty: { type: 'object' } }
+
+    t.assert.deepStrictEqual(resolveLocalRef(composed, schemas), order)
+    t.assert.deepStrictEqual(resolveLocalRef({ $ref: '#/definitions/def-0/definitions/composed' }, schemas), order)
+    t.assert.deepStrictEqual(resolveLocalRef({ anyOf: [{ $ref: '#/definitions/empty' }, composed] }, schemas), order)
+    t.assert.deepStrictEqual(resolveLocalRef({ $ref: '#/definitions/empty' }, schemas), {})
+  })
+
+  test('returns a plain map of parameters as it is', (t) => {
+    const params = { a: { type: 'string' } }
+    t.assert.strictEqual(resolveLocalRef(params, {}), params)
+  })
 })
 
 describe('definitions', () => {
   const {
+    omitDefinitions,
     prepareSharedSchemas,
     hoistDefinitions,
     referenceInlineDefinitions,
     rewriteAnchorRefs,
     rewriteHoistedRefs
   } = require('../lib/util/definitions')
+
+  test('omitDefinitions removes the definitions keywords at any depth', (t) => {
+    const schema = {
+      type: 'object',
+      definitions: { a: { type: 'string' } },
+      properties: {
+        // a property named as the keyword is not a keyword
+        definitions: { type: 'array', $defs: { b: { type: 'string' } }, items: { type: 'string', definitions: {} } }
+      },
+      additionalProperties: true,
+      allOf: [{ type: 'object', $defs: {} }],
+      default: { definitions: 'data' }
+    }
+    const copy = JSON.parse(JSON.stringify(schema))
+
+    t.assert.deepStrictEqual(omitDefinitions(schema), {
+      type: 'object',
+      properties: { definitions: { type: 'array', items: { type: 'string' } } },
+      additionalProperties: true,
+      allOf: [{ type: 'object' }],
+      default: { definitions: 'data' }
+    })
+    t.assert.deepStrictEqual(schema, copy)
+  })
 
   test('prepareSharedSchemas absolutizes the local refs using the closest non-fragment $id', (t) => {
     const schema = {

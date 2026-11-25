@@ -643,6 +643,27 @@ test('openapi: support querystring $ref to the definitions of a shared schema', 
   t.assert.deepStrictEqual(document.paths['/'].get.parameters.map((p) => p.name), ['order', 'limit'])
 })
 
+test('openapi: support querystring $ref to a composed subschema of a shared schema', async (t) => {
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, { openapi: {} })
+
+  fastify.addSchema({
+    $id: 'shared',
+    type: 'object',
+    properties: { parent: { type: 'string' } },
+    definitions: {
+      composed: { allOf: [{ type: 'object', properties: { order: { type: 'string' } } }, { type: 'object' }] }
+    }
+  })
+  fastify.get('/', { schema: { querystring: { $ref: 'shared#/definitions/composed' } } }, () => {})
+
+  await fastify.ready()
+
+  const document = fastify.swagger()
+  await Swagger.validate(JSON.parse(JSON.stringify(document)))
+  t.assert.deepStrictEqual(document.paths['/'].get.parameters.map((p) => p.name), ['order'])
+})
+
 // https://github.com/fastify/fastify-swagger/issues/639
 const definitionsCases = [
   ['openapi', { openapi: {} }, (document) => document.components.schemas, '#/components/schemas/']

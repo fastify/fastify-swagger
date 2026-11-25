@@ -207,6 +207,70 @@ test('swagger: resolve the $ref nested in a shared schema used by the parameters
   }
 })
 
+test('swagger: the parameters of a shared schema do not hold the definitions keywords', async (t) => {
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, { swagger: {} })
+
+  fastify.addSchema({
+    $id: 'Query',
+    type: 'object',
+    properties: {
+      q: { type: 'string', definitions: { example: { type: 'integer' } } },
+      tags: { type: 'array', items: { type: 'string', $defs: { example: { type: 'integer' } } } }
+    }
+  })
+  fastify.get('/', { schema: { querystring: { $ref: 'Query#' } } }, () => {})
+
+  await fastify.ready()
+
+  const document = fastify.swagger()
+  await Swagger.validate(JSON.parse(JSON.stringify(document)))
+  t.assert.deepStrictEqual(document.paths['/'].get.parameters, [
+    { type: 'string', required: false, in: 'query', name: 'q' },
+    { type: 'array', items: { type: 'string' }, required: false, in: 'query', name: 'tags' }
+  ])
+})
+
+test('swagger: a querystring $ref to a subschema without parameters uses the shared schema', async (t) => {
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, { swagger: {} })
+
+  fastify.addSchema({
+    $id: 'shared',
+    type: 'object',
+    properties: { status: { type: 'string' } },
+    definitions: { status: { enum: ['open', 'closed'] } }
+  })
+  fastify.get('/', { schema: { querystring: { $ref: 'shared#/definitions/status' } } }, () => {})
+
+  await fastify.ready()
+
+  const document = fastify.swagger()
+  await Swagger.validate(JSON.parse(JSON.stringify(document)))
+  t.assert.deepStrictEqual(document.paths['/'].get.parameters.map((p) => p.name), ['status'])
+})
+
+test('swagger: support querystring $ref to a composed subschema of a shared schema', async (t) => {
+  const fastify = Fastify()
+  await fastify.register(fastifySwagger, { swagger: {} })
+
+  fastify.addSchema({
+    $id: 'shared',
+    type: 'object',
+    properties: { parent: { type: 'string' } },
+    definitions: {
+      composed: { allOf: [{ type: 'object', properties: { order: { type: 'string' } } }, { type: 'object' }] }
+    }
+  })
+  fastify.get('/', { schema: { querystring: { $ref: 'shared#/definitions/composed' } } }, () => {})
+
+  await fastify.ready()
+
+  const document = fastify.swagger()
+  await Swagger.validate(JSON.parse(JSON.stringify(document)))
+  t.assert.deepStrictEqual(document.paths['/'].get.parameters.map((p) => p.name), ['order'])
+})
+
 // https://github.com/fastify/fastify-swagger/issues/639
 const definitionsCases = [
   ['swagger', { swagger: {} }, (document) => document.definitions, '#/definitions/']
