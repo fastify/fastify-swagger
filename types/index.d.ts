@@ -30,11 +30,6 @@ declare module 'fastify' {
     ((opts?: { yaml?: false }) => OpenAPI.Document) &
     ((opts: { yaml: true }) => string) &
     ((opts: { yaml: boolean }) => OpenAPI.Document | string);
-
-    swaggerCSP: {
-      script: string[];
-      style: string[];
-    }
   }
 
   interface FastifySchema {
